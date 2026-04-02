@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Admin • Login</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/public/css/admin.css" />
+</head>
+<body>
+  <div class="adm-login-wrap">
+    <div class="adm-login-card">
+      <div class="adm-login-glow"></div>
+      <div class="adm-login-head">
+        <div class="adm-login-icon">
+          <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <h1>Admin Panel</h1>
+        <p>Área restrita. Apenas administradores.</p>
+      </div>
+      <form class="adm-login-body" method="post" autocomplete="off">
+        <% if (typeof error !== 'undefined' && error) { %>
+        <div class="adm-login-err"><%= error %></div>
+        <% } %>
+        <div class="adm-field">
+          <label>Usuário</label>
+          <input name="username" type="text" placeholder="admin" autofocus>
+        </div>
+        <div class="adm-field">
+          <label>Senha</label>
+          <input name="password" type="password" placeholder="••••••••">
+        </div>
+        <button class="adm-login-btn" type="submit">Entrar</button>
+      </form>
+    </div>
+  </div>
+</body>
+</html>

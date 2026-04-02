@@ -1,0 +1,154 @@
+/* /cassino/public/css/bonus.css */
+
+:root{
+  --bnText:#f6f6f6;
+  --bnLine: rgba(255,255,255,.08);
+  --bnGold1:#ffe39a;
+  --bnGold2:#f4c44c;
+  --bnAppMax: var(--appMax, 500px);
+}
+
+.bn-drawer{
+  position: fixed;
+  inset: 0;
+  display: none;
+  z-index: 90;
+  background: transparent;
+}
+.bn-drawer.open{ display:block; }
+
+.bn-scrim{
+  position:absolute;
+  left:0; right:0; top:0;
+  bottom: calc(78px + env(safe-area-inset-bottom, 0px));
+  background:#000;
+}
+
+.bn-panel{
+  position:absolute;
+  inset:0;
+  left:50%;
+  transform:translateX(-50%);
+  width:100%;
+  max-width: var(--bnAppMax);
+  height:100%;
+  overflow:auto;
+  -webkit-overflow-scrolling: touch;
+
+  background:
+    radial-gradient(900px 380px at 50% -120px, rgba(246,208,105,.12), transparent 60%),
+    linear-gradient(180deg, #141414 0%, #0b0b0b 60%, #0b0b0b 100%);
+
+  color: var(--bnText);
+  padding-bottom: calc(92px + env(safe-area-inset-bottom, 0px));
+}
+
+.bn-top{
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: rgba(10,10,10,.92);
+  border-bottom: 1px solid var(--bnLine);
+  backdrop-filter: blur(10px);
+  padding-top: calc(8px + env(safe-area-inset-top, 0px));
+}
+
+.bn-tabs{
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  align-items: center;
+  padding: 14px 12px 14px;
+}
+
+.bn-tab{
+  height: 34px;
+  border: 0;
+  background: transparent;
+  color: #fff;
+  font-weight: 900;
+  font-size: 16px;
+  cursor: pointer;
+  opacity: .95;
+}
+.bn-tab.active{ color:#ffd56a; }
+
+.bn-underline{
+  position:absolute;
+  left: 12px;
+  bottom: 6px;
+  width: calc((100% - 24px) / 4);
+  height: 3px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(255,227,154,1), rgba(244,196,76,1));
+  transform: translateX(0);
+  transition: transform .22s ease;
+}
+
+.bn-close{
+  position: absolute;
+  right: 10px;
+  top: calc(8px + env(safe-area-inset-top, 0px));
+  z-index: 30;
+
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(255,255,255,.08);
+  color: #fff;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+.bn-body{
+  padding: 12px 14px 18px;
+}
+
+.bn-card{
+  border-radius: 18px;
+  overflow: hidden;
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.08);
+  box-shadow: 0 16px 28px rgba(0,0,0,.40);
+  margin-bottom: 14px;
+}
+
+.bn-img{ width:100%; display:block; height:auto; }
+
+.bn-cardBody{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 12px;
+  padding: 14px 14px;
+  background: linear-gradient(180deg, rgba(0,0,0,.65), rgba(0,0,0,.92));
+}
+
+.bn-title{
+  font-weight: 950;
+  font-size: 18px;
+  color:#fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bn-btn{
+  height: 42px;
+  padding: 0 18px;
+  border-radius: 10px;
+  border: 0;
+  background: linear-gradient(180deg, rgba(255,227,154,1), rgba(244,196,76,1));
+  color: #1a1205;
+  font-weight: 950;
+  font-size: 16px;
+  cursor: pointer;
+  flex: 0 0 auto;
+}
+
+@media (max-width: 380px){
+  .bn-tab{ font-size: 14px; }
+  .bn-title{ font-size: 16px; }
+  .bn-btn{ height: 40px; font-size: 15px; }
+}

@@ -1,0 +1,86 @@
+<%- include('layout-head', { title: 'Temas', page: 'themes' }) %>
+
+<div class="adm-themes-page">
+  <div class="adm-page-head">
+    <div><h3>Gerenciador de Temas</h3><p class="adm-muted">Altere a aparência da plataforma</p></div>
+    <button class="adm-btn primary" id="btnNewTheme">+ Novo Tema</button>
+  </div>
+
+  <div class="adm-themes-grid" id="themesGrid">
+    <% themes.forEach(function(t) { %>
+    <div class="adm-theme-card<%= t.slug === activeTheme ? ' active' : '' %>" data-slug="<%= t.slug %>" data-id="<%= t.id %>">
+      <div class="adm-theme-preview">
+        <% const vars = typeof t.css_vars === 'string' ? JSON.parse(t.css_vars) : t.css_vars; %>
+        <div class="adm-theme-colors">
+          <span style="background:<%= vars.bg || '#000' %>"></span>
+          <span style="background:<%= vars.gold1 || vars.accent || '#f4c44c' %>"></span>
+          <span style="background:<%= vars.gold2 || vars.accent || '#f4c44c' %>"></span>
+          <span style="background:<%= vars.blue || '#1a78ff' %>"></span>
+          <span style="background:<%= vars.text || '#fff' %>"></span>
+        </div>
+        <% if (t.slug === activeTheme) { %>
+        <div class="adm-theme-badge">ATIVO</div>
+        <% } %>
+      </div>
+      <div class="adm-theme-body">
+        <h4><%= t.name %></h4>
+        <p class="adm-muted"><%= t.description || 'Sem descrição' %></p>
+        <div class="adm-theme-actions">
+          <% if (t.slug !== activeTheme) { %>
+          <button class="adm-btn primary btn-activate" data-slug="<%= t.slug %>">Ativar</button>
+          <% } else { %>
+          <button class="adm-btn" disabled>Tema Atual</button>
+          <% } %>
+          <% if (t.slug !== 'default') { %>
+          <button class="adm-btn btn-delete-theme" data-id="<%= t.id %>" style="border-color:rgba(255,77,77,.35);color:#ff4d4d;">Excluir</button>
+          <% } %>
+        </div>
+      </div>
+    </div>
+    <% }); %>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  // Activate theme
+  document.querySelectorAll('.btn-activate').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const slug = btn.dataset.slug;
+      btn.disabled = true;
+      btn.textContent = 'Ativando...';
+      try {
+        const r = await fetch('/admin/api/themes/activate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ slug }),
+          credentials: 'same-origin'
+        });
+        const d = await r.json();
+        if (d.ok) location.reload();
+        else alert(d.msg || 'Erro');
+      } catch (e) { alert('Erro de rede'); }
+      btn.disabled = false;
+      btn.textContent = 'Ativar';
+    });
+  });
+
+  // Delete theme
+  document.querySelectorAll('.btn-delete-theme').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      if (!confirm('Excluir tema?')) return;
+      try {
+        const r = await fetch('/admin/api/themes/' + btn.dataset.id, {
+          method: 'DELETE',
+          credentials: 'same-origin'
+        });
+        const d = await r.json();
+        if (d.ok) location.reload();
+        else alert(d.msg || 'Erro');
+      } catch (e) { alert('Erro'); }
+    });
+  });
+});
+</script>
+
+<%- include('layout-foot') %>

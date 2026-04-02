@@ -1,0 +1,28 @@
+<%# Main layout head — shared by all pages %>
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title><%= typeof title !== 'undefined' ? title : 'Cassino' %></title>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/public/css/style.css" />
+  <link rel="stylesheet" href="/public/css/theme.css" />
+  <% if (typeof extraCss !== 'undefined' && extraCss) { %>
+    <% extraCss.forEach(function(css) { %>
+      <link rel="stylesheet" href="<%= css %>" />
+    <% }); %>
+  <% } %>
+  <% if (typeof theme !== 'undefined' && theme && theme.css_vars) { %>
+  <style id="theme-vars">
+    :root {
+      <% const vars = typeof theme.css_vars === 'string' ? JSON.parse(theme.css_vars) : theme.css_vars; %>
+      <% Object.entries(vars).forEach(function([k, v]) { %>
+        --<%= k %>: <%= v %>;
+      <% }); %>
+    }
+  </style>
+  <% } %>
+</head>
+<body>

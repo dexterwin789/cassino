@@ -1,0 +1,37 @@
+<%- include('layout-head', { title: 'Usuários', page: 'users' }) %>
+
+<div class="adm-page-card" data-page="users">
+  <div class="adm-page-head">
+    <div>
+      <h3>Usuários</h3>
+      <p class="adm-muted">Lista completa com saldo de carteira</p>
+    </div>
+    <button class="adm-btn" data-action="refresh">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+      Atualizar
+    </button>
+  </div>
+  <div class="adm-toolbar">
+    <div class="adm-field"><label>Buscar</label><input type="text" placeholder="id / username / telefone" data-filter="q" /></div>
+    <div class="adm-field"><label>Status</label><select data-filter="active"><option value="">Todos</option><option value="1">Ativo</option><option value="0">Inativo</option></select></div>
+    <div class="adm-field"><label>Por página</label><select data-filter="limit"><option value="10">10</option><option value="25" selected>25</option><option value="50">50</option><option value="100">100</option></select></div>
+    <div class="adm-field"><label>&nbsp;</label><button class="adm-btn primary" data-action="apply">Aplicar</button></div>
+  </div>
+  <div class="adm-table-wrap">
+    <table class="adm-table">
+      <thead><tr><th>ID</th><th>Usuário</th><th>Telefone</th><th>Saldo</th><th>Bônus</th><th>Score</th><th>Status</th><th>Criado</th><th>Ações</th></tr></thead>
+      <tbody data-tbody></tbody>
+    </table>
+  </div>
+  <div class="adm-pager">
+    <div class="adm-muted"><span data-count>0</span> resultados</div>
+    <div class="adm-pager-btns">
+      <button class="adm-btn" data-action="prev">‹ Anterior</button>
+      <span class="adm-muted">Página <span data-page-num>1</span></span>
+      <button class="adm-btn" data-action="next">Próxima ›</button>
+    </div>
+  </div>
+</div>
+
+<script src="/public/js/admin.js" defer></script>
+<%- include('layout-foot') %>

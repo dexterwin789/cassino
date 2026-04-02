@@ -1,0 +1,16 @@
+/* /cassino/public/css/theme.css
+   Dynamic theme variable overrides.
+   The actual variables are injected inline by the server (head.ejs).
+   This file provides fallback defaults for theme-specific elements. */
+
+/* Fallback if no theme loaded */
+:root {
+  --bg: #000;
+  --text-primary: #f6f6f6;
+  --text-secondary: rgba(255,255,255,.7);
+  --accent: #f4c44c;
+  --accent-bg: rgba(244,196,76,.12);
+  --card-bg: rgba(255,255,255,.04);
+  --card-border: rgba(255,255,255,.06);
+  --border: rgba(255,255,255,.08);
+}

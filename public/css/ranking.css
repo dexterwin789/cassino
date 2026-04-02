@@ -1,0 +1,341 @@
+/* /cassino/public/css/ranking.css */
+
+:root{
+  --rkText:#f6f6f6;
+  --rkLine: rgba(255,255,255,.08);
+  --rkCard: rgba(0,0,0,.45);
+  --rkGold1:#ffe39a;
+  --rkGold2:#f4c44c;
+}
+
+.rk-drawer{
+  position: fixed;
+  inset: 0;
+  display: none;
+  z-index: 260;
+  background: #000;
+}
+
+.rk-drawer.open{ display:block; }
+
+.rk-scrim{
+  position:absolute;
+  inset:0;
+  background:#000;
+}
+
+.rk-panel{
+  position:absolute;
+  inset:0;
+  left:50%;
+  transform:translateX(-50%);
+  width:100%;
+  max-width: var(--appMax, 500px);
+  height:100%;
+  overflow:auto;
+  -webkit-overflow-scrolling: touch;
+
+  background:
+    radial-gradient(900px 380px at 50% -120px, rgba(246,208,105,.14), transparent 60%),
+    linear-gradient(180deg, #141414 0%, #0b0b0b 60%, #0b0b0b 100%);
+  color: var(--rkText);
+
+  padding-bottom: calc(92px + env(safe-area-inset-bottom, 0px));
+}
+
+.rk-top{
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  height: 56px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background: rgba(10,10,10,.92);
+  border-bottom: 1px solid var(--rkLine);
+  backdrop-filter: blur(10px);
+}
+
+.rk-title{ font-weight: 900; letter-spacing:.2px; }
+
+.rk-close{
+  position:absolute;
+  right:10px;
+  top:8px;
+  width:40px;
+  height:40px;
+  border-radius:10px;
+  border:1px solid rgba(255,255,255,.10);
+  background: rgba(255,255,255,.08);
+  color:#fff;
+  font-size:22px;
+  cursor:pointer;
+}
+
+.rk-body{ padding: 12px 14px 18px; }
+
+.rk-page{ width:100%; }
+
+.rk-tabsTop{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap:10px;
+  margin-bottom: 10px;
+}
+.rk-tabTop{
+  height: 34px;
+  border-radius: 10px;
+  border:1px solid rgba(255,255,255,.10);
+  background: rgba(255,255,255,.06);
+  color:#fff;
+  font-weight: 900;
+  font-size: 13px;
+  cursor:pointer;
+}
+.rk-tabTop.active{
+  background: linear-gradient(180deg, rgba(255,227,154,1), rgba(244,196,76,1));
+  color:#1a1205;
+  border-color: rgba(255,227,154,.7);
+}
+
+.rk-sub{
+  display:grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.rk-subItem{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: rgba(0,0,0,.35);
+  border:1px solid rgba(255,255,255,.06);
+}
+.rk-subItem img{
+  width:22px;
+  height:22px;
+  object-fit:contain;
+  filter: brightness(0) invert(1);
+}
+.rk-subTitle{
+  font-weight:900;
+  font-size: 12px;
+  opacity:.9;
+}
+.rk-subVal{
+  font-weight:900;
+  font-size: 11px;
+  opacity:.75;
+}
+
+.rk-cardUser{
+  border-radius: 16px;
+  background: var(--rkCard);
+  border:1px solid rgba(255,255,255,.06);
+  padding: 12px;
+  margin-bottom: 12px;
+}
+
+.rk-userRow{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 10px;
+}
+.rk-userLeft{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  min-width:0;
+}
+.rk-avatar{
+  width:44px;
+  height:44px;
+  border-radius: 14px;
+  border:2px solid rgba(255,227,154,.55);
+  object-fit:cover;
+}
+.rk-uinfo{ min-width:0; }
+.rk-id{
+  font-weight:950;
+  font-size: 14px;
+}
+.rk-small{
+  font-weight:800;
+  opacity:.80;
+  font-size: 12px;
+}
+
+.rk-invite{
+  height:34px;
+  padding:0 14px;
+  border-radius:10px;
+  border:0;
+  background: linear-gradient(180deg, rgba(255,227,154,1), rgba(244,196,76,1));
+  color:#1a1205;
+  font-weight:950;
+  font-size: 13px;
+  cursor:pointer;
+}
+
+.rk-userBottom{
+  margin-top: 10px;
+  display:flex;
+  align-items:center;
+  gap: 12px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255,255,255,.08);
+}
+.rk-col{
+  flex:1;
+}
+.rk-divider{
+  width:1px;
+  height: 30px;
+  background: rgba(255,255,255,.12);
+}
+.rk-lbl{
+  font-weight:900;
+  font-size: 12px;
+  opacity:.85;
+}
+.rk-val{
+  font-weight:950;
+  font-size: 13px;
+  margin-top: 2px;
+}
+
+.rk-jackWrap{
+  position: relative;
+  border-radius: 18px;
+  overflow: hidden;
+  border:1px solid rgba(255,255,255,.06);
+  background: rgba(0,0,0,.35);
+}
+.rk-bgBet{
+  width:100%;
+  display:block;
+  opacity: 1;
+}
+
+.rk-jackOverlay{
+  position:absolute;
+  inset:0;
+  padding: 14px 12px 16px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+
+.rk-jackTitle{
+  width: 78%;
+  max-width: 320px;
+  height:auto;
+  display:block;
+  margin-top: 2px;
+}
+
+.rk-purpleBar{
+  position: relative;
+  width: 92%;
+  max-width: 420px;
+  margin-top: 8px;
+}
+.rk-purpleBar img{
+  width:100%;
+  display:block;
+  height:auto;
+}
+.rk-purpleBar span{
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-52%);
+  font-weight:950;
+  font-size: 22px;
+  color:#ffd56a;
+  text-shadow: 0 8px 18px rgba(0,0,0,.55);
+}
+
+.rk-jackNote{
+  margin-top: 6px;
+  font-weight:900;
+  font-size: 12px;
+  opacity:.95;
+  text-align:center;
+}
+
+.rk-podiumOne{
+  width: 96%;
+  margin-top: 6px;
+  display:flex;
+  justify-content:center;
+}
+.rk-podiumImg{
+  width:100%;
+  height:auto;
+  display:block;
+}
+
+.rk-podiumText{
+  width: 96%;
+  display:grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 6px;
+  margin-top: -82px;
+  text-align:center;
+  pointer-events:none;
+}
+
+.rk-colPod{
+  font-weight:900;
+  font-size: 12px;
+  opacity:.98;
+}
+.rk-null{ font-size: 13px; font-weight:950; margin-bottom: 10px; }
+
+.rk-coinLine{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap: 6px;
+  margin: 2px 0;
+}
+.rk-coinLine img{
+  width: 14px;
+  height: 14px;
+  object-fit:contain;
+}
+
+.rk-rsnull{
+  font-size: 12px;
+  font-weight:900;
+  color:#ffd56a;
+}
+
+.rk-foot1, .rk-foot2{
+  margin-top: 6px;
+  font-weight:900;
+  font-size: 12px;
+  text-align:center;
+  opacity:.95;
+}
+.rk-foot2{ margin-top: 2px; }
+
+@media (max-width: 380px){
+  .rk-podiumText{ margin-top: -74px; }
+  .rk-purpleBar span{ font-size: 20px; }
+}
+
+.rk-first {
+    margin-top:-12px;
+}
+
+.rk-second{
+    margin-top:1px;
+}
+.rk-third{
+    margin-top:1px;
+}

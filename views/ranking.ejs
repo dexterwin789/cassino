@@ -1,0 +1,21 @@
+<%- include('partials/head', { title: 'Ranking', extraCss: ['/public/css/ranking.css'] }) %>
+<div class="shell">
+  <div class="app" id="app">
+    <div class="rk-drawer open" id="rankingDrawer">
+      <div class="rk-panel">
+        <div class="rk-header">
+          <a href="/" class="rk-back"><img src="/public/img/seta.png" alt="Voltar"></a>
+          <h1>Ranking</h1>
+        </div>
+        <div class="rk-tabsTop">
+          <button class="rk-tabTop active">Ranking de Agentes</button>
+          <button class="rk-tabTop">Ranking de Jogadores</button>
+        </div>
+        <div class="rk-body">
+          <p style="text-align:center;padding:40px;opacity:.5;">Em breve...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<%- include('partials/foot', {}) %>

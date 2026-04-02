@@ -1,0 +1,22 @@
+      </div><!-- .adm-content -->
+
+      <footer class="adm-footer">
+        <span>&copy; <%= new Date().getFullYear() %> • Admin Panel</span>
+      </footer>
+    </div><!-- .adm-main -->
+  </div><!-- .adm-layout -->
+
+  <script>
+  // Sidebar toggle
+  const sidebar = document.getElementById('admSidebar');
+  document.getElementById('sidebarToggle')?.addEventListener('click', () => sidebar.classList.toggle('collapsed'));
+  document.getElementById('mobileMenu')?.addEventListener('click', () => sidebar.classList.toggle('mobile-open'));
+  // Close on outside click (mobile)
+  document.addEventListener('click', (e) => {
+    if (sidebar.classList.contains('mobile-open') && !sidebar.contains(e.target) && e.target.id !== 'mobileMenu') {
+      sidebar.classList.remove('mobile-open');
+    }
+  });
+  </script>
+</body>
+</html>

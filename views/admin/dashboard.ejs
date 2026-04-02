@@ -1,0 +1,163 @@
+<%- include('layout-head', { title: 'Dashboard', page: 'dashboard' }) %>
+
+<div class="adm-dashboard">
+  <!-- Stats Row -->
+  <div class="adm-stats-grid">
+    <div class="adm-stat-card">
+      <div class="adm-stat-icon" style="background:rgba(46,231,107,.12);color:#2ee76b;">
+        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      </div>
+      <div class="adm-stat-info">
+        <div class="adm-stat-label">Total Usuários</div>
+        <div class="adm-stat-value" id="statUsers"><%= stats.totalUsers %></div>
+        <div class="adm-stat-sub">+<%= stats.todayUsers %> hoje</div>
+      </div>
+    </div>
+
+    <div class="adm-stat-card">
+      <div class="adm-stat-icon" style="background:rgba(244,196,76,.12);color:#f4c44c;">
+        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      </div>
+      <div class="adm-stat-info">
+        <div class="adm-stat-label">Receita Total</div>
+        <div class="adm-stat-value" id="statRevenue">R$ <%= (stats.totalRevenue / 100).toLocaleString('pt-BR', {minimumFractionDigits: 2}) %></div>
+        <div class="adm-stat-sub"><%= stats.totalDeposits %> depósitos pagos</div>
+      </div>
+    </div>
+
+    <div class="adm-stat-card">
+      <div class="adm-stat-icon" style="background:rgba(43,140,255,.12);color:#2b8cff;">
+        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+      </div>
+      <div class="adm-stat-info">
+        <div class="adm-stat-label">Jogos Ativos</div>
+        <div class="adm-stat-value" id="statGames"><%= stats.totalGames %></div>
+        <div class="adm-stat-sub">no catálogo</div>
+      </div>
+    </div>
+
+    <div class="adm-stat-card">
+      <div class="adm-stat-icon" style="background:rgba(168,85,247,.12);color:#a855f7;">
+        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+      </div>
+      <div class="adm-stat-info">
+        <div class="adm-stat-label">Hoje</div>
+        <div class="adm-stat-value" id="statToday"><%= stats.todayUsers %></div>
+        <div class="adm-stat-sub">novos usuários</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts + Recent -->
+  <div class="adm-dashboard-grid">
+    <div class="adm-chart-card">
+      <div class="adm-chart-head">
+        <h3>Novos Usuários (7 dias)</h3>
+        <button class="adm-btn-sm" id="refreshChart">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+        </button>
+      </div>
+      <div class="adm-chart-body">
+        <canvas id="usersChart" height="220"></canvas>
+      </div>
+    </div>
+
+    <div class="adm-recent-card">
+      <div class="adm-recent-head">
+        <h3>Últimos Depósitos</h3>
+      </div>
+      <div class="adm-recent-list" id="recentDeposits">
+        <div class="adm-recent-empty">Carregando...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="adm-quick-actions">
+    <a href="/admin/users" class="adm-quick-btn">
+      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+      Gerenciar Usuários
+    </a>
+    <a href="/admin/deposits" class="adm-quick-btn">
+      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      Ver Depósitos
+    </a>
+    <a href="/admin/games" class="adm-quick-btn">
+      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+      Gerenciar Jogos
+    </a>
+    <a href="/admin/themes" class="adm-quick-btn">
+      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="13.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="10.5" r="2.5"/><circle cx="8.5" cy="7.5" r="2.5"/><circle cx="6.5" cy="12.5" r="2.5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>
+      Gerenciar Temas
+    </a>
+    <a href="/admin/settings" class="adm-quick-btn">
+      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      Configurações
+    </a>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+  try {
+    const r = await fetch('/admin/api/stats', { credentials: 'same-origin' });
+    const d = await r.json();
+    if (!d.ok) return;
+
+    // Chart
+    const labels = d.weekChart.map(x => {
+      const dt = new Date(x.d);
+      return dt.toLocaleDateString('pt-BR', { weekday: 'short', day: 'numeric' });
+    });
+    const values = d.weekChart.map(x => parseInt(x.c));
+
+    new Chart(document.getElementById('usersChart'), {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Novos Usuários',
+          data: values,
+          backgroundColor: 'rgba(244,196,76,.35)',
+          borderColor: '#f4c44c',
+          borderWidth: 2,
+          borderRadius: 8,
+          borderSkipped: false
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: { beginAtZero: true, ticks: { color: 'rgba(255,255,255,.5)', stepSize: 1 }, grid: { color: 'rgba(255,255,255,.06)' } },
+          x: { ticks: { color: 'rgba(255,255,255,.5)' }, grid: { display: false } }
+        }
+      }
+    });
+
+    // Recent Deposits
+    const list = document.getElementById('recentDeposits');
+    if (d.recentDeposits && d.recentDeposits.length) {
+      list.innerHTML = d.recentDeposits.map(tx => {
+        const amt = (parseInt(tx.amount_cents) / 100).toLocaleString('pt-BR', { style:'currency', currency:'BRL' });
+        const st = tx.status === 'paid' ? 'ok' : tx.status === 'pending' ? 'warn' : 'bad';
+        const dt = new Date(tx.created_at).toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' });
+        return `<div class="adm-recent-item">
+          <div class="adm-recent-user">${tx.username || '#'+tx.user_id}</div>
+          <div class="adm-recent-amt">${amt}</div>
+          <span class="adm-tag ${st}">${tx.status}</span>
+          <div class="adm-recent-date">${dt}</div>
+        </div>`;
+      }).join('');
+    } else {
+      list.innerHTML = '<div class="adm-recent-empty">Nenhum depósito ainda.</div>';
+    }
+  } catch (e) {
+    console.error('Dashboard stats error:', e);
+  }
+});
+</script>
+
+<%- include('layout-foot') %>

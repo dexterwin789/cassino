@@ -1,0 +1,7 @@
+  <% if (typeof extraJs !== 'undefined' && extraJs) { %>
+    <% extraJs.forEach(function(js) { %>
+      <script src="<%= js %>" defer></script>
+    <% }); %>
+  <% } %>
+</body>
+</html>

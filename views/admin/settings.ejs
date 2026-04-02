@@ -1,0 +1,48 @@
+<%- include('layout-head', { title: 'Configurações', page: 'settings' }) %>
+
+<div class="adm-settings-page">
+  <div class="adm-page-head">
+    <div><h3>Configurações da Plataforma</h3><p class="adm-muted">Ajuste configurações gerais</p></div>
+  </div>
+
+  <div class="adm-settings-grid">
+    <div class="adm-setting-card">
+      <label>Nome do Site</label>
+      <input type="text" id="setSiteName" value="<%= settings.site_name || 'Cassino' %>">
+    </div>
+    <div class="adm-setting-card">
+      <label>Modo Manutenção</label>
+      <select id="setMaintenance">
+        <option value="0" <%= settings.maintenance_mode !== '1' ? 'selected' : '' %>>Desativado</option>
+        <option value="1" <%= settings.maintenance_mode === '1' ? 'selected' : '' %>>Ativado</option>
+      </select>
+    </div>
+    <div class="adm-setting-card">
+      <label>Tema Ativo</label>
+      <input type="text" value="<%= settings.active_theme || 'default' %>" disabled>
+      <a href="/admin/themes" class="adm-muted" style="font-size:12px;">Gerenciar temas →</a>
+    </div>
+  </div>
+
+  <button class="adm-btn primary" id="btnSaveSettings" style="margin-top:16px;">Salvar Configurações</button>
+</div>
+
+<script>
+document.getElementById('btnSaveSettings')?.addEventListener('click', async () => {
+  const settings = [
+    { key: 'site_name', value: document.getElementById('setSiteName').value },
+    { key: 'maintenance_mode', value: document.getElementById('setMaintenance').value }
+  ];
+  for (const s of settings) {
+    await fetch('/admin/api/settings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(s),
+      credentials: 'same-origin'
+    });
+  }
+  alert('Configurações salvas!');
+});
+</script>
+
+<%- include('layout-foot') %>

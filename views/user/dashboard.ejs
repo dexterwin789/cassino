@@ -1,0 +1,132 @@
+<%- include('../partials/head', { title: 'Minha Conta', extraCss: ['/public/css/user-dashboard.css'] }) %>
+
+<div class="ud-shell">
+  <div class="ud-container">
+    <!-- Header -->
+    <header class="ud-header">
+      <a href="/" class="ud-back">
+        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      </a>
+      <h1>Minha Conta</h1>
+      <button class="ud-logout" id="udLogout">Sair</button>
+    </header>
+
+    <!-- Profile Card -->
+    <div class="ud-profile-card">
+      <div class="ud-profile-glow"></div>
+      <div class="ud-avatar">
+        <div class="ud-avatar-circle"><%= u.username.charAt(0).toUpperCase() %></div>
+        <div class="ud-online-dot"></div>
+      </div>
+      <div class="ud-profile-info">
+        <h2><%= u.username %></h2>
+        <div class="ud-profile-meta">
+          <span class="ud-chip">ID: <%= u.id %></span>
+          <% if (u.phone) { %><span class="ud-chip"><%= u.phone %></span><% } %>
+          <span class="ud-chip">Desde <%= new Date(u.created_at).toLocaleDateString('pt-BR') %></span>
+        </div>
+      </div>
+      <button class="ud-copy-id" title="Copiar ID" onclick="navigator.clipboard.writeText('<%= u.id %>')">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      </button>
+    </div>
+
+    <!-- Stats -->
+    <div class="ud-stats-row">
+      <div class="ud-stat">
+        <div class="ud-stat-icon" style="background:rgba(244,196,76,.12);">
+          <svg width="22" height="22" fill="none" stroke="#f4c44c" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        </div>
+        <div class="ud-stat-data">
+          <div class="ud-stat-label">Saldo</div>
+          <div class="ud-stat-value">R$ <%= (balance_cents / 100).toFixed(2).replace('.', ',') %></div>
+        </div>
+      </div>
+
+      <div class="ud-stat">
+        <div class="ud-stat-icon" style="background:rgba(46,231,107,.12);">
+          <svg width="22" height="22" fill="none" stroke="#2ee76b" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+        </div>
+        <div class="ud-stat-data">
+          <div class="ud-stat-label">Total Depositado</div>
+          <div class="ud-stat-value">R$ <%= (totalDeposited / 100).toFixed(2).replace('.', ',') %></div>
+        </div>
+      </div>
+
+      <div class="ud-stat">
+        <div class="ud-stat-icon" style="background:rgba(43,140,255,.12);">
+          <svg width="22" height="22" fill="none" stroke="#2b8cff" stroke-width="2" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        </div>
+        <div class="ud-stat-data">
+          <div class="ud-stat-label">Depósitos</div>
+          <div class="ud-stat-value"><%= totalDeposits %></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="ud-actions">
+      <a href="/" class="ud-action-btn primary">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        Jogar Agora
+      </a>
+      <button class="ud-action-btn" onclick="window.open('/')">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        Depositar
+      </button>
+      <button class="ud-action-btn" onclick="navigator.clipboard.writeText(location.origin + '/?ref=<%= u.id %>')">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+        Convidar Amigo
+      </button>
+    </div>
+
+    <!-- Agent Link -->
+    <div class="ud-agent-card">
+      <div class="ud-agent-label">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+        Link de Agente
+      </div>
+      <div class="ud-agent-link" id="agentLink"><%= `${process.env.NODE_ENV === 'production' ? 'https://' : 'http://localhost:3000'}/?ref=${u.id}` %></div>
+      <button class="ud-agent-copy" onclick="navigator.clipboard.writeText(document.getElementById('agentLink').textContent)">Copiar</button>
+    </div>
+
+    <!-- Recent Transactions -->
+    <div class="ud-section">
+      <h3>Últimas Transações</h3>
+      <div class="ud-tx-list">
+        <% if (recentTx.length === 0) { %>
+        <div class="ud-tx-empty">Nenhuma transação ainda.</div>
+        <% } else { %>
+        <% recentTx.forEach(function(tx) { %>
+        <div class="ud-tx-item">
+          <div class="ud-tx-icon <%= tx.status === 'paid' ? 'ok' : tx.status === 'pending' ? 'warn' : 'bad' %>">
+            <% if (tx.status === 'paid') { %>
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            <% } else if (tx.status === 'pending') { %>
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <% } else { %>
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            <% } %>
+          </div>
+          <div class="ud-tx-info">
+            <div class="ud-tx-type"><%= tx.type === 'deposit' ? 'Depósito' : tx.type %></div>
+            <div class="ud-tx-date"><%= new Date(tx.created_at).toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' }) %></div>
+          </div>
+          <div class="ud-tx-amount">R$ <%= (parseInt(tx.amount_cents) / 100).toFixed(2).replace('.', ',') %></div>
+          <div class="ud-tx-status <%= tx.status === 'paid' ? 'ok' : tx.status === 'pending' ? 'warn' : 'bad' %>"><%= tx.status %></div>
+        </div>
+        <% }); %>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.getElementById('udLogout')?.addEventListener('click', async () => {
+  await fetch('/api/logout', { method: 'POST', credentials: 'same-origin' });
+  location.href = '/';
+});
+</script>
+
+<%- include('../partials/foot', { extraJs: [] }) %>
