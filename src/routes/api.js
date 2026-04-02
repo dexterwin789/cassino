@@ -204,4 +204,33 @@ router.get('/banners', async (req, res) => {
   }
 });
 
+// ─── User Account ─────────────────────────────────
+
+// POST /api/user/change-password
+router.post('/user/change-password', requireUser, async (req, res) => {
+  try {
+    const { current_password, new_password } = req.body;
+    if (!current_password || !new_password) {
+      return res.status(400).json({ ok: false, msg: 'Preencha todos os campos.' });
+    }
+    if (new_password.length < 6 || new_password.length > 16) {
+      return res.status(400).json({ ok: false, msg: 'Nova senha deve ter 6-16 caracteres.' });
+    }
+
+    const r = await query('SELECT password_hash FROM users WHERE id = $1', [req.session.user.id]);
+    if (!r.rows[0]) return res.status(404).json({ ok: false, msg: 'Usuário não encontrado.' });
+
+    const valid = await bcrypt.compare(current_password, r.rows[0].password_hash);
+    if (!valid) return res.status(401).json({ ok: false, msg: 'Senha atual incorreta.' });
+
+    const hash = await bcrypt.hash(new_password, 10);
+    await query('UPDATE users SET password_hash = $1, updated_at = NOW() WHERE id = $2', [hash, req.session.user.id]);
+
+    res.json({ ok: true, msg: 'Senha alterada com sucesso!' });
+  } catch (err) {
+    console.error('[CHANGE_PASSWORD]', err);
+    res.status(500).json({ ok: false, msg: 'Erro ao alterar senha.' });
+  }
+});
+
 module.exports = router;

@@ -129,7 +129,8 @@ INSERT INTO themes (slug, name, description, css_vars, layout_config, is_active)
     "bannerAspect": "16/7",
     "quickIcons": 6,
     "headerStyle": "classic",
-    "footerStyle": "classic"
+    "footerStyle": "classic",
+    "borderRadius": 16
   }',
   TRUE
 ),
@@ -155,7 +156,8 @@ INSERT INTO themes (slug, name, description, css_vars, layout_config, is_active)
     "bannerAspect": "16/7",
     "quickIcons": 6,
     "headerStyle": "neon",
-    "footerStyle": "neon"
+    "footerStyle": "neon",
+    "borderRadius": 12
   }',
   FALSE
 ),
@@ -181,7 +183,8 @@ INSERT INTO themes (slug, name, description, css_vars, layout_config, is_active)
     "bannerAspect": "16/8",
     "quickIcons": 6,
     "headerStyle": "royal",
-    "footerStyle": "royal"
+    "footerStyle": "royal",
+    "borderRadius": 20
   }',
   FALSE
 )

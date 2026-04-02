@@ -1,0 +1,97 @@
+<%- include('layout-head', { title: 'Segurança', page: 'security', u }) %>
+
+<!-- Account Info -->
+<div class="ud-card">
+  <div class="ud-card-header">
+    <svg width="18" height="18" fill="none" stroke="var(--ud-accent)" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    <span>Informações da Conta</span>
+  </div>
+  <div class="ud-info-grid">
+    <div class="ud-info-item">
+      <label>Usuário</label>
+      <span><%= u.username %></span>
+    </div>
+    <div class="ud-info-item">
+      <label>Telefone</label>
+      <span><%= u.phone || 'Não informado' %></span>
+    </div>
+    <div class="ud-info-item">
+      <label>ID</label>
+      <span class="ud-mono"><%= u.id %></span>
+    </div>
+    <div class="ud-info-item">
+      <label>Membro desde</label>
+      <span><%= new Date(u.created_at).toLocaleDateString('pt-BR', { day:'2-digit', month:'long', year:'numeric' }) %></span>
+    </div>
+  </div>
+</div>
+
+<!-- Change Password -->
+<div class="ud-card">
+  <div class="ud-card-header">
+    <svg width="18" height="18" fill="none" stroke="var(--ud-gold1)" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    <span>Alterar Senha</span>
+  </div>
+  <form id="changePasswordForm" class="ud-form">
+    <div class="ud-form-group">
+      <label class="ud-form-label">Senha atual</label>
+      <input type="password" name="current_password" class="ud-input" required autocomplete="current-password" />
+    </div>
+    <div class="ud-form-group">
+      <label class="ud-form-label">Nova senha</label>
+      <input type="password" name="new_password" class="ud-input" required minlength="6" autocomplete="new-password" />
+    </div>
+    <div class="ud-form-group">
+      <label class="ud-form-label">Confirmar nova senha</label>
+      <input type="password" name="confirm_password" class="ud-input" required minlength="6" autocomplete="new-password" />
+    </div>
+    <div class="ud-form-actions">
+      <button type="submit" class="ud-btn-primary" id="btnChangePass">Alterar Senha</button>
+      <span class="ud-form-msg" id="passMsg"></span>
+    </div>
+  </form>
+</div>
+
+<script>
+document.getElementById('changePasswordForm')?.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const form = e.target;
+  const msg = document.getElementById('passMsg');
+  const btn = document.getElementById('btnChangePass');
+  const fd = new FormData(form);
+
+  if (fd.get('new_password') !== fd.get('confirm_password')) {
+    msg.textContent = 'As senhas não coincidem.';
+    msg.className = 'ud-form-msg error';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Salvando...';
+  msg.textContent = '';
+
+  try {
+    const res = await fetch('/api/user/change-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'same-origin',
+      body: JSON.stringify({
+        current_password: fd.get('current_password'),
+        new_password: fd.get('new_password')
+      })
+    });
+    const json = await res.json();
+    msg.textContent = json.msg || (json.ok ? 'Senha alterada com sucesso!' : 'Erro ao alterar senha.');
+    msg.className = 'ud-form-msg ' + (json.ok ? 'success' : 'error');
+    if (json.ok) form.reset();
+  } catch {
+    msg.textContent = 'Erro de conexão.';
+    msg.className = 'ud-form-msg error';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Alterar Senha';
+  }
+});
+</script>
+
+<%- include('layout-foot') %>

@@ -2,21 +2,35 @@
 
 <div class="adm-themes-page">
   <div class="adm-page-head">
-    <div><h3>Gerenciador de Temas</h3><p class="adm-muted">Altere a aparência da plataforma</p></div>
-    <button class="adm-btn primary" id="btnNewTheme">+ Novo Tema</button>
+    <div><h3>Gerenciador de Temas</h3><p class="adm-muted">Personalize a aparência da plataforma</p></div>
+    <button class="adm-btn primary" id="btnNewTheme">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Novo Tema
+    </button>
   </div>
 
+  <!-- Theme Cards Grid -->
   <div class="adm-themes-grid" id="themesGrid">
     <% themes.forEach(function(t) { %>
     <div class="adm-theme-card<%= t.slug === activeTheme ? ' active' : '' %>" data-slug="<%= t.slug %>" data-id="<%= t.id %>">
       <div class="adm-theme-preview">
         <% const vars = typeof t.css_vars === 'string' ? JSON.parse(t.css_vars) : t.css_vars; %>
-        <div class="adm-theme-colors">
-          <span style="background:<%= vars.bg || '#000' %>"></span>
-          <span style="background:<%= vars.gold1 || vars.accent || '#f4c44c' %>"></span>
-          <span style="background:<%= vars.gold2 || vars.accent || '#f4c44c' %>"></span>
-          <span style="background:<%= vars.blue || '#1a78ff' %>"></span>
-          <span style="background:<%= vars.text || '#fff' %>"></span>
+        <% const layout = typeof t.layout_config === 'string' ? JSON.parse(t.layout_config) : (t.layout_config || {}); %>
+        <!-- Mini Preview -->
+        <div class="theme-mini-preview" style="background:<%= vars.bg || '#000' %>">
+          <div class="tmp-header" style="background:<%= vars.card || '#141414' %>;border-bottom:2px solid <%= vars.gold1 || '#f4c44c' %>">
+            <div class="tmp-logo" style="background:<%= vars.gold1 || '#f4c44c' %>"></div>
+            <div class="tmp-btns">
+              <span style="background:<%= vars.blue || '#1a78ff' %>"></span>
+              <span style="background:<%= vars.gold2 || '#f4c44c' %>"></span>
+            </div>
+          </div>
+          <div class="tmp-banner" style="background:linear-gradient(135deg,<%= vars.gold3 || '#b97a0d' %>,<%= vars.accent || '#f4c44c' %>);aspect-ratio:<%= layout.bannerAspect || '16/7' %>"></div>
+          <div class="tmp-games">
+            <% for(let i=0; i < Math.min(layout.gamesPerRow || 4, 6); i++) { %>
+            <div class="tmp-game" style="background:<%= vars.card || '#141414' %>;border:1px solid <%= vars.gold3 || '#b97a0d' %>30"></div>
+            <% } %>
+          </div>
         </div>
         <% if (t.slug === activeTheme) { %>
         <div class="adm-theme-badge">ATIVO</div>
@@ -25,7 +39,15 @@
       <div class="adm-theme-body">
         <h4><%= t.name %></h4>
         <p class="adm-muted"><%= t.description || 'Sem descrição' %></p>
+        <div class="adm-theme-meta">
+          <span class="adm-meta-tag"><%= layout.headerStyle || 'classic' %></span>
+          <span class="adm-meta-tag"><%= layout.gamesPerRow || 4 %> cols</span>
+        </div>
         <div class="adm-theme-actions">
+          <button class="adm-btn btn-edit-theme" data-id="<%= t.id %>">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            Editar
+          </button>
           <% if (t.slug !== activeTheme) { %>
           <button class="adm-btn primary btn-activate" data-slug="<%= t.slug %>">Ativar</button>
           <% } else { %>
@@ -41,19 +63,499 @@
   </div>
 </div>
 
+<!-- Theme Editor Modal -->
+<div class="theme-modal-overlay" id="themeModal">
+  <div class="theme-modal">
+    <div class="theme-modal-header">
+      <h3 id="modalTitle">Novo Tema</h3>
+      <button class="theme-modal-close" id="closeModal">&times;</button>
+    </div>
+
+    <form id="themeForm" class="theme-editor">
+      <input type="hidden" id="themeId" value="" />
+
+      <!-- Basic Info -->
+      <div class="te-section">
+        <h4 class="te-section-title">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          Informações
+        </h4>
+        <div class="te-row">
+          <div class="te-field">
+            <label>Nome</label>
+            <input type="text" id="teName" class="te-input" required placeholder="Ex: Neon Nights" />
+          </div>
+          <div class="te-field">
+            <label>Slug</label>
+            <input type="text" id="teSlug" class="te-input" required placeholder="Ex: neon-nights" pattern="[a-z0-9\-]+" />
+          </div>
+        </div>
+        <div class="te-field">
+          <label>Descrição</label>
+          <input type="text" id="teDesc" class="te-input" placeholder="Descrição curta do tema" />
+        </div>
+      </div>
+
+      <!-- Colors -->
+      <div class="te-section">
+        <h4 class="te-section-title">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="13.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="10.5" r="2.5"/><circle cx="8.5" cy="7.5" r="2.5"/><circle cx="6.5" cy="12.5" r="2.5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>
+          Paleta de Cores
+        </h4>
+        <div class="te-colors-grid">
+          <div class="te-color-item">
+            <label>Background</label>
+            <div class="te-color-pick">
+              <input type="color" id="cBg" value="#0b0b0b" />
+              <input type="text" class="te-color-hex" data-for="cBg" value="#0b0b0b" />
+            </div>
+          </div>
+          <div class="te-color-item">
+            <label>Preto Base</label>
+            <div class="te-color-pick">
+              <input type="color" id="cBlack" value="#000000" />
+              <input type="text" class="te-color-hex" data-for="cBlack" value="#000000" />
+            </div>
+          </div>
+          <div class="te-color-item">
+            <label>Card</label>
+            <div class="te-color-pick">
+              <input type="color" id="cCard" value="#141414" />
+              <input type="text" class="te-color-hex" data-for="cCard" value="#141414" />
+            </div>
+          </div>
+          <div class="te-color-item">
+            <label>Texto</label>
+            <div class="te-color-pick">
+              <input type="color" id="cText" value="#f6f6f6" />
+              <input type="text" class="te-color-hex" data-for="cText" value="#f6f6f6" />
+            </div>
+          </div>
+          <div class="te-color-item">
+            <label>Dourado 1</label>
+            <div class="te-color-pick">
+              <input type="color" id="cGold1" value="#ffe39a" />
+              <input type="text" class="te-color-hex" data-for="cGold1" value="#ffe39a" />
+            </div>
+          </div>
+          <div class="te-color-item">
+            <label>Dourado 2</label>
+            <div class="te-color-pick">
+              <input type="color" id="cGold2" value="#f4c44c" />
+              <input type="text" class="te-color-hex" data-for="cGold2" value="#f4c44c" />
+            </div>
+          </div>
+          <div class="te-color-item">
+            <label>Dourado 3</label>
+            <div class="te-color-pick">
+              <input type="color" id="cGold3" value="#b97a0d" />
+              <input type="text" class="te-color-hex" data-for="cGold3" value="#b97a0d" />
+            </div>
+          </div>
+          <div class="te-color-item">
+            <label>Azul</label>
+            <div class="te-color-pick">
+              <input type="color" id="cBlue" value="#1a78ff" />
+              <input type="text" class="te-color-hex" data-for="cBlue" value="#1a78ff" />
+            </div>
+          </div>
+          <div class="te-color-item">
+            <label>Accent</label>
+            <div class="te-color-pick">
+              <input type="color" id="cAccent" value="#f4c44c" />
+              <input type="text" class="te-color-hex" data-for="cAccent" value="#f4c44c" />
+            </div>
+          </div>
+          <div class="te-color-item">
+            <label>Sucesso</label>
+            <div class="te-color-pick">
+              <input type="color" id="cSuccess" value="#2ee76b" />
+              <input type="text" class="te-color-hex" data-for="cSuccess" value="#2ee76b" />
+            </div>
+          </div>
+          <div class="te-color-item">
+            <label>Danger</label>
+            <div class="te-color-pick">
+              <input type="color" id="cDanger" value="#ff4d4d" />
+              <input type="text" class="te-color-hex" data-for="cDanger" value="#ff4d4d" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Layout Config -->
+      <div class="te-section">
+        <h4 class="te-section-title">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+          Layout & Estrutura
+        </h4>
+        <div class="te-row">
+          <div class="te-field">
+            <label>Jogos por Linha</label>
+            <select id="lcGamesPerRow" class="te-select">
+              <option value="3">3 colunas</option>
+              <option value="4" selected>4 colunas</option>
+              <option value="5">5 colunas</option>
+              <option value="6">6 colunas</option>
+            </select>
+          </div>
+          <div class="te-field">
+            <label>Aspecto do Banner</label>
+            <select id="lcBannerAspect" class="te-select">
+              <option value="16/5">Ultra-wide (16/5)</option>
+              <option value="16/7" selected>Padrão (16/7)</option>
+              <option value="16/8">Alto (16/8)</option>
+              <option value="16/9">Cinema (16/9)</option>
+              <option value="2/1">Quadrado alto (2/1)</option>
+            </select>
+          </div>
+        </div>
+        <div class="te-row">
+          <div class="te-field">
+            <label>Ícones Rápidos</label>
+            <select id="lcQuickIcons" class="te-select">
+              <option value="4">4 ícones</option>
+              <option value="5">5 ícones</option>
+              <option value="6" selected>6 ícones</option>
+              <option value="8">8 ícones</option>
+            </select>
+          </div>
+          <div class="te-field">
+            <label>Estilo do Header</label>
+            <select id="lcHeaderStyle" class="te-select">
+              <option value="classic" selected>Clássico</option>
+              <option value="neon">Neon</option>
+              <option value="royal">Royal</option>
+              <option value="minimal">Minimalista</option>
+            </select>
+          </div>
+        </div>
+        <div class="te-row">
+          <div class="te-field">
+            <label>Estilo do Footer</label>
+            <select id="lcFooterStyle" class="te-select">
+              <option value="classic" selected>Clássico</option>
+              <option value="neon">Neon</option>
+              <option value="royal">Royal</option>
+              <option value="minimal">Minimalista</option>
+            </select>
+          </div>
+          <div class="te-field">
+            <label>Raio das Bordas</label>
+            <select id="lcBorderRadius" class="te-select">
+              <option value="8">8px - Sutil</option>
+              <option value="12">12px - Moderado</option>
+              <option value="16" selected>16px - Padrão</option>
+              <option value="20">20px - Arredondado</option>
+              <option value="24">24px - Muito arredondado</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Preview -->
+      <div class="te-section">
+        <h4 class="te-section-title">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          Pré-visualização
+        </h4>
+        <div class="te-live-preview" id="livePreview">
+          <div class="tlp-header">
+            <div class="tlp-logo"></div>
+            <div class="tlp-btns"><span></span><span></span></div>
+          </div>
+          <div class="tlp-banner"></div>
+          <div class="tlp-icons" id="tlpIcons"></div>
+          <div class="tlp-games" id="tlpGames"></div>
+          <div class="tlp-footer"></div>
+        </div>
+      </div>
+
+      <div class="te-actions">
+        <button type="button" class="adm-btn" id="btnCancelTheme">Cancelar</button>
+        <button type="submit" class="adm-btn primary" id="btnSaveTheme">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          Salvar Tema
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<style>
+/* ─── Theme Editor Modal ─── */
+.theme-modal-overlay{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);display:none;align-items:flex-start;justify-content:center;padding:2rem;overflow-y:auto}
+.theme-modal-overlay.open{display:flex}
+.theme-modal{background:#0e1117;border:1px solid rgba(255,255,255,.08);border-radius:16px;max-width:760px;width:100%;animation:tmSlide .3s ease}
+@keyframes tmSlide{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.theme-modal-header{display:flex;justify-content:space-between;align-items:center;padding:1.25rem 1.5rem;border-bottom:1px solid rgba(255,255,255,.06)}
+.theme-modal-header h3{margin:0;font-size:1.15rem;color:#fff}
+.theme-modal-close{background:none;border:none;color:#888;font-size:1.5rem;cursor:pointer;padding:0 .25rem;transition:color .2s}
+.theme-modal-close:hover{color:#fff}
+
+/* Sections */
+.te-section{padding:1.25rem 1.5rem;border-bottom:1px solid rgba(255,255,255,.04)}
+.te-section:last-of-type{border-bottom:none}
+.te-section-title{display:flex;align-items:center;gap:.5rem;margin:0 0 1rem;font-size:.9rem;color:rgba(255,255,255,.65);font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.te-section-title svg{opacity:.6}
+.te-row{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:.75rem}
+.te-field{display:flex;flex-direction:column;gap:.35rem}
+.te-field label{font-size:.75rem;color:rgba(255,255,255,.5);font-weight:500;text-transform:uppercase;letter-spacing:.3px}
+.te-input,.te-select{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:.55rem .75rem;color:#fff;font-size:.85rem;font-family:inherit;transition:border-color .2s}
+.te-input:focus,.te-select:focus{outline:none;border-color:rgba(244,196,76,.4)}
+.te-select{cursor:pointer}
+.te-select option{background:#0e1117;color:#fff}
+
+/* Color Grid */
+.te-colors-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:.75rem}
+.te-color-item{display:flex;flex-direction:column;gap:.35rem}
+.te-color-item label{font-size:.7rem;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.3px}
+.te-color-pick{display:flex;align-items:center;gap:.5rem;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:.3rem .5rem}
+.te-color-pick input[type="color"]{-webkit-appearance:none;border:none;width:28px;height:28px;border-radius:6px;cursor:pointer;padding:0}
+.te-color-pick input[type="color"]::-webkit-color-swatch-wrapper{padding:0}
+.te-color-pick input[type="color"]::-webkit-color-swatch{border-radius:4px;border:1px solid rgba(255,255,255,.15)}
+.te-color-hex{background:transparent;border:none;color:#fff;font-family:'JetBrains Mono',monospace;font-size:.78rem;width:72px;padding:.2rem 0;outline:none}
+
+/* Live Preview */
+.te-live-preview{border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,.08);transition:all .3s}
+.tlp-header{display:flex;justify-content:space-between;align-items:center;padding:.6rem .8rem;transition:all .3s}
+.tlp-logo{width:50px;height:14px;border-radius:4px;transition:all .3s}
+.tlp-btns{display:flex;gap:.3rem}
+.tlp-btns span{width:36px;height:14px;border-radius:4px;transition:all .3s}
+.tlp-banner{margin:.3rem .5rem;border-radius:8px;transition:all .3s}
+.tlp-icons{display:flex;gap:.3rem;padding:.3rem .5rem;justify-content:center}
+.tlp-icons span{width:22px;height:22px;border-radius:50%;opacity:.3;transition:all .3s}
+.tlp-games{display:grid;gap:.3rem;padding:.3rem .5rem;transition:all .3s}
+.tlp-games span{height:36px;border-radius:6px;transition:all .3s}
+.tlp-footer{padding:.4rem .8rem;text-align:center;font-size:.5rem;border-top:1px solid transparent;transition:all .3s}
+
+/* Meta tags */
+.adm-theme-meta{display:flex;gap:.4rem;margin:.5rem 0}
+.adm-meta-tag{font-size:.65rem;padding:.2rem .5rem;border-radius:6px;background:rgba(255,255,255,.06);color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.3px}
+
+/* Mini Preview */
+.theme-mini-preview{border-radius:8px;overflow:hidden;padding:.4rem;min-height:120px}
+.tmp-header{display:flex;justify-content:space-between;align-items:center;padding:.3rem .4rem;border-radius:4px;margin-bottom:.3rem}
+.tmp-logo{width:28px;height:8px;border-radius:2px}
+.tmp-btns{display:flex;gap:.2rem}
+.tmp-btns span{width:20px;height:8px;border-radius:2px}
+.tmp-banner{margin:.2rem 0;border-radius:4px;min-height:24px}
+.tmp-games{display:grid;grid-template-columns:repeat(auto-fit,minmax(20px,1fr));gap:.2rem;margin-top:.3rem}
+.tmp-game{height:20px;border-radius:3px}
+
+/* Actions */
+.te-actions{display:flex;justify-content:flex-end;gap:.75rem;padding:1rem 1.5rem;border-top:1px solid rgba(255,255,255,.06)}
+
+@media(max-width:640px){
+  .te-row{grid-template-columns:1fr}
+  .te-colors-grid{grid-template-columns:1fr 1fr}
+  .theme-modal{margin:1rem;border-radius:12px}
+}
+</style>
+
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-  // Activate theme
+  const modal = document.getElementById('themeModal');
+  const form = document.getElementById('themeForm');
+  const idField = document.getElementById('themeId');
+
+  // All themes data for editing
+  const themesData = <%- JSON.stringify(themes.map(t => ({
+    id: t.id,
+    slug: t.slug,
+    name: t.name,
+    description: t.description || '',
+    css_vars: typeof t.css_vars === 'string' ? JSON.parse(t.css_vars) : t.css_vars,
+    layout_config: typeof t.layout_config === 'string' ? JSON.parse(t.layout_config) : (t.layout_config || {})
+  }))) %>;
+
+  // Color map: field id → css_vars key
+  const colorMap = {
+    cBg: 'bg', cBlack: 'black', cCard: 'card', cText: 'text',
+    cGold1: 'gold1', cGold2: 'gold2', cGold3: 'gold3',
+    cBlue: 'blue', cAccent: 'accent', cSuccess: 'success', cDanger: 'danger'
+  };
+
+  function openModal(theme) {
+    document.getElementById('modalTitle').textContent = theme ? 'Editar Tema' : 'Novo Tema';
+    idField.value = theme?.id || '';
+    document.getElementById('teName').value = theme?.name || '';
+    document.getElementById('teSlug').value = theme?.slug || '';
+    document.getElementById('teSlug').readOnly = !!theme;
+    document.getElementById('teDesc').value = theme?.description || '';
+
+    const cv = theme?.css_vars || {};
+    const defaults = { black:'#000000', bg:'#0b0b0b', card:'#141414', text:'#f6f6f6', gold1:'#ffe39a', gold2:'#f4c44c', gold3:'#b97a0d', blue:'#1a78ff', accent:'#f4c44c', success:'#2ee76b', danger:'#ff4d4d' };
+    for (const [fid, key] of Object.entries(colorMap)) {
+      const v = cv[key] || defaults[key];
+      document.getElementById(fid).value = v;
+      document.querySelector(`[data-for="${fid}"]`).value = v;
+    }
+
+    const lc = theme?.layout_config || {};
+    document.getElementById('lcGamesPerRow').value = lc.gamesPerRow || '4';
+    document.getElementById('lcBannerAspect').value = lc.bannerAspect || '16/7';
+    document.getElementById('lcQuickIcons').value = lc.quickIcons || '6';
+    document.getElementById('lcHeaderStyle').value = lc.headerStyle || 'classic';
+    document.getElementById('lcFooterStyle').value = lc.footerStyle || 'classic';
+    document.getElementById('lcBorderRadius').value = lc.borderRadius || '16';
+
+    updatePreview();
+    modal.classList.add('open');
+  }
+
+  function closeModal() { modal.classList.remove('open'); }
+
+  // Auto-generate slug from name
+  document.getElementById('teName').addEventListener('input', function() {
+    if (!idField.value) {
+      document.getElementById('teSlug').value = this.value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    }
+  });
+
+  // Sync color pickers with hex inputs
+  for (const fid of Object.keys(colorMap)) {
+    const picker = document.getElementById(fid);
+    const hex = document.querySelector(`[data-for="${fid}"]`);
+    picker.addEventListener('input', () => { hex.value = picker.value; updatePreview(); });
+    hex.addEventListener('input', () => {
+      if (/^#[0-9A-Fa-f]{6}$/.test(hex.value)) { picker.value = hex.value; updatePreview(); }
+    });
+  }
+
+  // Layout change → update preview
+  ['lcGamesPerRow','lcBannerAspect','lcQuickIcons','lcHeaderStyle','lcFooterStyle','lcBorderRadius'].forEach(id => {
+    document.getElementById(id).addEventListener('change', updatePreview);
+  });
+
+  function updatePreview() {
+    const p = document.getElementById('livePreview');
+    const bg = document.getElementById('cBg').value;
+    const card = document.getElementById('cCard').value;
+    const gold1 = document.getElementById('cGold1').value;
+    const gold2 = document.getElementById('cGold2').value;
+    const gold3 = document.getElementById('cGold3').value;
+    const blue = document.getElementById('cBlue').value;
+    const text = document.getElementById('cText').value;
+    const accent = document.getElementById('cAccent').value;
+    const gpr = parseInt(document.getElementById('lcGamesPerRow').value);
+    const ba = document.getElementById('lcBannerAspect').value;
+    const qi = parseInt(document.getElementById('lcQuickIcons').value);
+    const br = document.getElementById('lcBorderRadius').value + 'px';
+
+    p.style.background = bg;
+    p.style.borderRadius = br;
+    p.querySelector('.tlp-header').style.background = card;
+    p.querySelector('.tlp-header').style.borderBottom = `2px solid ${gold1}`;
+    p.querySelector('.tlp-logo').style.background = gold1;
+    const btns = p.querySelectorAll('.tlp-btns span');
+    if (btns[0]) btns[0].style.background = blue;
+    if (btns[1]) btns[1].style.background = gold2;
+    const banner = p.querySelector('.tlp-banner');
+    banner.style.background = `linear-gradient(135deg,${gold3},${accent})`;
+    banner.style.aspectRatio = ba;
+
+    // Icons
+    const iconsEl = document.getElementById('tlpIcons');
+    iconsEl.innerHTML = '';
+    for (let i = 0; i < qi; i++) {
+      const s = document.createElement('span');
+      s.style.background = gold1;
+      iconsEl.appendChild(s);
+    }
+
+    // Games
+    const gamesEl = document.getElementById('tlpGames');
+    gamesEl.innerHTML = '';
+    gamesEl.style.gridTemplateColumns = `repeat(${gpr}, 1fr)`;
+    for (let i = 0; i < gpr * 2; i++) {
+      const s = document.createElement('span');
+      s.style.background = card;
+      s.style.border = `1px solid ${gold3}30`;
+      s.style.borderRadius = Math.max(4, parseInt(br) / 3) + 'px';
+      gamesEl.appendChild(s);
+    }
+
+    // Footer
+    const footer = p.querySelector('.tlp-footer');
+    footer.style.background = card;
+    footer.style.color = text + '60';
+    footer.style.borderTopColor = gold3 + '30';
+    footer.textContent = 'Footer Preview';
+  }
+
+  // Open New
+  document.getElementById('btnNewTheme').addEventListener('click', () => openModal(null));
+  document.getElementById('closeModal').addEventListener('click', closeModal);
+  document.getElementById('btnCancelTheme').addEventListener('click', closeModal);
+  modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+
+  // Open Edit
+  document.querySelectorAll('.btn-edit-theme').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const t = themesData.find(x => x.id === parseInt(btn.dataset.id));
+      if (t) openModal(t);
+    });
+  });
+
+  // Save
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('btnSaveTheme');
+    btn.disabled = true;
+    btn.textContent = 'Salvando...';
+
+    const css_vars = {};
+    for (const [fid, key] of Object.entries(colorMap)) {
+      css_vars[key] = document.getElementById(fid).value;
+    }
+
+    const layout_config = {
+      gamesPerRow: parseInt(document.getElementById('lcGamesPerRow').value),
+      bannerAspect: document.getElementById('lcBannerAspect').value,
+      quickIcons: parseInt(document.getElementById('lcQuickIcons').value),
+      headerStyle: document.getElementById('lcHeaderStyle').value,
+      footerStyle: document.getElementById('lcFooterStyle').value,
+      borderRadius: parseInt(document.getElementById('lcBorderRadius').value)
+    };
+
+    const payload = {
+      slug: document.getElementById('teSlug').value,
+      name: document.getElementById('teName').value,
+      description: document.getElementById('teDesc').value,
+      css_vars,
+      layout_config
+    };
+
+    try {
+      const isEdit = !!idField.value;
+      const url = isEdit ? '/admin/api/themes/' + idField.value : '/admin/api/themes';
+      const method = isEdit ? 'PUT' : 'POST';
+
+      const r = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+        credentials: 'same-origin'
+      });
+      const d = await r.json();
+      if (d.ok) location.reload();
+      else alert(d.msg || 'Erro ao salvar');
+    } catch (e) { alert('Erro de rede'); }
+    btn.disabled = false;
+    btn.textContent = 'Salvar Tema';
+  });
+
+  // Activate
   document.querySelectorAll('.btn-activate').forEach(btn => {
     btn.addEventListener('click', async () => {
-      const slug = btn.dataset.slug;
       btn.disabled = true;
       btn.textContent = 'Ativando...';
       try {
         const r = await fetch('/admin/api/themes/activate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ slug }),
+          body: JSON.stringify({ slug: btn.dataset.slug }),
           credentials: 'same-origin'
         });
         const d = await r.json();
@@ -65,10 +567,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Delete theme
+  // Delete
   document.querySelectorAll('.btn-delete-theme').forEach(btn => {
     btn.addEventListener('click', async () => {
-      if (!confirm('Excluir tema?')) return;
+      if (!confirm('Excluir este tema permanentemente?')) return;
       try {
         const r = await fetch('/admin/api/themes/' + btn.dataset.id, {
           method: 'DELETE',

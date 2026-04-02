@@ -40,13 +40,25 @@ app.set('views', path.join(__dirname, 'views'));
 // Static files
 app.use('/public', express.static(path.join(__dirname, 'public')));
 
-// Theme middleware — injects current theme into all views
+// Theme middleware — injects full theme object into all views
 app.use(async (req, res, next) => {
   try {
-    const r = await pool.query("SELECT value FROM platform_settings WHERE key = 'active_theme'");
-    res.locals.activeTheme = r.rows[0]?.value || 'default';
+    const r = await pool.query(
+      `SELECT t.* FROM themes t
+       JOIN platform_settings ps ON ps.value = t.slug
+       WHERE ps.key = 'active_theme' LIMIT 1`
+    );
+    const theme = r.rows[0] || null;
+    res.locals.activeTheme = theme?.slug || 'default';
+    res.locals.theme = theme;
+    res.locals.layoutConfig = theme?.layout_config || {};
+    if (typeof res.locals.layoutConfig === 'string') {
+      try { res.locals.layoutConfig = JSON.parse(res.locals.layoutConfig); } catch { res.locals.layoutConfig = {}; }
+    }
   } catch {
     res.locals.activeTheme = 'default';
+    res.locals.theme = null;
+    res.locals.layoutConfig = {};
   }
   res.locals.user = req.session.user || null;
   next();

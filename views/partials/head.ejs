@@ -21,6 +21,11 @@
       <% Object.entries(vars).forEach(function([k, v]) { %>
         --<%= k %>: <%= v %>;
       <% }); %>
+      <% const lc = typeof theme.layout_config === 'string' ? JSON.parse(theme.layout_config) : (theme.layout_config || {}); %>
+      --games-per-row: <%= lc.gamesPerRow || 4 %>;
+      --banner-aspect: <%= lc.bannerAspect || '16/7' %>;
+      --quick-icons: <%= lc.quickIcons || 6 %>;
+      --border-radius: <%= lc.borderRadius || 16 %>px;
     }
   </style>
   <% } %>

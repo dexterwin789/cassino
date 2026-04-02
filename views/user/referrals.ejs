@@ -1,0 +1,71 @@
+<%- include('layout-head', { title: 'Indicações', page: 'referrals', u }) %>
+
+<!-- Referral Link -->
+<div class="ud-card ud-referral-hero">
+  <div class="ud-referral-glow"></div>
+  <div class="ud-card-header">
+    <svg width="18" height="18" fill="none" stroke="var(--ud-gold1)" stroke-width="2" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+    <span>Seu Link de Indicação</span>
+  </div>
+  <p class="ud-referral-desc">Compartilhe seu link e ganhe bônus para cada amigo que se cadastrar e depositar!</p>
+  <div class="ud-agent-row">
+    <code class="ud-agent-link" id="refLink"><%= referralLink %></code>
+    <button class="ud-btn-copy" onclick="navigator.clipboard.writeText(document.getElementById('refLink').textContent);this.textContent='Copiado!';setTimeout(()=>this.textContent='Copiar',1500)">Copiar</button>
+  </div>
+</div>
+
+<!-- Stats -->
+<div class="ud-stats-grid cols-2">
+  <div class="ud-stat-card gold">
+    <div class="ud-stat-icon">
+      <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    </div>
+    <div class="ud-stat-data">
+      <span class="ud-stat-label">Total de Indicados</span>
+      <span class="ud-stat-value"><%= referralCount %></span>
+    </div>
+  </div>
+
+  <div class="ud-stat-card blue">
+    <div class="ud-stat-icon">
+      <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+    </div>
+    <div class="ud-stat-data">
+      <span class="ud-stat-label">Seu ID de Referência</span>
+      <span class="ud-stat-value ud-mono"><%= u.id %></span>
+    </div>
+  </div>
+</div>
+
+<!-- How it works -->
+<div class="ud-card">
+  <div class="ud-card-header">
+    <svg width="18" height="18" fill="none" stroke="var(--ud-accent)" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    <span>Como Funciona</span>
+  </div>
+  <div class="ud-steps">
+    <div class="ud-step">
+      <div class="ud-step-num">1</div>
+      <div class="ud-step-text">
+        <strong>Compartilhe seu link</strong>
+        <p>Envie o link para amigos, redes sociais ou grupos.</p>
+      </div>
+    </div>
+    <div class="ud-step">
+      <div class="ud-step-num">2</div>
+      <div class="ud-step-text">
+        <strong>Amigo se cadastra</strong>
+        <p>Quando seu amigo criar uma conta pelo seu link, ele será vinculado a você.</p>
+      </div>
+    </div>
+    <div class="ud-step">
+      <div class="ud-step-num">3</div>
+      <div class="ud-step-text">
+        <strong>Vocês ganham</strong>
+        <p>Ambos recebem bônus quando o indicado fizer o primeiro depósito.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('layout-foot') %>
