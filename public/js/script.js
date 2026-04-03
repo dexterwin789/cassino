@@ -331,8 +331,8 @@ async function initApp() {
       fetch('/api/games').then(r => r.json()).catch(() => ({ ok: false, data: [] })),
       fetch('/api/banners').then(r => r.json()).catch(() => ({ ok: false, data: [] }))
     ]);
-    allGames = (gamesRes.ok && gamesRes.data) ? gamesRes.data : [];
-    banners = (bannersRes.ok && bannersRes.data) ? bannersRes.data.map(b => ({ src: b.image_url, alt: 'Banner', link: b.link_url })) : [];
+    allGames = (gamesRes.ok && gamesRes.games) ? gamesRes.games : [];
+    banners = (bannersRes.ok && bannersRes.banners) ? bannersRes.banners.map(b => ({ src: b.image_url, alt: 'Banner', link: b.link_url })) : [];
   } catch (e) {
     console.error('[INIT] fetch error:', e);
     allGames = [];
