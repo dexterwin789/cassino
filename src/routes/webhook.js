@@ -5,9 +5,11 @@ const { pool, query } = require('../config/database');
 router.post('/blackcat', async (req, res) => {
   const { transactionId, status, amount, externalReference } = req.body;
 
-  if (!transactionId || !status || !externalReference) {
+  if (!transactionId || !status) {
     return res.status(400).json({ ok: false, msg: 'Campos obrigatórios ausentes.' });
   }
+
+  console.log('[WEBHOOK] Received:', { transactionId, status, amount, externalReference });
 
   if (status.toUpperCase() !== 'PAID') {
     return res.json({ ok: true, ignored: true, status });
@@ -17,12 +19,20 @@ router.post('/blackcat', async (req, res) => {
   try {
     await client.query('BEGIN');
 
-    // Lock row for idempotency
-    const txR = await client.query(
+    // Lock row for idempotency — try externalReference first, then transactionId
+    let txR = await client.query(
       `SELECT id, user_id, status, amount_cents FROM transactions 
        WHERE provider_ref = $1 AND type = 'deposit' LIMIT 1 FOR UPDATE`,
-      [externalReference]
+      [externalReference || transactionId]
     );
+
+    if (!txR.rows[0] && externalReference) {
+      txR = await client.query(
+        `SELECT id, user_id, status, amount_cents FROM transactions 
+         WHERE provider_ref = $1 AND type = 'deposit' LIMIT 1 FOR UPDATE`,
+        [transactionId]
+      );
+    }
     const tx = txR.rows[0];
 
     if (!tx) {

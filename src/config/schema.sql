@@ -90,6 +90,128 @@ CREATE TABLE IF NOT EXISTS banners (
   created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+-- ─── Bets ─────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS bets (
+  id            SERIAL PRIMARY KEY,
+  user_id       INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  game_id       INT REFERENCES games(id) ON DELETE SET NULL,
+  round_id      INT,
+  amount_cents  BIGINT NOT NULL DEFAULT 0,
+  payout_cents  BIGINT NOT NULL DEFAULT 0,
+  multiplier    NUMERIC(10,4) DEFAULT 0,
+  status        VARCHAR(32) NOT NULL DEFAULT 'pending',
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_bets_user ON bets(user_id);
+CREATE INDEX IF NOT EXISTS idx_bets_game ON bets(game_id);
+CREATE INDEX IF NOT EXISTS idx_bets_status ON bets(status);
+
+-- ─── Game Rounds ──────────────────────────────────
+CREATE TABLE IF NOT EXISTS game_rounds (
+  id            SERIAL PRIMARY KEY,
+  game_id       INT REFERENCES games(id) ON DELETE SET NULL,
+  round_hash    VARCHAR(255),
+  seed          VARCHAR(255),
+  result        JSONB,
+  status        VARCHAR(32) NOT NULL DEFAULT 'open',
+  started_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  ended_at      TIMESTAMPTZ
+);
+CREATE INDEX IF NOT EXISTS idx_game_rounds_game ON game_rounds(game_id);
+CREATE INDEX IF NOT EXISTS idx_game_rounds_status ON game_rounds(status);
+
+-- ─── Affiliates ───────────────────────────────────
+CREATE TABLE IF NOT EXISTS affiliates (
+  id            SERIAL PRIMARY KEY,
+  user_id       INT NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,
+  code          VARCHAR(64) NOT NULL UNIQUE,
+  commission_pct NUMERIC(5,2) NOT NULL DEFAULT 5.00,
+  total_earned_cents BIGINT NOT NULL DEFAULT 0,
+  is_active     BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_affiliates_code ON affiliates(code);
+
+-- ─── Affiliate Commissions ────────────────────────
+CREATE TABLE IF NOT EXISTS affiliate_commissions (
+  id              SERIAL PRIMARY KEY,
+  affiliate_id    INT NOT NULL REFERENCES affiliates(id) ON DELETE CASCADE,
+  referred_user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  transaction_id  INT REFERENCES transactions(id) ON DELETE SET NULL,
+  amount_cents    BIGINT NOT NULL DEFAULT 0,
+  status          VARCHAR(32) NOT NULL DEFAULT 'pending',
+  created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_aff_comm_affiliate ON affiliate_commissions(affiliate_id);
+
+-- ─── Support Tickets ──────────────────────────────
+CREATE TABLE IF NOT EXISTS support_tickets (
+  id            SERIAL PRIMARY KEY,
+  user_id       INT REFERENCES users(id) ON DELETE SET NULL,
+  subject       VARCHAR(255) NOT NULL,
+  status        VARCHAR(32) NOT NULL DEFAULT 'open',
+  priority      VARCHAR(32) NOT NULL DEFAULT 'normal',
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_tickets_user ON support_tickets(user_id);
+CREATE INDEX IF NOT EXISTS idx_tickets_status ON support_tickets(status);
+
+-- ─── Support Messages ─────────────────────────────
+CREATE TABLE IF NOT EXISTS support_messages (
+  id            SERIAL PRIMARY KEY,
+  ticket_id     INT NOT NULL REFERENCES support_tickets(id) ON DELETE CASCADE,
+  sender_type   VARCHAR(16) NOT NULL DEFAULT 'user',
+  sender_id     INT,
+  message       TEXT NOT NULL,
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_messages_ticket ON support_messages(ticket_id);
+
+-- ─── Promotions ───────────────────────────────────
+CREATE TABLE IF NOT EXISTS promotions (
+  id            SERIAL PRIMARY KEY,
+  title         VARCHAR(255) NOT NULL,
+  description   TEXT,
+  type          VARCHAR(64) NOT NULL DEFAULT 'bonus',
+  value_cents   BIGINT NOT NULL DEFAULT 0,
+  value_pct     NUMERIC(5,2) DEFAULT 0,
+  min_deposit   BIGINT DEFAULT 0,
+  max_uses      INT DEFAULT 0,
+  uses_count    INT NOT NULL DEFAULT 0,
+  code          VARCHAR(64) UNIQUE,
+  is_active     BOOLEAN NOT NULL DEFAULT TRUE,
+  starts_at     TIMESTAMPTZ,
+  expires_at    TIMESTAMPTZ,
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- ─── User Promotions ──────────────────────────────
+CREATE TABLE IF NOT EXISTS user_promotions (
+  id            SERIAL PRIMARY KEY,
+  user_id       INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  promotion_id  INT NOT NULL REFERENCES promotions(id) ON DELETE CASCADE,
+  status        VARCHAR(32) NOT NULL DEFAULT 'claimed',
+  amount_cents  BIGINT NOT NULL DEFAULT 0,
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_user_promos_user ON user_promotions(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_promos_promo ON user_promotions(promotion_id);
+
+-- ─── Admin Audit Log ──────────────────────────────
+CREATE TABLE IF NOT EXISTS admin_audit_log (
+  id            SERIAL PRIMARY KEY,
+  admin_id      INT REFERENCES admin_users(id) ON DELETE SET NULL,
+  action        VARCHAR(128) NOT NULL,
+  target_type   VARCHAR(64),
+  target_id     INT,
+  details       JSONB,
+  ip_address    VARCHAR(45),
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_audit_admin ON admin_audit_log(admin_id);
+CREATE INDEX IF NOT EXISTS idx_audit_action ON admin_audit_log(action);
+
 -- Session table (created automatically by connect-pg-simple but defining for clarity)
 CREATE TABLE IF NOT EXISTS sessions (
   sid    VARCHAR NOT NULL PRIMARY KEY,

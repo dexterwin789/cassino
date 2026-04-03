@@ -35,7 +35,7 @@
   /* ─── Generic table controller ───────────────── */
   function initCard(card) {
     const pageName = card.dataset.page;
-    const apis = { users: '/admin/api/users', deposits: '/admin/api/deposits', games: '/admin/api/games', transactions: '/admin/api/transactions', banners: '/admin/api/banners' };
+    const apis = { users: '/admin/api/users', deposits: '/admin/api/deposits', games: '/admin/api/games', transactions: '/admin/api/transactions', banners: '/admin/api/banners', bets: '/admin/api/bets', affiliates: '/admin/api/affiliates', support: '/admin/api/support', promotions: '/admin/api/promotions', audit: '/admin/api/audit' };
     const api = apis[pageName];
     if (!api) return;
 
@@ -133,6 +133,31 @@
       });
     }
 
+    if (pageName === 'affiliates') {
+      card.addEventListener('click', async (e) => {
+        const btn = e.target.closest('.btn-toggle-affiliate');
+        if (!btn) return;
+        await fetch(`/admin/api/affiliates/${btn.dataset.id}/toggle`, { method: 'POST', credentials: 'same-origin' });
+        load();
+      });
+    }
+
+    if (pageName === 'promotions') {
+      card.addEventListener('click', async (e) => {
+        const btn = e.target.closest('.btn-toggle-promo');
+        if (!btn) return;
+        await fetch(`/admin/api/promotions/${btn.dataset.id}/toggle`, { method: 'POST', credentials: 'same-origin' });
+        load();
+      });
+      card.addEventListener('click', async (e) => {
+        const btn = e.target.closest('.btn-delete-promo');
+        if (!btn) return;
+        if (!confirm('Excluir promoção?')) return;
+        await fetch(`/admin/api/promotions/${btn.dataset.id}`, { method: 'DELETE', credentials: 'same-origin' });
+        load();
+      });
+    }
+
     load();
   }
 
@@ -213,6 +238,79 @@
         </td>
       </tr>`;
     }
+    if (page === 'bets') {
+      const amt = Number(r.amount_cents || 0) / 100;
+      const pay = Number(r.payout_cents || 0) / 100;
+      const statusCls = { won: 'ok', lost: 'bad', pending: 'warn', canceled: 'bad' };
+      return `<tr>
+        <td>${r.id}</td>
+        <td><strong>${esc(r.username || r.user_id)}</strong> <span style="color:rgba(255,255,255,.35)">#${r.user_id}</span></td>
+        <td style="color:rgba(255,255,255,.55)">${esc(r.game_name || r.game_id || '-')}</td>
+        <td style="color:var(--adm-gold2);font-weight:900">${brl(amt)}</td>
+        <td style="color:#2ee76b;font-weight:700">${brl(pay)}</td>
+        <td>${r.multiplier || '—'}x</td>
+        <td><span class="adm-tag ${statusCls[r.status] || ''}">${esc(r.status)}</span></td>
+        <td style="color:rgba(255,255,255,.45)">${fdate(r.created_at)}</td>
+      </tr>`;
+    }
+    if (page === 'affiliates') {
+      const earned = Number(r.total_earned_cents || 0) / 100;
+      return `<tr>
+        <td>${r.id}</td>
+        <td><strong>${esc(r.username || r.user_id)}</strong></td>
+        <td style="color:var(--adm-gold2);font-weight:700">${esc(r.code)}</td>
+        <td>${r.commission_pct}%</td>
+        <td style="color:#2ee76b;font-weight:700">${brl(earned)}</td>
+        <td>${activeTag(r.is_active)}</td>
+        <td style="color:rgba(255,255,255,.45)">${fdate(r.created_at)}</td>
+        <td><button class="adm-btn btn-toggle-affiliate" data-id="${r.id}" style="font-size:11px;height:30px;padding:0 8px;">${r.is_active ? 'Desativar' : 'Ativar'}</button></td>
+      </tr>`;
+    }
+    if (page === 'support') {
+      const statusCls = { open: 'warn', in_progress: 'info', closed: 'ok' };
+      const statusLabel = { open: 'Aberto', in_progress: 'Em andamento', closed: 'Fechado' };
+      const prioCls = { low: '', normal: '', high: 'warn', urgent: 'bad' };
+      return `<tr>
+        <td>${r.id}</td>
+        <td><strong>${esc(r.username || r.user_id || '-')}</strong></td>
+        <td>${esc(r.subject)}</td>
+        <td><span class="adm-tag ${statusCls[r.status] || ''}">${statusLabel[r.status] || esc(r.status)}</span></td>
+        <td><span class="adm-tag ${prioCls[r.priority] || ''}">${esc(r.priority)}</span></td>
+        <td style="color:rgba(255,255,255,.45)">${fdate(r.created_at)}</td>
+        <td style="color:rgba(255,255,255,.45)">${fdate(r.updated_at)}</td>
+        <td><button class="adm-btn btn-view-ticket" data-id="${r.id}" style="font-size:11px;height:30px;padding:0 8px;">Ver</button></td>
+      </tr>`;
+    }
+    if (page === 'promotions') {
+      const val = Number(r.value_cents || 0) / 100;
+      return `<tr>
+        <td>${r.id}</td>
+        <td><strong>${esc(r.title)}</strong></td>
+        <td><span class="adm-tag">${esc(r.type)}</span></td>
+        <td style="color:var(--adm-gold2)">${r.value_pct > 0 ? r.value_pct + '%' : brl(val)}</td>
+        <td style="color:rgba(255,255,255,.55)">${esc(r.code || '-')}</td>
+        <td>${r.claimed_count || 0}${r.max_uses ? '/' + r.max_uses : ''}</td>
+        <td>${activeTag(r.is_active)}</td>
+        <td style="color:rgba(255,255,255,.45)">${r.expires_at ? fdate(r.expires_at) : '—'}</td>
+        <td>
+          <div style="display:flex;gap:4px;">
+            <button class="adm-btn btn-toggle-promo" data-id="${r.id}" style="font-size:11px;height:30px;padding:0 8px;">${r.is_active ? 'Off' : 'On'}</button>
+            <button class="adm-btn btn-delete-promo" data-id="${r.id}" style="font-size:11px;height:30px;padding:0 8px;border-color:rgba(255,77,77,.3);color:#ff4d4d">×</button>
+          </div>
+        </td>
+      </tr>`;
+    }
+    if (page === 'audit') {
+      return `<tr>
+        <td>${r.id}</td>
+        <td style="color:var(--adm-gold2)">${esc(r.admin_name || r.admin_id || '-')}</td>
+        <td><strong>${esc(r.action)}</strong></td>
+        <td style="color:rgba(255,255,255,.55)">${esc(r.target_type || '-')}</td>
+        <td>${r.target_id || '-'}</td>
+        <td style="color:rgba(255,255,255,.35)">${esc(r.ip_address || '-')}</td>
+        <td style="color:rgba(255,255,255,.45)">${fdate(r.created_at)}</td>
+      </tr>`;
+    }
     return '';
   }
 
@@ -244,6 +342,25 @@
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ image_url, link_url, sort_order }),
+      credentials: 'same-origin'
+    });
+    const d = await r.json();
+    if (d.ok) location.reload();
+    else alert(d.msg || 'Erro');
+  });
+
+  document.getElementById('btnAddPromo')?.addEventListener('click', async () => {
+    const title = prompt('Título da promoção:');
+    if (!title) return;
+    const type = prompt('Tipo (bonus/cashback/freebet):') || 'bonus';
+    const code = prompt('Código (opcional):') || '';
+    const value_cents = prompt('Valor em centavos (ex: 1000 = R$10):') || '0';
+    const value_pct = prompt('Percentual (ex: 50 = 50%):') || '0';
+    const max_uses = prompt('Máx. de usos (0 = ilimitado):') || '0';
+    const r = await fetch('/admin/api/promotions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title, type, code: code || undefined, value_cents, value_pct, max_uses }),
       credentials: 'same-origin'
     });
     const d = await r.json();

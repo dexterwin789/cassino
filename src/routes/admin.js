@@ -86,6 +86,26 @@ router.get('/banners', requireAdmin, (req, res) => {
   res.render('admin/banners', { title: 'Banners', admin: req.session.admin });
 });
 
+router.get('/bets', requireAdmin, (req, res) => {
+  res.render('admin/bets', { title: 'Apostas', admin: req.session.admin });
+});
+
+router.get('/affiliates', requireAdmin, (req, res) => {
+  res.render('admin/affiliates', { title: 'Afiliados', admin: req.session.admin });
+});
+
+router.get('/support', requireAdmin, (req, res) => {
+  res.render('admin/support', { title: 'Suporte', admin: req.session.admin });
+});
+
+router.get('/promotions', requireAdmin, (req, res) => {
+  res.render('admin/promotions', { title: 'Promoções', admin: req.session.admin });
+});
+
+router.get('/audit', requireAdmin, (req, res) => {
+  res.render('admin/audit', { title: 'Audit Log', admin: req.session.admin });
+});
+
 router.get('/themes', requireAdmin, async (req, res) => {
   try {
     const r = await query('SELECT * FROM themes ORDER BY is_active DESC, name');

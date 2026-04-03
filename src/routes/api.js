@@ -127,20 +127,32 @@ router.post('/deposit/create', requireUser, async (req, res) => {
     await query('UPDATE transactions SET provider_ref = $1 WHERE id = $2', [externalRef, txId]);
 
     // 2) Call BlackCat
-    const resp = await createSale(amountCents, 'Deposito', user, externalRef);
+    let resp;
+    try {
+      resp = await createSale(amountCents, 'Deposito', user, externalRef);
+    } catch (apiErr) {
+      console.error('[DEPOSIT] BlackCat API error:', apiErr.message);
+      await query("UPDATE transactions SET status = 'failed', payload_json = $1 WHERE id = $2", [JSON.stringify({ error: apiErr.message }), txId]);
+      return res.status(502).json({ ok: false, msg: 'Erro no gateway: ' + apiErr.message });
+    }
 
     // Save payload
     await query('UPDATE transactions SET payload_json = $1 WHERE id = $2', [JSON.stringify(resp), txId]);
 
-    const data = resp.data || {};
-    const providerTxId = data.transactionId;
+    const data = resp.data || resp;
+    const providerTxId = data.transactionId || data.id;
     const paymentData = data.paymentData || {};
-    const copyPaste = paymentData.copyPaste || paymentData.qrCode || null;
+    const copyPaste = paymentData.pixCode || paymentData.copyPaste || paymentData.qrCode || null;
+    const qrBase64 = paymentData.qrCodeBase64 || paymentData.qrCodeImage || null;
 
     if (!providerTxId || !copyPaste) {
+      console.error('[DEPOSIT] Gateway response missing pix data:', JSON.stringify(resp).substring(0, 500));
       await query("UPDATE transactions SET status = 'failed' WHERE id = $1", [txId]);
-      return res.status(502).json({ ok: false, msg: 'Resposta inválida do gateway.' });
+      return res.status(502).json({ ok: false, msg: 'Gateway não retornou código PIX.' });
     }
+
+    // Update provider_ref with actual transactionId from gateway
+    await query('UPDATE transactions SET provider_ref = $1 WHERE id = $2', [String(providerTxId), txId]);
 
     res.json({
       ok: true,
@@ -150,11 +162,11 @@ router.post('/deposit/create', requireUser, async (req, res) => {
       amount_cents: amountCents,
       copyPaste: String(copyPaste),
       invoiceUrl: String(data.invoiceUrl || ''),
-      qrCodeBase64: null
+      qrCodeBase64: qrBase64 ? String(qrBase64) : null
     });
   } catch (err) {
-    console.error('[DEPOSIT]', err);
-    res.status(500).json({ ok: false, msg: 'Erro ao processar depósito.' });
+    console.error('[DEPOSIT] Unexpected error:', err);
+    res.status(500).json({ ok: false, msg: 'Erro interno ao processar depósito.' });
   }
 });
 

@@ -1,0 +1,33 @@
+<%- include('layout-head', { title: 'Promoções', page: 'promotions' }) %>
+
+<div class="adm-page-card" data-page="promotions">
+  <div class="adm-page-head">
+    <div><h3>Promoções</h3><p class="adm-muted">Bônus, cupons e promoções</p></div>
+    <div style="display:flex;gap:8px">
+      <button class="adm-btn primary" id="btnAddPromo">+ Nova Promoção</button>
+      <button class="adm-btn" data-action="refresh">Atualizar</button>
+    </div>
+  </div>
+  <div class="adm-toolbar">
+    <div class="adm-field"><label>Buscar</label><input type="text" placeholder="título / código" data-filter="q" /></div>
+    <div class="adm-field"><label>Por página</label><select data-filter="limit"><option value="10">10</option><option value="25" selected>25</option><option value="50">50</option><option value="100">100</option></select></div>
+    <div class="adm-field"><label>&nbsp;</label><button class="adm-btn primary" data-action="apply">Aplicar</button></div>
+  </div>
+  <div class="adm-table-wrap">
+    <table class="adm-table">
+      <thead><tr><th>ID</th><th>Título</th><th>Tipo</th><th>Valor</th><th>Código</th><th>Usos</th><th>Ativo</th><th>Expira</th><th>Ações</th></tr></thead>
+      <tbody data-tbody></tbody>
+    </table>
+  </div>
+  <div class="adm-pager">
+    <div class="adm-muted"><span data-count>0</span> resultados</div>
+    <div class="adm-pager-btns">
+      <button class="adm-btn" data-action="prev">‹</button>
+      <span class="adm-muted">Página <span data-page-num>1</span></span>
+      <button class="adm-btn" data-action="next">›</button>
+    </div>
+  </div>
+</div>
+
+<script src="/public/js/admin.js" defer></script>
+<%- include('layout-foot') %>

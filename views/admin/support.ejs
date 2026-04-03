@@ -1,0 +1,84 @@
+<%- include('layout-head', { title: 'Suporte', page: 'support' }) %>
+
+<div class="adm-page-card" data-page="support">
+  <div class="adm-page-head">
+    <div><h3>Tickets de Suporte</h3><p class="adm-muted">Atendimento ao usuário</p></div>
+    <button class="adm-btn" data-action="refresh">Atualizar</button>
+  </div>
+  <div class="adm-toolbar">
+    <div class="adm-field"><label>Buscar</label><input type="text" placeholder="assunto / id" data-filter="q" /></div>
+    <div class="adm-field"><label>Status</label><select data-filter="status"><option value="">Todos</option><option value="open">Aberto</option><option value="in_progress">Em andamento</option><option value="closed">Fechado</option></select></div>
+    <div class="adm-field"><label>Por página</label><select data-filter="limit"><option value="10">10</option><option value="25" selected>25</option><option value="50">50</option><option value="100">100</option></select></div>
+    <div class="adm-field"><label>&nbsp;</label><button class="adm-btn primary" data-action="apply">Aplicar</button></div>
+  </div>
+  <div class="adm-table-wrap">
+    <table class="adm-table">
+      <thead><tr><th>ID</th><th>Usuário</th><th>Assunto</th><th>Status</th><th>Prioridade</th><th>Criado</th><th>Atualizado</th><th>Ações</th></tr></thead>
+      <tbody data-tbody></tbody>
+    </table>
+  </div>
+  <div class="adm-pager">
+    <div class="adm-muted"><span data-count>0</span> resultados</div>
+    <div class="adm-pager-btns">
+      <button class="adm-btn" data-action="prev">‹</button>
+      <span class="adm-muted">Página <span data-page-num>1</span></span>
+      <button class="adm-btn" data-action="next">›</button>
+    </div>
+  </div>
+</div>
+
+<!-- Support ticket detail modal -->
+<div id="ticketModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:999;align-items:center;justify-content:center">
+  <div style="background:#1a1a1a;border-radius:12px;padding:24px;width:min(90vw,600px);max-height:80vh;overflow-y:auto;border:1px solid rgba(255,255,255,.08)">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <h4 style="margin:0;color:#f6f6f6">Ticket #<span id="ticketId"></span></h4>
+      <button id="closeTicketModal" style="background:none;border:none;color:#999;cursor:pointer;font-size:20px">&times;</button>
+    </div>
+    <div id="ticketMessages" style="margin-bottom:16px;max-height:300px;overflow-y:auto"></div>
+    <div style="display:flex;gap:8px">
+      <input type="text" id="ticketReply" placeholder="Responder..." style="flex:1;background:#111;border:1px solid rgba(255,255,255,.1);color:#f6f6f6;padding:10px 14px;border-radius:8px;font-size:14px">
+      <button id="btnSendReply" class="adm-btn primary" style="white-space:nowrap">Enviar</button>
+      <button id="btnCloseTicket" class="adm-btn" style="white-space:nowrap;border-color:rgba(255,77,77,.3);color:#ff4d4d">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<script src="/public/js/admin.js" defer></script>
+<script defer>
+document.addEventListener('DOMContentLoaded', () => {
+  const modal = document.getElementById('ticketModal');
+  const msgs = document.getElementById('ticketMessages');
+  let currentTicketId = null;
+
+  document.getElementById('closeTicketModal').onclick = () => { modal.style.display = 'none'; };
+
+  document.querySelector('[data-page="support"]').addEventListener('click', async (e) => {
+    const btn = e.target.closest('.btn-view-ticket');
+    if (!btn) return;
+    currentTicketId = btn.dataset.id;
+    document.getElementById('ticketId').textContent = currentTicketId;
+    modal.style.display = 'flex';
+    msgs.innerHTML = '<p style="color:rgba(255,255,255,.4);text-align:center">Carregando...</p>';
+    const r = await fetch('/admin/api/support/' + currentTicketId + '/messages', { credentials: 'same-origin' });
+    const d = await r.json();
+    if (!d.ok) { msgs.innerHTML = '<p style="color:#ff4d4d">Erro</p>'; return; }
+    msgs.innerHTML = d.messages.map(m => `<div style="margin-bottom:8px;padding:8px 12px;border-radius:8px;background:${m.sender_type === 'admin' ? 'rgba(16,185,129,.1)' : 'rgba(255,255,255,.04)'}"><strong style="color:${m.sender_type === 'admin' ? '#10b981' : '#f4c44c'}">${m.sender_name || m.sender_type}</strong><span style="color:rgba(255,255,255,.35);margin-left:8px;font-size:12px">${new Date(m.created_at).toLocaleString('pt-BR')}</span><p style="margin:4px 0 0;color:#ddd">${m.message.replace(/</g,'&lt;')}</p></div>`).join('') || '<p style="color:rgba(255,255,255,.4);text-align:center">Nenhuma mensagem</p>';
+  });
+
+  document.getElementById('btnSendReply').onclick = async () => {
+    const msg = document.getElementById('ticketReply').value.trim();
+    if (!msg || !currentTicketId) return;
+    await fetch('/admin/api/support/' + currentTicketId + '/reply', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: msg }), credentials: 'same-origin' });
+    document.getElementById('ticketReply').value = '';
+    document.querySelector('.btn-view-ticket[data-id="' + currentTicketId + '"]').click();
+  };
+
+  document.getElementById('btnCloseTicket').onclick = async () => {
+    if (!currentTicketId) return;
+    await fetch('/admin/api/support/' + currentTicketId + '/close', { method: 'POST', credentials: 'same-origin' });
+    modal.style.display = 'none';
+    document.querySelector('[data-action="refresh"]').click();
+  };
+});
+</script>
+<%- include('layout-foot') %>
