@@ -19,6 +19,9 @@ app.use(helmet({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Trust Railway/Heroku reverse proxy so secure cookies work
+app.set('trust proxy', 1);
+
 // Sessions
 app.use(session({
   store: new PgSession({ pool, tableName: 'sessions', createTableIfMissing: true }),

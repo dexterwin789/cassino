@@ -22,7 +22,10 @@ router.post('/login', async (req, res) => {
       return res.render('admin/login', { error: 'Usuário ou senha inválidos.', title: 'Admin Login' });
     }
     req.session.admin = { id: adm.id, username: adm.username, role: adm.role };
-    res.redirect('/admin');
+    req.session.save((saveErr) => {
+      if (saveErr) console.error('[ADMIN LOGIN] session save:', saveErr);
+      res.redirect('/admin');
+    });
   } catch (err) {
     console.error('[ADMIN LOGIN]', err);
     res.render('admin/login', { error: 'Erro interno.', title: 'Admin Login' });

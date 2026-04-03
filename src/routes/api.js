@@ -40,7 +40,10 @@ router.post('/register', async (req, res) => {
     await query('INSERT INTO wallets (user_id, balance_cents) VALUES ($1, 0)', [u.id]);
 
     req.session.user = u;
-    res.json({ ok: true, user: u });
+    req.session.save((saveErr) => {
+      if (saveErr) console.error('[REGISTER] session save:', saveErr);
+      res.json({ ok: true, user: u });
+    });
   } catch (err) {
     console.error('[REGISTER]', err);
     res.status(500).json({ ok: false, msg: 'Erro ao registrar.' });
@@ -63,7 +66,10 @@ router.post('/login', async (req, res) => {
 
     delete u.password_hash;
     req.session.user = u;
-    res.json({ ok: true, user: u });
+    req.session.save((saveErr) => {
+      if (saveErr) console.error('[LOGIN] session save:', saveErr);
+      res.json({ ok: true, user: u });
+    });
   } catch (err) {
     console.error('[LOGIN]', err);
     res.status(500).json({ ok: false, msg: 'Erro ao fazer login.' });
