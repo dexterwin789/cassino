@@ -35,7 +35,7 @@
   /* ─── Generic table controller ───────────────── */
   function initCard(card) {
     const pageName = card.dataset.page;
-    const apis = { users: '/admin/api/users', deposits: '/admin/api/deposits', games: '/admin/api/games' };
+    const apis = { users: '/admin/api/users', deposits: '/admin/api/deposits', games: '/admin/api/games', transactions: '/admin/api/transactions', banners: '/admin/api/banners' };
     const api = apis[pageName];
     if (!api) return;
 
@@ -117,6 +117,22 @@
       });
     }
 
+    if (pageName === 'banners') {
+      card.addEventListener('click', async (e) => {
+        const btn = e.target.closest('.btn-toggle-banner');
+        if (!btn) return;
+        await fetch(`/admin/api/banners/${btn.dataset.id}/toggle`, { method: 'POST', credentials: 'same-origin' });
+        load();
+      });
+      card.addEventListener('click', async (e) => {
+        const btn = e.target.closest('.btn-delete-banner');
+        if (!btn) return;
+        if (!confirm('Excluir banner?')) return;
+        await fetch(`/admin/api/banners/${btn.dataset.id}`, { method: 'DELETE', credentials: 'same-origin' });
+        load();
+      });
+    }
+
     load();
   }
 
@@ -165,6 +181,38 @@
         </td>
       </tr>`;
     }
+    if (page === 'transactions') {
+      const amt = Number(r.amount_cents || 0) / 100;
+      const typeTag = { deposit: 'ok', withdrawal: 'warn', bonus: 'info', bet: '', win: 'ok' };
+      const cls = typeTag[r.type] || '';
+      return `<tr>
+        <td>${r.id}</td>
+        <td><strong>${esc(r.username || r.user_id)}</strong> <span style="color:rgba(255,255,255,.35)">#${r.user_id}</span></td>
+        <td><span class="adm-tag ${cls}">${esc(r.type)}</span></td>
+        <td style="color:var(--adm-gold2);font-weight:900">${brl(amt)}</td>
+        <td>${tag(r.status)}</td>
+        <td style="color:rgba(255,255,255,.45)">${esc(r.provider || '-')}</td>
+        <td style="color:rgba(255,255,255,.45)">${esc(r.provider_ref || '-')}</td>
+        <td style="color:rgba(255,255,255,.45)">${fdate(r.created_at)}</td>
+      </tr>`;
+    }
+    if (page === 'banners') {
+      return `<tr>
+        <td>${r.id}</td>
+        <td>${r.image_url ? `<img class="adm-thumb" src="${esc(r.image_url)}" alt="" style="width:80px;height:40px;object-fit:cover;border-radius:6px">` : '—'}</td>
+        <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:rgba(255,255,255,.55)">${esc(r.image_url)}</td>
+        <td style="color:rgba(255,255,255,.45)">${esc(r.link_url || '-')}</td>
+        <td>${r.sort_order}</td>
+        <td>${activeTag(r.is_active)}</td>
+        <td style="color:rgba(255,255,255,.45)">${fdate(r.created_at)}</td>
+        <td>
+          <div style="display:flex;gap:4px;">
+            <button class="adm-btn btn-toggle-banner" data-id="${r.id}" style="font-size:11px;height:30px;padding:0 8px;">${r.is_active ? 'Off' : 'On'}</button>
+            <button class="adm-btn btn-delete-banner" data-id="${r.id}" style="font-size:11px;height:30px;padding:0 8px;border-color:rgba(255,77,77,.3);color:#ff4d4d">×</button>
+          </div>
+        </td>
+      </tr>`;
+    }
     return '';
   }
 
@@ -180,6 +228,22 @@
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ game_code: code, game_name: name, provider, image_url, category }),
+      credentials: 'same-origin'
+    });
+    const d = await r.json();
+    if (d.ok) location.reload();
+    else alert(d.msg || 'Erro');
+  });
+
+  document.getElementById('btnAddBanner')?.addEventListener('click', async () => {
+    const image_url = prompt('Image URL do banner:');
+    if (!image_url) return;
+    const link_url = prompt('Link URL (opcional):') || '';
+    const sort_order = prompt('Ordem de exibição (0, 1, 2...):') || '0';
+    const r = await fetch('/admin/api/banners', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ image_url, link_url, sort_order }),
       credentials: 'same-origin'
     });
     const d = await r.json();

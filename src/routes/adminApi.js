@@ -276,6 +276,110 @@ router.delete('/themes/:id', async (req, res) => {
   }
 });
 
+// ─── Transactions (all types) ─────────────────────
+
+router.get('/transactions', async (req, res) => {
+  try {
+    const q = (req.query.q || '').trim();
+    const type = req.query.type || '';
+    const status = req.query.status || '';
+    const from = req.query.from || '';
+    const to = req.query.to || '';
+    const limit = Math.min(Math.max(parseInt(req.query.limit) || 25, 1), 200);
+    const page = Math.max(parseInt(req.query.page) || 1, 1);
+    const offset = (page - 1) * limit;
+
+    let where = [];
+    let params = [];
+    let idx = 1;
+
+    if (q) {
+      where.push(`(CAST(t.id AS TEXT) = $${idx} OR CAST(t.user_id AS TEXT) = $${idx} OR t.provider_ref ILIKE $${idx + 1})`);
+      params.push(q, `%${q}%`);
+      idx += 2;
+    }
+
+    const allowedTypes = ['deposit', 'withdrawal', 'bonus', 'bet', 'win'];
+    if (type && allowedTypes.includes(type)) {
+      where.push(`t.type = $${idx}`);
+      params.push(type);
+      idx++;
+    }
+
+    const allowedStatuses = ['pending', 'paid', 'failed', 'canceled', 'completed'];
+    if (status && allowedStatuses.includes(status)) {
+      where.push(`t.status = $${idx}`);
+      params.push(status);
+      idx++;
+    }
+
+    if (from) { where.push(`t.created_at >= $${idx}`); params.push(from + ' 00:00:00'); idx++; }
+    if (to) { where.push(`t.created_at <= $${idx}`); params.push(to + ' 23:59:59'); idx++; }
+
+    const whereSql = where.length ? 'WHERE ' + where.join(' AND ') : '';
+
+    const countR = await query(`SELECT COUNT(*) AS c FROM transactions t ${whereSql}`, params);
+    const total = parseInt(countR.rows[0].c);
+
+    const rowsR = await query(`
+      SELECT t.id, t.user_id, u.username, t.type, t.status, t.amount_cents, t.provider, t.provider_ref, t.created_at, t.updated_at
+      FROM transactions t
+      LEFT JOIN users u ON u.id = t.user_id
+      ${whereSql}
+      ORDER BY t.id DESC
+      LIMIT $${idx} OFFSET $${idx + 1}
+    `, [...params, limit, offset]);
+
+    res.json({ ok: true, page, limit, total, rows: rowsR.rows });
+  } catch (err) {
+    console.error('[ADMIN API TRANSACTIONS]', err);
+    res.status(500).json({ ok: false, msg: 'Erro ao listar transações.' });
+  }
+});
+
+// ─── Banners ──────────────────────────────────────
+
+router.get('/banners', async (req, res) => {
+  try {
+    const r = await query('SELECT * FROM banners ORDER BY sort_order, id DESC');
+    res.json({ ok: true, rows: r.rows, total: r.rows.length, page: 1, limit: 200 });
+  } catch (err) {
+    res.status(500).json({ ok: false, msg: 'Erro ao listar banners.' });
+  }
+});
+
+router.post('/banners', async (req, res) => {
+  try {
+    const { image_url, link_url, sort_order } = req.body;
+    if (!image_url) return res.status(400).json({ ok: false, msg: 'URL da imagem obrigatória.' });
+    const r = await query(
+      'INSERT INTO banners (image_url, link_url, sort_order) VALUES ($1, $2, $3) RETURNING *',
+      [image_url, link_url || null, parseInt(sort_order) || 0]
+    );
+    res.json({ ok: true, banner: r.rows[0] });
+  } catch (err) {
+    res.status(500).json({ ok: false, msg: 'Erro ao criar banner.' });
+  }
+});
+
+router.post('/banners/:id/toggle', async (req, res) => {
+  try {
+    await query('UPDATE banners SET is_active = NOT is_active WHERE id = $1', [req.params.id]);
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ ok: false, msg: 'Erro.' });
+  }
+});
+
+router.delete('/banners/:id', async (req, res) => {
+  try {
+    await query('DELETE FROM banners WHERE id = $1', [req.params.id]);
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ ok: false, msg: 'Erro ao excluir.' });
+  }
+});
+
 // ─── Settings ─────────────────────────────────────
 
 router.get('/settings', async (req, res) => {
