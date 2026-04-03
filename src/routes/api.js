@@ -257,6 +257,7 @@ router.post('/user/change-password', requireUser, async (req, res) => {
 router.get('/games', async (req, res) => {
   try {
     const r = await query('SELECT id, game_code, game_name, image_url, provider, category FROM games WHERE is_active = TRUE ORDER BY sort_order, id');
+    console.log('[GAMES API] returned', r.rows.length, 'games');
     res.json({ ok: true, data: r.rows });
   } catch (err) {
     console.error('[GAMES]', err);
