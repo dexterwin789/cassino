@@ -1,17 +1,7 @@
 /* /cassino/public/js/script.js — ported from PHP version */
 
-const banners = [
-  { src: "/public/img/banner1.avif", alt: "Banner 1" },
-  { src: "/public/img/banner2.webp", alt: "Banner 2" },
-  { src: "/public/img/banner3.webp", alt: "Banner 3" },
-  { src: "/public/img/banner4.avif", alt: "Banner 4" },
-  { src: "/public/img/banner5.webp", alt: "Banner 5" },
-  { src: "/public/img/banner6.avif", alt: "Banner 6" },
-  { src: "/public/img/banner7.avif", alt: "Banner 7" },
-  { src: "/public/img/banner8.avif", alt: "Banner 8" },
-  { src: "/public/img/banner9.webp", alt: "Banner 9" },
-  { src: "/public/img/banner10.webp", alt: "Banner 10" },
-];
+let banners = [];
+let allGames = [];
 
 const baseTabs = [
   { id: "quente", label: "Quente", icon: "/public/img/aba1.png" },
@@ -25,9 +15,25 @@ const baseTabs = [
 
 let tabActive = "quente";
 
-function gameImg(n){
-  if(n === 1 || n === 10) return "/public/img/games/1.avif";
-  return `/public/img/games/${n}.webp`;
+function getGamesForTab(tabId) {
+  if (tabId === 'quente') return allGames.filter(g => g.category === 'quente');
+  return allGames.filter(g => g.provider === tabId || g.category === tabId);
+}
+
+function gameCardHTML(game) {
+  const img = game.image_url || '/public/img/games/1.avif';
+  return `<a class="game" href="#" title="${game.game_name}"><img src="${img}" alt="${game.game_name}" draggable="false" loading="lazy"></a>`;
+}
+
+function pageHTML(tabId) {
+  const games = getGamesForTab(tabId || tabActive);
+  if (!games.length) {
+    return `<div class="games-grid"><p style="text-align:center;color:#aaa;grid-column:1/-1;padding:20px;">Nenhum jogo disponível</p></div>`;
+  }
+  let html = `<div class="games-grid">`;
+  games.forEach(g => { html += gameCardHTML(g); });
+  html += `</div>`;
+  return html;
 }
 
 /* menu spacer + telegram alignment */
@@ -269,155 +275,78 @@ function titleHTML(tabId){
     </div>
   `;
 }
-function pageHTML(){
-  let html = `<div class="games-grid">`;
-  for(let i=1;i<=12;i++){
-    html += `<a class="game" href="#"><img src="${gameImg(i)}" alt="${i}" draggable="false" loading="lazy"></a>`;
-  }
-  html += `</div>`;
-  return html;
-}
-
 function slider12HTML(tabId){
+  const gamesHtml = pageHTML(tabId);
   return `
     <section class="section slider12" data-slider12="${tabId}">
       <div class="section-head">
         ${titleHTML(tabId)}
         <div class="right">
-          <button class="sbtn" data-act="prev" aria-label="Anterior">&#8249;</button>
-          <button class="sbtn" data-act="next" aria-label="Próximo">&#8250;</button>
           <button class="more" data-act="more">Mais</button>
         </div>
       </div>
-
-      <div class="strip" data-strip>
-        <div class="slide-track" data-track style="transform: translateX(-100%);">
-          <div class="slide-page">${pageHTML()}</div>
-          <div class="slide-page">${pageHTML()}</div>
-          <div class="slide-page">${pageHTML()}</div>
-        </div>
-      </div>
+      ${gamesHtml}
     </section>
   `;
 }
 
 function tabQuenteHTML(){
-  return `
-    ${slider12HTML("quente")}
-    ${slider12HTML("pg")}
-    ${slider12HTML("wg")}
-    ${slider12HTML("pp")}
-    ${slider12HTML("jili")}
-  `;
+  // Show "quente" section first, then previews of other categories that have games
+  let html = slider12HTML("quente");
+  for (const tab of baseTabs) {
+    if (tab.id === "quente") continue;
+    const games = getGamesForTab(tab.id);
+    if (games.length) html += slider12HTML(tab.id);
+  }
+  return html;
 }
 
 function tabNormalHTML(tabId){
   return `
     <section class="section">
       <div class="section-head">${titleHTML(tabId)}</div>
-      ${pageHTML()}
-      <div class="loadmore-wrap">
-        <button class="loadmore-half">Carregar mais</button>
-      </div>
+      ${pageHTML(tabId)}
     </section>
   `;
 }
 
 function renderContent(){
   content.innerHTML = (tabActive === "quente") ? tabQuenteHTML() : tabNormalHTML(tabActive);
-
   content.querySelectorAll("img").forEach(img=>img.setAttribute("draggable","false"));
 
-  bindBodySliderEvents();
-  bindBodySliderSwipes();
-}
-
-function shiftSlider(slider, dir){
-  const track = slider.querySelector("[data-track]");
-  if(!track) return;
-
-  track.style.transition = "transform .26s ease";
-  track.style.transform = (dir === "next") ? "translateX(-200%)" : "translateX(0%)";
-
-  const onEnd = ()=>{
-    track.removeEventListener("transitionend", onEnd);
-    track.style.transition = "none";
-    track.style.transform = "translateX(-100%)";
-  };
-  track.addEventListener("transitionend", onEnd);
-}
-
-function bindBodySliderEvents(){
+  // "Mais" button click handler
   content.onclick = (e)=>{
-    const slider = e.target.closest("[data-slider12]");
-    if(!slider) return;
-
     const act = e.target.closest("[data-act]")?.dataset.act;
     if(!act) return;
-
-    const tabId = slider.dataset.slider12;
-
-    if(act === "more"){ setActiveTab(tabId); return; }
-    if(act === "prev") shiftSlider(slider, "prev");
-    if(act === "next") shiftSlider(slider, "next");
+    const slider = e.target.closest("[data-slider12]");
+    if(slider && act === "more") setActiveTab(slider.dataset.slider12);
   };
-}
-
-function bindBodySliderSwipes(){
-  const sliders = content.querySelectorAll("[data-slider12]");
-  sliders.forEach(slider=>{
-    const strip = slider.querySelector("[data-strip]");
-    const track = slider.querySelector("[data-track]");
-    if(!strip || !track) return;
-
-    strip.addEventListener("dragstart",(ev)=>ev.preventDefault());
-    strip.style.touchAction = "pan-y";
-
-    let down=false, startX=0, dx=0, moved=false;
-
-    strip.onpointerdown = (ev)=>{
-      down=true; moved=false; startX=ev.clientX; dx=0;
-      strip.setPointerCapture(ev.pointerId);
-    };
-
-    strip.onpointermove = (ev)=>{
-      if(!down) return;
-      dx = ev.clientX - startX;
-      if(Math.abs(dx) > 6) moved=true;
-
-      if(moved){
-        track.style.transition = "none";
-        const pct = (dx / strip.clientWidth) * 12;
-        track.style.transform = `translateX(calc(-100% + ${pct}%))`;
-        ev.preventDefault?.();
-      }
-    };
-
-    const end = ()=>{
-      if(!down) return;
-      down=false;
-
-      track.style.transition = "";
-      track.style.transform = "translateX(-100%)";
-
-      const threshold = strip.clientWidth * 0.16;
-      if(dx > threshold) shiftSlider(slider, "prev");
-      else if(dx < -threshold) shiftSlider(slider, "next");
-    };
-
-    strip.onpointerup = end;
-    strip.onpointercancel = end;
-    strip.onlostpointercapture = end;
-  });
 }
 
 /* INIT */
-syncMenuSpacer();
-mountBanners();
-mountMarquee();
-mountTabsLoop();
-renderContent();
-positionTelegram();
+async function initApp() {
+  // Fetch games and banners from API
+  try {
+    const [gamesRes, bannersRes] = await Promise.all([
+      fetch('/api/games').then(r => r.json()).catch(() => ({ ok: false, data: [] })),
+      fetch('/api/banners').then(r => r.json()).catch(() => ({ ok: false, data: [] }))
+    ]);
+    allGames = (gamesRes.ok && gamesRes.data) ? gamesRes.data : [];
+    banners = (bannersRes.ok && bannersRes.data) ? bannersRes.data.map(b => ({ src: b.image_url, alt: 'Banner', link: b.link_url })) : [];
+  } catch (e) {
+    console.error('[INIT] fetch error:', e);
+    allGames = [];
+    banners = [];
+  }
+
+  syncMenuSpacer();
+  mountBanners();
+  mountMarquee();
+  mountTabsLoop();
+  renderContent();
+  positionTelegram();
+}
+initApp();
 
 
 /* =========================
