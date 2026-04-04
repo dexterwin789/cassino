@@ -3,6 +3,14 @@
 <!-- TOP BAR -->
 <header class="topbar" id="topbar">
   <div class="topbar-left">
+    <button class="bars-toggle" id="barsToggle" title="Toggle sidebar">
+      <img src="/public/img/novo/bars1.svg" width="22" height="22" alt="Menu">
+    </button>
+    <a href="/" class="topbar-logo">
+      <img src="/public/img/novo/logo.png" alt="EsportivaBet" class="logo-img">
+    </a>
+  </div>
+  <div class="topbar-center">
     <button class="tab-switch active" data-tab="cassino">
       <img src="/public/img/novo/carta1.svg" width="17" height="17" alt="Cassino">
       CASSINO
@@ -11,12 +19,6 @@
       <img src="/public/img/novo/bola1.svg" width="17" height="17" alt="Esportes">
       ESPORTES
     </button>
-    <button class="bars-toggle" id="barsToggle" title="Toggle sidebar">
-      <img src="/public/img/novo/bars1.svg" width="22" height="22" alt="Menu">
-    </button>
-    <a href="/" class="topbar-logo">
-      <img src="/public/img/novo/logo.png" alt="EsportivaBet" class="logo-img">
-    </a>
   </div>
   <div class="topbar-right">
     <span class="responsible-label is-guest-el">Jogo Responsável</span>
@@ -36,7 +38,8 @@
 
   <!-- SIDEBAR -->
   <aside class="sidebar" id="sidebar">
-    <div class="sidebar-cards">
+    <!-- Quick Access Cards -->
+    <div class="sidebar-cards sb-full">
       <a href="#" class="sq-card">
         <span class="sq-label">Torneios</span>
         <img src="/public/img/novo/torneios1.svg" class="sq-img" alt="Torneios">
@@ -63,81 +66,56 @@
       </a>
     </div>
 
+    <!-- Promo banners -->
     <div class="sidebar-promos sb-full">
-      <a href="#" class="promo-banner">
-        <img src="/public/img/novo/calendario.png" alt="Calendário" width="218" height="73">
+      <a href="#" class="promo-card promo-calendar">
+        <img src="/public/img/novo/calendario.png" alt="Calendário" class="promo-img">
+        <span class="promo-text">CALENDÁRIO</span>
       </a>
-      <a href="#" class="promo-banner">
-        <img src="/public/img/novo/app.png" alt="Baixe nosso app" width="218" height="73">
+      <a href="#" class="promo-card promo-app">
+        <img src="/public/img/novo/app.png" alt="App" class="promo-img">
+        <span class="promo-text">BAIXE NOSSO APP</span>
       </a>
     </div>
 
-    <div class="sidebar-menu sb-full">
-      <div class="menu-title" id="menuCassinoToggle">
+    <!-- Casino Menu -->
+    <div class="sidebar-menu">
+      <div class="menu-title sb-full" id="menuCassinoToggle">
         CASSINO
         <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
       </div>
       <ul class="menu-list" id="menuCassinoList">
-        <li class="active" data-filter="all"><img src="/public/img/novo/1.svg" class="mi" width="20" height="20" alt=""> <span class="ml">Todos os jogos</span></li>
-        <li data-filter="slots"><img src="/public/img/novo/2.svg" class="mi" width="20" height="20" alt=""> <span class="ml">Jogos Slots</span></li>
-        <li data-filter="live"><img src="/public/img/novo/3.svg" class="mi" width="20" height="20" alt=""> <span class="ml">Cassino ao vivo</span></li>
-        <li data-filter="providers"><img src="/public/img/novo/4.svg" class="mi" width="20" height="20" alt=""> <span class="ml">Provedores</span></li>
-        <li data-filter="mines"><img src="/public/img/novo/5.svg" class="mi" width="20" height="20" alt=""> <span class="ml">Mines</span></li>
-        <li data-filter="fortune"><img src="/public/img/novo/6.svg" class="mi" width="20" height="20" alt=""> <span class="ml">Fortune Tiger</span></li>
-        <li data-filter="aviator"><img src="/public/img/novo/7.svg" class="mi" width="20" height="20" alt=""> <span class="ml">Aviator</span></li>
-        <li data-filter="spaceman"><img src="/public/img/novo/8.svg" class="mi" width="20" height="20" alt=""> <span class="ml">Spaceman</span></li>
-        <li data-filter="blackjack"><img src="/public/img/novo/9.svg" class="mi" width="20" height="20" alt=""> <span class="ml">Infinite Blackjack</span></li>
-        <li data-filter="roleta"><img src="/public/img/novo/10.svg" class="mi" width="20" height="20" alt=""> <span class="ml">Roleta brasileira</span></li>
-        <li data-filter="footbal"><img src="/public/img/novo/11.svg" class="mi" width="20" height="20" alt=""> <span class="ml">Footbal Studio</span></li>
-        <li data-filter="fruits"><img src="/public/img/novo/12.svg" class="mi" width="20" height="20" alt=""> <span class="ml">Fortune Fruits</span></li>
-        <li data-filter="pirates"><img src="/public/img/novo/13.svg" class="mi" width="20" height="20" alt=""> <span class="ml">Fortune Pirates</span></li>
+        <li class="active" data-filter="all"><img src="/public/img/menu1.svg" class="mi" alt=""> <span class="ml">Todos os jogos</span></li>
+        <li data-filter="slots"><img src="/public/img/menu2.svg" class="mi" alt=""> <span class="ml">Jogos Slots</span></li>
+        <li data-filter="live"><img src="/public/img/menu3.svg" class="mi" alt=""> <span class="ml">Cassino ao vivo</span></li>
+        <li data-filter="providers"><img src="/public/img/menu4.svg" class="mi" alt=""> <span class="ml">Provedores</span></li>
+        <li data-filter="mines"><img src="/public/img/menu5.svg" class="mi" alt=""> <span class="ml">Mines</span></li>
+        <li data-filter="fortune"><img src="/public/img/menu6.svg" class="mi" alt=""> <span class="ml">Fortune Tiger</span></li>
+        <li data-filter="aviator"><img src="/public/img/menu7.svg" class="mi" alt=""> <span class="ml">Aviator</span></li>
+        <li data-filter="spaceman"><img src="/public/img/menu8.svg" class="mi" alt=""> <span class="ml">Spaceman</span></li>
+        <li data-filter="blackjack"><img src="/public/img/menu9.svg" class="mi" alt=""> <span class="ml">Infinite Blackjack</span></li>
+        <li data-filter="roleta"><img src="/public/img/menu10.svg" class="mi" alt=""> <span class="ml">Roleta brasileira</span></li>
       </ul>
     </div>
   </aside>
 
   <!-- MAIN CONTENT -->
   <main class="main-content" id="mainContent">
-    <div class="main-container">
 
+    <!-- Category Icons Row -->
     <section class="category-icons">
-      <div class="cat-icon-item">
-        <div class="cat-icon-circle"><img src="/public/img/esportes_svg.svg" width="60" height="60" alt="Esportes"></div>
-        <span>Esportes</span>
-      </div>
-      <div class="cat-icon-item">
-        <div class="cat-icon-circle"><img src="/public/img/promocoes_svg.svg" width="60" height="60" alt="Promoções"></div>
-        <span>Promoções</span>
-      </div>
-      <div class="cat-icon-item">
-        <div class="cat-icon-circle"><img src="/public/img/roleta_svg.svg" width="60" height="60" alt="Cassino"></div>
-        <span>Cassino</span>
-      </div>
-      <div class="cat-icon-item">
-        <div class="cat-icon-circle"><img src="/public/img/aviator.png" width="60" height="60" alt="Aviatrix"></div>
-        <span>Aviatrix</span>
-      </div>
-      <div class="cat-icon-item">
-        <div class="cat-icon-circle"><img src="/public/img/cartas_svg.svg" width="60" height="60" alt="Cassino"></div>
-        <span>Cassino</span>
-      </div>
-      <div class="cat-icon-item">
-        <div class="cat-icon-circle"><img src="/public/img/controle_svg.svg" width="60" height="60" alt="E-Sports"></div>
-        <span>E-Sports</span>
-      </div>
-      <div class="cat-icon-item">
-        <div class="cat-icon-circle"><img src="/public/img/calendar.png" width="60" height="60" alt="Calendário"></div>
-        <span>Calendário</span>
-      </div>
-      <div class="cat-icon-item">
-        <div class="cat-icon-circle"><img src="/public/img/mines_svg.svg" width="60" height="60" alt="Mines"></div>
-        <span>Mines</span>
-      </div>
-      <div class="cat-icon-item">
-        <div class="cat-icon-circle"><img src="/public/img/indique_e_ganhe_svg.svg" width="60" height="60" alt="Indique"></div>
-        <span>Indique</span>
-      </div>
+      <div class="cat-icon-item"><div class="cat-icon-circle ci-blue"><img src="/public/img/icon1.png" alt=""></div><span>Esportes</span></div>
+      <div class="cat-icon-item"><div class="cat-icon-circle ci-red"><img src="/public/img/icon2.png" alt=""></div><span>Promoções</span></div>
+      <div class="cat-icon-item"><div class="cat-icon-circle ci-pink"><img src="/public/img/icon3.png" alt=""></div><span>Cassino</span></div>
+      <div class="cat-icon-item"><div class="cat-icon-circle ci-purple"><img src="/public/img/icon4.png" alt=""></div><span>Aviatrix</span></div>
+      <div class="cat-icon-item"><div class="cat-icon-circle ci-teal"><img src="/public/img/icon5.png" alt=""></div><span>Cassino</span></div>
+      <div class="cat-icon-item"><div class="cat-icon-circle ci-green"><img src="/public/img/icon6.png" alt=""></div><span>E-Sports</span></div>
+      <div class="cat-icon-item"><div class="cat-icon-circle ci-orange"><img src="/public/img/icon7.png" alt=""></div><span>Calendário</span></div>
+      <div class="cat-icon-item"><div class="cat-icon-circle ci-yellow"><img src="/public/img/icon8.png" alt=""></div><span>Mines</span></div>
+      <div class="cat-icon-item"><div class="cat-icon-circle ci-lime"><img src="/public/img/icon3.png" alt=""></div><span>Indique</span></div>
     </section>
 
+    <!-- Banner Area: 1 large + 2 small stacked -->
     <section class="banner-area">
       <div class="banner-main" id="bannerMain">
         <% if (typeof banners !== 'undefined' && banners.length) { %>
@@ -167,6 +145,7 @@
       </div>
     </section>
 
+    <!-- Search Bar -->
     <section class="search-section">
       <div class="search-box">
         <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -174,21 +153,33 @@
       </div>
     </section>
 
+    <!-- Recomendados -->
     <section class="game-section">
-      <div class="section-header"><h2>Recomendados</h2></div>
+      <div class="section-header">
+        <h2>Recomendados</h2>
+      </div>
       <div class="games-row" id="gamesRecommended"></div>
     </section>
 
+    <!-- Em Alta -->
     <section class="game-section">
-      <div class="section-header"><h2>Em alta</h2><a href="#" class="see-all">Ver todos</a></div>
+      <div class="section-header">
+        <h2>Em alta</h2>
+        <a href="#" class="see-all">Ver todos</a>
+      </div>
       <div class="games-grid" id="gamesHot"></div>
     </section>
 
+    <!-- Todos os Jogos -->
     <section class="game-section">
-      <div class="section-header"><h2>Todos os Jogos</h2><a href="#" class="see-all">Ver todos</a></div>
+      <div class="section-header">
+        <h2>Todos os Jogos</h2>
+        <a href="#" class="see-all">Ver todos</a>
+      </div>
       <div class="games-grid" id="gamesAll"></div>
     </section>
 
+    <!-- Footer -->
     <footer class="site-footer">
       <div class="footer-inner">
         <div class="footer-logo"><img src="/public/img/novo/logo.png" alt="EsportivaBet" style="height:32px"></div>
@@ -197,10 +188,10 @@
       </div>
     </footer>
 
-    </div><!-- .main-container -->
   </main>
 </div>
 
+<!-- BOTTOM NAV (mobile) -->
 <nav class="bottom-nav">
   <a href="/" class="bnav-item active">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
@@ -226,6 +217,7 @@
   </a>
 </nav>
 
+<!-- OVERLAY (sidebar mobile) -->
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
 <!-- ══════════ DEPOSIT MODAL ══════════ -->
 <div class="modal-overlay" id="depositModal">

@@ -1,0 +1,33 @@
+<%# Main layout head — shared by all pages %>
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title><%= typeof title !== 'undefined' ? title : 'Esportiva' %></title>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/public/css/style.css" />
+  <link rel="stylesheet" href="/public/css/theme.css" />
+  <% if (typeof extraCss !== 'undefined' && extraCss) { %>
+    <% extraCss.forEach(function(css) { %>
+      <link rel="stylesheet" href="<%= css %>" />
+    <% }); %>
+  <% } %>
+  <% if (typeof theme !== 'undefined' && theme && theme.css_vars) { %>
+  <style id="theme-vars">
+    :root {
+      <% const vars = typeof theme.css_vars === 'string' ? JSON.parse(theme.css_vars) : theme.css_vars; %>
+      <% Object.entries(vars).forEach(function([k, v]) { %>
+        --<%= k %>: <%= v %>;
+      <% }); %>
+      <% const lc = typeof theme.layout_config === 'string' ? JSON.parse(theme.layout_config) : (theme.layout_config || {}); %>
+      --games-per-row: <%= lc.gamesPerRow || 4 %>;
+      --banner-aspect: <%= lc.bannerAspect || '16/7' %>;
+      --quick-icons: <%= lc.quickIcons || 6 %>;
+      --border-radius: <%= lc.borderRadius || 16 %>px;
+    }
+  </style>
+  <% } %>
+</head>
+<body>
