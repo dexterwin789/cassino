@@ -107,16 +107,22 @@ if (bannerNext) bannerNext.addEventListener('click', function() { showBanner(ban
 /* ========== SIDEBAR ========== */
 var sidebar = document.getElementById('sidebar');
 var sidebarOverlay = document.getElementById('sidebarOverlay');
-var btnHamburger = document.getElementById('btnHamburger');
+var barsToggle = document.getElementById('barsToggle');
 var menuToggle = document.getElementById('menuCassinoToggle');
 var menuList = document.getElementById('menuCassinoList');
 
-if (btnHamburger) btnHamburger.addEventListener('click', function() {
-  if (sidebar) sidebar.classList.toggle('open');
-  if (sidebarOverlay) sidebarOverlay.classList.toggle('active');
+function isMobile() { return window.innerWidth <= 768; }
+
+if (barsToggle) barsToggle.addEventListener('click', function() {
+  if (isMobile()) {
+    if (sidebar) sidebar.classList.toggle('mobile-open');
+    if (sidebarOverlay) sidebarOverlay.classList.toggle('active');
+  } else {
+    if (sidebar) sidebar.classList.toggle('collapsed');
+  }
 });
 if (sidebarOverlay) sidebarOverlay.addEventListener('click', function() {
-  if (sidebar) sidebar.classList.remove('open');
+  if (sidebar) sidebar.classList.remove('mobile-open');
   if (sidebarOverlay) sidebarOverlay.classList.remove('active');
 });
 
@@ -400,7 +406,7 @@ window.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') {
     closeAuth();
     closeDeposit();
-    if (sidebar) sidebar.classList.remove('open');
+    if (sidebar) sidebar.classList.remove('mobile-open');
     if (sidebarOverlay) sidebarOverlay.classList.remove('active');
   }
 });
