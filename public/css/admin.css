@@ -10,8 +10,8 @@
   --adm-line: rgba(255,255,255,.08);
   --adm-text: #f4f6fb;
   --adm-muted: rgba(255,255,255,.55);
-  --adm-gold1: #ffe39a;
-  --adm-gold2: #f4c44c;
+  --adm-green1: #6EE7B7;
+  --adm-green2: #10B981;
   --adm-accent: #2b8cff;
   --adm-danger: #ff4d4d;
   --adm-success: #2ee76b;
@@ -82,8 +82,8 @@ body {
   width: 14px;
   height: 14px;
   border-radius: 999px;
-  background: linear-gradient(180deg, var(--adm-gold1), var(--adm-gold2));
-  box-shadow: 0 0 0 4px rgba(244,196,76,.15), 0 0 20px rgba(244,196,76,.2);
+  background: linear-gradient(180deg, var(--adm-green1), var(--adm-green2));
+  box-shadow: 0 0 0 4px rgba(16,185,129,.15), 0 0 20px rgba(16,185,129,.2);
   flex-shrink: 0;
 }
 
@@ -142,13 +142,13 @@ body {
   color: #fff;
 }
 .adm-nav-link.active {
-  background: linear-gradient(135deg, rgba(244,196,76,.12), rgba(244,196,76,.04));
-  color: var(--adm-gold2);
-  border: 1px solid rgba(244,196,76,.18);
-  box-shadow: 0 0 20px rgba(244,196,76,.06);
+  background: linear-gradient(135deg, rgba(16,185,129,.12), rgba(16,185,129,.04));
+  color: var(--adm-green2);
+  border: 1px solid rgba(16,185,129,.18);
+  box-shadow: 0 0 20px rgba(16,185,129,.06);
 }
 .adm-nav-link.active svg {
-  color: var(--adm-gold2);
+  color: var(--adm-green2);
 }
 .adm-nav-link.logout {
   color: var(--adm-danger);
@@ -176,7 +176,7 @@ body {
   width: 38px;
   height: 38px;
   border-radius: 12px;
-  background: linear-gradient(135deg, var(--adm-gold1), var(--adm-gold2));
+  background: linear-gradient(135deg, var(--adm-green1), var(--adm-green2));
   color: #081018;
   font-weight: 900;
   font-size: 16px;
@@ -207,7 +207,7 @@ body {
   transition: margin-left .3s ease;
   background:
     radial-gradient(900px 450px at 50% -120px, rgba(43,140,255,.06), transparent 60%),
-    radial-gradient(900px 450px at 80% -120px, rgba(244,196,76,.04), transparent 60%),
+    radial-gradient(900px 450px at 80% -120px, rgba(16,185,129,.04), transparent 60%),
     var(--adm-bg);
 }
 
@@ -412,7 +412,7 @@ body {
 }
 .adm-recent-amt {
   font-weight: 900;
-  color: var(--adm-gold2);
+  color: var(--adm-green2);
   font-size: 13px;
   min-width: 90px;
 }
@@ -441,7 +441,7 @@ body {
   background: rgba(0,0,0,.25);
 }
 .adm-tag.ok { border-color: rgba(46,231,107,.3); background: rgba(46,231,107,.08); color: #2ee76b; }
-.adm-tag.warn { border-color: rgba(244,196,76,.35); background: rgba(244,196,76,.1); color: #f4c44c; }
+.adm-tag.warn { border-color: rgba(16,185,129,.35); background: rgba(16,185,129,.1); color: #10B981; }
 .adm-tag.bad { border-color: rgba(255,77,77,.3); background: rgba(255,77,77,.08); color: #ff4d4d; }
 
 /* ─── Quick Actions ────────────────────────────── */
@@ -467,7 +467,7 @@ body {
 }
 .adm-quick-btn:hover {
   background: rgba(255,255,255,.06);
-  border-color: rgba(244,196,76,.25);
+  border-color: rgba(16,185,129,.25);
   transform: translateY(-1px);
 }
 
@@ -540,7 +540,7 @@ body {
   transition: border-color .2s;
 }
 .adm-field input:focus, .adm-field select:focus {
-  border-color: rgba(244,196,76,.4);
+  border-color: rgba(16,185,129,.4);
 }
 .adm-field input::placeholder { color: rgba(255,255,255,.35); }
 
@@ -566,11 +566,11 @@ body {
 }
 .adm-btn.primary {
   border: 0;
-  background: linear-gradient(180deg, var(--adm-gold1), var(--adm-gold2));
+  background: linear-gradient(180deg, var(--adm-green1), var(--adm-green2));
   color: #081018;
 }
 .adm-btn.primary:hover {
-  box-shadow: 0 4px 20px rgba(244,196,76,.3);
+  box-shadow: 0 4px 20px rgba(16,185,129,.3);
 }
 
 /* Table */
@@ -648,8 +648,8 @@ body {
   transform: translateY(-2px);
 }
 .adm-theme-card.active {
-  border-color: rgba(244,196,76,.4);
-  box-shadow: 0 0 30px rgba(244,196,76,.08);
+  border-color: rgba(16,185,129,.4);
+  box-shadow: 0 0 30px rgba(16,185,129,.08);
 }
 
 .adm-theme-preview {
@@ -679,7 +679,7 @@ body {
   right: 10px;
   padding: 4px 10px;
   border-radius: 8px;
-  background: linear-gradient(180deg, var(--adm-gold1), var(--adm-gold2));
+  background: linear-gradient(180deg, var(--adm-green1), var(--adm-green2));
   color: #081018;
   font-weight: 950;
   font-size: 10px;
@@ -743,7 +743,7 @@ body {
   place-items: center;
   padding: 24px;
   background:
-    radial-gradient(600px 400px at 50% 30%, rgba(244,196,76,.06), transparent 60%),
+    radial-gradient(600px 400px at 50% 30%, rgba(16,185,129,.06), transparent 60%),
     radial-gradient(800px 400px at 30% 60%, rgba(43,140,255,.06), transparent 60%),
     var(--adm-bg);
 }
@@ -766,7 +766,7 @@ body {
   transform: translateX(-50%);
   width: 300px;
   height: 200px;
-  background: radial-gradient(circle, rgba(244,196,76,.12), transparent 70%);
+  background: radial-gradient(circle, rgba(16,185,129,.12), transparent 70%);
   pointer-events: none;
 }
 
@@ -780,12 +780,12 @@ body {
   width: 56px;
   height: 56px;
   border-radius: 16px;
-  background: linear-gradient(135deg, var(--adm-gold1), var(--adm-gold2));
+  background: linear-gradient(135deg, var(--adm-green1), var(--adm-green2));
   color: #081018;
   display: grid;
   place-items: center;
   margin: 0 auto 14px;
-  box-shadow: 0 8px 24px rgba(244,196,76,.2);
+  box-shadow: 0 8px 24px rgba(16,185,129,.2);
 }
 .adm-login-head h1 {
   margin: 0;
@@ -815,17 +815,17 @@ body {
   height: 48px;
   border-radius: 14px;
   border: 0;
-  background: linear-gradient(180deg, var(--adm-gold1), var(--adm-gold2));
+  background: linear-gradient(180deg, var(--adm-green1), var(--adm-green2));
   color: #081018;
   font-weight: 950;
   font-size: 15px;
   cursor: pointer;
   margin-top: 6px;
   transition: .2s;
-  box-shadow: 0 4px 20px rgba(244,196,76,.2);
+  box-shadow: 0 4px 20px rgba(16,185,129,.2);
 }
 .adm-login-btn:hover {
-  box-shadow: 0 8px 32px rgba(244,196,76,.35);
+  box-shadow: 0 8px 32px rgba(16,185,129,.35);
   transform: translateY(-1px);
 }
 

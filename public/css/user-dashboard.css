@@ -8,8 +8,8 @@
   --ud-line: rgba(255,255,255,.07);
   --ud-text: #f0f0f5;
   --ud-muted: rgba(255,255,255,.4);
-  --ud-gold1: #f4c44c;
-  --ud-gold2: #b97a0d;
+  --ud-green1: #10B981;
+  --ud-green2: #047857;
   --ud-accent: #2b8cff;
   --ud-danger: #ff4d6a;
   --ud-success: #2ee76b;
@@ -65,14 +65,14 @@ button { font-family: inherit; }
 .ud-logo-dot {
   width: 32px; height: 32px;
   border-radius: 10px;
-  background: linear-gradient(135deg, var(--ud-gold1), var(--ud-gold2));
+  background: linear-gradient(135deg, var(--ud-green1), var(--ud-green2));
   flex-shrink: 0;
 }
 .ud-logo-text {
   font-size: 18px;
   font-weight: 800;
   letter-spacing: -.5px;
-  background: linear-gradient(135deg, var(--ud-gold1), #fff);
+  background: linear-gradient(135deg, var(--ud-green1), #fff);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -115,11 +115,11 @@ button { font-family: inherit; }
   color: #fff;
 }
 .ud-nav-link.active {
-  background: linear-gradient(135deg, rgba(244,196,76,.1), rgba(244,196,76,.03));
-  color: var(--ud-gold1);
+  background: linear-gradient(135deg, rgba(16,185,129,.1), rgba(16,185,129,.03));
+  color: var(--ud-green1);
   font-weight: 600;
 }
-.ud-nav-link.active svg { stroke: var(--ud-gold1); }
+.ud-nav-link.active svg { stroke: var(--ud-green1); }
 .ud-nav-link.logout { color: var(--ud-danger); }
 .ud-nav-link.logout:hover { background: rgba(255,77,106,.08); }
 
@@ -140,7 +140,7 @@ button { font-family: inherit; }
 .ud-user-avatar {
   width: 36px; height: 36px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--ud-gold1), var(--ud-gold2));
+  background: linear-gradient(135deg, var(--ud-green1), var(--ud-green2));
   display: grid; place-items: center;
   font-size: 15px; font-weight: 800; color: #000;
   flex-shrink: 0;
@@ -258,10 +258,10 @@ button { font-family: inherit; }
   flex-shrink: 0;
 }
 .ud-stat-card.gold .ud-stat-icon {
-  background: rgba(244,196,76,.1);
-  color: var(--ud-gold1);
+  background: rgba(16,185,129,.1);
+  color: var(--ud-green1);
 }
-.ud-stat-card.gold .ud-stat-icon svg { stroke: var(--ud-gold1); }
+.ud-stat-card.gold .ud-stat-icon svg { stroke: var(--ud-green1); }
 .ud-stat-card.green .ud-stat-icon {
   background: rgba(46,231,107,.1);
   color: var(--ud-success);
@@ -313,12 +313,12 @@ button { font-family: inherit; }
   transform: translateY(-1px);
 }
 .ud-qaction.gold {
-  background: linear-gradient(135deg, rgba(244,196,76,.12), rgba(244,196,76,.04));
-  border-color: rgba(244,196,76,.2);
-  color: var(--ud-gold1);
+  background: linear-gradient(135deg, rgba(16,185,129,.12), rgba(16,185,129,.04));
+  border-color: rgba(16,185,129,.2);
+  color: var(--ud-green1);
 }
 .ud-qaction.gold:hover {
-  background: linear-gradient(135deg, rgba(244,196,76,.2), rgba(244,196,76,.08));
+  background: linear-gradient(135deg, rgba(16,185,129,.2), rgba(16,185,129,.08));
 }
 
 /* Cards */
@@ -401,7 +401,7 @@ button { font-family: inherit; }
   flex-shrink: 0;
 }
 .ud-tx-icon.ok { background: rgba(46,231,107,.1); color: var(--ud-success); }
-.ud-tx-icon.warn { background: rgba(244,196,76,.1); color: var(--ud-gold1); }
+.ud-tx-icon.warn { background: rgba(16,185,129,.1); color: var(--ud-green1); }
 .ud-tx-icon.bad { background: rgba(255,77,106,.1); color: var(--ud-danger); }
 .ud-tx-info { flex: 1; min-width: 0; }
 .ud-tx-type { font-size: 13px; font-weight: 600; }
@@ -427,7 +427,7 @@ button { font-family: inherit; }
   white-space: nowrap;
 }
 .ud-badge.ok { background: rgba(46,231,107,.1); color: var(--ud-success); }
-.ud-badge.warn { background: rgba(244,196,76,.1); color: var(--ud-gold1); }
+.ud-badge.warn { background: rgba(16,185,129,.1); color: var(--ud-green1); }
 .ud-badge.bad { background: rgba(255,77,106,.1); color: var(--ud-danger); }
 
 /* Mono */
@@ -562,7 +562,7 @@ button { font-family: inherit; }
   display: flex; align-items: center; gap: 16px;
 }
 .ud-btn-primary {
-  background: linear-gradient(135deg, var(--ud-gold1), var(--ud-gold2));
+  background: linear-gradient(135deg, var(--ud-green1), var(--ud-green2));
   color: #000;
   border: none;
   border-radius: 10px;
@@ -583,14 +583,14 @@ button { font-family: inherit; }
    REFERRALS PAGE
    ========================= */
 .ud-referral-hero {
-  background: linear-gradient(145deg, rgba(244,196,76,.06), rgba(255,255,255,.01));
-  border-color: rgba(244,196,76,.12);
+  background: linear-gradient(145deg, rgba(16,185,129,.06), rgba(255,255,255,.01));
+  border-color: rgba(16,185,129,.12);
 }
 .ud-referral-glow {
   position: absolute;
   top: -60px; right: -60px;
   width: 180px; height: 180px;
-  background: radial-gradient(circle, rgba(244,196,76,.1), transparent 70%);
+  background: radial-gradient(circle, rgba(16,185,129,.1), transparent 70%);
   pointer-events: none;
 }
 .ud-referral-desc {
@@ -610,7 +610,7 @@ button { font-family: inherit; }
 .ud-step-num {
   width: 32px; height: 32px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--ud-gold1), var(--ud-gold2));
+  background: linear-gradient(135deg, var(--ud-green1), var(--ud-green2));
   color: #000;
   display: grid; place-items: center;
   font-size: 14px; font-weight: 800;
