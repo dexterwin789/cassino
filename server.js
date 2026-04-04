@@ -97,6 +97,14 @@ async function autoMigrate() {
     // Ensure admin has valid hash
     const hash = await bcrypt.hash('Admin@12345', 10);
     await pool.query(`UPDATE admin_users SET password_hash = $1 WHERE username = 'admin' AND password_hash LIKE '%placeholder%'`, [hash]);
+    // Migrate theme gold->green keys
+    await pool.query(`
+      UPDATE themes SET css_vars = (
+        css_vars::jsonb - 'gold1' - 'gold2' - 'gold3'
+        || jsonb_build_object('green1', css_vars::jsonb->>'gold1', 'green2', css_vars::jsonb->>'gold2', 'green3', css_vars::jsonb->>'gold3')
+      )::text::json
+      WHERE css_vars::text LIKE '%"gold1"%'
+    `);
   } catch (err) {
     console.error('[MIGRATE] Error:', err.message);
   }
@@ -104,6 +112,6 @@ async function autoMigrate() {
 
 autoMigrate().then(() => {
   app.listen(PORT, () => {
-    console.log(`Cassino rodando em http://localhost:${PORT}`);
+    console.log(`Esportiva rodando em http://localhost:${PORT}`);
   });
 });
