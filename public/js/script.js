@@ -1,1076 +1,424 @@
-/* /cassino/public/js/script.js — ported from PHP version */
+/* /cassino/public/js/script.js — Esportiva Desktop Layout */
 
-let banners = [];
-let allGames = [];
+var allGames = [];
 
-const baseTabs = [
-  { id: "quente", label: "Quente", icon: "/public/img/aba1.png" },
-  { id: "pg",     label: "PG",     icon: "/public/img/aba2.png" },
-  { id: "wg",     label: "WG",     icon: "/public/img/aba5.png" },
-  { id: "pp",     label: "PP",     icon: "/public/img/aba3.png" },
-  { id: "jili",   label: "JiLi",   icon: "/public/img/aba4.png" },
-  { id: "cq9",    label: "CQ9",    icon: "/public/img/aba6.png" },
-  { id: "evor",   label: "Evor",   icon: "/public/img/aba7.png" },
-];
-
-let tabActive = "quente";
-
-function getGamesForTab(tabId) {
-  if (tabId === 'quente') return allGames.filter(g => g.category === 'quente');
-  return allGames.filter(g => g.provider === tabId || g.category === tabId);
-}
-
+/* ========== GAME CARDS ========== */
 function gameCardHTML(game) {
-  const img = game.image_url || '/public/img/games/1.avif';
-  return `<a class="game" href="#" title="${game.game_name}"><img src="${img}" alt="${game.game_name}" draggable="false" loading="lazy"></a>`;
+  var img = game.image_url || '/public/img/games/1.avif';
+  var name = game.game_name || 'Jogo';
+  var h = '<div class="game-card" title="' + name + '">';
+  h += '<img src="' + img + '" alt="' + name + '" draggable="false" loading="lazy">';
+  h += '<div class="game-overlay">';
+  h += '<span class="game-name">' + name + '</span>';
+  h += '<span class="play-btn">&#9654; JOGAR</span>';
+  h += '</div></div>';
+  return h;
 }
 
-function pageHTML(tabId) {
-  const games = getGamesForTab(tabId || tabActive);
-  if (!games.length) {
-    return `<div class="games-grid"><p style="text-align:center;color:#aaa;grid-column:1/-1;padding:20px;">Nenhum jogo disponível</p></div>`;
+function renderGames(games, containerId, limit) {
+  var el = document.getElementById(containerId);
+  if (!el) return;
+  var list = limit ? games.slice(0, limit) : games;
+  if (!list.length) {
+    el.innerHTML = '<p class="no-games">Nenhum jogo dispon\u00edvel</p>';
+    return;
   }
-  let html = `<div class="games-grid">`;
-  games.forEach(g => { html += gameCardHTML(g); });
-  html += `</div>`;
-  return html;
+  el.innerHTML = list.map(gameCardHTML).join('');
 }
 
-/* menu spacer + telegram alignment */
-const menuFixed = document.getElementById("menuFixed");
-const menuSpacer = document.getElementById("menuSpacer");
-const appEl = document.getElementById("app");
-const telegramFab = document.querySelector(".telegram-fab");
-
-function syncMenuSpacer(){
-  const h = menuFixed.getBoundingClientRect().height;
-  menuSpacer.style.height = `${h}px`;
-}
-function positionTelegram(){
-  if(!telegramFab) return;
-  const rect = appEl.getBoundingClientRect();
-  const right = Math.max(10, window.innerWidth/2 - rect.width/2 + 14);
-  telegramFab.style.right = `${right}px`;
-}
-window.addEventListener("resize", ()=>{ syncMenuSpacer(); positionTelegram(); });
-window.addEventListener("scroll", positionTelegram);
-
-/* banner */
-const bannerViewport = document.getElementById("bannerViewport");
-const bannerTrack = document.getElementById("bannerTrack");
-const bannerDots = document.getElementById("bannerDots");
-
-let bIndex = 0;
-let bTimer = null;
-
-function mountBanners(){
-  bannerTrack.innerHTML = banners.map(b => `
-    <div class="bslide">
-      <img src="${b.src}" alt="${b.alt}" draggable="false" loading="lazy">
-    </div>
-  `).join("");
-
-  bannerDots.innerHTML = banners.map((_,i)=>`
-    <button class="bdot ${i===0 ? "active" : ""}" aria-label="Banner ${i+1}" data-i="${i}"></button>
-  `).join("");
-
-  bannerDots.addEventListener("click", (e)=>{
-    const d = e.target.closest(".bdot");
-    if(!d) return;
-    goBanner(+d.dataset.i);
-    restartBanner();
-  });
-
-  bannerViewport.addEventListener("dragstart",(e)=>e.preventDefault());
-  enableBannerSwipe();
-  startBanner();
-  renderBanner();
-}
-function renderBanner(){
-  bannerTrack.style.transition = "transform .35s ease";
-  bannerTrack.style.transform = `translateX(-${bIndex*100}%)`;
-  [...bannerDots.querySelectorAll(".bdot")].forEach((d,i)=>{
-    d.classList.toggle("active", i===bIndex);
-  });
-}
-function goBanner(i){
-  bIndex = (i + banners.length) % banners.length;
-  renderBanner();
-}
-function startBanner(){
-  stopBanner();
-  bTimer = setInterval(()=>goBanner(bIndex+1), 5000);
-}
-function stopBanner(){ if(bTimer) clearInterval(bTimer); bTimer=null; }
-function restartBanner(){ startBanner(); }
-
-function enableBannerSwipe(){
-  let down=false, startX=0, dx=0;
-  bannerViewport.style.touchAction = "pan-y";
-
-  bannerViewport.addEventListener("pointerdown",(e)=>{
-    down=true; startX=e.clientX; dx=0;
-    stopBanner();
-    bannerViewport.setPointerCapture(e.pointerId);
-  });
-
-  bannerViewport.addEventListener("pointermove",(e)=>{
-    if(!down) return;
-    dx = e.clientX - startX;
-    bannerTrack.style.transition = "none";
-    const pct = (dx / bannerViewport.clientWidth) * 18;
-    bannerTrack.style.transform = `translateX(calc(-${bIndex*100}% + ${pct}%))`;
-    if(Math.abs(dx) > 6) e.preventDefault?.();
-  }, { passive:false });
-
-  function end(){
-    if(!down) return;
-    down=false;
-    bannerTrack.style.transition = "";
-    const threshold = bannerViewport.clientWidth * 0.16;
-    if(dx > threshold) goBanner(bIndex-1);
-    else if(dx < -threshold) goBanner(bIndex+1);
-    else renderBanner();
-    startBanner();
-  }
-
-  bannerViewport.addEventListener("pointerup", end);
-  bannerViewport.addEventListener("pointercancel", end);
-  bannerViewport.addEventListener("lostpointercapture", end);
-}
-
-/* winners */
-const marqueeInner = document.getElementById("marqueeInner");
-function rand(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
-function genWinnerText(){
-  const id = `${rand(1,9)}${rand(0,9)}${rand(0,9)}${rand(0,9)}${rand(0,9)}`;
-  const amount = (rand(10,9999) + rand(0,99)/100).toFixed(2);
-  return `<span class="marquee__item">
-    <span class="marquee__gold">${id}****</span>
-    <span>acabou de retirar</span>
-    <span class="marquee__gold">${amount} R$</span>
-  </span>`;
-}
-function mountMarquee(){
-  const items = new Array(10).fill(0).map(genWinnerText).join("");
-  marqueeInner.innerHTML = items + items;
-}
-
-/* TABS loop + CLICK/ACTIVE PC FIX */
-const tabsViewport = document.getElementById("tabsViewport");
-const tabsRow = document.getElementById("tabsRow");
-
-let loopTabs = [];
-let tabsX = 0;
-let tabItemWidth = 0;
-let isInitedLoop = false;
-
-function mountTabsLoop(){
-  const clones = baseTabs.map(t => ({...t, _clone:true}));
-  loopTabs = [...clones, ...baseTabs, ...clones];
-
-  tabsRow.innerHTML = loopTabs.map(t => `
-    <div class="tab ${t.id===tabActive && !t._clone ? "active" : ""}"
-         data-id="${t.id}" data-clone="${t._clone ? "1":"0"}">
-      <div class="tabIcon">
-        <img src="${t.icon}" alt="${t.label}" draggable="false">
-      </div>
-      <span>${t.label}</span>
-    </div>
-  `).join("");
-
-  requestAnimationFrame(()=>{
-    const first = tabsRow.querySelector(".tab");
-    tabItemWidth = first ? (first.getBoundingClientRect().width + 14) : 70;
-    tabsX = -baseTabs.length * tabItemWidth;
-    applyTabsTransform(false);
-    isInitedLoop = true;
-    applyActiveEverywhere();
-  });
-
-  enableTabsLoopSwipeAndClick();
-}
-
-function applyTabsTransform(withTransition=true){
-  tabsRow.style.transition = withTransition ? "transform .18s ease" : "none";
-  tabsRow.style.transform = `translateX(${tabsX}px)`;
-}
-
-function normalizeTabsLoop(){
-  if(!isInitedLoop) return;
-  const total = baseTabs.length;
-  const minX = -(total*2) * tabItemWidth;
-  if(tabsX < minX){ tabsX += total * tabItemWidth; applyTabsTransform(false); }
-  if(tabsX > -total * tabItemWidth){ tabsX -= total * tabItemWidth; applyTabsTransform(false); }
-}
-
-function applyActiveEverywhere(){
-  tabsRow.querySelectorAll(".tab").forEach(t=>{
-    t.classList.toggle("active", t.dataset.id === tabActive);
+/* ========== SEARCH ========== */
+var searchInput = document.getElementById('searchGames');
+var searchTimer = null;
+if (searchInput) {
+  searchInput.addEventListener('input', function() {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(function() {
+      var q = (searchInput.value || '').trim().toLowerCase();
+      if (!q) { renderAllSections(); return; }
+      var filtered = allGames.filter(function(g) {
+        return (g.game_name || '').toLowerCase().includes(q) ||
+          (g.provider || '').toLowerCase().includes(q) ||
+          (g.category || '').toLowerCase().includes(q);
+      });
+      renderGames(filtered, 'gamesRecommended');
+      renderGames([], 'gamesHot');
+      renderGames([], 'gamesAll');
+    }, 300);
   });
 }
 
-function setActiveTab(id){
-  tabActive = id;
-  applyActiveEverywhere();
-  renderContent();
+function renderAllSections() {
+  var recommended = allGames.filter(function(g) { return g.category === 'quente' || g.category === 'recommended'; }).slice(0, 8);
+  var hot = allGames.filter(function(g) { return g.category !== 'quente'; }).slice(0, 12);
+  renderGames(recommended.length ? recommended : allGames.slice(0, 8), 'gamesRecommended');
+  renderGames(hot.length ? hot : allGames.slice(8, 20), 'gamesHot', 12);
+  renderGames(allGames, 'gamesAll');
 }
 
-function enableTabsLoopSwipeAndClick(){
-  let down=false, startX=0, startTabsX=0, moved=false, targetTab=null;
+/* ========== BANNER SLIDER ========== */
+var bannerIndex = 0;
+var bannerTimer = null;
+var bannerSlider = document.getElementById('bannerSlider');
+var bannerDotsEl = document.getElementById('bannerDots');
+var bannerPrev = document.getElementById('bannerPrev');
+var bannerNext = document.getElementById('bannerNext');
 
-  tabsViewport.style.touchAction = "pan-y";
-  tabsViewport.addEventListener("dragstart",(e)=>e.preventDefault());
+function getBannerSlides() {
+  return bannerSlider ? bannerSlider.querySelectorAll('.banner-slide') : [];
+}
 
-  tabsViewport.addEventListener("pointerdown",(e)=>{
-    down=true;
-    moved=false;
-    startX=e.clientX;
-    startTabsX=tabsX;
-    targetTab = e.target.closest(".tab");
-    tabsViewport.setPointerCapture(e.pointerId);
+function showBanner(i) {
+  var slides = getBannerSlides();
+  if (!slides.length) return;
+  bannerIndex = ((i % slides.length) + slides.length) % slides.length;
+  slides.forEach(function(s, idx) { s.classList.toggle('active', idx === bannerIndex); });
+  var dots = bannerDotsEl ? bannerDotsEl.querySelectorAll('.dot') : [];
+  dots.forEach(function(d, idx) { d.classList.toggle('active', idx === bannerIndex); });
+}
+
+function startBannerAuto() {
+  stopBannerAuto();
+  bannerTimer = setInterval(function() { showBanner(bannerIndex + 1); }, 5000);
+}
+function stopBannerAuto() {
+  if (bannerTimer) clearInterval(bannerTimer);
+  bannerTimer = null;
+}
+
+function initBannerDots() {
+  var slides = getBannerSlides();
+  if (!bannerDotsEl || !slides.length) return;
+  var html = '';
+  for (var i = 0; i < slides.length; i++) {
+    html += '<button class="dot ' + (i === 0 ? 'active' : '') + '" data-i="' + i + '"></button>';
+  }
+  bannerDotsEl.innerHTML = html;
+  bannerDotsEl.addEventListener('click', function(e) {
+    var dot = e.target.closest('.dot');
+    if (!dot) return;
+    showBanner(+dot.dataset.i);
+    startBannerAuto();
   });
-
-  tabsViewport.addEventListener("pointermove",(e)=>{
-    if(!down) return;
-    const dx = e.clientX - startX;
-
-    if(Math.abs(dx) > 6) moved = true;
-
-    if(moved){
-      tabsX = startTabsX + dx;
-      applyTabsTransform(false);
-      e.preventDefault?.();
-    }
-  }, { passive:false });
-
-  tabsViewport.addEventListener("pointerup",()=>{
-    if(!down) return;
-    down=false;
-
-    if(moved){
-      applyTabsTransform(true);
-      normalizeTabsLoop();
-      return;
-    }
-
-    if(targetTab){
-      setActiveTab(targetTab.dataset.id);
-    }
-  });
-
-  tabsViewport.addEventListener("pointercancel",()=>{ down=false; });
 }
 
-/* CONTENT */
-const content = document.getElementById("content");
+if (bannerPrev) bannerPrev.addEventListener('click', function() { showBanner(bannerIndex - 1); startBannerAuto(); });
+if (bannerNext) bannerNext.addEventListener('click', function() { showBanner(bannerIndex + 1); startBannerAuto(); });
 
-function getTabMeta(id){ return baseTabs.find(t=>t.id===id) || baseTabs[0]; }
-function titleHTML(tabId){
-  const meta = getTabMeta(tabId);
-  return `
-    <div class="title">
-      <img class="ticon" src="${meta.icon}" alt="" draggable="false">
-      <span>${meta.label}</span>
-    </div>
-  `;
-}
-function slider12HTML(tabId){
-  const gamesHtml = pageHTML(tabId);
-  return `
-    <section class="section slider12" data-slider12="${tabId}">
-      <div class="section-head">
-        ${titleHTML(tabId)}
-        <div class="right">
-          <button class="more" data-act="more">Mais</button>
-        </div>
-      </div>
-      ${gamesHtml}
-    </section>
-  `;
-}
+/* ========== SIDEBAR ========== */
+var sidebar = document.getElementById('sidebar');
+var sidebarOverlay = document.getElementById('sidebarOverlay');
+var btnHamburger = document.getElementById('btnHamburger');
+var menuToggle = document.getElementById('menuCassinoToggle');
+var menuList = document.getElementById('menuCassinoList');
 
-function tabQuenteHTML(){
-  // Show "quente" section first, then previews of other categories that have games
-  let html = slider12HTML("quente");
-  for (const tab of baseTabs) {
-    if (tab.id === "quente") continue;
-    const games = getGamesForTab(tab.id);
-    if (games.length) html += slider12HTML(tab.id);
-  }
-  return html;
-}
-
-function tabNormalHTML(tabId){
-  return `
-    <section class="section">
-      <div class="section-head">${titleHTML(tabId)}</div>
-      ${pageHTML(tabId)}
-    </section>
-  `;
-}
-
-function renderContent(){
-  content.innerHTML = (tabActive === "quente") ? tabQuenteHTML() : tabNormalHTML(tabActive);
-  content.querySelectorAll("img").forEach(img=>img.setAttribute("draggable","false"));
-
-  // "Mais" button click handler
-  content.onclick = (e)=>{
-    const act = e.target.closest("[data-act]")?.dataset.act;
-    if(!act) return;
-    const slider = e.target.closest("[data-slider12]");
-    if(slider && act === "more") setActiveTab(slider.dataset.slider12);
-  };
-}
-
-/* INIT */
-async function initApp() {
-  // Fetch games and banners from API
-  try {
-    const [gamesRes, bannersRes] = await Promise.all([
-      fetch('/api/games').then(r => r.json()).catch(() => ({ ok: false, data: [] })),
-      fetch('/api/banners').then(r => r.json()).catch(() => ({ ok: false, data: [] }))
-    ]);
-    allGames = (gamesRes.ok && gamesRes.games) ? gamesRes.games : [];
-    banners = (bannersRes.ok && bannersRes.banners) ? bannersRes.banners.map(b => ({ src: b.image_url, alt: 'Banner', link: b.link_url })) : [];
-  } catch (e) {
-    console.error('[INIT] fetch error:', e);
-    allGames = [];
-    banners = [];
-  }
-
-  syncMenuSpacer();
-  mountBanners();
-  mountMarquee();
-  mountTabsLoop();
-  renderContent();
-  positionTelegram();
-}
-initApp();
-
-
-/* =========================
-   MODAL DEPÓSITO
-========================= */
-const depositModal = document.getElementById("depositModal");
-const openDepositPlus = document.getElementById("openDepositPlus");
-const openDepositWallet = document.getElementById("openDepositWallet");
-const closeDeposit = document.getElementById("closeDeposit");
-
-const depositGrid = document.getElementById("depositGrid");
-const depositInput = document.getElementById("depositAmount");
-const depositShown = document.getElementById("depositShown");
-const depositClear = document.getElementById("depositClear");
-
-function formatBRLNumber(n){
-  const v = Number(n || 0);
-  return v.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-}
-
-function setDepositValue(n){
-  const val = Math.max(0, Number(n || 0));
-  if(val === 0){
-    depositShown.textContent = "R$0,00";
-  }else{
-    depositShown.textContent = `R$${formatBRLNumber(val)}`;
-  }
-  depositInput.value = val ? String(val) : "";
-}
-
-function clearDepositSelection(){
-  depositGrid?.querySelectorAll(".dep-chip").forEach(b=>b.classList.remove("active"));
-}
-
-function openDeposit(){
-  depositModal.classList.add("open");
-  depositModal.setAttribute("aria-hidden", "false");
-  document.body.style.overflow = "hidden";
-  clearDepositSelection();
-  setDepositValue(0);
-}
-
-function closeDepositModal(){
-  depositModal.classList.remove("open");
-  depositModal.setAttribute("aria-hidden", "true");
-  document.body.style.overflow = "";
-}
-
-function requireLoggedForDeposit(e){
-  const logged = appEl.classList.contains("is-logged");
-  if (logged) return true;
-  e?.preventDefault?.();
-  openAuth();
-  setAuthTab("login");
-  return false;
-}
-
-openDepositPlus?.addEventListener("click", (e) => {
-  e.preventDefault();
-  if (!requireLoggedForDeposit(e)) return;
-  openDeposit();
+if (btnHamburger) btnHamburger.addEventListener('click', function() {
+  if (sidebar) sidebar.classList.toggle('open');
+  if (sidebarOverlay) sidebarOverlay.classList.toggle('active');
+});
+if (sidebarOverlay) sidebarOverlay.addEventListener('click', function() {
+  if (sidebar) sidebar.classList.remove('open');
+  if (sidebarOverlay) sidebarOverlay.classList.remove('active');
 });
 
-openDepositWallet?.addEventListener("click", (e) => {
-  e.preventDefault();
-  if (!requireLoggedForDeposit(e)) return;
-  openDeposit();
-});
-
-closeDeposit?.addEventListener("click", (e)=>{ e.preventDefault(); closeDepositModal(); });
-
-depositModal?.addEventListener("click", (e)=>{
-  if(e.target === depositModal) closeDepositModal();
-});
-
-depositGrid?.addEventListener("click", (e)=>{
-  const btn = e.target.closest(".dep-chip");
-  if(!btn) return;
-
-  const val = Number(btn.dataset.val || 0);
-
-  clearDepositSelection();
-  btn.classList.add("active");
-
-  setDepositValue(val);
-});
-
-depositInput?.addEventListener("input", ()=>{
-  const raw = (depositInput.value || "").replace(/[^\d]/g, "");
-  depositInput.value = raw;
-
-  const n = raw ? Number(raw) : 0;
-  depositShown.textContent = n ? `R$${formatBRLNumber(n)}` : "R$0,00";
-
-  clearDepositSelection();
-});
-
-depositClear?.addEventListener("click", (e)=>{
-  e.preventDefault();
-  depositInput.value = "";
-  depositShown.textContent = "R$0,00";
-  clearDepositSelection();
-});
-
-
-/* =========================
-   OFFCANVAS MENU
-========================= */
-const offcanvas = document.getElementById("offcanvas");
-const openOffcanvas = document.getElementById("openOffcanvas");
-const closeOffcanvas = document.getElementById("closeOffcanvas");
-const copyUserIdBtn = document.getElementById("copyUserId");
-const ocUserId = document.getElementById("ocUserId");
-const openDepositFromMenu = document.getElementById("openDepositFromMenu");
-
-function openOffcanvasMenu(){
-  offcanvas.classList.add("open");
-  offcanvas.setAttribute("aria-hidden", "false");
-  document.body.style.overflow = "hidden";
-}
-
-function closeOffcanvasMenu(){
-  offcanvas.classList.remove("open");
-  offcanvas.setAttribute("aria-hidden", "true");
-  document.body.style.overflow = "";
-}
-openOffcanvas?.addEventListener("click", async (e)=>{
-  e.preventDefault();
-  await updateAuthState();
-  openOffcanvasMenu();
-});
-
-closeOffcanvas?.addEventListener("click", (e)=>{
-  e.preventDefault();
-  closeOffcanvasMenu();
-});
-
-offcanvas?.addEventListener("click", (e)=>{
-  if(e.target === offcanvas) closeOffcanvasMenu();
-});
-
-window.addEventListener("keydown", (e)=>{
-  if(e.key === "Escape" && offcanvas?.classList.contains("open")){
-    closeOffcanvasMenu();
+if (menuToggle) menuToggle.addEventListener('click', function() {
+  menuToggle.classList.toggle('collapsed');
+  if (menuList) {
+    menuList.style.maxHeight = menuToggle.classList.contains('collapsed') ? '0' : menuList.scrollHeight + 'px';
   }
 });
 
-copyUserIdBtn?.addEventListener("click", async (e)=>{
-  e.preventDefault();
-  const id = (ocUserId?.textContent || "").trim();
-  if(!id) return;
-
-  try{
-    await navigator.clipboard.writeText(id);
-  }catch(err){
-    const ta = document.createElement("textarea");
-    ta.value = id;
-    document.body.appendChild(ta);
-    ta.select();
-    document.execCommand("copy");
-    ta.remove();
-  }
-
-  copyUserIdBtn.style.transform = "scale(1.08)";
-  setTimeout(()=>{ copyUserIdBtn.style.transform=""; }, 160);
-});
-
-openDepositFromMenu?.addEventListener("click", (e) => {
-  e.preventDefault();
-  if (!requireLoggedForDeposit(e)) return;
-  closeOffcanvasMenu();
-  openDeposit();
-});
-
-/* =========================
-   MODAL AUTH (REGISTRO / LOGIN)
-========================= */
-const authModal = document.getElementById("authModal");
-const authClose = document.getElementById("authClose");
-const tabRegister = document.getElementById("tabRegister");
-const tabLogin = document.getElementById("tabLogin");
-const paneRegister = document.getElementById("paneRegister");
-const paneLogin = document.getElementById("paneLogin");
-
-function openAuth(){
-  authModal.classList.add("open");
-  authModal.setAttribute("aria-hidden", "false");
-  document.body.style.overflow = "hidden";
-  setAuthTab("register");
-}
-function closeAuth(){
-  authModal.classList.remove("open");
-  authModal.setAttribute("aria-hidden", "true");
-  document.body.style.overflow = "";
-}
-
-function setAuthTab(which){
-  const isReg = which === "register";
-  tabRegister.classList.toggle("active", isReg);
-  tabLogin.classList.toggle("active", !isReg);
-  paneRegister.classList.toggle("show", isReg);
-  paneLogin.classList.toggle("show", !isReg);
-}
-
-tabRegister?.addEventListener("click", ()=> setAuthTab("register"));
-tabLogin?.addEventListener("click", ()=> setAuthTab("login"));
-
-authClose?.addEventListener("click", closeAuth);
-
-authModal?.addEventListener("click", (e)=>{
-  const card = e.target.closest(".auth-card");
-  if(!card) closeAuth();
-});
-
-window.addEventListener("keydown", (e)=>{
-  if(e.key === "Escape" && authModal?.classList.contains("open")) closeAuth();
-});
-
-document.getElementById("openAuthBottom")?.addEventListener("click", (e) => {
-  e.preventDefault();
-  const logged = appEl.classList.contains("is-logged");
-  if (!logged) {
-    openAuth();
-    setAuthTab("login");
-  }
-});
-
-
-/* helpers: clear + eye + warn */
-function bindField(inputId, errId){
-  const input = document.getElementById(inputId);
-  const err = document.getElementById(errId);
-  if(!input) return;
-
-  const clearBtn = document.querySelector(`button.clear[data-clear="#${inputId}"]`);
-  const eyeBtn = document.querySelector(`button.eye[data-eye="#${inputId}"]`);
-
-  function refresh(){
-    const has = !!input.value.trim();
-    if(clearBtn) clearBtn.classList.toggle("hidden", !has);
-    if(err) err.classList.toggle("show", !has);
-  }
-
-  input.addEventListener("input", refresh);
-  input.addEventListener("blur", refresh);
-
-  if(clearBtn){
-    clearBtn.addEventListener("click", ()=>{
-      input.value = "";
-      refresh();
-      input.focus();
-      if(eyeBtn){
-        input.type = "password";
-        eyeBtn.querySelector("img").src = "/public/img/hidd.svg";
-      }
+if (menuList) menuList.addEventListener('click', function(e) {
+  var li = e.target.closest('li');
+  if (!li) return;
+  menuList.querySelectorAll('li').forEach(function(l) { l.classList.remove('active'); });
+  li.classList.add('active');
+  var filter = li.dataset.filter;
+  if (filter === 'all') {
+    renderAllSections();
+  } else {
+    var filtered = allGames.filter(function(g) {
+      return (g.category || '').toLowerCase() === filter || (g.provider || '').toLowerCase() === filter;
     });
-    clearBtn.classList.add("hidden");
+    renderGames(filtered.length ? filtered : allGames.slice(0, 8), 'gamesRecommended');
+    renderGames([], 'gamesHot');
+    renderGames([], 'gamesAll');
   }
+});
 
-  if(eyeBtn){
-    eyeBtn.addEventListener("click", ()=>{
-      const img = eyeBtn.querySelector("img");
-      const isHidden = input.type === "password";
-      input.type = isHidden ? "text" : "password";
-      img.src = isHidden ? "/public/img/show.svg" : "/public/img/hidd.svg";
-      input.focus();
-    });
-  }
-
-  if(err) err.classList.remove("show");
-}
-
-bindField("regUser", "errRegUser");
-bindField("regPass", "errRegPass");
-bindField("regPhone", null);
-
-bindField("logUser", "errLogUser");
-bindField("logPass", "errLogPass");
-
-
-// =========================
-// AUTH REAL (LOGIN/REGISTER) + HEADER GUEST/LOGGED
-// =========================
-async function apiPost(url, body) {
-  const res = await fetch(url, {
-    method: "POST",
-    credentials: "include",
-    headers: { "Content-Type": "application/json" },
+/* ========== AUTH STATE ========== */
+function apiPost(url, body) {
+  return fetch(url, {
+    method: 'POST', credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body)
-  });
-  const j = await res.json().catch(() => ({}));
-  return { ok: res.ok, status: res.status, json: j };
-}
-
-async function updateAuthState() {
-  let j = null;
-
-  try {
-    const res = await fetch("/api/me", {
-      credentials: "include",
-      cache: "no-store"
+  }).then(function(res) {
+    return res.json().catch(function() { return {}; }).then(function(j) {
+      return { ok: res.ok, status: res.status, json: j };
     });
-    j = await res.json().catch(() => null);
-  } catch (e) {
-    j = null;
-  }
-
-  const logged = !!(j && j.ok && j.logged);
-
-  appEl.classList.toggle("is-logged", logged);
-  appEl.classList.toggle("is-guest", !logged);
-
-  const ocName = document.getElementById("ocUserName");
-  const ocId = document.getElementById("ocUserId");
-
-  if (!logged) {
-    if (ocName) ocName.textContent = "User";
-    if (ocId) ocId.textContent = "-";
-    return;
-  }
-
-  if (ocName && j.user?.username) ocName.textContent = j.user.username;
-  if (ocId && j.user?.id) ocId.textContent = j.user.id;
-
-  refreshWalletUI();
-}
-
-
-document.getElementById("openLoginTop")?.addEventListener("click", () => {
-  openAuth();
-  setAuthTab("login");
-});
-document.getElementById("openRegisterTop")?.addEventListener("click", () => {
-  openAuth();
-  setAuthTab("register");
-});
-
-document.getElementById("btnRegister")?.addEventListener("click", async () => {
-  const username = document.getElementById("regUser")?.value.trim() || "";
-  const password = document.getElementById("regPass")?.value || "";
-  const phone = document.getElementById("regPhone")?.value.trim() || "";
-
-  if (username.length < 3) { document.getElementById("errRegUser")?.classList.add("show"); return; }
-  if (password.length < 6 || password.length > 16) { document.getElementById("errRegPass")?.classList.add("show"); return; }
-
-  const btn = document.getElementById("btnRegister");
-  btn.disabled = true;
-
-  const { ok, json } = await apiPost("/api/register", { username, password, phone });
-
-  btn.disabled = false;
-
-  if (!ok) {
-    alert(json?.error === "username_taken" ? "Usuário já existe." : ("Erro: " + (json?.error || json?.msg || "unknown")));
-    return;
-  }
-
-  closeAuth();
-  await updateAuthState();
-});
-
-document.getElementById("btnLogin")?.addEventListener("click", async () => {
-  const username = document.getElementById("logUser")?.value.trim() || "";
-  const password = document.getElementById("logPass")?.value || "";
-
-  if (username.length < 3) { document.getElementById("errLogUser")?.classList.add("show"); return; }
-  if (password.length < 6 || password.length > 16) { document.getElementById("errLogPass")?.classList.add("show"); return; }
-
-  const btn = document.getElementById("btnLogin");
-  btn.disabled = true;
-
-  const { ok, json } = await apiPost("/api/login", { username, password });
-
-  btn.disabled = false;
-
-  if (!ok) {
-    alert(json?.error === "invalid_credentials" ? "Usuário ou senha inválidos." : ("Erro: " + (json?.error || json?.msg || "unknown")));
-    return;
-  }
-
-  closeAuth();
-  await updateAuthState();
-});
-
-updateAuthState();
-
-
-// =========================
-// WALLET UI
-// =========================
-async function fetchWallet() {
-  const res = await fetch("/api/wallet", { credentials: "include" });
-  const j = await res.json().catch(() => null);
-  if (!j || !j.ok) return null;
-  return j;
-}
-
-function brlToPt(v) {
-  return String(v ?? "0.00").replace(".", ",");
-}
-
-async function refreshWalletUI() {
-  const w = await fetchWallet();
-  if (!w) return;
-
-  const headerBalance = document.getElementById("walletBalance");
-  if (headerBalance) headerBalance.textContent = w.balance_brl;
-
-  const depBalance = document.getElementById("depositBalance");
-  if (depBalance) depBalance.textContent = brlToPt(w.balance_brl);
-}
-
-// =========================
-// PIX / QR + aprovação
-// =========================
-const btnRechargeNow = document.getElementById("btnRechargeNow");
-const pixResult = document.getElementById("pixResult");
-const pixQr = document.getElementById("pixQr");
-const pixCopy = document.getElementById("pixCopy");
-const pixMeta = document.getElementById("pixMeta");
-const btnCopyPix = document.getElementById("btnCopyPix");
-
-let lastPix = null;
-
-async function createDepositPix(amountBrl) {
-  const res = await fetch("/api/deposit/create", {
-    method: "POST",
-    credentials: "include",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ amount_brl: amountBrl })
   });
-
-  const txt = await res.text();
-  try { return JSON.parse(txt); }
-  catch { return { ok:false, error:"invalid_json", details: txt, status: res.status }; }
 }
 
-
-function renderPix(copyPaste, meta, invoiceUrl) {
-  pixResult.style.display = "block";
-  pixCopy.value = copyPaste || "";
-
-  const qrSrc = "https://quickchart.io/qr?size=260&margin=2&text=" + encodeURIComponent(copyPaste);
-
-  pixQr.innerHTML = `
-    <div style="display:flex;justify-content:center;margin:12px 0;">
-      <img
-        src="${qrSrc}"
-        alt="QR PIX"
-        style="width:260px;height:260px;background:#fff;padding:10px;border-radius:14px"
-        referrerpolicy="no-referrer"
-      >
-    </div>
-  `;
-
-  if (pixMeta) {
-    pixMeta.textContent =
-      `Ref: ${meta.externalReference} | TX: ${meta.transactionId} | Valor: R$ ${meta.amount_brl}`;
-  }
+function updateAuthState() {
+  return fetch('/api/me', { credentials: 'include', cache: 'no-store' })
+    .then(function(res) { return res.json().catch(function() { return null; }); })
+    .then(function(j) {
+      var logged = !!(j && j.ok && j.logged);
+      document.body.classList.toggle('is-logged', logged);
+      document.body.classList.toggle('is-guest', !logged);
+      if (logged) refreshWalletUI();
+    }).catch(function() {
+      document.body.classList.add('is-guest');
+      document.body.classList.remove('is-logged');
+    });
 }
 
+/* ========== AUTH MODAL ========== */
+var authModal = document.getElementById('authModal');
+var authClose = document.getElementById('authClose');
+var formRegister = document.getElementById('formRegister');
+var formLogin = document.getElementById('formLogin');
 
-btnCopyPix?.addEventListener("click", async () => {
-  try {
-    await navigator.clipboard.writeText(pixCopy.value);
-    btnCopyPix.textContent = "Copiado!";
-    setTimeout(() => (btnCopyPix.textContent = "Copiar PIX"), 1200);
-  } catch {
-    pixCopy.select();
-    document.execCommand("copy");
-  }
+function openAuth(tab) {
+  if (authModal) authModal.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  setAuthTab(tab || 'register');
+}
+function closeAuth() {
+  if (authModal) authModal.classList.remove('open');
+  document.body.style.overflow = '';
+}
+function setAuthTab(which) {
+  var isReg = which === 'register';
+  if (authModal) authModal.querySelectorAll('.auth-tab').forEach(function(t) {
+    t.classList.toggle('active', t.dataset.tab === which);
+  });
+  if (formRegister) formRegister.style.display = isReg ? '' : 'none';
+  if (formLogin) formLogin.style.display = isReg ? 'none' : '';
+}
+
+if (authClose) authClose.addEventListener('click', closeAuth);
+if (authModal) authModal.addEventListener('click', function(e) { if (e.target === authModal) closeAuth(); });
+
+if (authModal) authModal.querySelectorAll('.auth-tab').forEach(function(t) {
+  t.addEventListener('click', function() { setAuthTab(t.dataset.tab); });
 });
 
+var btnOpenRegister = document.getElementById('btnOpenRegister');
+var btnOpenLogin = document.getElementById('btnOpenLogin');
+if (btnOpenRegister) btnOpenRegister.addEventListener('click', function() { openAuth('register'); });
+if (btnOpenLogin) btnOpenLogin.addEventListener('click', function() { openAuth('login'); });
 
-// ---------- polling ----------
-let __watchTimer = null;
+// Register
+if (formRegister) formRegister.addEventListener('submit', function(e) {
+  e.preventDefault();
+  var fd = new FormData(formRegister);
+  var name = (fd.get('name') || '').trim();
+  var cpf = (fd.get('cpf') || '').trim();
+  var email = (fd.get('email') || '').trim();
+  var phone = (fd.get('phone') || '').trim();
+  var password = fd.get('password') || '';
+  var password_confirm = fd.get('password_confirm') || '';
 
-function stopWatchPayment(){
-  if (__watchTimer) clearInterval(__watchTimer);
-  __watchTimer = null;
-}
+  if (password !== password_confirm) return showToast('As senhas n\u00e3o coincidem', 'error');
+  if (password.length < 6) return showToast('Senha deve ter pelo menos 6 caracteres', 'error');
 
-async function fetchDepositStatus(txId){
-  const res = await fetch(`/api/deposit/status?tx_id=${encodeURIComponent(txId)}`, {
-    credentials: "include"
-  });
-  const txt = await res.text();
-  try { return JSON.parse(txt); }
-  catch { return { ok:false, error:"invalid_json", raw:txt, http_status:res.status }; }
-}
+  apiPost('/api/register', { name: name, cpf: cpf, email: email, phone: phone, password: password, username: email })
+    .then(function(r) {
+      if (!r.ok) { showToast(r.json.error || r.json.msg || 'Erro ao registrar', 'error'); return; }
+      closeAuth();
+      showToast('Conta criada com sucesso!', 'success');
+      updateAuthState();
+    });
+});
 
-function toastPersistent(msg){
-  const t = document.getElementById("toast");
-  if(!t) return alert(msg);
+// Login
+if (formLogin) formLogin.addEventListener('submit', function(e) {
+  e.preventDefault();
+  var fd = new FormData(formLogin);
+  var login = (fd.get('login') || '').trim();
+  var password = fd.get('password') || '';
+  if (!login || !password) return showToast('Preencha todos os campos', 'error');
 
-  t.innerHTML = `
-    <div class="toast-icon">✓</div>
-    <div class="toast-text">${String(msg)}</div>
-    <div class="toast-hint">Toque para fechar</div>
-  `;
-  t.classList.add("show", "celebrate");
-
-  const close = () => {
-    t.classList.remove("show", "celebrate");
-    window.removeEventListener("pointerdown", close, true);
-    window.removeEventListener("keydown", esc, true);
-  };
-  const esc = (e) => { if(e.key === "Escape") close(); };
-
-  window.addEventListener("pointerdown", close, true);
-  window.addEventListener("keydown", esc, true);
-}
-
-async function startWatchPayment(txId){
-  stopWatchPayment();
-
-  __watchTimer = setInterval(async ()=>{
-    try{
-      const j = await fetchDepositStatus(txId);
-
-      if (j?.ok && j.paid){
-        stopWatchPayment();
-        await refreshWalletUI();
-        toastPersistent("✅ Pagamento aprovado e saldo creditado!");
+  apiPost('/api/login', { username: login, password: password })
+    .then(function(r) {
+      if (!r.ok) {
+        showToast(r.json.error === 'invalid_credentials' ? 'Usu\u00e1rio ou senha inv\u00e1lidos' : (r.json.error || r.json.msg || 'Erro ao entrar'), 'error');
+        return;
       }
-    }catch(e){}
+      closeAuth();
+      showToast('Bem-vindo!', 'success');
+      updateAuthState();
+    });
+});
+
+/* ========== DEPOSIT MODAL ========== */
+var depositModal = document.getElementById('depositModal');
+var depositClose = document.getElementById('depositClose');
+var depositAmount = document.getElementById('depositAmount');
+var btnConfirmDeposit = document.getElementById('btnConfirmDeposit');
+var pixResult = document.getElementById('pixResult');
+var pixQr = document.getElementById('pixQr');
+var pixCode = document.getElementById('pixCode');
+var pixStatus = document.getElementById('pixStatus');
+var btnCopyPix = document.getElementById('btnCopyPix');
+
+function openDeposit() {
+  var logged = document.body.classList.contains('is-logged');
+  if (!logged) { openAuth('login'); return; }
+  if (depositModal) depositModal.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  if (pixResult) pixResult.style.display = 'none';
+}
+function closeDeposit() {
+  if (depositModal) depositModal.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+if (depositClose) depositClose.addEventListener('click', closeDeposit);
+if (depositModal) depositModal.addEventListener('click', function(e) { if (e.target === depositModal) closeDeposit(); });
+
+var btnDepositTop = document.getElementById('btnDepositTop');
+var bnavDeposit = document.getElementById('bnav-deposit');
+if (btnDepositTop) btnDepositTop.addEventListener('click', openDeposit);
+if (bnavDeposit) bnavDeposit.addEventListener('click', openDeposit);
+
+// Chip selection
+if (depositModal) depositModal.querySelectorAll('.chip').forEach(function(chip) {
+  chip.addEventListener('click', function() {
+    depositModal.querySelectorAll('.chip').forEach(function(c) { c.classList.remove('active'); });
+    chip.classList.add('active');
+    if (depositAmount) depositAmount.value = 'R$ ' + Number(chip.dataset.val).toLocaleString('pt-BR');
+  });
+});
+
+// Generate PIX
+if (btnConfirmDeposit) btnConfirmDeposit.addEventListener('click', function() {
+  var raw = (depositAmount ? depositAmount.value : '').replace(/[^\d]/g, '');
+  var val = raw ? Number(raw) : 0;
+  if (!val || val < 10) return showToast('Valor m\u00ednimo: R$10', 'error');
+
+  btnConfirmDeposit.disabled = true;
+  btnConfirmDeposit.textContent = 'Gerando PIX...';
+
+  fetch('/api/deposit/create', {
+    method: 'POST', credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ amount_brl: val })
+  }).then(function(res) { return res.json().catch(function() { return {}; }); })
+  .then(function(j) {
+    btnConfirmDeposit.disabled = false;
+    btnConfirmDeposit.textContent = 'Gerar PIX';
+
+    if (!j.ok) { showToast('Erro: ' + (j.error || j.msg || 'desconhecido'), 'error'); return; }
+
+    var copyPaste = j.copyPaste || '';
+    if (j.raw && j.raw.data && j.raw.data.paymentData) {
+      copyPaste = copyPaste || j.raw.data.paymentData.copyPaste || j.raw.data.paymentData.qrCode || '';
+    }
+    if (!copyPaste) { showToast('PIX n\u00e3o retornou c\u00f3digo', 'error'); return; }
+
+    if (pixResult) pixResult.style.display = '';
+    if (pixQr) pixQr.src = 'https://quickchart.io/qr?size=200&margin=2&text=' + encodeURIComponent(copyPaste);
+    if (pixCode) pixCode.value = copyPaste;
+    if (pixStatus) pixStatus.textContent = 'Aguardando pagamento...';
+    if (j.tx_id) startWatchPayment(j.tx_id);
+  }).catch(function() {
+    btnConfirmDeposit.disabled = false;
+    btnConfirmDeposit.textContent = 'Gerar PIX';
+    showToast('Erro ao gerar PIX', 'error');
+  });
+});
+
+if (btnCopyPix) btnCopyPix.addEventListener('click', function() {
+  if (navigator.clipboard && pixCode) {
+    navigator.clipboard.writeText(pixCode.value).then(function() {
+      showToast('PIX copiado!', 'success');
+    }).catch(function() { if (pixCode) { pixCode.select(); document.execCommand('copy'); } });
+  }
+});
+
+/* ========== WALLET ========== */
+function refreshWalletUI() {
+  fetch('/api/wallet', { credentials: 'include' })
+    .then(function(res) { return res.json().catch(function() { return null; }); })
+    .then(function(j) {
+      if (!j || !j.ok) return;
+      var balEl = document.getElementById('walletBalance');
+      if (balEl) balEl.textContent = j.balance_brl || 'R$ 0,00';
+    }).catch(function() {});
+}
+
+/* ========== PAYMENT POLLING ========== */
+var __watchTimer = null;
+function stopWatchPayment() { if (__watchTimer) clearInterval(__watchTimer); __watchTimer = null; }
+
+function startWatchPayment(txId) {
+  stopWatchPayment();
+  __watchTimer = setInterval(function() {
+    fetch('/api/deposit/status?tx_id=' + encodeURIComponent(txId), { credentials: 'include' })
+      .then(function(res) { return res.json().catch(function() { return null; }); })
+      .then(function(j) {
+        if (j && j.ok && j.paid) {
+          stopWatchPayment();
+          if (pixStatus) pixStatus.textContent = '\u2705 Pagamento aprovado!';
+          showToast('Pagamento aprovado e saldo creditado!', 'success');
+          refreshWalletUI();
+        }
+      }).catch(function() {});
   }, 2000);
 }
 
-
-// ---------- click: gerar pix ----------
-btnRechargeNow?.addEventListener("click", async (e) => {
-  e.preventDefault();
-
-  const raw = (document.getElementById("depositAmount")?.value || "").replace(/[^\d]/g, "");
-  const val = raw ? Number(raw) : 0;
-  if (!val || val < 30) return alert("Valor mínimo: R$30");
-
-  btnRechargeNow.disabled = true;
-  btnRechargeNow.textContent = "Gerando PIX...";
-
-  const j = await createDepositPix(val);
-
-  btnRechargeNow.disabled = false;
-  btnRechargeNow.textContent = "Recarregue Agora";
-
-  if (!j || !j.ok) {
-    alert("Erro ao criar PIX: " + (j?.error || j?.msg || "unknown") + (j?.detail ? (" | " + j.detail) : ""));
-    return;
-  }
-
-  lastPix = j;
-  startWatchPayment(j.tx_id);
-
-  const copyPaste =
-    j.copyPaste ||
-    j.raw?.data?.paymentData?.copyPaste ||
-    j.raw?.data?.paymentData?.qrCode ||
-    "";
-
-  const transactionId =
-    j.transactionId ||
-    j.raw?.data?.transactionId ||
-    "";
-
-  const externalReference =
-    j.externalReference ||
-    j.externalRef ||
-    String(j.tx_id || "");
-
-  const invoiceUrl =
-    j.invoiceUrl ||
-    j.raw?.data?.invoiceUrl ||
-    "";
-
-  if (!copyPaste) {
-    alert("BlackCat não retornou copyPaste/qrCode.");
-    return;
-  }
-
-  renderPix(copyPaste, {
-    externalReference,
-    transactionId,
-    amount_brl: val.toFixed(2).replace(".", ",")
-  }, invoiceUrl);
-
-  lastPix = { copyPaste, externalReference, transactionId, invoiceUrl };
-});
-
-
-function resetPixUI() {
-  if (pixResult) pixResult.style.display = "none";
-  if (pixQr) pixQr.innerHTML = "";
-  if (pixCopy) pixCopy.value = "";
-  if (pixMeta) pixMeta.textContent = "";
-  lastPix = null;
+/* ========== TOAST ========== */
+function showToast(msg, type) {
+  var container = document.getElementById('toastContainer');
+  if (!container) { alert(msg); return; }
+  var toast = document.createElement('div');
+  toast.className = 'toast ' + (type || 'info');
+  toast.textContent = msg;
+  container.appendChild(toast);
+  setTimeout(function() {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateX(20px)';
+    toast.style.transition = '.3s';
+    setTimeout(function() { toast.remove(); }, 300);
+  }, 3000);
 }
 
-document.getElementById("openDepositPlus")?.addEventListener("click", () => {
-  refreshWalletUI();
-  resetPixUI();
+/* ========== LOGOUT ========== */
+var btnLogout = document.getElementById('btnLogout');
+if (btnLogout) btnLogout.addEventListener('click', function(e) {
+  e.preventDefault();
+  fetch('/api/logout', { method: 'POST', credentials: 'include' }).catch(function() {});
+  closeDeposit();
+  closeAuth();
+  updateAuthState();
+  showToast('Desconectado', 'info');
 });
 
-document.getElementById("openDepositWallet")?.addEventListener("click", () => {
-  refreshWalletUI();
-  resetPixUI();
+/* ========== KEYBOARD ========== */
+window.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    closeAuth();
+    closeDeposit();
+    if (sidebar) sidebar.classList.remove('open');
+    if (sidebarOverlay) sidebarOverlay.classList.remove('active');
+  }
 });
 
-refreshWalletUI();
-
-
-function toast(msg, ms=2800){
-  const t = document.getElementById("toast");
-  if(!t) return alert(msg);
-
-  t.innerHTML = `
-    <div class="toast-icon">✓</div>
-    <div class="toast-text">${String(msg)}</div>
-  `;
-  t.classList.add("show");
-  clearTimeout(window.__toastTimer);
-  window.__toastTimer = setTimeout(()=> t.classList.remove("show"), ms);
+/* ========== INIT ========== */
+function initApp() {
+  Promise.all([
+    fetch('/api/games').then(function(r) { return r.json(); }).catch(function() { return { ok: false }; }),
+    fetch('/api/banners').then(function(r) { return r.json(); }).catch(function() { return { ok: false }; })
+  ]).then(function(results) {
+    var gamesRes = results[0];
+    allGames = (gamesRes.ok && gamesRes.games) ? gamesRes.games : [];
+    renderAllSections();
+    initBannerDots();
+    showBanner(0);
+    startBannerAuto();
+    updateAuthState();
+  });
 }
 
-
-// =========================
-// LOGOUT
-// =========================
-document.getElementById("btnLogout")?.addEventListener("click", async (e) => {
-  e.preventDefault();
-
-  try {
-    await fetch("/api/logout", { method: "POST", credentials: "include" });
-  } catch (err) {}
-
-  try { closeOffcanvasMenu(); } catch {}
-  try { closeDepositModal(); } catch {}
-  resetPixUI?.();
-
-  await updateAuthState();
-
-  const ocName = document.getElementById("ocUserName");
-  const ocId = document.getElementById("ocUserId");
-  if (ocName) ocName.textContent = "User";
-  if (ocId) ocId.textContent = "-";
-});
-
-// Offcanvas -> abrir auth (guest)
-document.getElementById("openLoginFromMenu")?.addEventListener("click", (e)=>{
-  e.preventDefault();
-  closeOffcanvasMenu();
-  openAuth();
-  setAuthTab("login");
-});
-
-document.getElementById("openRegisterFromMenu")?.addEventListener("click", (e)=>{
-  e.preventDefault();
-  closeOffcanvasMenu();
-  openAuth();
-  setAuthTab("register");
-});
-
-document.getElementById("walletRefresh")?.addEventListener("click", (e)=>{
-  e.preventDefault();
-  refreshWalletUI();
-});
-
-
-// =========================
-// DRAWER MANAGER (GLOBAL)
-// =========================
-(function () {
-  const SELECTORS_TO_CLOSE = [
-    "#rankingDrawer",
-    "#accountDrawer",
-    "#bonusDrawer",
-    "#offcanvas",
-    "#depositModal",
-    "#authModal",
-    ".auth"
-  ];
-
-  function closeEl(el) {
-    if (!el) return;
-    el.classList.remove("open");
-    el.setAttribute("aria-hidden", "true");
-  }
-
-  function closeAll() {
-    SELECTORS_TO_CLOSE.forEach((sel) => {
-      document.querySelectorAll(sel).forEach(closeEl);
-    });
-
-    if (typeof window.closeRankingDrawer === "function") {
-      try { window.closeRankingDrawer(); } catch (e) {}
-    }
-    if (typeof window.closeBonusDrawer === "function") {
-      try { window.closeBonusDrawer(); } catch (e) {}
-    }
-    if (typeof window.closeAccountDrawer === "function") {
-      try { window.closeAccountDrawer(); } catch (e) {}
-    }
-
-    document.body.style.overflow = "";
-  }
-
-  function openOne(id) {
-    closeAll();
-
-    const el = document.getElementById(id);
-    if (!el) return;
-
-    el.classList.add("open");
-    el.setAttribute("aria-hidden", "false");
-    document.body.style.overflow = "hidden";
-  }
-
-  window.drawerManager = {
-    closeAll,
-    openRanking: () => openOne("rankingDrawer"),
-    openBonus: () => openOne("bonusDrawer"),
-    openAccount: () => openOne("accountDrawer"),
-    openOffcanvas: () => openOne("offcanvas"),
-    openDeposit: () => openOne("depositModal"),
-    openAuth: () => openOne("authModal"),
-  };
-})();
+initApp();

@@ -1,297 +1,267 @@
-<%- include('partials/head', { title: 'Cassino', extraCss: ['/public/css/account.css','/public/css/ranking.css','/public/css/bonus.css'] }) %>
+<%- include('partials/head') %>
 
-<div class="shell">
-<div class="app is-guest" id="app">
+<!-- ══════════ TOP BAR ══════════ -->
+<header class="topbar">
+  <div class="topbar-left">
+    <button class="tab-switch active" data-tab="cassino">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 12h8M12 8v8"/></svg>
+      CASSINO
+    </button>
+    <button class="tab-switch" data-tab="esportes">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 0 20 10 10 0 0 1 0-20z"/></svg>
+      ESPORTES
+    </button>
+  </div>
+  <div class="topbar-center">
+    <button class="hamburger" id="btnHamburger">
+      <span></span><span></span><span></span>
+    </button>
+    <a href="/" class="topbar-logo">ESPORTIVA<span>BET</span></a>
+  </div>
+  <div class="topbar-right">
+    <span class="responsible-label is-guest-el">Jogo Responsável</span>
+    <div class="topbar-auth is-guest-el">
+      <button class="btn-register" id="btnOpenRegister">Registre-se</button>
+      <button class="btn-login" id="btnOpenLogin">Entrar</button>
+    </div>
+    <div class="topbar-wallet is-logged-el">
+      <span class="wallet-balance" id="walletBalance">R$ 0,00</span>
+      <button class="btn-deposit-top" id="btnDepositTop">Depositar</button>
+    </div>
+  </div>
+</header>
 
-  <!-- MENU FIXED -->
-  <div class="menu-fixed" id="menuFixed">
-    <header class="header">
-      <button class="menu-plain" id="openOffcanvas" aria-label="Menu">
-        <img src="/public/img/iconmenu.png" alt="">
-      </button>
-      <img class="logo" src="/public/img/logo.webp" alt="Cassino">
+<!-- ══════════ LAYOUT: SIDEBAR + MAIN ══════════ -->
+<div class="app-layout">
 
-      <!-- GUEST HEADER -->
-      <div class="header-right header-guest" id="headerGuest">
-        <button class="h-auth-btn light" id="openLoginTop" type="button">Entrar</button>
-        <button class="h-auth-btn gold" id="openRegisterTop" type="button">Registrar</button>
-        <img class="hdr-badge" src="/public/img/icon2.png" alt="">
+  <!-- ──── SIDEBAR (desktop) ──── -->
+  <aside class="sidebar" id="sidebar">
+    <!-- Quick Access Cards -->
+    <div class="sidebar-cards">
+      <div class="sq-card"><div class="sq-icon">🏆</div><span>Torneios</span></div>
+      <div class="sq-card"><div class="sq-icon">🎯</div><span>Missões</span></div>
+      <div class="sq-card"><div class="sq-icon">🛒</div><span>Loja</span></div>
+      <div class="sq-card"><div class="sq-icon">🎮</div><span>Mini Games</span></div>
+      <div class="sq-card"><div class="sq-icon">🎁</div><span>Promoções</span></div>
+      <div class="sq-card"><div class="sq-icon">💬</div><span>Suporte 24h</span></div>
+    </div>
+
+    <!-- Promo banners -->
+    <div class="sidebar-promos">
+      <div class="promo-card promo-calendar">📅 CALENDÁRIO</div>
+      <div class="promo-card promo-app">📱 BAIXE NOSSO APP</div>
+    </div>
+
+    <!-- Casino Menu -->
+    <div class="sidebar-menu">
+      <div class="menu-title" id="menuCassinoToggle">
+        CASSINO
+        <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
       </div>
+      <ul class="menu-list" id="menuCassinoList">
+        <li class="active" data-filter="all"><span class="mi">🎰</span> Todos os jogos</li>
+        <li data-filter="slots"><span class="mi">🎲</span> Jogos Slots</li>
+        <li data-filter="live"><span class="mi">🎥</span> Cassino ao vivo</li>
+        <li data-filter="providers"><span class="mi">👤</span> Provedores</li>
+        <li data-filter="mines"><span class="mi">💎</span> Mines</li>
+        <li data-filter="fortune"><span class="mi">🐯</span> Fortune Tiger</li>
+        <li data-filter="aviator"><span class="mi">✈️</span> Aviator</li>
+        <li data-filter="spaceman"><span class="mi">🚀</span> Spaceman</li>
+      </ul>
+    </div>
+  </aside>
 
-      <!-- LOGGED HEADER -->
-      <div class="header-right header-logged" id="headerLogged">
-        <div class="wallet">
-          <img class="wallet-ico" src="/public/img/baixados.webp" alt="">
-          <span class="wallet-val" id="walletBonus">0R$</span>
-          <span class="wallet-sep">|</span>
-          <span class="wallet-val" id="walletBalance">0.00</span>
-          <button class="wallet-refresh" id="walletRefresh" aria-label="Atualizar">
-            <img src="/public/img/svg1.svg" alt="">
-          </button>
-          <button class="wallet-plus" id="openDepositPlus" aria-label="Adicionar saldo">
-            <img src="/public/img/+.png" alt="">
-          </button>
-        </div>
-        <button class="hbtn-plain" id="openBonusTop" aria-label="Presente" type="button">
-          <img src="/public/img/icon1.png" alt="">
-        </button>
-        <button class="avatar" aria-label="Conta">
-          <img src="/public/img/icon2.png" alt="">
-        </button>
-      </div>
-    </header>
+  <!-- ──── MAIN CONTENT ──── -->
+  <main class="main-content">
 
-    <!-- QUICK ICONS -->
-    <section class="quick">
-      <a class="qitem" href="#"><span class="qouter"><span class="qinner"><img src="/public/img/esportes_svg.svg" alt=""></span></span><span class="qlabel">Esportes</span></a>
-      <a class="qitem" href="#"><span class="qouter"><span class="qinner"><img src="/public/img/promocoes_svg.svg" alt=""></span></span><span class="qlabel">Promoções</span></a>
-      <a class="qitem" href="#"><span class="qouter"><span class="qinner"><img src="/public/img/roleta_svg.svg" alt=""></span></span><span class="qlabel">Cassino</span></a>
-      <a class="qitem" href="#"><span class="qouter"><span class="qinner"><img src="/public/img/aviator.png" alt=""></span></span><span class="qlabel">Aviator</span></a>
-      <a class="qitem" href="#"><span class="qouter"><span class="qinner"><img src="/public/img/mines_svg.svg" alt=""></span></span><span class="qlabel">Mines</span></a>
-      <a class="qitem" href="#"><span class="qouter"><span class="qinner"><img src="/public/img/indique_svg.svg" alt=""></span></span><span class="qlabel">Indique</span></a>
+    <!-- Category Icons Row -->
+    <section class="category-icons">
+      <div class="cat-icon-item"><div class="cat-icon-circle ci-blue">⚽</div><span>Esportes</span></div>
+      <div class="cat-icon-item"><div class="cat-icon-circle ci-red">🎁</div><span>Promoções</span></div>
+      <div class="cat-icon-item"><div class="cat-icon-circle ci-pink">🎰</div><span>Cassino</span></div>
+      <div class="cat-icon-item"><div class="cat-icon-circle ci-purple">✈️</div><span>Aviatrix</span></div>
+      <div class="cat-icon-item"><div class="cat-icon-circle ci-teal">🃏</div><span>Cassino</span></div>
+      <div class="cat-icon-item"><div class="cat-icon-circle ci-green">🎮</div><span>E-Sports</span></div>
+      <div class="cat-icon-item"><div class="cat-icon-circle ci-orange">📅</div><span>Calendário</span></div>
+      <div class="cat-icon-item"><div class="cat-icon-circle ci-yellow">💎</div><span>Mines</span></div>
+      <div class="cat-icon-item"><div class="cat-icon-circle ci-lime">📢</div><span>Indique</span></div>
     </section>
-  </div>
 
-  <div class="menu-spacer" id="menuSpacer"></div>
+    <!-- Banner Area: 1 large + 2 small stacked -->
+    <section class="banner-area">
+      <div class="banner-main" id="bannerMain">
+        <% if (typeof banners !== 'undefined' && banners.length) { %>
+          <div class="banner-slider" id="bannerSlider">
+            <% banners.forEach(function(b, i) { %>
+            <a href="<%= b.link_url || '#' %>" class="banner-slide <%= i === 0 ? 'active' : '' %>">
+              <img src="<%= b.image_url %>" alt="Banner" loading="<%= i === 0 ? 'eager' : 'lazy' %>">
+            </a>
+            <% }); %>
+          </div>
+          <div class="banner-dots" id="bannerDots"></div>
+          <button class="banner-arrow banner-prev" id="bannerPrev">‹</button>
+          <button class="banner-arrow banner-next" id="bannerNext">›</button>
+        <% } %>
+      </div>
+      <div class="banner-side">
+        <% if (typeof banners !== 'undefined' && banners.length > 1) { %>
+          <a href="<%= banners[1] ? banners[1].link_url || '#' : '#' %>" class="banner-side-item">
+            <img src="<%= banners[1] ? banners[1].image_url : '' %>" alt="Promo" loading="lazy">
+          </a>
+        <% } %>
+        <% if (typeof banners !== 'undefined' && banners.length > 2) { %>
+          <a href="<%= banners[2] ? banners[2].link_url || '#' : '#' %>" class="banner-side-item">
+            <img src="<%= banners[2] ? banners[2].image_url : '' %>" alt="Promo" loading="lazy">
+          </a>
+        <% } %>
+      </div>
+    </section>
 
-  <!-- BANNER -->
-  <section class="banner">
-    <div class="banner-viewport" id="bannerViewport">
-      <div class="banner-track" id="bannerTrack"></div>
-      <div class="banner-dots" id="bannerDots"></div>
-    </div>
-  </section>
+    <!-- Search Bar -->
+    <section class="search-section">
+      <div class="search-box">
+        <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="searchGames" placeholder="Pesquise um jogo de cassino..." autocomplete="off">
+      </div>
+    </section>
 
-  <section class="cards">
-    <a class="card" href="#"><img src="/public/img/card1.png" alt=""></a>
-    <a class="card" href="#"><img src="/public/img/card2.png" alt=""></a>
-    <a class="card" href="#"><img src="/public/img/card3.png" alt=""></a>
-  </section>
+    <!-- Recomendados -->
+    <section class="game-section">
+      <div class="section-header">
+        <h2>Recomendados</h2>
+      </div>
+      <div class="games-row" id="gamesRecommended">
+        <!-- filled by JS -->
+      </div>
+    </section>
 
-  <section class="winners">
-    <img class="wico" src="/public/img/voice.png" alt="">
-    <div class="marquee" aria-label="Ganhadores recentes">
-      <div class="marquee__inner" id="marqueeInner"></div>
-    </div>
-    <img class="wico" src="/public/img/search.png" alt="">
-  </section>
+    <!-- Em Alta -->
+    <section class="game-section">
+      <div class="section-header">
+        <h2>Em alta</h2>
+        <a href="#" class="see-all">Ver todos</a>
+      </div>
+      <div class="games-grid" id="gamesHot">
+        <!-- filled by JS -->
+      </div>
+    </section>
 
-  <section class="tabs tabs-under-winners">
-    <div class="tabs-viewport" id="tabsViewport">
-      <div class="tabs-row" id="tabsRow"></div>
-    </div>
-  </section>
+    <!-- Todos os Jogos -->
+    <section class="game-section">
+      <div class="section-header">
+        <h2>Todos os Jogos</h2>
+        <a href="#" class="see-all">Ver todos</a>
+      </div>
+      <div class="games-grid" id="gamesAll">
+        <!-- filled by JS -->
+      </div>
+    </section>
 
-  <main class="content" id="content"></main>
+    <!-- Footer -->
+    <footer class="site-footer">
+      <div class="footer-inner">
+        <div class="footer-logo">ESPORTIVA<span>BET</span></div>
+        <p>Jogue com responsabilidade. Apenas para maiores de 18 anos.</p>
+        <p class="footer-copy">&copy; 2025 EsportivaBet. Todos os direitos reservados.</p>
+      </div>
+    </footer>
 
-  <footer class="site-footer">
-    <img class="foot-img" src="/public/img/footer1.png" alt="">
-    <img class="foot-logo" src="/public/img/logo.webp" alt="Esportiva">
-    <p class="foot-text">
-      <strong>Esportiva</strong> é o melhor site de cassino e apostas esportivas<br>
-      com diversas opções de esportes para apostar e jogos de cassino.
-    </p>
-    <p class="foot-legal">
-      Feito com 💚 para brasileiros!<br><br>
-      Jogue com responsabilidade. Proibido para menores de 18 anos.<br>
-      Direitos autorais &copy; 2025 Esportiva. Todos os direitos reservados.
-    </p>
-  </footer>
+  </main>
+</div>
 
-  <a class="telegram-fab" href="#" aria-label="Telegram">
-    <img src="/public/img/telegram.png" alt="Telegram">
+<!-- ══════════ BOTTOM NAV (mobile) ══════════ -->
+<nav class="bottom-nav">
+  <a href="/" class="bnav-item active">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+    <span>Início</span>
   </a>
+  <a href="#" class="bnav-item" id="bnav-search">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <span>Buscar</span>
+  </a>
+  <button class="bnav-item bnav-deposit" id="bnav-deposit">
+    <div class="bnav-deposit-icon">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    </div>
+    <span>Depositar</span>
+  </button>
+  <a href="#" class="bnav-item" id="bnav-promos">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12v10H4V12M2 7h20v5H2zM12 22V7M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
+    <span>Promoções</span>
+  </a>
+  <a href="#" class="bnav-item" id="bnav-menu">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+    <span>Menu</span>
+  </a>
+</nav>
 
-  <!-- Bottom Nav -->
-  <nav class="bottom" id="bottomNav">
-    <a class="bitem active" href="#" id="goHomeBottom"><img src="/public/img/esportes_svg.svg" alt=""><small>Esportes</small></a>
-    <a class="bitem" href="#" id="openRankingBottom"><img src="/public/img/promocoes_svg.svg" alt=""><small>Promoções</small></a>
-    <a class="bitem center" href="#" id="openDepositWallet"><img class="menu-center" src="/public/img/menu3.gif" alt=""><small>Cassino</small></a>
-    <a class="bitem" href="#" id="openBonusBottom"><img src="/public/img/aviator.png" alt=""><small>Aviator</small></a>
-    <a class="bitem" href="#" id="openAuthBottom"><img src="/public/img/menu5.png" alt=""><small>Conta</small></a>
-  </nav>
+<!-- ══════════ OVERLAY (sidebar mobile) ══════════ -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-  <!-- DEPOSIT MODAL -->
-  <div class="deposit-modal" id="depositModal" aria-hidden="true">
-    <div class="deposit-sheet" role="dialog" aria-modal="true" aria-label="Depósito">
-      <div class="dep-top">
-        <button class="dep-back" id="closeDeposit" aria-label="Voltar"><img src="/public/img/seta.png" alt=""></button>
-        <div class="dep-title">Depósito</div>
-        <div class="dep-balance"><span class="dep-rs">R$</span><span class="dep-val" id="depositBalance">0,00</span></div>
+<!-- ══════════ DEPOSIT MODAL ══════════ -->
+<div class="modal-overlay" id="depositModal">
+  <div class="modal-box deposit-box">
+    <div class="modal-header">
+      <h3>Depositar via PIX</h3>
+      <button class="modal-close" id="depositClose">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="deposit-chips">
+        <button class="chip" data-val="30">R$ 30</button>
+        <button class="chip" data-val="50">R$ 50</button>
+        <button class="chip" data-val="100">R$ 100</button>
+        <button class="chip" data-val="200">R$ 200</button>
+        <button class="chip" data-val="500">R$ 500</button>
+        <button class="chip" data-val="1000">R$ 1.000</button>
       </div>
-      <div class="dep-tabs">
-        <div class="dep-tab active">
-          <img class="dep-tab-ico" src="/public/img/tel.svg" alt="">
-          <span>Depósito online</span>
-          <div class="dep-underline"></div>
-        </div>
-        <div class="dep-actions">
-          <button class="dep-ico" aria-label="Suporte"><img src="/public/img/fones.svg" alt=""></button>
-          <button class="dep-ico" aria-label="Arquivo"><img src="/public/img/file.svg" alt=""></button>
-        </div>
+      <div class="deposit-input-wrap">
+        <label>Ou digite o valor:</label>
+        <input type="text" id="depositAmount" placeholder="R$ 0,00" inputmode="numeric">
       </div>
-      <div class="dep-body">
-        <div class="dep-select">
-          <div class="dep-pill"><img class="dep-pill-ico" src="/public/img/pix.png" alt=""><span>PIX</span></div>
+      <button class="btn-confirm-deposit" id="btnConfirmDeposit">Gerar PIX</button>
+      <div class="pix-result" id="pixResult" style="display:none">
+        <img id="pixQr" src="" alt="QR Code">
+        <div class="pix-copy-wrap">
+          <input type="text" id="pixCode" readonly>
+          <button class="btn-copy-pix" id="btnCopyPix">Copiar</button>
         </div>
-        <div class="dep-card">
-          <div class="dep-row"><div class="dep-mini-select"><span>pix08</span><span class="dep-mini-corner"></span></div></div>
-          <div class="dep-amount-line"><div class="dep-amount-label">Depósito:</div><div class="dep-amount-value" id="depositShown">R$0,00</div></div>
-          <div class="dep-grid" id="depositGrid">
-            <button class="dep-chip" data-val="30" type="button">R$30</button>
-            <button class="dep-chip" data-val="100" type="button">R$100</button>
-            <button class="dep-chip" data-val="200" type="button">R$200</button>
-            <button class="dep-chip" data-val="500" type="button">R$500</button>
-            <button class="dep-chip" data-val="1000" type="button">R$1000</button>
-            <button class="dep-chip" data-val="3000" type="button">R$3000</button>
-            <button class="dep-chip" data-val="10000" type="button">R$10000</button>
-            <button class="dep-chip" data-val="50000" type="button">R$50000</button>
-          </div>
-          <div class="dep-input-wrap">
-            <div class="dep-input-prefix">R$</div>
-            <input class="dep-input" id="depositAmount" inputmode="numeric" placeholder="Minimo30, Máximo50000" />
-            <button class="dep-clear" id="depositClear" aria-label="Limpar" type="button"><img src="/public/img/x.svg" alt=""></button>
-          </div>
-          <div class="dep-sep"></div>
-          <div class="dep-reminder">
-            <div class="dep-rem-title">Reminder:</div>
-            <div class="dep-rem-text">Se você não receber fundos dentro de três minutos após a cobrança, entre em contato com o atendimento ao cliente.</div>
-          </div>
-          <button class="dep-cta" id="btnRechargeNow" type="button">Recarregue Agora</button>
-          <div class="pix-result" id="pixResult" style="display:none;">
-            <div class="pix-qr" id="pixQr"></div>
-            <textarea class="pix-copy" id="pixCopy" readonly></textarea>
-            <div class="pix-actions"><button class="pix-btn" id="btnCopyPix" type="button">Copiar PIX</button></div>
-            <div class="pix-meta" id="pixMeta"></div>
-          </div>
-        </div>
+        <p class="pix-status" id="pixStatus">Aguardando pagamento...</p>
       </div>
     </div>
   </div>
-
-  <!-- OFFCANVAS -->
-  <div class="offcanvas" id="offcanvas" aria-hidden="true">
-    <div class="offcanvas-panel" role="dialog" aria-modal="true" aria-label="Menu">
-      <div class="oc-top">
-        <button class="oc-back" id="closeOffcanvas" aria-label="Voltar"><img src="/public/img/seta.png" alt=""></button>
-        <img class="oc-logo" src="/public/img/logo.webp" alt="Cassino">
-      </div>
-      <div class="oc-usercard oc-usercard-logged" id="ocUserCardLogged">
-        <div class="oc-user-left">
-          <img class="oc-avatar" src="/public/img/usert.png" alt="">
-          <div class="oc-userinfo">
-            <div class="oc-name" id="ocUserName">User</div>
-            <div class="oc-idrow">
-              <div class="oc-id">ID:<span id="ocUserId">-</span></div>
-              <button class="oc-copy" id="copyUserId" aria-label="Copiar ID" type="button"><img src="/public/img/copiar.png" alt=""></button>
-            </div>
-          </div>
-        </div>
-        <img class="oc-crown" src="/public/img/coroa.png" alt="">
-      </div>
-      <div class="oc-usercard oc-usercard-guest" id="ocUserCardGuest">
-        <div class="oc-auth-row">
-          <button class="oc-auth-btn oc-auth-btn-login" id="openLoginFromMenu" type="button">Entrar</button>
-          <button class="oc-auth-btn oc-auth-btn-register" id="openRegisterFromMenu" type="button">Registrar</button>
-        </div>
-      </div>
-      <div class="oc-actions">
-        <button class="oc-action dep" id="openDepositFromMenu" type="button"><img class="oc-action-ico" src="/public/img/porc.png" alt=""><span>Depósito</span></button>
-        <button class="oc-action saque" id="openWithdraw" type="button"><img class="oc-action-ico" src="/public/img/card.png" alt=""><span>Saque</span></button>
-      </div>
-      <div class="oc-grid">
-        <a class="oc-item" href="#"><span class="oc-outer"><span class="oc-inner"><img src="/public/img/torneios1.svg" alt=""></span></span><span class="oc-label">Torneios</span></a>
-        <a class="oc-item" href="#"><span class="oc-outer"><span class="oc-inner"><img src="/public/img/missoes1.svg" alt=""></span></span><span class="oc-label">Missões</span></a>
-        <a class="oc-item" href="#"><span class="oc-outer"><span class="oc-inner"><img src="/public/img/store.svg" alt=""></span></span><span class="oc-label">Loja</span></a>
-        <a class="oc-item" href="#"><span class="oc-outer"><span class="oc-inner"><img src="/public/img/minigames.svg" alt=""></span></span><span class="oc-label">Mini Games</span></a>
-        <a class="oc-item" href="#"><span class="oc-outer"><span class="oc-inner"><img src="/public/img/promocoes1.svg" alt=""></span></span><span class="oc-label">Promoções</span></a>
-        <a class="oc-item" href="#"><span class="oc-outer"><span class="oc-inner"><img src="/public/img/suporte1.svg" alt=""></span></span><span class="oc-label">Suporte</span></a>
-        <a class="oc-item" href="#"><span class="oc-outer"><span class="oc-inner"><img src="/public/img/calendario.png" alt=""></span></span><span class="oc-label">Calendário</span></a>
-        <a class="oc-item" href="#"><span class="oc-outer"><span class="oc-inner"><img src="/public/img/indique_svg.svg" alt=""></span></span><span class="oc-label">Indique</span></a>
-        <a class="oc-item" href="#"><span class="oc-outer"><span class="oc-inner"><img src="/public/img/cartas_svg.svg" alt=""></span></span><span class="oc-label">Cassino</span></a>
-      </div>
-      <img class="oc-footer-img" src="/public/img/footer2.png" alt="">
-      <button class="oc-download" type="button"><img class="oc-download-ico" src="/public/img/down.png" alt=""><span>Baixar o APP</span></button>
-    </div>
-  </div>
-
-</div>
 </div>
 
-<!-- AUTH MODAL -->
-<div class="auth" id="authModal" aria-hidden="true">
-  <div class="auth-blur"></div>
-  <div class="auth-card" role="dialog" aria-modal="true" aria-label="Login e Registro">
-    <button class="auth-close" id="authClose" aria-label="Fechar" type="button"><img src="/public/img/xxx.svg" alt=""></button>
+<!-- ══════════ AUTH MODAL ══════════ -->
+<div class="modal-overlay" id="authModal">
+  <div class="modal-box auth-box">
+    <button class="modal-close" id="authClose">&times;</button>
     <div class="auth-tabs">
-      <button class="auth-tab active" id="tabRegister" type="button">Registro</button>
-      <button class="auth-tab" id="tabLogin" type="button">Login</button>
+      <button class="auth-tab active" data-tab="register">Registre-se</button>
+      <button class="auth-tab" data-tab="login">Entrar</button>
     </div>
-    <div class="auth-line"></div>
-    <!-- REGISTRO -->
-    <div class="auth-pane show" id="paneRegister">
-      <div class="auth-hint">Suporta apenas Conta Registro</div>
-      <div class="fgroup">
-        <div class="finput no-eye">
-          <span class="fico left"><img src="/public/img/user.svg" alt=""></span>
-          <input id="regUser" type="text" placeholder="* Digite o Conta" autocomplete="off">
-          <button class="fico right clear" data-clear="#regUser" type="button" aria-label="Limpar"><img src="/public/img/xx.svg" alt=""></button>
-        </div>
-        <div class="ferror" id="errRegUser"><img src="/public/img/warn.svg" alt=""><span>Digite o Conta</span></div>
-      </div>
-      <div class="fgroup">
-        <div class="finput">
-          <span class="fico left"><img src="/public/img/lock.svg" alt=""></span>
-          <input id="regPass" type="password" placeholder="* Inserir Senha" autocomplete="new-password">
-          <button class="fico right clear" data-clear="#regPass" type="button" aria-label="Limpar"><img src="/public/img/xx.svg" alt=""></button>
-          <button class="fico right eye" data-eye="#regPass" type="button" aria-label="Mostrar senha"><img src="/public/img/hidd.svg" alt=""></button>
-        </div>
-        <div class="ferror" id="errRegPass"><img src="/public/img/warn.svg" alt=""><span>6-16 caracteres</span></div>
-      </div>
-      <div class="fgroup">
-        <div class="fphone">
-          <button class="ddi" type="button"><img src="/public/img/br.png" alt=""><span>+55</span><span class="ddi-caret">▾</span></button>
-          <div class="finput phone no-eye">
-            <input id="regPhone" type="tel" placeholder="* Digite o Celular" autocomplete="tel">
-            <button class="fico right clear" data-clear="#regPhone" type="button" aria-label="Limpar"><img src="/public/img/xx.svg" alt=""></button>
-          </div>
-        </div>
-      </div>
-      <div class="auth-support">Suporte ao cliente?</div>
-      <button class="auth-submit" id="btnRegister" type="button">Registro</button>
-    </div>
-    <!-- LOGIN -->
-    <div class="auth-pane" id="paneLogin">
-      <div class="auth-hint">Suporta apenas Conta Login</div>
-      <div class="fgroup">
-        <div class="finput no-eye">
-          <span class="fico left"><img src="/public/img/user.svg" alt=""></span>
-          <input id="logUser" type="text" placeholder="* Digite o Conta" autocomplete="username">
-          <button class="fico right clear" data-clear="#logUser" type="button" aria-label="Limpar"><img src="/public/img/xx.svg" alt=""></button>
-        </div>
-        <div class="ferror" id="errLogUser"><img src="/public/img/warn.svg" alt=""><span>Digite o Conta</span></div>
-      </div>
-      <div class="fgroup">
-        <div class="finput">
-          <span class="fico left"><img src="/public/img/lock.svg" alt=""></span>
-          <input id="logPass" type="password" placeholder="* Inserir Senha" autocomplete="current-password">
-          <button class="fico right clear" data-clear="#logPass" type="button" aria-label="Limpar"><img src="/public/img/xx.svg" alt=""></button>
-          <button class="fico right eye" data-eye="#logPass" type="button" aria-label="Mostrar senha"><img src="/public/img/hidd.svg" alt=""></button>
-        </div>
-        <div class="ferror" id="errLogPass"><img src="/public/img/warn.svg" alt=""><span>Inserir Senha</span></div>
-      </div>
-      <div class="auth-support">Suporte ao cliente?</div>
-      <button class="auth-submit" id="btnLogin" type="button">Login</button>
-    </div>
+    <!-- Register -->
+    <form class="auth-form" id="formRegister">
+      <input type="text" name="name" placeholder="Nome completo" required>
+      <input type="text" name="cpf" placeholder="CPF" required>
+      <input type="email" name="email" placeholder="E-mail" required>
+      <input type="tel" name="phone" placeholder="Telefone" required>
+      <input type="password" name="password" placeholder="Senha" required>
+      <input type="password" name="password_confirm" placeholder="Confirmar senha" required>
+      <label class="check-label"><input type="checkbox" required> Tenho mais de 18 anos e aceito os termos</label>
+      <button type="submit" class="btn-auth-submit">Criar conta</button>
+    </form>
+    <!-- Login -->
+    <form class="auth-form" id="formLogin" style="display:none">
+      <input type="text" name="login" placeholder="E-mail ou CPF" required>
+      <input type="password" name="password" placeholder="Senha" required>
+      <button type="submit" class="btn-auth-submit">Entrar</button>
+      <a href="#" class="forgot-link">Esqueceu a senha?</a>
+    </form>
   </div>
 </div>
 
-<!-- Account / Ranking / Bonus drawers mount -->
-<div id="accountMount"></div>
-<div id="rankingMount"></div>
-<div id="bonusMount"></div>
-
-<!-- TOAST -->
+<!-- ══════════ TOAST ══════════ -->
 <div class="toast-container" id="toastContainer"></div>
 
-<%- include('partials/foot', { extraJs: ['/public/js/script.js', '/public/js/account.js', '/public/js/ranking.js', '/public/js/bonus.js'] }) %>
+<script src="/public/js/script.js"></script>
+<%- include('partials/foot') %>
