@@ -257,11 +257,11 @@ button { font-family: inherit; }
   display: grid; place-items: center;
   flex-shrink: 0;
 }
-.ud-stat-card.gold .ud-stat-icon {
+.ud-stat-card.green .ud-stat-icon {
   background: rgba(16,185,129,.1);
   color: var(--ud-green1);
 }
-.ud-stat-card.gold .ud-stat-icon svg { stroke: var(--ud-green1); }
+.ud-stat-card.green .ud-stat-icon svg { stroke: var(--ud-green1); }
 .ud-stat-card.green .ud-stat-icon {
   background: rgba(46,231,107,.1);
   color: var(--ud-success);
@@ -312,12 +312,12 @@ button { font-family: inherit; }
   border-color: rgba(255,255,255,.15);
   transform: translateY(-1px);
 }
-.ud-qaction.gold {
+.ud-qaction.green {
   background: linear-gradient(135deg, rgba(16,185,129,.12), rgba(16,185,129,.04));
   border-color: rgba(16,185,129,.2);
   color: var(--ud-green1);
 }
-.ud-qaction.gold:hover {
+.ud-qaction.green:hover {
   background: linear-gradient(135deg, rgba(16,185,129,.2), rgba(16,185,129,.08));
 }
 

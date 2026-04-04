@@ -168,7 +168,7 @@
         <td>${r.id}</td>
         <td><strong>${esc(r.username)}</strong></td>
         <td style="color:rgba(255,255,255,.55)">${esc(r.phone || '-')}</td>
-        <td style="color:var(--adm-gold2)">${brl(wallet)}</td>
+        <td style="color:var(--adm-green2)">${brl(wallet)}</td>
         <td>${brl(Number(r.bonus || 0))}</td>
         <td>${r.credit_score || 0}</td>
         <td>${activeTag(r.is_active)}</td>
@@ -181,7 +181,7 @@
       return `<tr>
         <td>${r.id}</td>
         <td>${r.user_id}</td>
-        <td style="color:var(--adm-gold2);font-weight:900">${brl(amt)}</td>
+        <td style="color:var(--adm-green2);font-weight:900">${brl(amt)}</td>
         <td>${tag(r.status)}</td>
         <td style="color:rgba(255,255,255,.45)">${esc(r.provider || '-')}</td>
         <td style="color:rgba(255,255,255,.45)">${esc(r.provider_ref || '-')}</td>
@@ -214,7 +214,7 @@
         <td>${r.id}</td>
         <td><strong>${esc(r.username || r.user_id)}</strong> <span style="color:rgba(255,255,255,.35)">#${r.user_id}</span></td>
         <td><span class="adm-tag ${cls}">${esc(r.type)}</span></td>
-        <td style="color:var(--adm-gold2);font-weight:900">${brl(amt)}</td>
+        <td style="color:var(--adm-green2);font-weight:900">${brl(amt)}</td>
         <td>${tag(r.status)}</td>
         <td style="color:rgba(255,255,255,.45)">${esc(r.provider || '-')}</td>
         <td style="color:rgba(255,255,255,.45)">${esc(r.provider_ref || '-')}</td>
@@ -246,7 +246,7 @@
         <td>${r.id}</td>
         <td><strong>${esc(r.username || r.user_id)}</strong> <span style="color:rgba(255,255,255,.35)">#${r.user_id}</span></td>
         <td style="color:rgba(255,255,255,.55)">${esc(r.game_name || r.game_id || '-')}</td>
-        <td style="color:var(--adm-gold2);font-weight:900">${brl(amt)}</td>
+        <td style="color:var(--adm-green2);font-weight:900">${brl(amt)}</td>
         <td style="color:#2ee76b;font-weight:700">${brl(pay)}</td>
         <td>${r.multiplier || '—'}x</td>
         <td><span class="adm-tag ${statusCls[r.status] || ''}">${esc(r.status)}</span></td>
@@ -258,7 +258,7 @@
       return `<tr>
         <td>${r.id}</td>
         <td><strong>${esc(r.username || r.user_id)}</strong></td>
-        <td style="color:var(--adm-gold2);font-weight:700">${esc(r.code)}</td>
+        <td style="color:var(--adm-green2);font-weight:700">${esc(r.code)}</td>
         <td>${r.commission_pct}%</td>
         <td style="color:#2ee76b;font-weight:700">${brl(earned)}</td>
         <td>${activeTag(r.is_active)}</td>
@@ -287,7 +287,7 @@
         <td>${r.id}</td>
         <td><strong>${esc(r.title)}</strong></td>
         <td><span class="adm-tag">${esc(r.type)}</span></td>
-        <td style="color:var(--adm-gold2)">${r.value_pct > 0 ? r.value_pct + '%' : brl(val)}</td>
+        <td style="color:var(--adm-green2)">${r.value_pct > 0 ? r.value_pct + '%' : brl(val)}</td>
         <td style="color:rgba(255,255,255,.55)">${esc(r.code || '-')}</td>
         <td>${r.claimed_count || 0}${r.max_uses ? '/' + r.max_uses : ''}</td>
         <td>${activeTag(r.is_active)}</td>
@@ -303,7 +303,7 @@
     if (page === 'audit') {
       return `<tr>
         <td>${r.id}</td>
-        <td style="color:var(--adm-gold2)">${esc(r.admin_name || r.admin_id || '-')}</td>
+        <td style="color:var(--adm-green2)">${esc(r.admin_name || r.admin_id || '-')}</td>
         <td><strong>${esc(r.action)}</strong></td>
         <td style="color:rgba(255,255,255,.55)">${esc(r.target_type || '-')}</td>
         <td>${r.target_id || '-'}</td>

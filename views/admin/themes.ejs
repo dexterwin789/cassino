@@ -18,17 +18,17 @@
         <% const layout = typeof t.layout_config === 'string' ? JSON.parse(t.layout_config) : (t.layout_config || {}); %>
         <!-- Mini Preview -->
         <div class="theme-mini-preview" style="background:<%= vars.bg || '#000' %>">
-          <div class="tmp-header" style="background:<%= vars.card || '#141414' %>;border-bottom:2px solid <%= vars.gold1 || '#f4c44c' %>">
-            <div class="tmp-logo" style="background:<%= vars.gold1 || '#f4c44c' %>"></div>
+          <div class="tmp-header" style="background:<%= vars.card || '#1b2838' %>;border-bottom:2px solid <%= vars.green1 || '#6EE7B7' %>">
+            <div class="tmp-logo" style="background:<%= vars.green1 || '#6EE7B7' %>"></div>
             <div class="tmp-btns">
-              <span style="background:<%= vars.blue || '#1a78ff' %>"></span>
-              <span style="background:<%= vars.gold2 || '#f4c44c' %>"></span>
+              <span style="background:<%= vars.blue || '#10B981' %>"></span>
+              <span style="background:<%= vars.green2 || '#10B981' %>"></span>
             </div>
           </div>
-          <div class="tmp-banner" style="background:linear-gradient(135deg,<%= vars.gold3 || '#b97a0d' %>,<%= vars.accent || '#f4c44c' %>);aspect-ratio:<%= layout.bannerAspect || '16/7' %>"></div>
+          <div class="tmp-banner" style="background:linear-gradient(135deg,<%= vars.green3 || '#047857' %>,<%= vars.accent || '#10B981' %>);aspect-ratio:<%= layout.bannerAspect || '16/7' %>"></div>
           <div class="tmp-games">
             <% for(let i=0; i < Math.min(layout.gamesPerRow || 4, 6); i++) { %>
-            <div class="tmp-game" style="background:<%= vars.card || '#141414' %>;border:1px solid <%= vars.gold3 || '#b97a0d' %>30"></div>
+            <div class="tmp-game" style="background:<%= vars.card || '#1b2838' %>;border:1px solid <%= vars.green3 || '#047857' %>30"></div>
             <% } %>
           </div>
         </div>
@@ -106,22 +106,22 @@
           <div class="te-color-item">
             <label>Background</label>
             <div class="te-color-pick">
-              <input type="color" id="cBg" value="#0b0b0b" />
-              <input type="text" class="te-color-hex" data-for="cBg" value="#0b0b0b" />
+              <input type="color" id="cBg" value="#0d1b2a" />
+              <input type="text" class="te-color-hex" data-for="cBg" value="#0d1b2a" />
             </div>
           </div>
           <div class="te-color-item">
             <label>Preto Base</label>
             <div class="te-color-pick">
-              <input type="color" id="cBlack" value="#000000" />
-              <input type="text" class="te-color-hex" data-for="cBlack" value="#000000" />
+              <input type="color" id="cBlack" value="#0B1726" />
+              <input type="text" class="te-color-hex" data-for="cBlack" value="#0B1726" />
             </div>
           </div>
           <div class="te-color-item">
             <label>Card</label>
             <div class="te-color-pick">
-              <input type="color" id="cCard" value="#141414" />
-              <input type="text" class="te-color-hex" data-for="cCard" value="#141414" />
+              <input type="color" id="cCard" value="#1b2838" />
+              <input type="text" class="te-color-hex" data-for="cCard" value="#1b2838" />
             </div>
           </div>
           <div class="te-color-item">
@@ -132,38 +132,38 @@
             </div>
           </div>
           <div class="te-color-item">
-            <label>Dourado 1</label>
+            <label>Verde 1</label>
             <div class="te-color-pick">
-              <input type="color" id="cGold1" value="#ffe39a" />
-              <input type="text" class="te-color-hex" data-for="cGold1" value="#ffe39a" />
+              <input type="color" id="cGreen1" value="#6EE7B7" />
+              <input type="text" class="te-color-hex" data-for="cGreen1" value="#6EE7B7" />
             </div>
           </div>
           <div class="te-color-item">
-            <label>Dourado 2</label>
+            <label>Verde 2</label>
             <div class="te-color-pick">
-              <input type="color" id="cGold2" value="#f4c44c" />
-              <input type="text" class="te-color-hex" data-for="cGold2" value="#f4c44c" />
+              <input type="color" id="cGreen2" value="#10B981" />
+              <input type="text" class="te-color-hex" data-for="cGreen2" value="#10B981" />
             </div>
           </div>
           <div class="te-color-item">
-            <label>Dourado 3</label>
+            <label>Verde 3</label>
             <div class="te-color-pick">
-              <input type="color" id="cGold3" value="#b97a0d" />
-              <input type="text" class="te-color-hex" data-for="cGold3" value="#b97a0d" />
+              <input type="color" id="cGreen3" value="#047857" />
+              <input type="text" class="te-color-hex" data-for="cGreen3" value="#047857" />
             </div>
           </div>
           <div class="te-color-item">
             <label>Azul</label>
             <div class="te-color-pick">
-              <input type="color" id="cBlue" value="#1a78ff" />
-              <input type="text" class="te-color-hex" data-for="cBlue" value="#1a78ff" />
+              <input type="color" id="cBlue" value="#10B981" />
+              <input type="text" class="te-color-hex" data-for="cBlue" value="#10B981" />
             </div>
           </div>
           <div class="te-color-item">
             <label>Accent</label>
             <div class="te-color-pick">
-              <input type="color" id="cAccent" value="#f4c44c" />
-              <input type="text" class="te-color-hex" data-for="cAccent" value="#f4c44c" />
+              <input type="color" id="cAccent" value="#10B981" />
+              <input type="text" class="te-color-hex" data-for="cAccent" value="#10B981" />
             </div>
           </div>
           <div class="te-color-item">
@@ -302,7 +302,7 @@
 .te-field{display:flex;flex-direction:column;gap:.35rem}
 .te-field label{font-size:.75rem;color:rgba(255,255,255,.5);font-weight:500;text-transform:uppercase;letter-spacing:.3px}
 .te-input,.te-select{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:.55rem .75rem;color:#fff;font-size:.85rem;font-family:inherit;transition:border-color .2s}
-.te-input:focus,.te-select:focus{outline:none;border-color:rgba(244,196,76,.4)}
+.te-input:focus,.te-select:focus{outline:none;border-color:rgba(16,185,129,.4)}
 .te-select{cursor:pointer}
 .te-select option{background:#0e1117;color:#fff}
 
@@ -372,7 +372,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Color map: field id → css_vars key
   const colorMap = {
     cBg: 'bg', cBlack: 'black', cCard: 'card', cText: 'text',
-    cGold1: 'gold1', cGold2: 'gold2', cGold3: 'gold3',
+    cGreen1: 'green1', cGreen2: 'green2', cGreen3: 'green3',
     cBlue: 'blue', cAccent: 'accent', cSuccess: 'success', cDanger: 'danger'
   };
 
@@ -385,7 +385,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('teDesc').value = theme?.description || '';
 
     const cv = theme?.css_vars || {};
-    const defaults = { black:'#000000', bg:'#0b0b0b', card:'#141414', text:'#f6f6f6', gold1:'#ffe39a', gold2:'#f4c44c', gold3:'#b97a0d', blue:'#1a78ff', accent:'#f4c44c', success:'#2ee76b', danger:'#ff4d4d' };
+    const defaults = { black:'#0B1726', bg:'#0d1b2a', card:'#1b2838', text:'#f6f6f6', green1:'#6EE7B7', green2:'#10B981', green3:'#047857', blue:'#10B981', accent:'#10B981', success:'#34D399', danger:'#ff4d4d' };
     for (const [fid, key] of Object.entries(colorMap)) {
       const v = cv[key] || defaults[key];
       document.getElementById(fid).value = v;
@@ -432,9 +432,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const p = document.getElementById('livePreview');
     const bg = document.getElementById('cBg').value;
     const card = document.getElementById('cCard').value;
-    const gold1 = document.getElementById('cGold1').value;
-    const gold2 = document.getElementById('cGold2').value;
-    const gold3 = document.getElementById('cGold3').value;
+    const green1 = document.getElementById('cGreen1').value;
+    const green2 = document.getElementById('cGreen2').value;
+    const green3 = document.getElementById('cGreen3').value;
     const blue = document.getElementById('cBlue').value;
     const text = document.getElementById('cText').value;
     const accent = document.getElementById('cAccent').value;
@@ -446,13 +446,13 @@ document.addEventListener('DOMContentLoaded', () => {
     p.style.background = bg;
     p.style.borderRadius = br;
     p.querySelector('.tlp-header').style.background = card;
-    p.querySelector('.tlp-header').style.borderBottom = `2px solid ${gold1}`;
-    p.querySelector('.tlp-logo').style.background = gold1;
+    p.querySelector('.tlp-header').style.borderBottom = `2px solid ${green1}`;
+    p.querySelector('.tlp-logo').style.background = green1;
     const btns = p.querySelectorAll('.tlp-btns span');
     if (btns[0]) btns[0].style.background = blue;
-    if (btns[1]) btns[1].style.background = gold2;
+    if (btns[1]) btns[1].style.background = green2;
     const banner = p.querySelector('.tlp-banner');
-    banner.style.background = `linear-gradient(135deg,${gold3},${accent})`;
+    banner.style.background = `linear-gradient(135deg,${green3},${accent})`;
     banner.style.aspectRatio = ba;
 
     // Icons
@@ -460,7 +460,7 @@ document.addEventListener('DOMContentLoaded', () => {
     iconsEl.innerHTML = '';
     for (let i = 0; i < qi; i++) {
       const s = document.createElement('span');
-      s.style.background = gold1;
+      s.style.background = green1;
       iconsEl.appendChild(s);
     }
 
@@ -471,7 +471,7 @@ document.addEventListener('DOMContentLoaded', () => {
     for (let i = 0; i < gpr * 2; i++) {
       const s = document.createElement('span');
       s.style.background = card;
-      s.style.border = `1px solid ${gold3}30`;
+      s.style.border = `1px solid ${green3}30`;
       s.style.borderRadius = Math.max(4, parseInt(br) / 3) + 'px';
       gamesEl.appendChild(s);
     }
@@ -480,7 +480,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const footer = p.querySelector('.tlp-footer');
     footer.style.background = card;
     footer.style.color = text + '60';
-    footer.style.borderTopColor = gold3 + '30';
+    footer.style.borderTopColor = green3 + '30';
     footer.textContent = 'Footer Preview';
   }
 

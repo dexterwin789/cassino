@@ -57,7 +57,7 @@
     const body = drawer.querySelector(".drawer-body");
     if (!body) return;
 
-    body.innerHTML = '<div style="text-align:center;padding:40px;color:var(--gold1);">Carregando...</div>';
+    body.innerHTML = '<div style="text-align:center;padding:40px;color:var(--green1);">Carregando...</div>';
 
     try {
       const res = await fetch("/ranking", { credentials: "include" });

@@ -223,7 +223,7 @@ CREATE INDEX IF NOT EXISTS idx_sessions_expire ON sessions(expire);
 -- Default inserts
 INSERT INTO platform_settings (key, value) VALUES
   ('active_theme', 'default'),
-  ('site_name', 'Cassino'),
+  ('site_name', 'Esportiva'),
   ('maintenance_mode', '0')
 ON CONFLICT (key) DO NOTHING;
 
@@ -231,20 +231,20 @@ ON CONFLICT (key) DO NOTHING;
 INSERT INTO themes (slug, name, description, css_vars, layout_config, is_active) VALUES
 (
   'default',
-  'Gold Classic',
-  'Tema padrão com preto & dourado premium',
+  'Esportiva Classic',
+  'Tema padrão com verde esmeralda e navy',
   '{
-    "black": "#000",
-    "bg": "#0b0b0b",
-    "card": "#141414",
+    "black": "#0B1726",
+    "bg": "#0d1b2a",
+    "card": "#1b2838",
     "text": "#f6f6f6",
-    "gold1": "#ffe39a",
-    "gold2": "#f4c44c",
-    "gold3": "#b97a0d",
-    "blue": "#1a78ff",
-    "accent": "#f4c44c",
+    "green1": "#6EE7B7",
+    "green2": "#10B981",
+    "green3": "#047857",
+    "blue": "#10B981",
+    "accent": "#10B981",
     "danger": "#ff4d4d",
-    "success": "#2ee76b"
+    "success": "#34D399"
   }',
   '{
     "gamesPerRow": 4,
@@ -265,9 +265,9 @@ INSERT INTO themes (slug, name, description, css_vars, layout_config, is_active)
     "bg": "#0d0d22",
     "card": "#13132e",
     "text": "#eef0ff",
-    "gold1": "#c084fc",
-    "gold2": "#a855f7",
-    "gold3": "#7c3aed",
+    "green1": "#c084fc",
+    "green2": "#a855f7",
+    "green3": "#7c3aed",
     "blue": "#06b6d4",
     "accent": "#a855f7",
     "danger": "#f43f5e",
@@ -292,9 +292,9 @@ INSERT INTO themes (slug, name, description, css_vars, layout_config, is_active)
     "bg": "#061a12",
     "card": "#0a2419",
     "text": "#f0fdf4",
-    "gold1": "#6ee7b7",
-    "gold2": "#10b981",
-    "gold3": "#047857",
+    "green1": "#6ee7b7",
+    "green2": "#10b981",
+    "green3": "#047857",
     "blue": "#38bdf8",
     "accent": "#10b981",
     "danger": "#ef4444",

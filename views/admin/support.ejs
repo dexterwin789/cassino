@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const r = await fetch('/admin/api/support/' + currentTicketId + '/messages', { credentials: 'same-origin' });
     const d = await r.json();
     if (!d.ok) { msgs.innerHTML = '<p style="color:#ff4d4d">Erro</p>'; return; }
-    msgs.innerHTML = d.messages.map(m => `<div style="margin-bottom:8px;padding:8px 12px;border-radius:8px;background:${m.sender_type === 'admin' ? 'rgba(16,185,129,.1)' : 'rgba(255,255,255,.04)'}"><strong style="color:${m.sender_type === 'admin' ? '#10b981' : '#f4c44c'}">${m.sender_name || m.sender_type}</strong><span style="color:rgba(255,255,255,.35);margin-left:8px;font-size:12px">${new Date(m.created_at).toLocaleString('pt-BR')}</span><p style="margin:4px 0 0;color:#ddd">${m.message.replace(/</g,'&lt;')}</p></div>`).join('') || '<p style="color:rgba(255,255,255,.4);text-align:center">Nenhuma mensagem</p>';
+    msgs.innerHTML = d.messages.map(m => `<div style="margin-bottom:8px;padding:8px 12px;border-radius:8px;background:${m.sender_type === 'admin' ? 'rgba(16,185,129,.1)' : 'rgba(255,255,255,.04)'}"><strong style="color:${m.sender_type === 'admin' ? '#10b981' : '#6EE7B7'}">${m.sender_name || m.sender_type}</strong><span style="color:rgba(255,255,255,.35);margin-left:8px;font-size:12px">${new Date(m.created_at).toLocaleString('pt-BR')}</span><p style="margin:4px 0 0;color:#ddd">${m.message.replace(/</g,'&lt;')}</p></div>`).join('') || '<p style="color:rgba(255,255,255,.4);text-align:center">Nenhuma mensagem</p>';
   });
 
   document.getElementById('btnSendReply').onclick = async () => {
