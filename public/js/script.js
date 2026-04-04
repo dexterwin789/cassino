@@ -135,6 +135,52 @@ if (menuToggle) menuToggle.addEventListener('click', function() {
   }
 });
 
+/* Generic accordion for all .menu-title */
+document.querySelectorAll('.sidebar-menu .menu-title').forEach(function(title) {
+  if (title.id === 'menuCassinoToggle') return;
+  title.addEventListener('click', function() {
+    title.classList.toggle('collapsed');
+    var list = title.nextElementSibling;
+    if (list && list.classList.contains('menu-list')) {
+      list.style.maxHeight = title.classList.contains('collapsed') ? '0' : list.scrollHeight + 'px';
+    }
+  });
+});
+
+/* ========== SIDEBAR TOOLTIPS (JS, appended to body) ========== */
+(function() {
+  var tip = null;
+  function showTip(el) {
+    if (!sidebar || !sidebar.classList.contains('collapsed')) return;
+    var text = el.getAttribute('data-tooltip');
+    if (!text) return;
+    if (!tip) {
+      tip = document.createElement('div');
+      tip.className = 'sidebar-tooltip';
+      document.body.appendChild(tip);
+    }
+    tip.textContent = text;
+    tip.style.display = 'block';
+    var r = el.getBoundingClientRect();
+    tip.style.left = (r.right + 10) + 'px';
+    tip.style.top = (r.top + r.height / 2) + 'px';
+    tip.style.transform = 'translateY(-50%)';
+  }
+  function hideTip() {
+    if (tip) tip.style.display = 'none';
+  }
+  if (sidebar) {
+    sidebar.addEventListener('mouseover', function(e) {
+      var el = e.target.closest('[data-tooltip]');
+      if (el) showTip(el);
+    });
+    sidebar.addEventListener('mouseout', function(e) {
+      var el = e.target.closest('[data-tooltip]');
+      if (el) hideTip();
+    });
+  }
+})();
+
 if (menuList) menuList.addEventListener('click', function(e) {
   var li = e.target.closest('li');
   if (!li) return;
