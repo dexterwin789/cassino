@@ -108,6 +108,7 @@ if (bannerNext) bannerNext.addEventListener('click', function() { showBanner(ban
 var sidebar = document.getElementById('sidebar');
 var sidebarOverlay = document.getElementById('sidebarOverlay');
 var barsToggle = document.getElementById('barsToggle');
+var topbarTabs = document.getElementById('topbarTabs');
 var menuToggle = document.getElementById('menuCassinoToggle');
 var menuList = document.getElementById('menuCassinoList');
 
@@ -119,6 +120,7 @@ if (barsToggle) barsToggle.addEventListener('click', function() {
     if (sidebarOverlay) sidebarOverlay.classList.toggle('active');
   } else {
     if (sidebar) sidebar.classList.toggle('collapsed');
+    if (topbarTabs) topbarTabs.classList.toggle('collapsed');
   }
 });
 if (sidebarOverlay) sidebarOverlay.addEventListener('click', function() {

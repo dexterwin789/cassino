@@ -2,7 +2,7 @@
 
 <!-- TOP BAR -->
 <header class="topbar" id="topbar">
-  <div class="topbar-left">
+  <div class="topbar-tabs" id="topbarTabs">
     <button class="tab-switch active" data-tab="cassino">
       <img src="/public/img/novo/carta1.svg" width="17" height="17" alt="Cassino">
       CASSINO
@@ -11,14 +11,15 @@
       <img src="/public/img/novo/bola1.svg" width="17" height="17" alt="Esportes">
       ESPORTES
     </button>
+  </div>
+  <div class="topbar-container">
     <button class="bars-toggle" id="barsToggle" title="Toggle sidebar">
       <img src="/public/img/novo/bars1.svg" width="22" height="22" alt="Menu">
     </button>
     <a href="/" class="topbar-logo">
       <img src="/public/img/novo/logo.png" alt="EsportivaBet" class="logo-img">
     </a>
-  </div>
-  <div class="topbar-right">
+    <div class="topbar-spacer"></div>
     <span class="responsible-label is-guest-el">Jogo Responsável</span>
     <div class="topbar-auth is-guest-el">
       <button class="btn-register" id="btnOpenRegister">Registre-se</button>
@@ -37,27 +38,27 @@
   <!-- SIDEBAR -->
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-cards">
-      <a href="#" class="sq-card">
+      <a href="#" class="sq-card" data-tooltip="Torneios">
         <span class="sq-label">Torneios</span>
         <img src="/public/img/novo/torneios1.svg" class="sq-img" alt="Torneios">
       </a>
-      <a href="#" class="sq-card">
+      <a href="#" class="sq-card" data-tooltip="Missões">
         <span class="sq-label">Missões</span>
         <img src="/public/img/novo/missoes1.svg" class="sq-img" alt="Missões">
       </a>
-      <a href="#" class="sq-card">
+      <a href="#" class="sq-card" data-tooltip="Loja">
         <span class="sq-label">Loja</span>
         <img src="/public/img/novo/store1.svg" class="sq-img" alt="Loja">
       </a>
-      <a href="#" class="sq-card">
+      <a href="#" class="sq-card" data-tooltip="Mini Games">
         <span class="sq-label">Mini Games</span>
         <img src="/public/img/novo/minigames.svg" class="sq-img" alt="Mini Games">
       </a>
-      <a href="#" class="sq-card">
+      <a href="#" class="sq-card" data-tooltip="Promoções">
         <span class="sq-label">Promoções</span>
         <img src="/public/img/novo/promocoes1.svg" class="sq-img" alt="Promoções">
       </a>
-      <a href="#" class="sq-card">
+      <a href="#" class="sq-card" data-tooltip="Suporte 24h">
         <span class="sq-label">Suporte 24h</span>
         <img src="/public/img/novo/suporte1.svg" class="sq-img" alt="Suporte">
       </a>
@@ -72,25 +73,25 @@
       </a>
     </div>
 
-    <div class="sidebar-menu sb-full">
-      <div class="menu-title" id="menuCassinoToggle">
+    <div class="sidebar-menu">
+      <div class="menu-title sb-full" id="menuCassinoToggle">
         CASSINO
         <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
       </div>
       <ul class="menu-list" id="menuCassinoList">
-        <li class="active" data-filter="all"><img src="/public/img/novo/1.svg" class="mi" width="20" height="20" alt=""> <span class="ml">Todos os jogos</span></li>
-        <li data-filter="slots"><img src="/public/img/novo/2.svg" class="mi" width="20" height="20" alt=""> <span class="ml">Jogos Slots</span></li>
-        <li data-filter="live"><img src="/public/img/novo/3.svg" class="mi" width="20" height="20" alt=""> <span class="ml">Cassino ao vivo</span></li>
-        <li data-filter="providers"><img src="/public/img/novo/4.svg" class="mi" width="20" height="20" alt=""> <span class="ml">Provedores</span></li>
-        <li data-filter="mines"><img src="/public/img/novo/5.svg" class="mi" width="20" height="20" alt=""> <span class="ml">Mines</span></li>
-        <li data-filter="fortune"><img src="/public/img/novo/6.svg" class="mi" width="20" height="20" alt=""> <span class="ml">Fortune Tiger</span></li>
-        <li data-filter="aviator"><img src="/public/img/novo/7.svg" class="mi" width="20" height="20" alt=""> <span class="ml">Aviator</span></li>
-        <li data-filter="spaceman"><img src="/public/img/novo/8.svg" class="mi" width="20" height="20" alt=""> <span class="ml">Spaceman</span></li>
-        <li data-filter="blackjack"><img src="/public/img/novo/9.svg" class="mi" width="20" height="20" alt=""> <span class="ml">Infinite Blackjack</span></li>
-        <li data-filter="roleta"><img src="/public/img/novo/10.svg" class="mi" width="20" height="20" alt=""> <span class="ml">Roleta brasileira</span></li>
-        <li data-filter="footbal"><img src="/public/img/novo/11.svg" class="mi" width="20" height="20" alt=""> <span class="ml">Footbal Studio</span></li>
-        <li data-filter="fruits"><img src="/public/img/novo/12.svg" class="mi" width="20" height="20" alt=""> <span class="ml">Fortune Fruits</span></li>
-        <li data-filter="pirates"><img src="/public/img/novo/13.svg" class="mi" width="20" height="20" alt=""> <span class="ml">Fortune Pirates</span></li>
+        <li class="active" data-filter="all" data-tooltip="Todos os jogos"><img src="/public/img/novo/1.svg" class="mi" width="20" height="20" alt=""> <span class="ml">Todos os jogos</span></li>
+        <li data-filter="slots" data-tooltip="Jogos Slots"><img src="/public/img/novo/2.svg" class="mi" width="20" height="20" alt=""> <span class="ml">Jogos Slots</span></li>
+        <li data-filter="live" data-tooltip="Cassino ao vivo"><img src="/public/img/novo/3.svg" class="mi" width="20" height="20" alt=""> <span class="ml">Cassino ao vivo</span></li>
+        <li data-filter="providers" data-tooltip="Provedores"><img src="/public/img/novo/4.svg" class="mi" width="20" height="20" alt=""> <span class="ml">Provedores</span></li>
+        <li data-filter="mines" data-tooltip="Mines"><img src="/public/img/novo/5.svg" class="mi" width="20" height="20" alt=""> <span class="ml">Mines</span></li>
+        <li data-filter="fortune" data-tooltip="Fortune Tiger"><img src="/public/img/novo/6.svg" class="mi" width="20" height="20" alt=""> <span class="ml">Fortune Tiger</span></li>
+        <li data-filter="aviator" data-tooltip="Aviator"><img src="/public/img/novo/7.svg" class="mi" width="20" height="20" alt=""> <span class="ml">Aviator</span></li>
+        <li data-filter="spaceman" data-tooltip="Spaceman"><img src="/public/img/novo/8.svg" class="mi" width="20" height="20" alt=""> <span class="ml">Spaceman</span></li>
+        <li data-filter="blackjack" data-tooltip="Infinite Blackjack"><img src="/public/img/novo/9.svg" class="mi" width="20" height="20" alt=""> <span class="ml">Infinite Blackjack</span></li>
+        <li data-filter="roleta" data-tooltip="Roleta brasileira"><img src="/public/img/novo/10.svg" class="mi" width="20" height="20" alt=""> <span class="ml">Roleta brasileira</span></li>
+        <li data-filter="footbal" data-tooltip="Footbal Studio"><img src="/public/img/novo/11.svg" class="mi" width="20" height="20" alt=""> <span class="ml">Footbal Studio</span></li>
+        <li data-filter="fruits" data-tooltip="Fortune Fruits"><img src="/public/img/novo/12.svg" class="mi" width="20" height="20" alt=""> <span class="ml">Fortune Fruits</span></li>
+        <li data-filter="pirates" data-tooltip="Fortune Pirates"><img src="/public/img/novo/13.svg" class="mi" width="20" height="20" alt=""> <span class="ml">Fortune Pirates</span></li>
       </ul>
     </div>
   </aside>
@@ -172,6 +173,12 @@
         <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         <input type="text" id="searchGames" placeholder="Pesquise um jogo de cassino..." autocomplete="off">
       </div>
+    </section>
+
+    <section class="promo-strip">
+      <a href="#" class="promo-strip-item"><img src="/public/img/novo/22.webp" alt="Aviatrix" width="362" height="101"></a>
+      <a href="#" class="promo-strip-item"><img src="/public/img/novo/33.webp" alt="Magic Scroll" width="362" height="101"></a>
+      <a href="#" class="promo-strip-item"><img src="/public/img/novo/44.webp" alt="Bacbo" width="362" height="101"></a>
     </section>
 
     <section class="game-section">
