@@ -95,25 +95,20 @@
       </ul>
     </div>
 
-    <!-- ESPORTES -->
-    <div class="sidebar-menu sidebar-section-border">
-      <div class="menu-title sb-full">
+    <!-- ESPORTES (group: Esportes + Popular + Top5) -->
+    <div class="sidebar-menu sidebar-section-border" id="esportesGroup">
+      <div class="menu-title sb-full" id="menuEsportesToggle">
         ESPORTES
         <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
       </div>
-      <ul class="menu-list">
+      <ul class="menu-list" id="menuEsportesList">
         <li data-tooltip="Jogos ao Vivo"><img src="/public/img/novo/esportes1.svg" class="mi" width="20" height="20" alt=""> <span class="ml">Jogos ao Vivo</span></li>
         <li data-tooltip="Começa em breve"><img src="/public/img/novo/esportes2.svg" class="mi" width="20" height="20" alt=""> <span class="ml">Começa em breve</span></li>
         <li data-tooltip="E-Sports"><img src="/public/img/novo/esportes3.svg" class="mi" width="20" height="20" alt=""> <span class="ml">E-Sports</span></li>
       </ul>
-    </div>
 
-    <!-- POPULAR -->
-    <div class="sidebar-menu">
-      <div class="menu-title sb-full">
-        POPULAR
-      </div>
-      <ul class="menu-list">
+      <div class="menu-title sb-full" style="margin-top:4px">POPULAR</div>
+      <ul class="menu-list" id="menuPopularList">
         <li data-tooltip="Brasileirão Série A"><img src="/public/img/novo/popular1.svg" class="mi grayscale" width="20" height="20" alt=""> <span class="ml">Brasileirão Série A</span></li>
         <li data-tooltip="Copa Libertadores"><img src="/public/img/novo/popular2.svg" class="mi grayscale" width="20" height="20" alt=""> <span class="ml">Copa Libertadores</span></li>
         <li data-tooltip="Premier League (Inglês)"><img src="/public/img/novo/popular3.svg" class="mi grayscale" width="20" height="20" alt=""> <span class="ml">Premier League (Inglês)</span></li>
@@ -125,14 +120,9 @@
         <li data-tooltip="NBA (EUA)"><img src="/public/img/novo/popular9.svg" class="mi grayscale" width="20" height="20" alt=""> <span class="ml">NBA (EUA)</span></li>
         <li data-tooltip="NFL (EUA)"><img src="/public/img/novo/popular10.svg" class="mi grayscale" width="20" height="20" alt=""> <span class="ml">NFL (EUA)</span></li>
       </ul>
-    </div>
 
-    <!-- TOP 5 ESPORTES -->
-    <div class="sidebar-menu">
-      <div class="menu-title sb-full">
-        TOP 5 ESPORTES
-      </div>
-      <ul class="menu-list">
+      <div class="menu-title sb-full" style="margin-top:4px">TOP 5 ESPORTES</div>
+      <ul class="menu-list" id="menuTop5List">
         <li data-tooltip="Futebol"><img src="/public/img/novo/top1.svg" class="mi" width="20" height="20" alt=""> <span class="ml">Futebol</span></li>
         <li data-tooltip="Tênis"><img src="/public/img/novo/top2.svg" class="mi" width="20" height="20" alt=""> <span class="ml">Tênis</span></li>
         <li data-tooltip="Basquete"><img src="/public/img/novo/top3.svg" class="mi" width="20" height="20" alt=""> <span class="ml">Basquete</span></li>
@@ -235,20 +225,30 @@
       </div>
     </section>
 
+    <section class="game-section">
+      <div class="section-header"><h2>Recomendados</h2></div>
+      <div class="games-row" id="gamesRecommended"></div>
+    </section>
+
     <section class="promo-strip">
       <a href="#" class="promo-strip-item"><img src="/public/img/novo/22.webp" alt="Aviatrix" width="362" height="101"></a>
       <a href="#" class="promo-strip-item"><img src="/public/img/novo/33.webp" alt="Magic Scroll" width="362" height="101"></a>
       <a href="#" class="promo-strip-item"><img src="/public/img/novo/44.webp" alt="Bacbo" width="362" height="101"></a>
     </section>
 
-    <section class="game-section">
-      <div class="section-header"><h2>Recomendados</h2></div>
-      <div class="games-row" id="gamesRecommended"></div>
-    </section>
-
-    <section class="game-section">
-      <div class="section-header"><h2>Em alta</h2><a href="#" class="see-all">Ver todos</a></div>
-      <div class="games-grid" id="gamesHot"></div>
+    <section class="game-section top10-section">
+      <div class="section-header"><h2>🔥 Em alta</h2><a href="#" class="see-all">Ver todos</a></div>
+      <div class="top10-slider-wrap">
+        <button class="top10-arrow top10-prev" aria-label="Anterior">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <div class="top10-viewport">
+          <div class="top10-track" id="top10Track"></div>
+        </div>
+        <button class="top10-arrow top10-next" aria-label="Próximo">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
     </section>
 
     <section class="game-section">

@@ -41,7 +41,7 @@ if (searchInput) {
           (g.category || '').toLowerCase().includes(q);
       });
       renderGames(filtered, 'gamesRecommended');
-      renderGames([], 'gamesHot');
+      renderTop10([]);
       renderGames([], 'gamesAll');
     }, 300);
   });
@@ -49,11 +49,58 @@ if (searchInput) {
 
 function renderAllSections() {
   var recommended = allGames.filter(function(g) { return g.category === 'quente' || g.category === 'recommended'; }).slice(0, 8);
-  var hot = allGames.filter(function(g) { return g.category !== 'quente'; }).slice(0, 12);
+  var hot = allGames.filter(function(g) { return g.category !== 'quente'; }).slice(0, 10);
   renderGames(recommended.length ? recommended : allGames.slice(0, 8), 'gamesRecommended');
-  renderGames(hot.length ? hot : allGames.slice(8, 20), 'gamesHot', 12);
+  renderTop10(hot.length ? hot : allGames.slice(8, 18));
   renderGames(allGames, 'gamesAll');
 }
+
+/* ========== TOP 10 SLIDER ========== */
+function top10CardHTML(game, rank) {
+  var img = game.image_url || '/public/img/games/1.avif';
+  var name = game.game_name || 'Jogo';
+  var provider = game.provider || '';
+  var h = '<div class="top10-card">';
+  h += '<span class="top10-rank">' + rank + '</span>';
+  h += '<span class="top10-badge">' + rank + '</span>';
+  h += '<div class="top10-img-wrap">';
+  h += '<img src="' + img + '" alt="' + name + '" draggable="false" loading="lazy">';
+  h += '<div class="top10-hover"><span class="top10-play">&#9654; Jogar</span></div>';
+  h += '</div>';
+  h += '<div class="top10-info"><span class="top10-name">' + name + '</span>';
+  if (provider) h += '<span class="top10-provider">' + provider + '</span>';
+  h += '</div></div>';
+  return h;
+}
+
+var top10Page = 0;
+var top10PerPage = 4;
+var top10Games = [];
+
+function renderTop10(games) {
+  top10Games = games;
+  top10Page = 0;
+  showTop10Page();
+}
+
+function showTop10Page() {
+  var track = document.getElementById('top10Track');
+  if (!track) return;
+  var start = top10Page * top10PerPage;
+  var slice = top10Games.slice(start, start + top10PerPage);
+  if (!slice.length) { top10Page = 0; slice = top10Games.slice(0, top10PerPage); }
+  track.innerHTML = slice.map(function(g, i) { return top10CardHTML(g, start + i + 1); }).join('');
+  /* Arrow visibility */
+  var prev = document.querySelector('.top10-prev');
+  var next = document.querySelector('.top10-next');
+  if (prev) prev.style.opacity = top10Page > 0 ? '1' : '0.3';
+  if (next) next.style.opacity = (start + top10PerPage) < top10Games.length ? '1' : '0.3';
+}
+
+document.addEventListener('click', function(e) {
+  if (e.target.closest('.top10-prev')) { if (top10Page > 0) { top10Page--; showTop10Page(); } }
+  if (e.target.closest('.top10-next')) { if ((top10Page + 1) * top10PerPage < top10Games.length) { top10Page++; showTop10Page(); } }
+});
 
 /* ========== BANNER SLIDER ========== */
 var bannerIndex = 0;
@@ -111,8 +158,27 @@ var barsToggle = document.getElementById('barsToggle');
 var topbarTabs = document.getElementById('topbarTabs');
 var menuToggle = document.getElementById('menuCassinoToggle');
 var menuList = document.getElementById('menuCassinoList');
+var esportesToggle = document.getElementById('menuEsportesToggle');
+var esportesGroup = document.getElementById('esportesGroup');
 
 function isMobile() { return window.innerWidth <= 768; }
+
+/* Track which group sections are collapsed */
+function syncCollapsedSections() {
+  if (!sidebar) return;
+  /* CASSINO */
+  if (menuToggle && menuToggle.classList.contains('collapsed')) {
+    sidebar.classList.add('cassino-closed');
+  } else {
+    sidebar.classList.remove('cassino-closed');
+  }
+  /* ESPORTES group */
+  if (esportesToggle && esportesToggle.classList.contains('collapsed')) {
+    sidebar.classList.add('esportes-closed');
+  } else {
+    sidebar.classList.remove('esportes-closed');
+  }
+}
 
 if (barsToggle) barsToggle.addEventListener('click', function() {
   if (isMobile()) {
@@ -121,6 +187,7 @@ if (barsToggle) barsToggle.addEventListener('click', function() {
   } else {
     if (sidebar) sidebar.classList.toggle('collapsed');
     if (topbarTabs) topbarTabs.classList.toggle('collapsed');
+    syncCollapsedSections();
   }
 });
 if (sidebarOverlay) sidebarOverlay.addEventListener('click', function() {
@@ -128,23 +195,28 @@ if (sidebarOverlay) sidebarOverlay.addEventListener('click', function() {
   if (sidebarOverlay) sidebarOverlay.classList.remove('active');
 });
 
+/* CASSINO accordion */
 if (menuToggle) menuToggle.addEventListener('click', function() {
   menuToggle.classList.toggle('collapsed');
   if (menuList) {
     menuList.style.maxHeight = menuToggle.classList.contains('collapsed') ? '0' : menuList.scrollHeight + 'px';
   }
+  syncCollapsedSections();
 });
 
-/* Generic accordion for all .menu-title */
-document.querySelectorAll('.sidebar-menu .menu-title').forEach(function(title) {
-  if (title.id === 'menuCassinoToggle') return;
-  title.addEventListener('click', function() {
-    title.classList.toggle('collapsed');
-    var list = title.nextElementSibling;
-    if (list && list.classList.contains('menu-list')) {
-      list.style.maxHeight = title.classList.contains('collapsed') ? '0' : list.scrollHeight + 'px';
-    }
+/* ESPORTES group accordion — toggles esportes + popular + top5 */
+if (esportesToggle) esportesToggle.addEventListener('click', function() {
+  esportesToggle.classList.toggle('collapsed');
+  var isCollapsed = esportesToggle.classList.contains('collapsed');
+  var lists = esportesGroup ? esportesGroup.querySelectorAll('.menu-list') : [];
+  var titles = esportesGroup ? esportesGroup.querySelectorAll('.menu-title:not(#menuEsportesToggle)') : [];
+  lists.forEach(function(list) {
+    list.style.maxHeight = isCollapsed ? '0' : list.scrollHeight + 'px';
   });
+  titles.forEach(function(t) {
+    t.style.display = isCollapsed ? 'none' : '';
+  });
+  syncCollapsedSections();
 });
 
 /* ========== SIDEBAR TOOLTIPS (JS, appended to body) ========== */
@@ -194,7 +266,7 @@ if (menuList) menuList.addEventListener('click', function(e) {
       return (g.category || '').toLowerCase() === filter || (g.provider || '').toLowerCase() === filter;
     });
     renderGames(filtered.length ? filtered : allGames.slice(0, 8), 'gamesRecommended');
-    renderGames([], 'gamesHot');
+    renderTop10([]);
     renderGames([], 'gamesAll');
   }
 });
