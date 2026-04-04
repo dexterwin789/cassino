@@ -4,8 +4,8 @@
   --rkText:#f6f6f6;
   --rkLine: rgba(255,255,255,.08);
   --rkCard: rgba(0,0,0,.45);
-  --rkGold1:#ffe39a;
-  --rkGold2:#f4c44c;
+  --rkGreen1:#6EE7B7;
+  --rkGreen2:#10B981;
 }
 
 .rk-drawer{
@@ -36,7 +36,7 @@
   -webkit-overflow-scrolling: touch;
 
   background:
-    radial-gradient(900px 380px at 50% -120px, rgba(246,208,105,.14), transparent 60%),
+    radial-gradient(900px 380px at 50% -120px, rgba(16,185,129,.14), transparent 60%),
     linear-gradient(180deg, #141414 0%, #0b0b0b 60%, #0b0b0b 100%);
   color: var(--rkText);
 
@@ -93,9 +93,9 @@
   cursor:pointer;
 }
 .rk-tabTop.active{
-  background: linear-gradient(180deg, rgba(255,227,154,1), rgba(244,196,76,1));
+  background: linear-gradient(180deg, rgba(110,231,183,1), rgba(16,185,129,1));
   color:#1a1205;
-  border-color: rgba(255,227,154,.7);
+  border-color: rgba(110,231,183,.7);
 }
 
 .rk-sub{
@@ -154,7 +154,7 @@
   width:44px;
   height:44px;
   border-radius: 14px;
-  border:2px solid rgba(255,227,154,.55);
+  border:2px solid rgba(110,231,183,.55);
   object-fit:cover;
 }
 .rk-uinfo{ min-width:0; }
@@ -173,7 +173,7 @@
   padding:0 14px;
   border-radius:10px;
   border:0;
-  background: linear-gradient(180deg, rgba(255,227,154,1), rgba(244,196,76,1));
+  background: linear-gradient(180deg, rgba(110,231,183,1), rgba(16,185,129,1));
   color:#1a1205;
   font-weight:950;
   font-size: 13px;
@@ -255,7 +255,7 @@
   transform:translate(-50%,-52%);
   font-weight:950;
   font-size: 22px;
-  color:#ffd56a;
+  color:#34D399;
   text-shadow: 0 8px 18px rgba(0,0,0,.55);
 }
 
@@ -312,7 +312,7 @@
 .rk-rsnull{
   font-size: 12px;
   font-weight:900;
-  color:#ffd56a;
+  color:#34D399;
 }
 
 .rk-foot1, .rk-foot2{

@@ -5,3 +5,7 @@ node_modules/
 Thumbs.db
 storage/uploads/*
 !storage/uploads/.gitkeep
+Esportiva*
+aposta.html
+css
+_files/

@@ -5,11 +5,11 @@
 
 /* Fallback if no theme loaded */
 :root {
-  --bg: #000;
+  --bg: #0B1726;
   --text-primary: #f6f6f6;
   --text-secondary: rgba(255,255,255,.7);
-  --accent: #f4c44c;
-  --accent-bg: rgba(244,196,76,.12);
+  --accent: #10B981;
+  --accent-bg: rgba(16,185,129,.12);
   --card-bg: rgba(255,255,255,.04);
   --card-border: rgba(255,255,255,.06);
   --border: rgba(255,255,255,.08);

@@ -36,7 +36,7 @@
   height: 100% !important;
 
   background:
-    radial-gradient(900px 380px at 50% -120px, rgba(246,208,105,.14), transparent 60%),
+    radial-gradient(900px 380px at 50% -120px, rgba(16,185,129,.14), transparent 60%),
     linear-gradient(180deg, #141414 0%, #0b0b0b 55%, #0b0b0b 100%) !important;
 
   box-shadow: 0 30px 70px rgba(0,0,0,.70) !important;
@@ -208,7 +208,7 @@
   font-size:14px;
 }
 .acc-balance-pill .rs{
-  color: #ffd56a !important;
+  color: #34D399 !important;
 }
 .acc-balance-pill .val{
   color: #fff !important;
@@ -241,8 +241,8 @@
   color: #fff !important;
 }
 
-.acc-bigbtn.gold{
-  background: linear-gradient(180deg, rgba(255,227,154,1), rgba(244,196,76,1)) !important;
+.acc-bigbtn.green{
+  background: linear-gradient(180deg, rgba(110,231,183,1), rgba(16,185,129,1)) !important;
   color: #fff !important;
 }
 
@@ -321,7 +321,7 @@
   text-align: center !important;
 }
 .acc-stat .v{
-  color: #ffd56a !important;
+  color: #34D399 !important;
   font-weight: 950 !important;
   font-size: 16px !important;
 }
@@ -351,7 +351,7 @@
   overflow: hidden !important;
   text-overflow: ellipsis !important;
   white-space: nowrap !important;
-  color: #ffd56a !important;
+  color: #34D399 !important;
   font-weight: 900 !important;
 }
 .acc-link button{
@@ -412,7 +412,7 @@
 }
 
 .acc-item .hint{
-  color: #ffd56a !important;
+  color: #34D399 !important;
   font-weight: 950 !important;
 }
 
