@@ -7,5 +7,5 @@ storage/uploads/*
 !storage/uploads/.gitkeep
 Esportiva*
 aposta.html
-css
+/css
 _files/
