@@ -669,8 +669,13 @@ ul{list-style:none}
   min-width:0;
   overflow:visible;
   cursor:pointer;
-  padding-left:48px;
+  padding-left:56px;
+  padding-right:0;
   box-sizing:border-box;
+}
+/* Last visible card pushes to container edge */
+.top10-card:last-child{
+  padding-right:0;
 }
 /* White number behind image — ALWAYS visible */
 .top10-rank{
@@ -692,7 +697,8 @@ ul{list-style:none}
 }
 .top10-img-wrap{
   position:relative;z-index:1;
-  width:184px;height:214px;
+  width:100%;
+  aspect-ratio:184/214;
   border-radius:12px;overflow:hidden;
   background:#0b0c11;
 }
@@ -751,6 +757,62 @@ ul{list-style:none}
 .top10-prev{left:8px}
 .top10-next{right:8px}
 
+/* ===== PRINCIPAIS LIGAS ===== */
+.principais-ligas{
+  margin:24px 0 16px;
+}
+.ligas-bar{
+  background:linear-gradient(90deg,#f03e15,#f03e151a);
+  border-radius:.5rem;
+  padding:6px .5rem;
+  margin-bottom:16px;
+  font-size:14px;font-weight:700;
+  color:#fff;
+}
+.ligas-row{
+  display:flex;
+  justify-content:space-between;
+  gap:8px;
+  overflow-x:auto;
+  scrollbar-width:none;
+  padding-bottom:8px;
+}
+.ligas-row::-webkit-scrollbar{display:none}
+.liga-item{
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+  text-decoration:none;color:var(--text);
+  min-width:72px;
+  position:relative;
+}
+.liga-icon{
+  width:64px;height:64px;
+  border-radius:9999px;
+  border:1px solid rgba(255,140,80,.9);
+  background:linear-gradient(180deg,#e85d2814,#e85d2866 40%,#ff3900);
+  display:flex;align-items:center;justify-content:center;
+  overflow:hidden;
+  transition:transform .2s;
+}
+.liga-item:hover .liga-icon{transform:scale(1.08)}
+.liga-icon img{
+  width:40px;height:40px;
+  object-fit:contain;
+}
+.liga-name{
+  display:flex;flex-direction:column;align-items:center;
+  font-size:11px;font-weight:600;color:var(--text-muted);
+  line-height:1.2;text-align:center;
+}
+.liga-hot-badge{
+  position:absolute;top:-6px;right:2px;
+  display:flex;align-items:center;gap:2px;
+  background:rgb(255,57,1);
+  border-radius:999px;padding:1px 6px;
+  font-size:9px;font-weight:700;color:#fff;
+  z-index:2;
+}
+.liga-hot-badge span:first-child{font-size:10px}
+
 /* ===== PROVIDER GRID ===== */
 .provider-grid{
   display:grid;
@@ -768,8 +830,7 @@ ul{list-style:none}
   border-color:rgba(255,57,1,.25);
 }
 .provider-grid .game-card img{
-  width:166px;height:193px;object-fit:cover;display:block;
-  width:100%;
+  width:100%;height:193px;object-fit:cover;display:block;
 }
 .provider-grid .game-card .game-overlay{
   position:absolute;inset:0;
@@ -794,10 +855,12 @@ ul{list-style:none}
 }
 @media(max-width:768px){
   .top10-card{flex:0 0 50%;padding-left:36px}
-  .top10-img-wrap{width:140px;height:163px}
   .top10-rank{font-size:clamp(80px,15vw,120px);letter-spacing:-14px}
   .provider-grid{grid-template-columns:repeat(3,1fr);gap:10px}
   .provider-grid .game-card img{height:150px}
+  .ligas-row{gap:12px}
+  .liga-icon{width:52px;height:52px}
+  .liga-icon img{width:32px;height:32px}
 }
 @media(max-width:480px){
   .provider-grid{grid-template-columns:repeat(2,1fr)}

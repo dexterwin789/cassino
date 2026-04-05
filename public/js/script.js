@@ -40,23 +40,53 @@ if (searchInput) {
           (g.provider || '').toLowerCase().includes(q) ||
           (g.category || '').toLowerCase().includes(q);
       });
-      renderTop10(filtered.slice(0, 10));
-      renderGames(filtered.slice(0, 6), 'gamesCPGames');
-      renderGames(filtered.slice(6, 12), 'gamesPopokGames');
-      renderGames(filtered, 'gamesAll');
+      renderTop10(filtered.slice(0, 9));
+      renderProviderGrids(filtered);
     }, 300);
   });
 }
 
+/* Provider grid IDs */
+var providerGrids = [
+  { id: 'gridAmusnet', match: 'amusnet' },
+  { id: 'gridHacksaw', match: 'hacksaw' },
+  { id: 'gridPG', match: 'pg' },
+  { id: 'gridCPGames', match: 'cp' },
+  { id: 'gridPopokGames', match: 'popok' },
+  { id: 'gridPP', match: 'pp' },
+  { id: 'gridEvolution', match: 'evolution' },
+  { id: 'gridSpribe', match: 'spribe' },
+  { id: 'gridJILI', match: 'jili' },
+  { id: 'gridCQ9', match: 'cq9' },
+  { id: 'gridBetsoft', match: 'betsoft' },
+  { id: 'gridPlaynGO', match: 'playngo' },
+  { id: 'gridNetEnt', match: 'netent' },
+  { id: 'gridEvoplay', match: 'evor' },
+  { id: 'gridWazdan', match: 'wazdan' },
+  { id: 'gridBGaming', match: 'bgaming' }
+];
+
+function renderProviderGrids(games) {
+  var used = 0;
+  providerGrids.forEach(function(pg) {
+    var matched = games.filter(function(g) {
+      return (g.provider || '').toLowerCase() === pg.match ||
+             (g.provider || '').toLowerCase().includes(pg.match);
+    }).slice(0, 6);
+    if (matched.length < 6) {
+      var fill = games.slice(used, used + 6);
+      matched = fill.length >= 6 ? fill : games.slice(0, 6);
+    }
+    used += 6;
+    if (used >= games.length) used = 0;
+    renderGames(matched, pg.id);
+  });
+}
+
 function renderAllSections() {
-  var hot = allGames.slice(0, 10);
+  var hot = allGames.slice(0, 9);
   renderTop10(hot);
-  /* Provider grids */
-  var cpGames = allGames.filter(function(g) { return (g.provider || '').toLowerCase().includes('cp'); }).slice(0, 6);
-  var popokGames = allGames.filter(function(g) { return (g.provider || '').toLowerCase().includes('popok'); }).slice(0, 6);
-  renderGames(cpGames.length >= 6 ? cpGames : allGames.slice(0, 6), 'gamesCPGames');
-  renderGames(popokGames.length >= 6 ? popokGames : allGames.slice(6, 12), 'gamesPopokGames');
-  renderGames(allGames, 'gamesAll');
+  renderProviderGrids(allGames);
 }
 
 /* ========== TOP 10 SLIDER ========== */
@@ -80,10 +110,11 @@ var top10Total = 0;
 function renderTop10(games) {
   var track = document.getElementById('top10Track');
   if (!track) return;
-  top10Total = games.length;
+  var list = games.slice(0, 9);
+  top10Total = list.length;
   top10Offset = 0;
-  if (!games.length) { track.innerHTML = ''; return; }
-  track.innerHTML = games.map(function(g, i) { return top10CardHTML(g, i + 1); }).join('');
+  if (!list.length) { track.innerHTML = ''; return; }
+  track.innerHTML = list.map(function(g, i) { return top10CardHTML(g, i + 1); }).join('');
   track.style.transform = 'translateX(0)';
   updateTop10Arrows();
 }
@@ -281,10 +312,8 @@ if (menuList) menuList.addEventListener('click', function(e) {
     var filtered = allGames.filter(function(g) {
       return (g.category || '').toLowerCase() === filter || (g.provider || '').toLowerCase() === filter;
     });
-    renderTop10(filtered.slice(0, 10));
-    renderGames(filtered.slice(0, 6), 'gamesCPGames');
-    renderGames(filtered.slice(6, 12), 'gamesPopokGames');
-    renderGames(filtered, 'gamesAll');
+    renderTop10(filtered.slice(0, 9));
+    renderProviderGrids(filtered);
   }
 });
 
