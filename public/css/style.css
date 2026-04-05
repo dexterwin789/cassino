@@ -661,43 +661,38 @@ ul{list-style:none}
 }
 .top10-track{
   display:flex;gap:22px;
-  transition:transform .35s ease;
+  transition:transform .4s cubic-bezier(.4,0,.2,1);
 }
 .top10-card{
   position:relative;
   flex:0 0 calc((100% - 66px)/4);
   min-width:0;
-  border-radius:12px;
   overflow:visible;
   cursor:pointer;
+  padding-left:52px;
 }
 .top10-rank{
   position:absolute;
-  left:-8px;bottom:42px;
+  left:0;bottom:10px;
   font-family:"Arial Black",Impact,sans-serif;
-  font-size:clamp(80px,10vw,140px);
+  font-size:clamp(90px,11vw,150px);
   font-weight:900;
-  line-height:.8;
+  line-height:.75;
   color:transparent;
-  -webkit-text-stroke:2px rgba(255,255,255,.12);
-  text-stroke:2px rgba(255,255,255,.12);
-  pointer-events:none;
-  z-index:0;
-  user-select:none;
-}
-.top10-badge{
-  position:absolute;top:8px;right:8px;z-index:3;
-  width:28px;height:28px;
-  display:flex;align-items:center;justify-content:center;
-  border-radius:8px;
   background:linear-gradient(145deg,rgb(212,175,55),rgb(184,150,46) 50%,rgb(154,123,26));
-  color:#fff;font-size:13px;font-weight:800;
-  box-shadow:0 2px 6px rgba(0,0,0,.4);
+  -webkit-background-clip:text;
+  background-clip:text;
+  pointer-events:none;
+  z-index:2;
+  user-select:none;
+  opacity:0;
+  transition:opacity .25s ease;
 }
+.top10-card:hover .top10-rank{opacity:1}
 .top10-img-wrap{
   position:relative;z-index:1;
+  width:184px;height:214px;
   border-radius:12px;overflow:hidden;
-  aspect-ratio:3/4;
   background:#0b0c11;
 }
 .top10-img-wrap img{
@@ -712,28 +707,15 @@ ul{list-style:none}
   display:flex;align-items:center;justify-content:center;
   background:rgba(0,0,0,.55);
   opacity:0;transition:opacity .25s ease;
+  border-radius:12px;
 }
 .top10-card:hover .top10-hover{opacity:1}
 .top10-play{
-  background:rgb(255,57,1);
+  background:var(--accent);
   color:#fff;font-size:13px;font-weight:700;
   padding:10px 22px;border-radius:8px;
   letter-spacing:.5px;
-  box-shadow:0 4px 12px rgba(255,57,1,.4);
-}
-.top10-info{
-  position:relative;z-index:1;
-  padding:8px 4px 4px;
-  display:flex;flex-direction:column;
-}
-.top10-name{
-  font-size:13px;font-weight:700;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-  color:var(--text);
-}
-.top10-provider{
-  font-size:11px;color:var(--text-muted);
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  box-shadow:0 4px 14px rgba(16,185,129,.35);
 }
 .top10-arrow{
   flex-shrink:0;width:36px;height:36px;
@@ -744,9 +726,53 @@ ul{list-style:none}
   transition:background .2s,opacity .2s;
 }
 .top10-arrow:hover{background:rgba(255,255,255,.16)}
+
+/* ===== PROVIDER GRID ===== */
+.provider-grid{
+  display:grid;
+  grid-template-columns:repeat(6,1fr);
+  gap:16px;
+}
+.provider-grid .game-card{
+  border-radius:12px;overflow:hidden;
+  background:var(--bg-card);border:1px solid var(--border);
+  cursor:pointer;position:relative;transition:.2s;
+}
+.provider-grid .game-card:hover{
+  transform:translateY(-3px);
+  box-shadow:0 8px 25px rgba(0,0,0,.4);
+  border-color:rgba(16,185,129,.2);
+}
+.provider-grid .game-card img{
+  width:100%;height:193px;object-fit:cover;display:block;
+}
+.provider-grid .game-card .game-overlay{
+  position:absolute;inset:0;
+  background:rgba(0,0,0,.55);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  opacity:0;transition:opacity .25s ease;
+  border-radius:12px;
+}
+.provider-grid .game-card:hover .game-overlay{opacity:1}
+.provider-grid .game-card .play-btn{
+  background:var(--accent);color:#fff;
+  padding:8px 20px;border-radius:8px;
+  font-size:12px;font-weight:700;
+  box-shadow:0 4px 14px rgba(16,185,129,.35);
+}
+
+@media(max-width:1024px){
+  .provider-grid{grid-template-columns:repeat(4,1fr)}
+}
 @media(max-width:768px){
-  .top10-card{flex:0 0 calc((100% - 22px)/2)}
+  .top10-card{flex:0 0 calc((100% - 22px)/2);padding-left:36px}
+  .top10-img-wrap{width:140px;height:163px}
   .top10-rank{font-size:clamp(60px,15vw,100px)}
+  .provider-grid{grid-template-columns:repeat(3,1fr);gap:10px}
+  .provider-grid .game-card img{height:150px}
+}
+@media(max-width:480px){
+  .provider-grid{grid-template-columns:repeat(2,1fr)}
 }
 
 .btn-auth-submit{

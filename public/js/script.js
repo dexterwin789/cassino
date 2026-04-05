@@ -42,6 +42,8 @@ if (searchInput) {
       });
       renderGames(filtered, 'gamesRecommended');
       renderTop10([]);
+      renderGames([], 'gamesCPGames');
+      renderGames([], 'gamesPopokGames');
       renderGames([], 'gamesAll');
     }, 300);
   });
@@ -52,6 +54,11 @@ function renderAllSections() {
   var hot = allGames.filter(function(g) { return g.category !== 'quente'; }).slice(0, 10);
   renderGames(recommended.length ? recommended : allGames.slice(0, 8), 'gamesRecommended');
   renderTop10(hot.length ? hot : allGames.slice(8, 18));
+  /* Provider grids */
+  var cpGames = allGames.filter(function(g) { return (g.provider || '').toLowerCase().includes('cp'); }).slice(0, 6);
+  var popokGames = allGames.filter(function(g) { return (g.provider || '').toLowerCase().includes('popok'); }).slice(0, 6);
+  renderGames(cpGames.length >= 6 ? cpGames : allGames.slice(0, 6), 'gamesCPGames');
+  renderGames(popokGames.length >= 6 ? popokGames : allGames.slice(6, 12), 'gamesPopokGames');
   renderGames(allGames, 'gamesAll');
 }
 
@@ -59,47 +66,59 @@ function renderAllSections() {
 function top10CardHTML(game, rank) {
   var img = game.image_url || '/public/img/games/1.avif';
   var name = game.game_name || 'Jogo';
-  var provider = game.provider || '';
   var h = '<div class="top10-card">';
   h += '<span class="top10-rank">' + rank + '</span>';
-  h += '<span class="top10-badge">' + rank + '</span>';
   h += '<div class="top10-img-wrap">';
   h += '<img src="' + img + '" alt="' + name + '" draggable="false" loading="lazy">';
   h += '<div class="top10-hover"><span class="top10-play">&#9654; Jogar</span></div>';
   h += '</div>';
-  h += '<div class="top10-info"><span class="top10-name">' + name + '</span>';
-  if (provider) h += '<span class="top10-provider">' + provider + '</span>';
-  h += '</div></div>';
+  h += '</div>';
   return h;
 }
 
-var top10Page = 0;
-var top10PerPage = 4;
-var top10Games = [];
+var top10Offset = 0;
+var top10Total = 0;
 
 function renderTop10(games) {
-  top10Games = games;
-  top10Page = 0;
-  showTop10Page();
-}
-
-function showTop10Page() {
   var track = document.getElementById('top10Track');
   if (!track) return;
-  var start = top10Page * top10PerPage;
-  var slice = top10Games.slice(start, start + top10PerPage);
-  if (!slice.length) { top10Page = 0; slice = top10Games.slice(0, top10PerPage); }
-  track.innerHTML = slice.map(function(g, i) { return top10CardHTML(g, start + i + 1); }).join('');
-  /* Arrow visibility */
+  top10Total = games.length;
+  top10Offset = 0;
+  if (!games.length) { track.innerHTML = ''; return; }
+  track.innerHTML = games.map(function(g, i) { return top10CardHTML(g, i + 1); }).join('');
+  track.style.transform = 'translateX(0)';
+  updateTop10Arrows();
+}
+
+function getTop10Step() {
+  var track = document.getElementById('top10Track');
+  if (!track || !track.children.length) return 250;
+  var card = track.children[0];
+  var gap = 22;
+  return card.offsetWidth + gap;
+}
+
+function slideTop10(dir) {
+  var visible = window.innerWidth <= 768 ? 2 : 4;
+  var maxOff = Math.max(0, top10Total - visible);
+  top10Offset = Math.min(Math.max(0, top10Offset + dir), maxOff);
+  var track = document.getElementById('top10Track');
+  if (track) track.style.transform = 'translateX(-' + (top10Offset * getTop10Step()) + 'px)';
+  updateTop10Arrows();
+}
+
+function updateTop10Arrows() {
+  var visible = window.innerWidth <= 768 ? 2 : 4;
+  var maxOff = Math.max(0, top10Total - visible);
   var prev = document.querySelector('.top10-prev');
   var next = document.querySelector('.top10-next');
-  if (prev) prev.style.opacity = top10Page > 0 ? '1' : '0.3';
-  if (next) next.style.opacity = (start + top10PerPage) < top10Games.length ? '1' : '0.3';
+  if (prev) prev.style.opacity = top10Offset > 0 ? '1' : '0.3';
+  if (next) next.style.opacity = top10Offset < maxOff ? '1' : '0.3';
 }
 
 document.addEventListener('click', function(e) {
-  if (e.target.closest('.top10-prev')) { if (top10Page > 0) { top10Page--; showTop10Page(); } }
-  if (e.target.closest('.top10-next')) { if ((top10Page + 1) * top10PerPage < top10Games.length) { top10Page++; showTop10Page(); } }
+  if (e.target.closest('.top10-prev')) slideTop10(-1);
+  if (e.target.closest('.top10-next')) slideTop10(1);
 });
 
 /* ========== BANNER SLIDER ========== */
@@ -267,6 +286,8 @@ if (menuList) menuList.addEventListener('click', function(e) {
     });
     renderGames(filtered.length ? filtered : allGames.slice(0, 8), 'gamesRecommended');
     renderTop10([]);
+    renderGames([], 'gamesCPGames');
+    renderGames([], 'gamesPopokGames');
     renderGames([], 'gamesAll');
   }
 });
