@@ -510,15 +510,15 @@ ul{list-style:none}
 }
 .estudios-grid::-webkit-scrollbar{display:none}
 .estudio-card{
-  flex:1 1 0;min-width:140px;height:80px;
+  flex:0 0 166px;height:110px;
   display:flex;align-items:center;justify-content:center;
-  background:var(--bg-card);border:1px solid var(--border);
+  background:radial-gradient(ellipse at center,#fc3801 0%,#992201 100%);
   border-radius:12px;overflow:hidden;
   text-decoration:none;
-  transition:border-color .2s,transform .2s;
+  transition:transform .2s,box-shadow .2s;
 }
-.estudio-card:hover{border-color:rgba(255,140,80,.5);transform:translateY(-2px)}
-.estudio-card img{width:100%;height:100%;object-fit:contain;padding:10px 16px}
+.estudio-card:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(252,56,1,.35)}
+.estudio-card img{width:100%;height:100%;object-fit:contain;padding:12px 18px}
 
 /* ===== MAIORES GANHOS ===== */
 .ganhos-tabs{
@@ -535,56 +535,68 @@ ul{list-style:none}
 }
 .ganhos-strip{
   display:flex;gap:12px;
-  overflow-x:auto;scrollbar-width:none;
+  overflow-x:hidden;
   padding-bottom:4px;
+  position:relative;
 }
-.ganhos-strip::-webkit-scrollbar{display:none}
 .ganhos-trophy-card{
-  flex:0 0 160px;
+  flex:0 0 195px;height:105px;
   display:flex;align-items:center;gap:12px;
-  background:var(--bg-card);border:1px solid var(--border);
-  border-radius:12px;padding:20px 16px;
+  background:linear-gradient(90deg,#ffac4b40,#ffac4b00);
+  border-radius:.5rem;padding:0 16px;
 }
-.ganhos-trophy-img{width:52px;height:52px;object-fit:contain;flex-shrink:0}
+.ganhos-trophy-img{width:60px;height:60px;object-fit:contain;flex-shrink:0}
 .ganhos-trophy-text{
-  font-size:18px;font-weight:800;color:var(--text);
-  line-height:1.15;letter-spacing:.5px;
+  font-size:16px;font-weight:800;color:#fff;
+  line-height:1.2;letter-spacing:.5px;text-transform:uppercase;
+}
+.ganhos-scroll-wrapper{
+  flex:1;min-width:0;overflow:hidden;position:relative;
+}
+.ganhos-scroll-track{
+  display:flex;gap:12px;
+  transition:transform .5s ease;
 }
 .ganho-card{
-  flex:0 0 220px;
-  display:flex;align-items:center;gap:10px;
-  background:rgb(255,57,1);
-  border-radius:12px;padding:14px;
+  flex:0 0 280px;height:105px;
+  display:flex;align-items:center;gap:12px;
+  background-color:#21252e;
+  border-radius:.5rem;padding:14px;
+  box-sizing:border-box;
 }
 .ganho-thumb{
-  width:52px;height:52px;border-radius:8px;
+  width:60px;height:60px;border-radius:8px;
   object-fit:cover;flex-shrink:0;
 }
-.ganho-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.ganho-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
 .ganho-user{font-size:13px;font-weight:700;color:#fff}
-.ganho-game{font-size:11px;color:rgba(255,255,255,.75);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.ganho-amount{font-size:16px;font-weight:800;color:#fff;margin-top:3px;white-space:nowrap}
+.ganho-game{font-size:11px;color:rgba(255,255,255,.55);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ganho-amount{font-size:17px;font-weight:800;color:#22c55e;margin-top:2px;white-space:nowrap}
 
 /* ===== ÚLTIMAS APOSTAS ===== */
+.apostas-wrapper{
+  overflow:hidden;height:168px;position:relative;
+}
 .apostas-list{
-  display:flex;flex-direction:column;gap:6px;
+  display:flex;flex-direction:column;
+  transition:transform .5s ease;
 }
 .aposta-row{
   display:flex;align-items:center;gap:12px;
-  background:var(--bg-card);border:1px solid var(--border);
-  border-radius:10px;padding:12px 14px;
-  transition:background .2s;
+  padding:12px 14px;height:56px;box-sizing:border-box;
+  flex-shrink:0;
 }
-.aposta-row:hover{background:rgba(255,255,255,.04)}
-.aposta-icon{width:40px;height:40px;border-radius:8px;object-fit:cover;flex-shrink:0}
-.aposta-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.aposta-row:nth-child(odd){background:#21252e}
+.aposta-row:nth-child(even){background:#2c3039}
+.aposta-icon{width:36px;height:36px;border-radius:8px;object-fit:cover;flex-shrink:0}
+.aposta-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
 .aposta-user{font-size:13px;font-weight:700;color:var(--text)}
 .aposta-game{font-size:11px;color:var(--text-muted)}
 .aposta-values{display:flex;align-items:center;gap:6px;white-space:nowrap}
 .aposta-bet{font-size:12px;color:var(--text-muted)}
 .aposta-arrow{font-size:12px;color:var(--text-muted)}
 .aposta-win{font-size:14px;font-weight:800;color:#22c55e}
-.aposta-chevron{font-size:22px;color:var(--text-muted);margin-left:4px}
+.aposta-chevron{font-size:20px;color:var(--text-muted);margin-left:auto}
 
 /* ===== FOOTER ===== */
 .site-footer{

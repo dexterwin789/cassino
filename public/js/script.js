@@ -561,8 +561,171 @@ document.querySelectorAll('.ganhos-tab').forEach(function(tab) {
   tab.addEventListener('click', function() {
     document.querySelectorAll('.ganhos-tab').forEach(function(t) { t.classList.remove('active'); });
     tab.classList.add('active');
+    renderGanhos();
   });
 });
+
+/* ========== RANDOM DATA HELPERS ========== */
+var fakeNames = [
+  'Lucas','Ana','Pedro','Maria','João','Carla','Bruno','Fernanda','Rafael','Juliana',
+  'Carlos','Patrícia','Thiago','Camila','Diego','Amanda','Rodrigo','Larissa','Felipe','Mariana',
+  'Gustavo','Beatriz','André','Letícia','Daniel','Tatiana','Leandro','Vanessa','Marcos','Bruna',
+  'Eduardo','Raquel','Vinícius','Isabela','Fabio','Renata','Mateus','Aline','Gabriel','Priscila',
+  'Leonardo','Natália','Henrique','Débora','Alex','Cristiane','Paulo','Sabrina','Roberto','Luciana'
+];
+var gameImages = [
+  '/public/img/games/1.avif','/public/img/games/2.webp','/public/img/games/3.webp',
+  '/public/img/games/4.webp','/public/img/games/5.webp','/public/img/games/6.webp',
+  '/public/img/games/7.webp','/public/img/games/8.webp','/public/img/games/9.webp',
+  '/public/img/games/10.webp','/public/img/games/11.webp','/public/img/games/12.webp'
+];
+
+function randomName() {
+  return fakeNames[Math.floor(Math.random() * fakeNames.length)] + ' ***';
+}
+function randomGame() {
+  if (allGames.length > 0) {
+    var g = allGames[Math.floor(Math.random() * allGames.length)];
+    return { name: g.title, img: g.thumb || gameImages[Math.floor(Math.random() * gameImages.length)] };
+  }
+  var gameNames = ['Fortune Tiger','Aviator','Mines','Sweet Bonanza','Roleta Brasileira','Gates of Olympus','Spaceman','Penalty Shootout','Sugar Rush','Bikini Paradise','Fortune Ox','Dragon Tiger'];
+  var idx = Math.floor(Math.random() * gameNames.length);
+  return { name: gameNames[idx], img: gameImages[idx % gameImages.length] };
+}
+function randomBRL(min, max) {
+  var val = (Math.random() * (max - min) + min);
+  return 'R$ ' + val.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+/* ========== MAIORES GANHOS RENDER + AUTO-SCROLL ========== */
+var ganhosInterval = null;
+var ganhosScrollIdx = 0;
+
+function generateGanhos(count) {
+  var items = [];
+  for (var i = 0; i < count; i++) {
+    var g = randomGame();
+    items.push({ user: randomName(), game: g.name, img: g.img, amount: randomBRL(1000, 80000) });
+  }
+  items.sort(function(a, b) {
+    return parseFloat(b.amount.replace(/[^\d,]/g, '').replace(',', '.')) - parseFloat(a.amount.replace(/[^\d,]/g, '').replace(',', '.'));
+  });
+  return items;
+}
+
+function renderGanhos() {
+  var track = document.getElementById('ganhosTrack');
+  if (!track) return;
+  var items = generateGanhos(12);
+  var html = '';
+  for (var i = 0; i < items.length; i++) {
+    var it = items[i];
+    html += '<div class="ganho-card">' +
+      '<img src="' + it.img + '" alt="" class="ganho-thumb">' +
+      '<div class="ganho-info">' +
+        '<div class="ganho-user">' + it.user + '</div>' +
+        '<div class="ganho-game">' + it.game + '</div>' +
+        '<div class="ganho-amount">' + it.amount + '</div>' +
+      '</div></div>';
+  }
+  track.innerHTML = html;
+  ganhosScrollIdx = 0;
+  track.style.transition = 'none';
+  track.style.transform = 'translateX(0)';
+  startGanhosScroll();
+}
+
+function startGanhosScroll() {
+  if (ganhosInterval) clearInterval(ganhosInterval);
+  var track = document.getElementById('ganhosTrack');
+  if (!track) return;
+  var cards = track.querySelectorAll('.ganho-card');
+  if (cards.length === 0) return;
+  var cardW = 280 + 12; // card width + gap
+  var maxIdx = Math.max(0, cards.length - 3);
+  ganhosScrollIdx = 0;
+  ganhosInterval = setInterval(function() {
+    ganhosScrollIdx++;
+    if (ganhosScrollIdx > maxIdx) {
+      track.style.transition = 'none';
+      track.style.transform = 'translateX(0)';
+      ganhosScrollIdx = 0;
+      setTimeout(function() {
+        track.style.transition = 'transform .5s ease';
+      }, 50);
+    } else {
+      track.style.transition = 'transform .5s ease';
+      track.style.transform = 'translateX(-' + (ganhosScrollIdx * cardW) + 'px)';
+    }
+  }, 2500);
+}
+
+/* ========== ÚLTIMAS APOSTAS RENDER + VERTICAL SCROLL ========== */
+var apostasInterval = null;
+
+function generateAposta() {
+  var g = randomGame();
+  var bet = Math.random() * 200 + 0.5;
+  var mult = Math.random() * 4 + 0.3;
+  var win = bet * mult;
+  return {
+    user: randomName(),
+    game: g.name,
+    img: g.img,
+    bet: 'R$ ' + bet.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+    win: 'R$ ' + win.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+  };
+}
+
+function apostaRowHTML(a) {
+  return '<div class="aposta-row">' +
+    '<img src="' + a.img + '" class="aposta-icon" alt="">' +
+    '<div class="aposta-info">' +
+      '<span class="aposta-user">' + a.user + '</span>' +
+      '<span class="aposta-game">' + a.game + '</span>' +
+    '</div>' +
+    '<div class="aposta-values">' +
+      '<span class="aposta-bet">' + a.bet + '</span>' +
+      '<span class="aposta-arrow">→</span>' +
+      '<span class="aposta-win">' + a.win + '</span>' +
+    '</div>' +
+    '<span class="aposta-chevron">›</span>' +
+  '</div>';
+}
+
+function renderApostas() {
+  var list = document.getElementById('apostasList');
+  if (!list) return;
+  var html = '';
+  for (var i = 0; i < 10; i++) {
+    html += apostaRowHTML(generateAposta());
+  }
+  list.innerHTML = html;
+  startApostasScroll();
+}
+
+function startApostasScroll() {
+  if (apostasInterval) clearInterval(apostasInterval);
+  var list = document.getElementById('apostasList');
+  if (!list) return;
+  var rowH = 56; // px per row
+
+  apostasInterval = setInterval(function() {
+    // Slide up one row
+    list.style.transition = 'transform .5s ease';
+    list.style.transform = 'translateY(-' + rowH + 'px)';
+
+    setTimeout(function() {
+      // Remove top row, add new at bottom, reset transform
+      list.style.transition = 'none';
+      list.style.transform = 'translateY(0)';
+      if (list.firstElementChild) list.removeChild(list.firstElementChild);
+      var newRow = document.createElement('div');
+      newRow.innerHTML = apostaRowHTML(generateAposta());
+      list.appendChild(newRow.firstElementChild);
+    }, 500);
+  }, 2000);
+}
 
 /* ========== LOGOUT ========== */
 var btnLogout = document.getElementById('btnLogout');
@@ -594,6 +757,8 @@ function initApp() {
     var gamesRes = results[0];
     allGames = (gamesRes.ok && gamesRes.games) ? gamesRes.games : [];
     renderAllSections();
+    renderGanhos();
+    renderApostas();
     initBannerDots();
     showBanner(0);
     startBannerAuto();

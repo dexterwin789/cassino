@@ -337,58 +337,13 @@
         <button class="ganhos-tab" data-period="7dias">7 dias</button>
         <button class="ganhos-tab active" data-period="15dias">15 dias</button>
       </div>
-      <div class="ganhos-strip" id="ganhosStrip">
+      <div class="ganhos-strip">
         <div class="ganhos-trophy-card">
           <img src="/public/img/novo/trophy.webp" alt="Trophy" class="ganhos-trophy-img">
           <div class="ganhos-trophy-text">MAIORES<br>GANHOS</div>
         </div>
-        <div class="ganho-card">
-          <img src="/public/img/games/1.avif" alt="Aviator Crash" class="ganho-thumb">
-          <div class="ganho-info">
-            <div class="ganho-user">Luiz ****</div>
-            <div class="ganho-game">Aviator Crash</div>
-            <div class="ganho-amount">R$ 50.000,00</div>
-          </div>
-        </div>
-        <div class="ganho-card">
-          <img src="/public/img/games/2.webp" alt="Bikini Paradise" class="ganho-thumb">
-          <div class="ganho-info">
-            <div class="ganho-user">Rodrigo ****</div>
-            <div class="ganho-game">Bikini Paradise</div>
-            <div class="ganho-amount">R$ 49.152,00</div>
-          </div>
-        </div>
-        <div class="ganho-card">
-          <img src="/public/img/games/3.webp" alt="Casino Hold'em" class="ganho-thumb">
-          <div class="ganho-info">
-            <div class="ganho-user">Sebastiao ****</div>
-            <div class="ganho-game">Casino Hold'em</div>
-            <div class="ganho-amount">R$ 40.000,00</div>
-          </div>
-        </div>
-        <div class="ganho-card">
-          <img src="/public/img/games/4.webp" alt="Imperial Fruits" class="ganho-thumb">
-          <div class="ganho-info">
-            <div class="ganho-user">André ****</div>
-            <div class="ganho-game">Imperial Fruits</div>
-            <div class="ganho-amount">R$ 38.500,00</div>
-          </div>
-        </div>
-        <div class="ganho-card">
-          <img src="/public/img/games/5.webp" alt="Fortune Tiger" class="ganho-thumb">
-          <div class="ganho-info">
-            <div class="ganho-user">Paulo ****</div>
-            <div class="ganho-game">Fortune Tiger</div>
-            <div class="ganho-amount">R$ 35.200,00</div>
-          </div>
-        </div>
-        <div class="ganho-card">
-          <img src="/public/img/games/6.webp" alt="Mines" class="ganho-thumb">
-          <div class="ganho-info">
-            <div class="ganho-user">Carlos ****</div>
-            <div class="ganho-game">Mines</div>
-            <div class="ganho-amount">R$ 32.100,00</div>
-          </div>
+        <div class="ganhos-scroll-wrapper">
+          <div class="ganhos-scroll-track" id="ganhosTrack"></div>
         </div>
       </div>
     </section>
@@ -396,46 +351,8 @@
     <!-- Últimas Apostas -->
     <section class="game-section apostas-section">
       <div class="section-header"><h2>🏆 Últimas apostas</h2></div>
-      <div class="apostas-list" id="apostasList">
-        <div class="aposta-row">
-          <img src="/public/img/games/1.avif" class="aposta-icon" alt="">
-          <div class="aposta-info">
-            <span class="aposta-user">Vroner ***</span>
-            <span class="aposta-game">Aviator</span>
-          </div>
-          <div class="aposta-values">
-            <span class="aposta-bet">R$ 3,00</span>
-            <span class="aposta-arrow">→</span>
-            <span class="aposta-win">R$ 6,48</span>
-          </div>
-          <span class="aposta-chevron">›</span>
-        </div>
-        <div class="aposta-row">
-          <img src="/public/img/games/2.webp" class="aposta-icon" alt="">
-          <div class="aposta-info">
-            <span class="aposta-user">Cristiane ***</span>
-            <span class="aposta-game">Capibrara</span>
-          </div>
-          <div class="aposta-values">
-            <span class="aposta-bet">R$ 0,50</span>
-            <span class="aposta-arrow">→</span>
-            <span class="aposta-win">R$ 0,60</span>
-          </div>
-          <span class="aposta-chevron">›</span>
-        </div>
-        <div class="aposta-row">
-          <img src="/public/img/games/3.webp" class="aposta-icon" alt="">
-          <div class="aposta-info">
-            <span class="aposta-user">Bruno ***</span>
-            <span class="aposta-game">Roleta Brasileira</span>
-          </div>
-          <div class="aposta-values">
-            <span class="aposta-bet">R$ 89,00</span>
-            <span class="aposta-arrow">→</span>
-            <span class="aposta-win">R$ 162,00</span>
-          </div>
-          <span class="aposta-chevron">›</span>
-        </div>
+      <div class="apostas-wrapper">
+        <div class="apostas-list" id="apostasList"></div>
       </div>
     </section>
 
