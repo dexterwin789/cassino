@@ -504,20 +504,21 @@ ul{list-style:none}
 
 /* ===== ESTUDIOS ===== */
 .estudios-grid{
-  display:grid;
-  grid-template-columns:repeat(6,1fr);
-  gap:12px;
+  display:flex;gap:12px;
+  overflow-x:auto;scrollbar-width:none;
+  padding-bottom:4px;
 }
+.estudios-grid::-webkit-scrollbar{display:none}
 .estudio-card{
-  display:flex;flex-direction:column;align-items:center;gap:8px;
+  flex:1 1 0;min-width:140px;height:80px;
+  display:flex;align-items:center;justify-content:center;
   background:var(--bg-card);border:1px solid var(--border);
-  border-radius:12px;padding:16px 8px;
-  text-decoration:none;color:var(--text);
+  border-radius:12px;overflow:hidden;
+  text-decoration:none;
   transition:border-color .2s,transform .2s;
 }
 .estudio-card:hover{border-color:rgba(255,140,80,.5);transform:translateY(-2px)}
-.estudio-card img{width:60px;height:60px;object-fit:contain;border-radius:8px}
-.estudio-card span{font-size:11px;font-weight:600;color:var(--text-muted);text-align:center}
+.estudio-card img{width:100%;height:100%;object-fit:contain;padding:10px 16px}
 
 /* ===== MAIORES GANHOS ===== */
 .ganhos-tabs{
@@ -532,21 +533,37 @@ ul{list-style:none}
 .ganhos-tab.active{
   background:rgb(255,57,1);border-color:rgb(255,57,1);color:#fff;
 }
-.ganhos-grid{
-  display:grid;grid-template-columns:repeat(3,1fr);gap:12px;
+.ganhos-strip{
+  display:flex;gap:12px;
+  overflow-x:auto;scrollbar-width:none;
+  padding-bottom:4px;
+}
+.ganhos-strip::-webkit-scrollbar{display:none}
+.ganhos-trophy-card{
+  flex:0 0 160px;
+  display:flex;align-items:center;gap:12px;
+  background:var(--bg-card);border:1px solid var(--border);
+  border-radius:12px;padding:20px 16px;
+}
+.ganhos-trophy-img{width:52px;height:52px;object-fit:contain;flex-shrink:0}
+.ganhos-trophy-text{
+  font-size:18px;font-weight:800;color:var(--text);
+  line-height:1.15;letter-spacing:.5px;
 }
 .ganho-card{
+  flex:0 0 220px;
   display:flex;align-items:center;gap:10px;
-  background:var(--bg-card);border:1px solid var(--border);
-  border-radius:12px;padding:12px;
+  background:rgb(255,57,1);
+  border-radius:12px;padding:14px;
 }
-.ganho-game-icon{width:40px;height:40px;border-radius:8px;overflow:hidden;flex-shrink:0}
-.ganho-game-icon img{width:100%;height:100%;object-fit:cover}
-.ganho-info{flex:1;min-width:0}
-.ganho-user{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--text)}
-.ganho-avatar{width:20px;height:20px;border-radius:50%}
-.ganho-game{font-size:11px;color:var(--text-muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.ganho-amount{font-size:14px;font-weight:800;color:#22c55e;white-space:nowrap}
+.ganho-thumb{
+  width:52px;height:52px;border-radius:8px;
+  object-fit:cover;flex-shrink:0;
+}
+.ganho-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.ganho-user{font-size:13px;font-weight:700;color:#fff}
+.ganho-game{font-size:11px;color:rgba(255,255,255,.75);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ganho-amount{font-size:16px;font-weight:800;color:#fff;margin-top:3px;white-space:nowrap}
 
 /* ===== ÚLTIMAS APOSTAS ===== */
 .apostas-list{
@@ -555,16 +572,19 @@ ul{list-style:none}
 .aposta-row{
   display:flex;align-items:center;gap:12px;
   background:var(--bg-card);border:1px solid var(--border);
-  border-radius:10px;padding:10px 14px;
+  border-radius:10px;padding:12px 14px;
+  transition:background .2s;
 }
-.aposta-user{display:flex;align-items:center;gap:6px;min-width:80px}
-.aposta-avatar{width:24px;height:24px;border-radius:50%}
-.aposta-user span{font-size:12px;font-weight:600;color:var(--text)}
-.aposta-game{flex:1;font-size:12px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.aposta-row:hover{background:rgba(255,255,255,.04)}
+.aposta-icon{width:40px;height:40px;border-radius:8px;object-fit:cover;flex-shrink:0}
+.aposta-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.aposta-user{font-size:13px;font-weight:700;color:var(--text)}
+.aposta-game{font-size:11px;color:var(--text-muted)}
 .aposta-values{display:flex;align-items:center;gap:6px;white-space:nowrap}
 .aposta-bet{font-size:12px;color:var(--text-muted)}
 .aposta-arrow{font-size:12px;color:var(--text-muted)}
-.aposta-win{font-size:13px;font-weight:800;color:#22c55e}
+.aposta-win{font-size:14px;font-weight:800;color:#22c55e}
+.aposta-chevron{font-size:22px;color:var(--text-muted);margin-left:4px}
 
 /* ===== FOOTER ===== */
 .site-footer{
@@ -611,7 +631,11 @@ ul{list-style:none}
 .sponsor-label{
   display:block;font-size:11px;font-weight:700;
   color:var(--text-muted);letter-spacing:1px;
-  text-transform:uppercase;margin-bottom:12px;
+  text-transform:uppercase;margin-bottom:4px;
+}
+.sponsor-sub{
+  display:block;font-size:10px;font-weight:600;
+  color:var(--text-muted);opacity:.7;margin-bottom:12px;
 }
 .sponsor-logos{display:flex;justify-content:center;gap:20px;align-items:center}
 .sponsor-logos img{height:36px;width:auto;opacity:.7;transition:opacity .2s}
@@ -960,8 +984,6 @@ ul{list-style:none}
 
 @media(max-width:1024px){
   .provider-grid{grid-template-columns:repeat(4,1fr)}
-  .estudios-grid{grid-template-columns:repeat(3,1fr)}
-  .ganhos-grid{grid-template-columns:repeat(2,1fr)}
   .footer-top{grid-template-columns:repeat(3,1fr)}
 }
 @media(max-width:768px){
@@ -972,13 +994,10 @@ ul{list-style:none}
   .ligas-row{gap:12px}
   .liga-icon{width:52px;height:52px}
   .liga-icon img{width:32px;height:32px}
-  .estudios-grid{grid-template-columns:repeat(3,1fr)}
-  .ganhos-grid{grid-template-columns:1fr}
   .footer-top{grid-template-columns:repeat(2,1fr)}
 }
 @media(max-width:480px){
   .provider-grid{grid-template-columns:repeat(2,1fr)}
-  .estudios-grid{grid-template-columns:repeat(2,1fr)}
   .footer-top{grid-template-columns:1fr}
 }
 
