@@ -123,7 +123,7 @@ function getTop10Step() {
   var track = document.getElementById('top10Track');
   if (!track || !track.children.length) return 250;
   var card = track.children[0];
-  return card.offsetWidth;
+  return card.offsetWidth + 20;
 }
 
 function slideTop10(dir) {
@@ -555,6 +555,14 @@ function showToast(msg, type) {
     setTimeout(function() { toast.remove(); }, 300);
   }, 3000);
 }
+
+/* ========== GANHOS TABS ========== */
+document.querySelectorAll('.ganhos-tab').forEach(function(tab) {
+  tab.addEventListener('click', function() {
+    document.querySelectorAll('.ganhos-tab').forEach(function(t) { t.classList.remove('active'); });
+    tab.classList.add('active');
+  });
+});
 
 /* ========== LOGOUT ========== */
 var btnLogout = document.getElementById('btnLogout');

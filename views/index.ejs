@@ -316,9 +316,180 @@
     <section class="game-section"><div class="section-header"><h2>Jogos da Wazdan</h2><a href="#" class="see-all">Ver todos</a></div><div class="provider-grid" id="gridWazdan"></div></section>
     <section class="game-section"><div class="section-header"><h2>Jogos da BGaming</h2><a href="#" class="see-all">Ver todos</a></div><div class="provider-grid" id="gridBGaming"></div></section>
 
+    <!-- Estúdios -->
+    <section class="game-section estudios-section">
+      <div class="section-header"><h2>Estúdios</h2></div>
+      <div class="estudios-grid">
+        <a href="#" class="estudio-card"><img src="/public/img/novo/studio-pg.png" alt="PG Soft"><span>PG Soft</span></a>
+        <a href="#" class="estudio-card"><img src="/public/img/novo/studio-evolution.png" alt="Evolution"><span>Evolution</span></a>
+        <a href="#" class="estudio-card"><img src="/public/img/novo/studio-spribe.png" alt="Spribe"><span>Spribe</span></a>
+        <a href="#" class="estudio-card"><img src="/public/img/novo/studio-pp.png" alt="Pragmatic Play"><span>Pragmatic Play</span></a>
+        <a href="#" class="estudio-card"><img src="/public/img/novo/studio-1xgaming.png" alt="1xGaming"><span>1xGaming</span></a>
+        <a href="#" class="estudio-card"><img src="/public/img/novo/studio-netent.png" alt="NetEnt"><span>NetEnt</span></a>
+      </div>
+    </section>
+
+    <!-- Maiores Ganhos -->
+    <section class="game-section ganhos-section">
+      <div class="section-header"><h2>Maiores Ganhos</h2></div>
+      <div class="ganhos-tabs">
+        <button class="ganhos-tab active" data-period="hoje">Hoje</button>
+        <button class="ganhos-tab" data-period="3dias">3 Dias</button>
+        <button class="ganhos-tab" data-period="7dias">7 dias</button>
+        <button class="ganhos-tab" data-period="15dias">15 dias</button>
+      </div>
+      <div class="ganhos-grid" id="ganhosGrid">
+        <div class="ganho-card">
+          <div class="ganho-game-icon"><img src="/public/img/novo/game-thumb-1.png" alt="Fortune Tiger"></div>
+          <div class="ganho-info">
+            <div class="ganho-user"><img src="https://ui-avatars.com/api/?name=L&background=1a2332&color=fff&size=28" class="ganho-avatar">Lu***</div>
+            <div class="ganho-game">Fortune Tiger</div>
+          </div>
+          <div class="ganho-amount">R$ 8.420,00</div>
+        </div>
+        <div class="ganho-card">
+          <div class="ganho-game-icon"><img src="/public/img/novo/game-thumb-2.png" alt="Gates of Olympus"></div>
+          <div class="ganho-info">
+            <div class="ganho-user"><img src="https://ui-avatars.com/api/?name=M&background=1a2332&color=fff&size=28" class="ganho-avatar">Ma***</div>
+            <div class="ganho-game">Gates of Olympus</div>
+          </div>
+          <div class="ganho-amount">R$ 6.150,00</div>
+        </div>
+        <div class="ganho-card">
+          <div class="ganho-game-icon"><img src="/public/img/novo/game-thumb-3.png" alt="Sweet Bonanza"></div>
+          <div class="ganho-info">
+            <div class="ganho-user"><img src="https://ui-avatars.com/api/?name=R&background=1a2332&color=fff&size=28" class="ganho-avatar">Ro***</div>
+            <div class="ganho-game">Sweet Bonanza</div>
+          </div>
+          <div class="ganho-amount">R$ 5.780,00</div>
+        </div>
+        <div class="ganho-card">
+          <div class="ganho-game-icon"><img src="/public/img/novo/game-thumb-4.png" alt="Aviator"></div>
+          <div class="ganho-info">
+            <div class="ganho-user"><img src="https://ui-avatars.com/api/?name=J&background=1a2332&color=fff&size=28" class="ganho-avatar">Jo***</div>
+            <div class="ganho-game">Aviator</div>
+          </div>
+          <div class="ganho-amount">R$ 4.320,00</div>
+        </div>
+        <div class="ganho-card">
+          <div class="ganho-game-icon"><img src="/public/img/novo/game-thumb-5.png" alt="Mines"></div>
+          <div class="ganho-info">
+            <div class="ganho-user"><img src="https://ui-avatars.com/api/?name=A&background=1a2332&color=fff&size=28" class="ganho-avatar">An***</div>
+            <div class="ganho-game">Mines</div>
+          </div>
+          <div class="ganho-amount">R$ 3.900,00</div>
+        </div>
+        <div class="ganho-card">
+          <div class="ganho-game-icon"><img src="/public/img/novo/game-thumb-6.png" alt="Big Bass Bonanza"></div>
+          <div class="ganho-info">
+            <div class="ganho-user"><img src="https://ui-avatars.com/api/?name=C&background=1a2332&color=fff&size=28" class="ganho-avatar">Ca***</div>
+            <div class="ganho-game">Big Bass Bonanza</div>
+          </div>
+          <div class="ganho-amount">R$ 3.210,00</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Últimas Apostas -->
+    <section class="game-section apostas-section">
+      <div class="section-header"><h2>Últimas apostas</h2></div>
+      <div class="apostas-list" id="apostasList">
+        <div class="aposta-row">
+          <div class="aposta-user"><img src="https://ui-avatars.com/api/?name=P&background=1a2332&color=fff&size=28" class="aposta-avatar"><span>Pe***</span></div>
+          <div class="aposta-game">Fortune Tiger</div>
+          <div class="aposta-values"><span class="aposta-bet">R$ 25,00</span><span class="aposta-arrow">→</span><span class="aposta-win">R$ 1.250,00</span></div>
+        </div>
+        <div class="aposta-row">
+          <div class="aposta-user"><img src="https://ui-avatars.com/api/?name=F&background=1a2332&color=fff&size=28" class="aposta-avatar"><span>Fe***</span></div>
+          <div class="aposta-game">Gates of Olympus</div>
+          <div class="aposta-values"><span class="aposta-bet">R$ 10,00</span><span class="aposta-arrow">→</span><span class="aposta-win">R$ 890,00</span></div>
+        </div>
+        <div class="aposta-row">
+          <div class="aposta-user"><img src="https://ui-avatars.com/api/?name=G&background=1a2332&color=fff&size=28" class="aposta-avatar"><span>Gu***</span></div>
+          <div class="aposta-game">Aviator</div>
+          <div class="aposta-values"><span class="aposta-bet">R$ 50,00</span><span class="aposta-arrow">→</span><span class="aposta-win">R$ 2.400,00</span></div>
+        </div>
+        <div class="aposta-row">
+          <div class="aposta-user"><img src="https://ui-avatars.com/api/?name=B&background=1a2332&color=fff&size=28" class="aposta-avatar"><span>Br***</span></div>
+          <div class="aposta-game">Sweet Bonanza</div>
+          <div class="aposta-values"><span class="aposta-bet">R$ 15,00</span><span class="aposta-arrow">→</span><span class="aposta-win">R$ 675,00</span></div>
+        </div>
+        <div class="aposta-row">
+          <div class="aposta-user"><img src="https://ui-avatars.com/api/?name=T&background=1a2332&color=fff&size=28" class="aposta-avatar"><span>Th***</span></div>
+          <div class="aposta-game">Mines</div>
+          <div class="aposta-values"><span class="aposta-bet">R$ 100,00</span><span class="aposta-arrow">→</span><span class="aposta-win">R$ 4.800,00</span></div>
+        </div>
+        <div class="aposta-row">
+          <div class="aposta-user"><img src="https://ui-avatars.com/api/?name=D&background=1a2332&color=fff&size=28" class="aposta-avatar"><span>Da***</span></div>
+          <div class="aposta-game">Big Bass Bonanza</div>
+          <div class="aposta-values"><span class="aposta-bet">R$ 30,00</span><span class="aposta-arrow">→</span><span class="aposta-win">R$ 1.560,00</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
     <footer class="site-footer">
-      <div class="footer-inner">
-        <div class="footer-logo"><img src="/public/img/novo/logo.png" alt="EsportivaBet" style="height:32px"></div>
+      <div class="footer-top">
+        <div class="footer-col footer-brand">
+          <img src="/public/img/novo/logo.png" alt="EsportivaBet" class="footer-logo-img">
+          <div class="footer-social">
+            <a href="#" aria-label="Instagram"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>
+            <a href="#" aria-label="Facebook"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></a>
+            <a href="#" aria-label="X"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+            <a href="#" aria-label="YouTube"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></a>
+            <a href="#" aria-label="Telegram"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 000 12a12 12 0 0012 12 12 12 0 0012-12A12 12 0 0012 0h-.056zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 01.171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.479.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg></a>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h4>Aposte</h4>
+          <ul>
+            <li><a href="#">Apostas Esportivas</a></li>
+            <li><a href="#">Esportes ao Vivo</a></li>
+            <li><a href="#">Jogos Slots</a></li>
+            <li><a href="#">Jogos ao Vivo</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Comunidade</h4>
+          <ul>
+            <li><a href="#">Promoções</a></li>
+            <li><a href="#">Blog</a></li>
+            <li><a href="#">Central de Ajuda</a></li>
+            <li><a href="#">Canais de Atendimento</a></li>
+            <li><a href="#">Aplicativo móvel</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Regras</h4>
+          <ul>
+            <li><a href="#">Termos de Apostas</a></li>
+            <li><a href="#">Jogo Responsável</a></li>
+            <li><a href="#">Política de Privacidade</a></li>
+            <li><a href="#">Ouvidoria</a></li>
+            <li><a href="#">Política KYC</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Links Úteis</h4>
+          <ul>
+            <li><a href="#" class="footer-contact-btn">Contate-nos</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Pagamento</h4>
+          <div class="footer-pix"><img src="/public/img/novo/pix-logo.png" alt="PIX" style="height:32px;border-radius:6px;background:#fff;padding:4px 10px"></div>
+        </div>
+      </div>
+      <div class="footer-sponsor">
+        <span class="sponsor-label">PATROCINADOR OFICIAL</span>
+        <div class="sponsor-logos">
+          <img src="/public/img/novo/sponsor1.png" alt="Sponsor">
+          <img src="/public/img/novo/sponsor2.png" alt="Sponsor">
+          <img src="/public/img/novo/sponsor3.png" alt="Sponsor">
+          <img src="/public/img/novo/sponsor4.png" alt="Sponsor">
+        </div>
+      </div>
+      <div class="footer-bottom">
         <p>Jogue com responsabilidade. Apenas para maiores de 18 anos.</p>
         <p class="footer-copy">&copy; 2025 EsportivaBet. Todos os direitos reservados.</p>
       </div>
