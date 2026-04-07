@@ -14,3 +14,72 @@
   --card-border: rgba(255,255,255,.06);
   --border: rgba(255,255,255,.08);
 }
+
+/* ===== LIGHT THEME ===== */
+[data-theme="light"]{
+  --bg-body: #f0f2f5;
+  --bg-header: #ffffff;
+  --bg-sidebar: #ffffff;
+  --bg-card: #ffffff;
+  --text: #1a1a2e;
+  --text-muted: #64748b;
+  --border: rgba(0,0,0,.08);
+}
+[data-theme="light"] .topbar{background:#fff;border-color:rgba(0,0,0,.08)}
+[data-theme="light"] .sidebar{background:#fff;border-color:rgba(0,0,0,.06)}
+[data-theme="light"] .game-card{background:#fff;border-color:rgba(0,0,0,.08)}
+[data-theme="light"] .menu-title{color:#1a1a2e}
+[data-theme="light"] .sidebar-link{color:#475569}
+[data-theme="light"] .sidebar-link:hover,[data-theme="light"] .sidebar-link.active{color:#ff3a00;background:rgba(255,58,0,.06)}
+[data-theme="light"] .sidebar-icon{filter:none;opacity:.6}
+[data-theme="light"] .tab-switch{color:#475569}
+[data-theme="light"] .tab-switch.active{color:#ff3a00}
+[data-theme="light"] .section-header h2{color:#1a1a2e}
+[data-theme="light"] .search-input{background:#f0f2f5;color:#1a1a2e;border-color:rgba(0,0,0,.1)}
+[data-theme="light"] .search-input::placeholder{color:#94a3b8}
+[data-theme="light"] .topbar-balance{background:rgba(0,0,0,.04)}
+[data-theme="light"] .topbar-balance-btn{color:#1a1a2e}
+[data-theme="light"] .topbar-balance-refresh{border-color:rgba(0,0,0,.08)}
+[data-theme="light"] .topbar-balance-refresh img,
+[data-theme="light"] .topbar-notif img{filter:none;opacity:.6}
+[data-theme="light"] .topbar-user-btn{border-color:rgba(0,0,0,.15)}
+[data-theme="light"] .topbar-dropdown{background:#fff;border-color:rgba(0,0,0,.1);box-shadow:0 8px 32px rgba(0,0,0,.15)}
+[data-theme="light"] .topbar-dropdown-header{border-color:rgba(0,0,0,.06)}
+[data-theme="light"] .topbar-dropdown-info strong{color:#1a1a2e}
+[data-theme="light"] .topbar-dropdown-info span{color:#94a3b8}
+[data-theme="light"] .topbar-dropdown-date{color:#94a3b8;border-color:rgba(0,0,0,.06)}
+[data-theme="light"] .topbar-dropdown-nav a{color:#475569}
+[data-theme="light"] .topbar-dropdown-nav a:hover{background:rgba(0,0,0,.04);color:#1a1a2e}
+[data-theme="light"] .topbar-dropdown-nav a img{filter:none;opacity:.5}
+[data-theme="light"] .dropdown-theme-row{color:#475569}
+[data-theme="light"] .dropdown-theme-row img{filter:none;opacity:.5}
+[data-theme="light"] .topbar-dropdown-logout{color:#ef4444!important;border-color:rgba(0,0,0,.06)}
+[data-theme="light"] .btn-login{border-color:rgba(0,0,0,.15);color:#1a1a2e}
+[data-theme="light"] .preloader{background:#f0f2f5}
+[data-theme="light"] .preloader-bar{background:rgba(0,0,0,.08)}
+/* Footer light */
+[data-theme="light"] .site-footer{border-color:rgba(0,0,0,.08)}
+[data-theme="light"] .footer-col h4{color:#1a1a2e}
+[data-theme="light"] .footer-col a{color:#64748b}
+[data-theme="light"] .footer-col a:hover{color:#ff3a00}
+[data-theme="light"] .footer-social a{color:#64748b}
+[data-theme="light"] .footer-social a:hover{color:#fff;background:#ff3a00}
+[data-theme="light"] .footer-sponsor{border-color:rgba(0,0,0,.06)}
+[data-theme="light"] .sponsor-label,[data-theme="light"] .sponsor-sub{color:#64748b}
+[data-theme="light"] .footer-copyright{color:#94a3b8;border-color:rgba(0,0,0,.06)}
+/* Cards + sections light */
+[data-theme="light"] .quick-icon-card{background:#fff;border-color:rgba(0,0,0,.06)}
+[data-theme="light"] .quick-icon-label{color:#475569}
+[data-theme="light"] .ganhos-tab{color:#475569;border-color:rgba(0,0,0,.08)}
+[data-theme="light"] .ganhos-tab.active{color:#ff3a00;border-color:#ff3a00}
+[data-theme="light"] .ganhos-row{background:#f8fafc;border-color:rgba(0,0,0,.04)}
+[data-theme="light"] .aposta-row{background:#f8fafc;border-color:rgba(0,0,0,.04)}
+[data-theme="light"] .stat-card{background:#fff;border-color:rgba(0,0,0,.06)}
+[data-theme="light"] .provider-grid .game-card{background:#fff;border-color:rgba(0,0,0,.06)}
+/* Bottom nav light */
+[data-theme="light"] .bnav{background:#fff;border-color:rgba(0,0,0,.08)}
+[data-theme="light"] .bnav-item{color:#64748b}
+[data-theme="light"] .bnav-item.active{color:#ff3a00}
+/* Search + badges */
+[data-theme="light"] .search-wrap{background:#f0f2f5;border-color:rgba(0,0,0,.1)}
+[data-theme="light"] .sidebar-cards{background:#f8fafc}

@@ -104,9 +104,9 @@
             </div>
 
             <!-- Data de nascimento -->
-            <div class="login-field">
+            <div class="login-field login-field-date">
               <input type="date" id="regBirthDate" name="birth_date" placeholder=" ">
-              <label for="regBirthDate" class="reg-date-label">Data de nascimento *</label>
+              <label for="regBirthDate">Data de nascimento *</label>
             </div>
 
             <!-- Email -->
@@ -178,7 +178,7 @@
     </div>
 
     <!-- Body -->
-    <div class="dep-body">
+    <div class="dep-body" id="depStepValue">
       <!-- PIX method -->
       <div class="dep-methods">
         <div class="dep-method-card dep-method-active" data-method="PAYBROKERS">
@@ -238,17 +238,35 @@
 
       <!-- Depositar -->
       <button class="dep-submit" id="depSubmitBtn" type="button">DEPOSITAR</button>
+    </div>
 
-      <!-- QR Code Result (hidden until PIX generated) -->
-      <div class="dep-qr-result" id="depQrResult" style="display:none">
-        <div class="dep-qr-status" id="depQrStatus">Aguardando pagamento...</div>
-        <div class="dep-qr-amount" id="depQrAmount"></div>
-        <img class="dep-qr-img" id="depQrImg" alt="QR Code PIX" src="">
-        <div class="dep-qr-copy-wrap">
+    <!-- STEP 2: QR Code -->
+    <div class="dep-body dep-step-qr" id="depStepQr" style="display:none">
+      <div class="dep-qr-title">Escaneie a imagem<br>para realizar o pagamento</div>
+      <img class="dep-qr-img" id="depQrImg" alt="QR Code PIX" src="">
+      <div class="dep-qr-amount-box">
+        <div class="dep-qr-amount" id="depQrAmount">R$ 0,00</div>
+        <div class="dep-qr-code-wrap">
           <input type="text" class="dep-qr-code" id="depQrCode" readonly>
-          <button class="dep-qr-copy-btn" id="depQrCopyBtn" type="button">Copiar</button>
         </div>
-        <span class="dep-qr-timer" id="depQrTimer"></span>
+        <button class="dep-qr-copy-btn" id="depQrCopyBtn" type="button">Copiar Código "copia e cola"</button>
+      </div>
+      <div class="dep-qr-countdown">
+        <span class="dep-qr-countdown-label">O tempo para você pagar acaba em:</span>
+        <span class="dep-qr-countdown-time" id="depQrCountdown">05:00</span>
+        <div class="dep-qr-countdown-bar"><div class="dep-qr-countdown-fill" id="depQrCountdownFill"></div></div>
+      </div>
+      <div class="dep-qr-status-row">
+        <span class="dep-qr-spinner"></span>
+        <span class="dep-qr-status" id="depQrStatus">Aguardando pagamento...</span>
+      </div>
+      <!-- Payment approved overlay -->
+      <div class="dep-qr-approved" id="depQrApproved" style="display:none">
+        <div class="dep-qr-check-circle">
+          <svg width="48" height="48" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="22" stroke="#22c55e" stroke-width="3"/><path d="M14 24l7 7 13-13" stroke="#22c55e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <strong>Pagamento Aprovado!</strong>
+        <span>Seu saldo foi atualizado</span>
       </div>
     </div>
   </div>
@@ -452,8 +470,9 @@
           var j = data.json || data;
           if (j && j.ok) {
             closeRegisterModal();
-            if (typeof showToast === 'function') showToast('Usuário cadastrado com sucesso!', 'success');
-            setTimeout(function() { openDepositModal(); }, 400);
+            if (typeof showToast === 'function') showToast('Conta criada com sucesso!', 'success');
+            // Redirect to home logged in
+            setTimeout(function() { window.location.href = '/'; }, 600);
           } else {
             if (typeof showToast === 'function') showToast(j.msg || 'Erro ao registrar', 'error');
           }
@@ -462,12 +481,12 @@
         .finally(function() { regSubmitBtn.disabled = false; regSubmitBtn.textContent = 'CONCLUIR REGISTRO'; checkRegValid(); });
     } else {
       closeRegisterModal();
-      if (typeof showToast === 'function') showToast('Usuário cadastrado com sucesso!', 'success');
-      setTimeout(function() { openDepositModal(); }, 400);
+      if (typeof showToast === 'function') showToast('Conta criada com sucesso!', 'success');
+      setTimeout(function() { window.location.href = '/'; }, 600);
     }
   });
 
-  /* ===== DEPOSIT MODAL ===== */
+  /* ===== DEPOSIT MODAL (2-step) ===== */
   var depModal = document.getElementById('depositModal');
   var depBannerClose = document.getElementById('depBannerClose');
   var depBack = document.getElementById('depBack');
@@ -475,16 +494,114 @@
   var depCupomToggle = document.getElementById('depCupomToggle');
   var depCupomWrap = document.getElementById('depCupomWrap');
   var depSubmitBtn = document.getElementById('depSubmitBtn');
+  var depStepValue = document.getElementById('depStepValue');
+  var depStepQr = document.getElementById('depStepQr');
+  var depQrStatus = document.getElementById('depQrStatus');
+  var depQrAmount = document.getElementById('depQrAmount');
+  var depQrImg = document.getElementById('depQrImg');
+  var depQrCode = document.getElementById('depQrCode');
+  var depQrCopyBtn = document.getElementById('depQrCopyBtn');
+  var depQrCountdown = document.getElementById('depQrCountdown');
+  var depQrCountdownFill = document.getElementById('depQrCountdownFill');
+  var depQrApproved = document.getElementById('depQrApproved');
+  var depPaymentPollId = null;
+  var depCountdownId = null;
+  var depCurrentStep = 'value'; // 'value' or 'qr'
 
   window.openDepositModal = function() {
     if (depModal) { depModal.classList.add('open'); document.body.style.overflow = 'hidden'; }
   };
   window.closeDepositModal = function() {
     if (depModal) { depModal.classList.remove('open'); document.body.style.overflow = ''; }
-    if (typeof resetDepositModal === 'function') resetDepositModal();
+    resetDepositModal();
   };
+
+  function goToQrStep(data) {
+    depCurrentStep = 'qr';
+    if (depStepValue) depStepValue.style.display = 'none';
+    if (depStepQr) depStepQr.style.display = '';
+    if (depQrApproved) depQrApproved.style.display = 'none';
+    if (depQrAmount) depQrAmount.textContent = 'R$ ' + (data.amount_cents / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+    if (depQrCode) depQrCode.value = data.copyPaste || '';
+    if (depQrStatus) { depQrStatus.textContent = 'Aguardando pagamento...'; depQrStatus.style.color = ''; }
+    if (depQrImg) {
+      if (data.qrCodeBase64) depQrImg.src = data.qrCodeBase64;
+      else if (data.copyPaste) depQrImg.src = 'https://quickchart.io/qr?size=220&margin=2&text=' + encodeURIComponent(data.copyPaste);
+    }
+    startCountdown(300);
+    if (data.tx_id) startDepositPoll(data.tx_id);
+  }
+
+  function goToValueStep() {
+    depCurrentStep = 'value';
+    if (depStepQr) depStepQr.style.display = 'none';
+    if (depStepValue) depStepValue.style.display = '';
+    if (depPaymentPollId) { clearInterval(depPaymentPollId); depPaymentPollId = null; }
+    if (depCountdownId) { clearInterval(depCountdownId); depCountdownId = null; }
+    if (depSubmitBtn) { depSubmitBtn.disabled = false; depSubmitBtn.textContent = 'DEPOSITAR'; }
+  }
+
+  function startCountdown(totalSec) {
+    var remaining = totalSec;
+    if (depCountdownId) clearInterval(depCountdownId);
+    function updateTimer() {
+      var m = Math.floor(remaining / 60);
+      var s = remaining % 60;
+      if (depQrCountdown) depQrCountdown.textContent = String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+      if (depQrCountdownFill) depQrCountdownFill.style.width = ((remaining / totalSec) * 100) + '%';
+    }
+    updateTimer();
+    depCountdownId = setInterval(function() {
+      remaining--;
+      if (remaining <= 0) {
+        clearInterval(depCountdownId);
+        if (depQrStatus) { depQrStatus.textContent = 'Tempo expirado'; depQrStatus.style.color = '#ef4444'; }
+        if (depPaymentPollId) { clearInterval(depPaymentPollId); depPaymentPollId = null; }
+      }
+      updateTimer();
+    }, 1000);
+  }
+
+  function startDepositPoll(txId) {
+    if (depPaymentPollId) clearInterval(depPaymentPollId);
+    depPaymentPollId = setInterval(function() {
+      fetch('/api/deposit/status?tx_id=' + txId, { credentials: 'include' })
+        .then(function(r) { return r.json(); })
+        .then(function(j) {
+          if (j.ok && j.status === 'paid') {
+            clearInterval(depPaymentPollId); depPaymentPollId = null;
+            if (depCountdownId) { clearInterval(depCountdownId); depCountdownId = null; }
+            // Show approved animation
+            if (depQrApproved) depQrApproved.style.display = '';
+            if (depQrStatus) { depQrStatus.textContent = 'Pagamento confirmado!'; depQrStatus.style.color = '#22c55e'; }
+            if (typeof refreshWalletUI === 'function') refreshWalletUI();
+            setTimeout(function() { closeDepositModal(); }, 3000);
+          }
+        }).catch(function() {});
+    }, 4000);
+  }
+
+  function resetDepositModal() {
+    depCurrentStep = 'value';
+    if (depStepQr) depStepQr.style.display = 'none';
+    if (depStepValue) depStepValue.style.display = '';
+    if (depSubmitBtn) { depSubmitBtn.disabled = false; depSubmitBtn.textContent = 'DEPOSITAR'; }
+    if (depValueInput) depValueInput.value = '';
+    if (depQrStatus) { depQrStatus.textContent = ''; depQrStatus.style.color = ''; }
+    if (depQrApproved) depQrApproved.style.display = 'none';
+    if (depPaymentPollId) { clearInterval(depPaymentPollId); depPaymentPollId = null; }
+    if (depCountdownId) { clearInterval(depCountdownId); depCountdownId = null; }
+    document.querySelectorAll('.dep-val-btn').forEach(function(b) {
+      b.classList.remove('dep-val-selected');
+      var c = b.querySelector('.dep-val-check'); if (c) c.remove();
+    });
+  }
+
   if (depBannerClose) depBannerClose.addEventListener('click', closeDepositModal);
-  if (depBack) depBack.addEventListener('click', closeDepositModal);
+  if (depBack) depBack.addEventListener('click', function() {
+    if (depCurrentStep === 'qr') goToValueStep();
+    else closeDepositModal();
+  });
   if (depModal) depModal.addEventListener('click', function(e) { if (e.target === depModal) closeDepositModal(); });
 
   document.querySelectorAll('#bnav-deposit, .bnav-deposit').forEach(function(btn) {
@@ -526,63 +643,7 @@
     depCupomWrap.style.display = vis ? 'none' : 'block';
   });
 
-  /* Depositar — call API and show QR code */
-  var depQrResult = document.getElementById('depQrResult');
-  var depQrStatus = document.getElementById('depQrStatus');
-  var depQrAmount = document.getElementById('depQrAmount');
-  var depQrImg = document.getElementById('depQrImg');
-  var depQrCode = document.getElementById('depQrCode');
-  var depQrCopyBtn = document.getElementById('depQrCopyBtn');
-  var depQrTimer = document.getElementById('depQrTimer');
-  var depPaymentPollId = null;
-
-  function showDepQr(data) {
-    if (depQrResult) depQrResult.style.display = '';
-    if (depQrAmount) depQrAmount.textContent = 'R$ ' + (data.amount_cents / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
-    if (depQrCode) depQrCode.value = data.copyPaste || '';
-    if (depQrStatus) depQrStatus.textContent = 'Aguardando pagamento...';
-    if (depQrImg) {
-      if (data.qrCodeBase64) {
-        depQrImg.src = data.qrCodeBase64;
-      } else if (data.copyPaste) {
-        depQrImg.src = 'https://quickchart.io/qr?size=200&margin=2&text=' + encodeURIComponent(data.copyPaste);
-      }
-    }
-    // Hide the form part, show QR
-    depSubmitBtn.style.display = 'none';
-    // Start polling for payment
-    if (data.tx_id) startDepositPoll(data.tx_id);
-  }
-
-  function startDepositPoll(txId) {
-    if (depPaymentPollId) clearInterval(depPaymentPollId);
-    depPaymentPollId = setInterval(function() {
-      fetch('/api/deposit/status?tx_id=' + txId, { credentials: 'include' })
-        .then(function(r) { return r.json(); })
-        .then(function(j) {
-          if (j.ok && j.status === 'paid') {
-            clearInterval(depPaymentPollId);
-            if (depQrStatus) { depQrStatus.textContent = 'Pagamento confirmado!'; depQrStatus.style.color = '#22c55e'; }
-            if (typeof showToast === 'function') showToast('Depósito confirmado!', 'success');
-            if (typeof refreshWalletUI === 'function') refreshWalletUI();
-            setTimeout(function() { closeDepositModal(); resetDepositModal(); }, 2500);
-          }
-        }).catch(function() {});
-    }, 4000);
-  }
-
-  function resetDepositModal() {
-    if (depQrResult) depQrResult.style.display = 'none';
-    if (depSubmitBtn) { depSubmitBtn.style.display = ''; depSubmitBtn.disabled = false; depSubmitBtn.textContent = 'DEPOSITAR'; }
-    if (depValueInput) depValueInput.value = '';
-    if (depQrStatus) { depQrStatus.textContent = ''; depQrStatus.style.color = ''; }
-    if (depPaymentPollId) { clearInterval(depPaymentPollId); depPaymentPollId = null; }
-    document.querySelectorAll('.dep-val-btn').forEach(function(b) {
-      b.classList.remove('dep-val-selected');
-      var c = b.querySelector('.dep-val-check'); if (c) c.remove();
-    });
-  }
-
+  /* Copy PIX code */
   if (depQrCopyBtn) depQrCopyBtn.addEventListener('click', function() {
     var code = depQrCode ? depQrCode.value : '';
     if (code && navigator.clipboard) {
@@ -592,6 +653,7 @@
     }
   });
 
+  /* DEPOSITAR button — loading animation then API call */
   if (depSubmitBtn) depSubmitBtn.addEventListener('click', function() {
     var val = depValueInput ? depValueInput.value : '';
     if (!val || isNaN(val) || +val <= 0) {
@@ -603,7 +665,7 @@
       return;
     }
     depSubmitBtn.disabled = true;
-    depSubmitBtn.textContent = 'Gerando PIX...';
+    depSubmitBtn.innerHTML = '<span class="dep-submit-spinner"></span> Gerando PIX...';
 
     fetch('/api/deposit/create', {
       method: 'POST', credentials: 'include',
@@ -617,7 +679,7 @@
         if (typeof showToast === 'function') showToast(j.msg || 'Erro ao gerar PIX', 'error');
         return;
       }
-      showDepQr(j);
+      goToQrStep(j);
     }).catch(function() {
       depSubmitBtn.disabled = false;
       depSubmitBtn.textContent = 'DEPOSITAR';

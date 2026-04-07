@@ -55,18 +55,25 @@
             </div>
           </div>
           <div class="topbar-dropdown-date" id="dropdownDate"></div>
-          <a href="#" class="topbar-dropdown-clubvip">Ver mais sobre <strong>ClubVip</strong></a>
           <nav class="topbar-dropdown-nav">
-            <a href="/dashboard"><img src="/public/img/novo/bars1.svg" width="16" height="16"> Menu</a>
-            <a href="/dashboard/notifications"><img src="/public/img/novo/topo1.svg" width="16" height="16"> Notificações</a>
-            <a href="/dashboard/wallet"><img src="/public/img/novo/topo2.svg" width="16" height="16"> Carteira</a>
-            <a href="/dashboard/bets"><img src="/public/img/novo/carta1.svg" width="16" height="16"> Apostas</a>
-            <a href="/dashboard/referrals"><img src="/public/img/novo/bola1.svg" width="16" height="16"> Indicações</a>
-            <a href="/dashboard/settings"><img src="/public/img/novo/bars1.svg" width="16" height="16"> Dados da conta</a>
-            <a href="/dashboard/password"><img src="/public/img/novo/bars1.svg" width="16" height="16"> Alterar senha</a>
-            <a href="#" class="topbar-dropdown-support"><img src="/public/img/novo/modal1.svg" width="16" height="16"> Suporte ao vivo</a>
-            <a href="/promotions"><img src="/public/img/novo/bars1.svg" width="16" height="16"> Promoções</a>
-            <a href="#" id="dropdownLogout" class="topbar-dropdown-logout"><img src="/public/img/novo/bars1.svg" width="16" height="16"> Sair</a>
+            <a href="#" id="dropdownMenu"><img src="/public/img/novo/drop1.svg" width="16" height="16"> Menu</a>
+            <div class="topbar-dropdown-theme">
+              <a href="#" class="dropdown-theme-row"><img src="/public/img/novo/drop2.svg" width="16" height="16"> Tema</a>
+              <div class="theme-toggle-btns">
+                <button class="theme-btn theme-btn-dark active" id="themeDark" title="Dark"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
+                <button class="theme-btn theme-btn-light" id="themeLight" title="Light"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3" stroke="currentColor" stroke-width="2"/><line x1="12" y1="21" x2="12" y2="23" stroke="currentColor" stroke-width="2"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64" stroke="currentColor" stroke-width="2"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" stroke="currentColor" stroke-width="2"/><line x1="1" y1="12" x2="3" y2="12" stroke="currentColor" stroke-width="2"/><line x1="21" y1="12" x2="23" y2="12" stroke="currentColor" stroke-width="2"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36" stroke="currentColor" stroke-width="2"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" stroke="currentColor" stroke-width="2"/></svg></button>
+              </div>
+            </div>
+            <a href="#" id="dropdownNotif"><img src="/public/img/novo/drop3.svg" width="16" height="16"> Notificações</a>
+            <a href="#" id="dropdownPrizes"><img src="/public/img/novo/drop4.svg" width="16" height="16"> Prêmios e Recom...</a>
+            <a href="#" id="dropdownWallet"><img src="/public/img/novo/drop5.svg" width="16" height="16"> Carteira</a>
+            <a href="#" id="dropdownBets"><img src="/public/img/novo/drop6.svg" width="16" height="16"> Apostas</a>
+            <a href="#" id="dropdownReferrals"><img src="/public/img/novo/drop7.svg" width="16" height="16"> Indicações</a>
+            <a href="#" id="dropdownAccount"><img src="/public/img/novo/drop8.svg" width="16" height="16"> Dados da conta</a>
+            <a href="#" id="dropdownPassword"><img src="/public/img/novo/drop9.svg" width="16" height="16"> Alterar senha</a>
+            <a href="#" id="dropdownSupport"><img src="/public/img/novo/drop10.svg" width="16" height="16"> Suporte ao vivo</a>
+            <a href="#" id="dropdownPromos"><img src="/public/img/novo/drop11.svg" width="16" height="16"> Promoções</a>
+            <a href="#" id="dropdownLogout" class="topbar-dropdown-logout"><img src="/public/img/novo/drop12.svg" width="16" height="16"> Sair</a>
           </nav>
         </div>
       </div>
@@ -406,6 +413,47 @@
       <div class="section-header"><h2>🏆 Últimas apostas</h2></div>
       <div class="apostas-wrapper">
         <div class="apostas-list" id="apostasList"></div>
+      </div>
+    </section>
+
+    <!-- Wallet / User Section (only visible when logged in) -->
+    <section class="wallet-section is-logged-el" id="wallet-section">
+      <div class="wallet-grid">
+        <div class="wallet-sidebar-nav">
+          <a href="#" class="wallet-nav-item active" data-panel="perfil"><img src="/public/img/novo/drop8.svg" width="16" height="16"> MEU PERFIL</a>
+          <a href="#" class="wallet-nav-item" data-panel="saldo"><img src="/public/img/novo/drop5.svg" width="16" height="16"> GESTÃO DE SALDO</a>
+          <a href="#" class="wallet-nav-item" data-panel="apostas"><img src="/public/img/novo/drop6.svg" width="16" height="16"> HISTÓRICO DE APOSTAS</a>
+          <a href="#" class="wallet-nav-item" data-panel="extrato"><img src="/public/img/novo/drop5.svg" width="16" height="16"> EXTRATO COMPLETO</a>
+          <div class="wallet-nav-divider"></div>
+          <a href="#" class="wallet-nav-item" data-panel="tema"><img src="/public/img/novo/drop2.svg" width="16" height="16"> TEMA</a>
+          <a href="#" class="wallet-nav-item" data-panel="notif"><img src="/public/img/novo/drop3.svg" width="16" height="16"> NOTIFICAÇÕES</a>
+          <a href="#" class="wallet-nav-item" data-panel="indique"><img src="/public/img/novo/drop7.svg" width="16" height="16"> INDIQUE E GANHE</a>
+          <a href="#" class="wallet-nav-item" data-panel="premios"><img src="/public/img/novo/drop4.svg" width="16" height="16"> PRÊMIOS E RECOMPENSAS</a>
+          <a href="#" class="wallet-nav-item" data-panel="rendimentos"><img src="/public/img/novo/drop5.svg" width="16" height="16"> INFORME DE RENDIMENTOS</a>
+          <a href="#" class="wallet-nav-item wallet-nav-logout" id="walletLogout"><img src="/public/img/novo/drop12.svg" width="16" height="16"> SAIR</a>
+        </div>
+        <div class="wallet-content">
+          <div class="wallet-panel active" id="walletPanelPerfil">
+            <div class="wallet-balance-card">
+              <div class="wallet-balance-header">
+                <span class="wallet-balance-label">BRL <small id="walletUserId"></small></span>
+              </div>
+              <div class="wallet-balance-amount">R$ <span id="walletMainBalance">0,00</span></div>
+              <div class="wallet-balance-actions">
+                <button class="wallet-btn wallet-btn-deposit" id="walletDepositBtn">Depositar</button>
+                <button class="wallet-btn wallet-btn-withdraw">Sacar</button>
+              </div>
+            </div>
+          </div>
+          <div class="wallet-panel" id="walletPanelSaldo">
+            <h3>Gestão de Saldo</h3>
+            <p style="color:var(--text-muted)">Histórico de depósitos e saques em breve.</p>
+          </div>
+          <div class="wallet-panel" id="walletPanelApostas">
+            <h3>Histórico de Apostas</h3>
+            <p style="color:var(--text-muted)">Seu histórico de apostas aparecerá aqui.</p>
+          </div>
+        </div>
       </div>
     </section>
 

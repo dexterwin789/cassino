@@ -598,6 +598,10 @@ function updateAuthState() {
         // Set date
         var dateEl = document.getElementById('dropdownDate');
         if (dateEl) dateEl.textContent = 'Atualizado em: ' + new Date().toLocaleString('pt-BR');
+        // Wallet section
+        var wBal = document.getElementById('walletMainBalance');
+        var wUid = document.getElementById('walletUserId');
+        if (wUid && j.user) wUid.textContent = j.user.id || '';
       }
     }).catch(function() {
       document.body.classList.add('is-guest');
@@ -631,11 +635,11 @@ if (topbarRefresh) topbarRefresh.addEventListener('click', function(e) {
   setTimeout(function() { topbarRefresh.classList.remove('spinning'); }, 600);
 });
 
-// Balance button opens wallet (future)
+// Balance button opens wallet section
 var topbarBalanceBtn = document.getElementById('topbarBalanceBtn');
 if (topbarBalanceBtn) topbarBalanceBtn.addEventListener('click', function() {
-  // TODO: open wallet drawer
-  if (typeof showToast === 'function') showToast('Carteira em breve!', 'info');
+  window.location.href = '/#wallet-section';
+  if (topbarDropdown && topbarDropdown.classList.contains('open')) topbarDropdown.classList.remove('open');
 });
 
 // User dropdown
@@ -662,15 +666,53 @@ if (dropdownLogout) dropdownLogout.addEventListener('click', function(e) {
     .catch(function() { window.location.reload(); });
 });
 
+// Dropdown Menu → toggles sidebar (same as bars)
+var dropdownMenu = document.getElementById('dropdownMenu');
+if (dropdownMenu) dropdownMenu.addEventListener('click', function(e) {
+  e.preventDefault();
+  if (topbarDropdown) topbarDropdown.classList.remove('open');
+  if (barsToggle) barsToggle.click();
+});
+
+// Dropdown Wallet → scroll to wallet section
+var dropdownWallet = document.getElementById('dropdownWallet');
+if (dropdownWallet) dropdownWallet.addEventListener('click', function(e) {
+  e.preventDefault();
+  if (topbarDropdown) topbarDropdown.classList.remove('open');
+  window.location.href = '/#wallet-section';
+});
+
+/* ========== THEME TOGGLE ========== */
+function setTheme(mode) {
+  document.documentElement.setAttribute('data-theme', mode);
+  localStorage.setItem('cassinoBetTheme', mode);
+  document.querySelectorAll('.theme-btn-dark').forEach(function(b) { b.classList.toggle('active', mode === 'dark'); });
+  document.querySelectorAll('.theme-btn-light').forEach(function(b) { b.classList.toggle('active', mode === 'light'); });
+}
+// Init theme from localStorage
+(function() {
+  var saved = localStorage.getItem('cassinoBetTheme') || 'dark';
+  setTheme(saved);
+})();
+document.querySelectorAll('#themeDark, .theme-btn-dark').forEach(function(btn) {
+  btn.addEventListener('click', function(e) { e.preventDefault(); setTheme('dark'); });
+});
+document.querySelectorAll('#themeLight, .theme-btn-light').forEach(function(btn) {
+  btn.addEventListener('click', function(e) { e.preventDefault(); setTheme('light'); });
+});
+
 /* ========== WALLET ========== */
 function refreshWalletUI() {
   fetch('/api/wallet', { credentials: 'include' })
     .then(function(res) { return res.json().catch(function() { return null; }); })
     .then(function(j) {
       if (!j || !j.ok) return;
+      var bal = j.balance_brl || '0,00';
       document.querySelectorAll('#walletBalance, .topbar-balance-val').forEach(function(el) {
-        el.textContent = 'R$ ' + (j.balance_brl || '0,00');
+        el.textContent = 'R$ ' + bal;
       });
+      var wBal = document.getElementById('walletMainBalance');
+      if (wBal) wBal.textContent = bal;
     }).catch(function() {});
 }
 
@@ -693,6 +735,32 @@ function startWatchPayment(txId) {
       }).catch(function() {});
   }, 2000);
 }
+
+/* ========== WALLET SECTION ========== */
+document.querySelectorAll('.wallet-nav-item[data-panel]').forEach(function(item) {
+  item.addEventListener('click', function(e) {
+    e.preventDefault();
+    document.querySelectorAll('.wallet-nav-item').forEach(function(n) { n.classList.remove('active'); });
+    item.classList.add('active');
+    var panel = item.getAttribute('data-panel');
+    document.querySelectorAll('.wallet-panel').forEach(function(p) { p.classList.remove('active'); });
+    var target = document.getElementById('walletPanel' + panel.charAt(0).toUpperCase() + panel.slice(1));
+    if (target) target.classList.add('active');
+  });
+});
+
+var walletDepositBtn = document.getElementById('walletDepositBtn');
+if (walletDepositBtn) walletDepositBtn.addEventListener('click', function() {
+  if (typeof openDepositModal === 'function') openDepositModal();
+});
+
+var walletLogout = document.getElementById('walletLogout');
+if (walletLogout) walletLogout.addEventListener('click', function(e) {
+  e.preventDefault();
+  fetch('/api/logout', { method: 'POST', credentials: 'include' })
+    .then(function() { window.location.reload(); })
+    .catch(function() { window.location.reload(); });
+});
 
 /* ========== TOAST ========== */
 function showToast(msg, type) {
@@ -917,6 +985,14 @@ window.addEventListener('keydown', function(e) {
 });
 
 /* ========== INIT ========== */
+function dismissPreloader() {
+  var pl = document.getElementById('pagePreloader');
+  if (pl) {
+    pl.classList.add('fade-out');
+    setTimeout(function() { pl.remove(); }, 500);
+  }
+}
+
 function initApp() {
   Promise.all([
     fetch('/api/games').then(function(r) { return r.json(); }).catch(function() { return { ok: false }; }),
@@ -930,7 +1006,9 @@ function initApp() {
     initBannerDots();
     showBanner(0);
     startBannerAuto();
-    updateAuthState();
+    updateAuthState().then(dismissPreloader).catch(dismissPreloader);
+  }).catch(function() {
+    dismissPreloader();
   });
 }
 
