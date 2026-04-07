@@ -81,7 +81,10 @@
           <div class="login-field login-field-cpf">
             <input type="text" id="regCpf" name="cpf" placeholder=" " maxlength="14" autocomplete="off">
             <label for="regCpf">CPF *</label>
-            <button type="button" class="reg-validate-btn" id="regValidateBtn">Validar</button>
+            <button type="button" class="reg-validate-btn" id="regValidateBtn">
+              <span class="reg-validate-text">Validar</span>
+              <span class="reg-validate-spinner" style="display:none"></span>
+            </button>
           </div>
 
           <!-- Extra fields (hidden until CPF validated) -->
@@ -95,19 +98,29 @@
               <button type="button" class="reg-trocar-btn" id="regTrocarCpf">Trocar CPF</button>
             </div>
 
+            <!-- Nome -->
+            <div class="login-field">
+              <input type="text" id="regName" name="name" placeholder=" " autocomplete="name">
+              <label for="regName">Nome completo *</label>
+            </div>
+
+            <!-- Data de nascimento -->
+            <div class="login-field">
+              <input type="date" id="regBirthDate" name="birth_date" placeholder=" ">
+              <label for="regBirthDate" class="reg-date-label">Data de nascimento *</label>
+            </div>
+
             <!-- Email -->
             <div class="login-field">
               <input type="email" id="regEmail" name="email" placeholder=" " autocomplete="email">
               <label for="regEmail">E-mail *</label>
-              <span class="field-info-icon">ⓘ</span>
             </div>
 
             <!-- Telefone -->
             <div class="login-field reg-phone-field">
-              <span class="reg-phone-prefix"><img src="/public/img/novo/BRA.png" alt="" style="width:18px;height:13px"> +55</span>
+              <span class="reg-phone-prefix"><img src="/public/img/novo/BRA.png" alt="" style="width:18px;height:13px;border-radius:50%"> +55</span>
               <input type="tel" id="regPhone" name="phone" placeholder=" " maxlength="15" autocomplete="tel">
               <label for="regPhone" class="reg-phone-label">Telefone *</label>
-              <span class="field-info-icon">ⓘ</span>
             </div>
 
             <!-- Senha -->
@@ -169,17 +182,17 @@
     <div class="dep-body">
       <!-- PIX method -->
       <div class="dep-methods">
-        <div class="dep-method-card dep-method-active">
-          <img src="/public/img/novo/footer2.svg" alt="PIX" style="width:48px;height:48px;object-fit:contain">
+        <div class="dep-method-card dep-method-active" data-method="PAYBROKERS">
+          <img src="/public/img/novo/footer2.svg" alt="PIX" style="width:28px;height:28px;object-fit:contain">
         </div>
-        <div class="dep-method-card">
-          <img src="/public/img/novo/footer2.svg" alt="PIX" style="width:48px;height:48px;object-fit:contain;opacity:.4">
+        <div class="dep-method-card" data-method="PIXPAY">
+          <img src="/public/img/novo/footer2.svg" alt="PIX" style="width:28px;height:28px;object-fit:contain">
         </div>
       </div>
 
       <!-- Método -->
       <div class="dep-payment-label">Método de Pagamento</div>
-      <div class="dep-payment-method">PAYBROKERS</div>
+      <div class="dep-payment-method" id="depPaymentName">PAYBROKERS</div>
 
       <!-- Valor -->
       <div class="dep-value-header">
@@ -188,37 +201,40 @@
       </div>
       <div class="dep-value-input-wrap">
         <input type="text" class="dep-value-input" id="depValueInput" placeholder="Valor" value="">
-        <span class="dep-brl"><img src="/public/img/novo/BRA.png" alt="" style="width:16px;height:12px"> BRL</span>
+        <span class="dep-brl"><img src="/public/img/novo/BRA.png" alt="" style="width:16px;height:16px;border-radius:50%;object-fit:cover"> BRL</span>
       </div>
 
       <!-- Value buttons -->
       <div class="dep-values-grid">
-        <button class="dep-val-btn" type="button" data-value="50">R$ 50</button>
+        <button class="dep-val-btn" type="button" data-value="50"><span class="dep-val-text">R$ 50</span></button>
         <button class="dep-val-btn" type="button" data-value="100">
-          <span class="dep-badge dep-badge-super">SUPER HOT 🔥</span>
-          R$ 100
+          <span class="dep-badge">SUPER HOT 🔥</span>
+          <span class="dep-val-text">R$ 100</span>
         </button>
-        <button class="dep-val-btn" type="button" data-value="150">R$ 150</button>
-        <button class="dep-val-btn" type="button" data-value="250">R$ 250</button>
+        <button class="dep-val-btn" type="button" data-value="150"><span class="dep-val-text">R$ 150</span></button>
+        <button class="dep-val-btn" type="button" data-value="250"><span class="dep-val-text">R$ 250</span></button>
         <button class="dep-val-btn" type="button" data-value="500">
           <span class="dep-badge">HOT</span>
-          R$ 500
+          <span class="dep-val-text">R$ 500</span>
         </button>
         <button class="dep-val-btn" type="button" data-value="1000">
           <span class="dep-badge">HOT</span>
-          R$ 1.000
+          <span class="dep-val-text">R$ 1.000</span>
         </button>
-        <button class="dep-val-btn" type="button" data-value="2000">R$ 2.000</button>
+        <button class="dep-val-btn" type="button" data-value="2000"><span class="dep-val-text">R$ 2.000</span></button>
         <button class="dep-val-btn" type="button" data-value="5000">
           <span class="dep-badge">HOT</span>
-          R$ 5.000
+          <span class="dep-val-text">R$ 5.000</span>
         </button>
-        <button class="dep-val-btn" type="button" data-value="10000">R$ 10.000</button>
+        <button class="dep-val-btn" type="button" data-value="10000"><span class="dep-val-text">R$ 10.000</span></button>
       </div>
 
       <!-- Coupon (hidden) -->
       <div class="dep-cupom-wrap" id="depCupomWrap" style="display:none">
-        <input type="text" class="dep-cupom-input" id="depCupomInput" placeholder="🎟️ Possui cupom?">
+        <div class="dep-cupom-field">
+          <span class="dep-cupom-icon"><svg viewBox="0 0 576 512" width="16" height="16" fill="currentColor"><path d="M128 160H448V352H128V160zM512 64C547.3 64 576 92.65 576 128V208C549.5 208 528 229.5 528 256C528 282.5 549.5 304 576 304V384C576 419.3 547.3 448 512 448H64C28.65 448 0 419.3 0 384V304C26.51 304 48 282.5 48 256C48 229.5 26.51 208 0 208V128C0 92.65 28.65 64 64 64H512zM96 352C96 369.7 110.3 384 128 384H448C465.7 384 480 369.7 480 352V160C480 142.3 465.7 128 448 128H128C110.3 128 96 142.3 96 160V352z"/></svg></span>
+          <input type="text" class="dep-cupom-input" id="depCupomInput" placeholder="Possui cupom?">
+        </div>
       </div>
 
       <!-- Depositar -->
@@ -333,14 +349,15 @@
 
   setupEyeToggle(document.getElementById('regTogglePw'), regPasswordInput);
 
-  /* Validate CPF → loading → show fields */
+  /* Validate CPF → spinner → show fields */
   if (regValidateBtn) regValidateBtn.addEventListener('click', function() {
     var cpf = (regCpf.value || '').replace(/\D/g, '');
     if (cpf.length !== 11) {
       if (typeof showToast === 'function') showToast('Digite um CPF válido com 11 dígitos', 'error');
       return;
     }
-    regValidateBtn.textContent = '...';
+    regValidateBtn.querySelector('.reg-validate-text').style.display = 'none';
+    regValidateBtn.querySelector('.reg-validate-spinner').style.display = '';
     regValidateBtn.disabled = true;
     regCpf.disabled = true;
 
@@ -361,25 +378,31 @@
     regCpf.value = '';
     regCpf.focus();
     regValidateBtn.style.display = '';
-    regValidateBtn.textContent = 'Validar';
+    regValidateBtn.querySelector('.reg-validate-text').style.display = '';
+    regValidateBtn.querySelector('.reg-validate-spinner').style.display = 'none';
     regValidateBtn.disabled = false;
     if (regExtraFields) regExtraFields.style.display = 'none';
   });
 
   /* Check register valid */
   function checkRegValid() {
+    var name = document.getElementById('regName');
+    var birth = document.getElementById('regBirthDate');
     var email = document.getElementById('regEmail');
     var pw = regPasswordInput;
     var terms = regTerms;
-    var valid = email && email.value.trim().length > 3
+    var valid = name && name.value.trim().length > 2
+      && birth && birth.value.length > 0
+      && email && email.value.trim().length > 3
       && regPhone && regPhone.value.replace(/\D/g, '').length >= 10
       && pw && pw.value.length >= 6
       && terms && terms.checked;
     if (regSubmitBtn) regSubmitBtn.disabled = !valid;
   }
-  ['regEmail','regPhone','regPassword'].forEach(function(id) {
+  ['regName','regBirthDate','regEmail','regPhone','regPassword'].forEach(function(id) {
     var el = document.getElementById(id);
     if (el) el.addEventListener('input', checkRegValid);
+    if (el) el.addEventListener('change', checkRegValid);
   });
   if (regTerms) regTerms.addEventListener('change', checkRegValid);
 
@@ -388,6 +411,8 @@
     e.preventDefault();
     if (regSubmitBtn.disabled) return;
     var cpf = (regCpf.value || '').replace(/\D/g, '');
+    var nameVal = (document.getElementById('regName').value || '').trim();
+    var birthVal = (document.getElementById('regBirthDate').value || '').trim();
     var emailVal = (document.getElementById('regEmail').value || '').trim();
     var phone = (regPhone.value || '').replace(/\D/g, '');
     var password = regPasswordInput.value || '';
@@ -395,7 +420,7 @@
     regSubmitBtn.textContent = 'Registrando...';
 
     if (typeof apiPost === 'function') {
-      apiPost('/api/register', { cpf: cpf, email: emailVal, phone: phone, password: password, username: emailVal, name: emailVal.split('@')[0] })
+      apiPost('/api/register', { cpf: cpf, email: emailVal, phone: phone, password: password, username: emailVal, name: nameVal, birth_date: birthVal })
         .then(function(data) {
           if (data && data.ok) {
             closeRegisterModal();
@@ -437,13 +462,32 @@
     btn.addEventListener('click', function(e) { e.preventDefault(); openDepositModal(); });
   });
 
+  /* Method card switching */
+  document.querySelectorAll('.dep-method-card').forEach(function(card) {
+    card.addEventListener('click', function() {
+      document.querySelectorAll('.dep-method-card').forEach(function(c) { c.classList.remove('dep-method-active'); });
+      card.classList.add('dep-method-active');
+      var name = card.dataset.method || 'PIX';
+      var label = document.getElementById('depPaymentName');
+      if (label) label.textContent = name;
+    });
+  });
+
   /* Value buttons */
   document.querySelectorAll('.dep-val-btn').forEach(function(btn) {
     btn.addEventListener('click', function() {
       var val = btn.dataset.value;
       if (depValueInput) depValueInput.value = val;
-      document.querySelectorAll('.dep-val-btn').forEach(function(b) { b.classList.remove('dep-val-selected'); });
+      document.querySelectorAll('.dep-val-btn').forEach(function(b) {
+        b.classList.remove('dep-val-selected');
+        var oldCheck = b.querySelector('.dep-val-check');
+        if (oldCheck) oldCheck.remove();
+      });
       btn.classList.add('dep-val-selected');
+      var check = document.createElement('span');
+      check.className = 'dep-val-check';
+      check.innerHTML = '<svg width="10" height="8" viewBox="0 0 10 8" fill="#fff"><path d="M1 4l2.5 2.5L9 1"/></svg>';
+      btn.appendChild(check);
     });
   });
 
