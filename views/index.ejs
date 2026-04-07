@@ -550,13 +550,12 @@
   </div>
 </div>
 
-<!-- ══════════ AUTH MODAL ══════════ -->
+<!-- ══════════ AUTH MODAL (Register only) ══════════ -->
 <div class="modal-overlay" id="authModal">
   <div class="modal-box auth-box">
     <button class="modal-close" id="authClose">&times;</button>
     <div class="auth-tabs">
       <button class="auth-tab active" data-tab="register">Registre-se</button>
-      <button class="auth-tab" data-tab="login">Entrar</button>
     </div>
     <!-- Register -->
     <form class="auth-form" id="formRegister">
@@ -569,15 +568,11 @@
       <label class="check-label"><input type="checkbox" required> Tenho mais de 18 anos e aceito os termos</label>
       <button type="submit" class="btn-auth-submit">Criar conta</button>
     </form>
-    <!-- Login -->
-    <form class="auth-form" id="formLogin" style="display:none">
-      <input type="text" name="login" placeholder="E-mail ou CPF" required>
-      <input type="password" name="password" placeholder="Senha" required>
-      <button type="submit" class="btn-auth-submit">Entrar</button>
-      <a href="#" class="forgot-link">Esqueceu a senha?</a>
-    </form>
   </div>
 </div>
+
+<!-- ══════════ LOGIN MODAL ══════════ -->
+<%- include('partials/login-modal') %>
 
 <!-- ══════════ TOAST ══════════ -->
 <div class="toast-container" id="toastContainer"></div>

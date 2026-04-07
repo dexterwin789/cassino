@@ -631,7 +631,10 @@ if (authModal) authModal.querySelectorAll('.auth-tab').forEach(function(t) {
 var btnOpenRegister = document.getElementById('btnOpenRegister');
 var btnOpenLogin = document.getElementById('btnOpenLogin');
 if (btnOpenRegister) btnOpenRegister.addEventListener('click', function() { openAuth('register'); });
-if (btnOpenLogin) btnOpenLogin.addEventListener('click', function() { openAuth('login'); });
+if (btnOpenLogin) btnOpenLogin.addEventListener('click', function() {
+  if (typeof openLoginModal === 'function') openLoginModal();
+  else openAuth('login');
+});
 
 // Register
 if (formRegister) formRegister.addEventListener('submit', function(e) {

@@ -1,0 +1,155 @@
+<!-- ══════════ LOGIN MODAL ══════════ -->
+<div class="login-overlay" id="loginModal">
+  <div class="login-modal">
+    <!-- Left: image panel -->
+    <div class="login-left">
+      <img src="/public/img/novo/login-banner.png" alt="" class="login-left-img">
+    </div>
+    <!-- Right: form panel -->
+    <div class="login-right">
+      <!-- Top bar -->
+      <div class="login-topbar">
+        <button class="login-help-btn" type="button">
+          <img src="/public/img/novo/modal1.svg" width="24" height="24" alt="">
+          Precisa de Ajuda?
+        </button>
+        <span class="login-topbar-text">Não tem uma conta? <a href="#" class="login-link" id="loginGoRegister">Crie uma conta aqui</a></span>
+        <button class="login-close" id="loginClose" type="button">
+          <img src="/public/img/novo/modal2.svg" width="24" height="24" alt="Fechar">
+        </button>
+      </div>
+
+      <!-- Logo -->
+      <div class="login-logo">
+        <img src="/public/img/novo/logo.png" alt="CassinoBet" style="width:306px;height:28px;object-fit:contain">
+      </div>
+
+      <!-- Form -->
+      <form class="login-form" id="loginForm" autocomplete="off">
+        <!-- Email / CPF -->
+        <div class="login-field">
+          <input type="text" id="loginEmail" name="login" required autocomplete="username">
+          <label for="loginEmail">E-mail ou nome de usuário</label>
+        </div>
+        <!-- Password -->
+        <div class="login-field">
+          <input type="password" id="loginPassword" name="password" required autocomplete="current-password">
+          <label for="loginPassword">Senha</label>
+          <button type="button" class="login-eye" id="loginTogglePw" tabindex="-1">
+            <img src="/public/img/novo/modal3.svg" width="16" height="16" alt="" class="eye-off">
+            <img src="/public/img/novo/modal5.svg" width="16" height="16" alt="" class="eye-on" style="display:none">
+          </button>
+        </div>
+
+        <!-- Submit -->
+        <button type="submit" class="login-submit" id="loginSubmit" disabled>Entrar</button>
+      </form>
+
+      <!-- Divider -->
+      <div class="login-divider"><span>ENTRAR USANDO SUA CONTA:</span></div>
+
+      <!-- Google -->
+      <button class="login-google" type="button">
+        <img src="/public/img/novo/modal4.svg" width="14" height="14" alt="">
+        Entrar com Google
+      </button>
+
+      <!-- Create account -->
+      <button class="login-create-account" type="button" id="loginGoRegister2">Crie uma conta aqui</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var modal = document.getElementById('loginModal');
+  var form = document.getElementById('loginForm');
+  var emailInput = document.getElementById('loginEmail');
+  var pwInput = document.getElementById('loginPassword');
+  var submitBtn = document.getElementById('loginSubmit');
+  var togglePw = document.getElementById('loginTogglePw');
+  var closeBtn = document.getElementById('loginClose');
+
+  /* Open / close */
+  window.openLoginModal = function() {
+    if (modal) { modal.classList.add('open'); document.body.style.overflow = 'hidden'; }
+  };
+  window.closeLoginModal = function() {
+    if (modal) { modal.classList.remove('open'); document.body.style.overflow = ''; }
+  };
+
+  if (closeBtn) closeBtn.addEventListener('click', closeLoginModal);
+  if (modal) modal.addEventListener('click', function(e) { if (e.target === modal) closeLoginModal(); });
+  document.addEventListener('keydown', function(e) { if (e.key === 'Escape' && modal && modal.classList.contains('open')) closeLoginModal(); });
+
+  /* Bind all login buttons site-wide */
+  document.querySelectorAll('.btn-login, #heroLogin').forEach(function(btn) {
+    btn.addEventListener('click', function(e) {
+      e.preventDefault();
+      openLoginModal();
+    });
+  });
+
+  /* Password toggle */
+  if (togglePw) togglePw.addEventListener('click', function() {
+    var isPassword = pwInput.type === 'password';
+    pwInput.type = isPassword ? 'text' : 'password';
+    togglePw.querySelector('.eye-off').style.display = isPassword ? 'none' : '';
+    togglePw.querySelector('.eye-on').style.display = isPassword ? '' : 'none';
+  });
+
+  /* Enable/disable submit */
+  function checkValid() {
+    var valid = emailInput && emailInput.value.trim().length > 0 && pwInput && pwInput.value.length > 0;
+    if (submitBtn) submitBtn.disabled = !valid;
+  }
+  if (emailInput) emailInput.addEventListener('input', checkValid);
+  if (pwInput) pwInput.addEventListener('input', checkValid);
+
+  /* Submit */
+  if (form) form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    var login = (emailInput.value || '').trim();
+    var password = pwInput.value || '';
+    if (!login || !password) return;
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Entrando...';
+
+    if (typeof apiPost === 'function') {
+      apiPost('/api/login', { login: login, password: password })
+        .then(function(data) {
+          if (data && data.ok) {
+            closeLoginModal();
+            window.location.reload();
+          } else {
+            if (typeof showToast === 'function') showToast(data.msg || 'Erro ao entrar', 'error');
+          }
+        })
+        .catch(function() {
+          if (typeof showToast === 'function') showToast('Erro ao conectar', 'error');
+        })
+        .finally(function() {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Entrar';
+          checkValid();
+        });
+    } else {
+      if (typeof showToast === 'function') showToast('Login não disponível', 'error');
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Entrar';
+    }
+  });
+
+  /* "Crie uma conta" links → open register (old auth modal) */
+  var goReg1 = document.getElementById('loginGoRegister');
+  var goReg2 = document.getElementById('loginGoRegister2');
+  function goRegister(e) {
+    e.preventDefault();
+    closeLoginModal();
+    if (typeof openAuth === 'function') openAuth('register');
+  }
+  if (goReg1) goReg1.addEventListener('click', goRegister);
+  if (goReg2) goReg2.addEventListener('click', goRegister);
+})();
+</script>
