@@ -447,30 +447,28 @@
         <div class="wallet-content">
           <!-- MEU PERFIL -->
           <div class="wallet-panel active" id="walletPanelPerfil">
-            <div class="wallet-balance-card">
-              <div class="wallet-balance-header">
-                <span class="wallet-balance-label">BRL <small id="walletUserId"></small></span>
+            <div class="wallet-panel-title">Meu Perfil</div>
+            <div class="acct-perfil-row">
+              <div class="wallet-balance-card acct-perfil-half">
+                <div class="wallet-balance-header">
+                  <span class="wallet-balance-label">BRL <small id="walletUserId"></small></span>
+                </div>
+                <div class="wallet-balance-amount">R$ <span id="walletMainBalance">0,00</span></div>
+                <div class="wallet-balance-actions">
+                  <button class="wallet-btn wallet-btn-deposit" id="walletDepositBtn">Depositar</button>
+                  <button class="wallet-btn wallet-btn-withdraw">Sacar</button>
+                </div>
               </div>
-              <div class="wallet-balance-amount">R$ <span id="walletMainBalance">0,00</span></div>
-              <div class="wallet-balance-actions">
-                <button class="wallet-btn wallet-btn-deposit" id="walletDepositBtn">Depositar</button>
-                <button class="wallet-btn wallet-btn-withdraw">Sacar</button>
-              </div>
-            </div>
-            <!-- User Photo -->
-            <div class="acct-photo-section" style="margin-top:20px">
-              <div class="wallet-panel-title">Foto do Perfil</div>
-              <div class="acct-photo-wrap">
+              <div class="acct-photo-card acct-perfil-half">
+                <div class="acct-photo-card-title">Foto do Perfil</div>
                 <div class="acct-photo-preview" id="acctPhotoPreview">
                   <img src="/public/img/novo/topo3.svg" alt="" id="acctPhotoImg" class="acct-photo-img">
                 </div>
                 <div class="acct-photo-actions">
-                  <label class="acct-btn-save" style="cursor:pointer">
-                    Alterar foto
-                    <input type="file" accept="image/*" id="acctPhotoInput" style="display:none">
-                  </label>
-                  <button class="acct-btn-cancel" id="acctPhotoRemove">Remover</button>
+                  <button class="acct-photo-alter" id="acctPhotoAlter">Alterar foto</button>
+                  <button class="acct-photo-remove" id="acctPhotoRemove">Remover</button>
                 </div>
+                <input type="file" accept="image/*" id="acctPhotoInput" style="display:none">
               </div>
             </div>
           </div>
@@ -588,7 +586,7 @@
                 <div class="acct-field-row">
                   <div class="acct-field-group acct-field-half">
                     <label class="acct-label">CEP</label>
-                    <input type="text" class="acct-input" id="acctCep" value="01001-000">
+                    <input type="text" class="acct-input" id="acctCep" value="" placeholder="00000-000" maxlength="9">
                   </div>
                   <div class="acct-field-group acct-field-half">
                     <label class="acct-label">País</label>
@@ -742,15 +740,6 @@
               </div>
             </div>
 
-            <!-- Notificações toggle -->
-            <div class="acct-section acct-section-inline" id="acctNotifToggle">
-              <div class="acct-section-left" style="flex:1">
-                <span class="acct-title">Quero receber atualizações sobre ofertas e bônus.</span>
-                <span class="acct-summary-value" style="font-size:12px;display:block;margin-top:2px">Estou ciente que posso cancelar o recebimento a qualquer momento.</span>
-              </div>
-              <label class="acct-switch"><input type="checkbox" checked><span class="acct-switch-slider"></span></label>
-            </div>
-
             <!-- Footer bar -->
             <div class="acct-footer-bar">
               <span>Olá, <strong id="acctFooterName">Usuário</strong></span>
@@ -800,19 +789,20 @@
           <!-- HISTÓRICO DE LOGIN -->
           <div class="wallet-panel" id="walletPanelHistLogin">
             <div class="wallet-panel-title">HISTÓRICO DE LOGIN</div>
-            <div class="acct-login-table">
-              <div class="acct-login-table-head">
-                <span>Data/Hora</span>
-                <span>IP</span>
-                <span>Cidade/Estado</span>
-                <span>Coordenadas</span>
-              </div>
-              <div class="acct-login-table-body" id="loginHistoryBody">
-                <!-- Rows populated by JS -->
-              </div>
-              <div class="acct-login-table-footer">
-                <div class="acct-login-pagination" id="loginPagination"></div>
-                <span class="acct-login-count" id="loginHistoryCount">Exibindo 1 a 1 de 1 registros</span>
+            <div class="acct-login-wrap">
+              <table class="acct-login-table">
+                <thead>
+                  <tr>
+                    <th>Data/Hora</th>
+                    <th>IP</th>
+                    <th>Cidade/Estado</th>
+                    <th>Coordenadas</th>
+                  </tr>
+                </thead>
+                <tbody id="loginHistoryBody"></tbody>
+              </table>
+              <div class="acct-login-pagination">
+                <span id="loginHistoryCount">Carregando...</span>
               </div>
             </div>
             <!-- Footer bar -->
@@ -832,7 +822,7 @@
 
               <!-- Limite de Depósito -->
               <div class="acct-limit-section">
-                <div class="acct-limit-header">Limite de Depósito</div>
+                <div class="acct-limit-header">Limite de Depósito <span class="acct-limit-tag" id="tagLimitDeposit">Ilimitado</span></div>
                 <p class="acct-limit-desc">Controle o valor máximo que você pode depositar em sua conta durante o período selecionado.</p>
                 <div class="acct-limit-form" id="limitDeposit">
                   <div class="acct-radio-row">
@@ -840,18 +830,17 @@
                     <label class="acct-radio"><input type="radio" name="limitDepType" value="unlimited" checked onchange="toggleLimitForm('limitDeposit',this.value)"> <span>Ilimitado</span></label>
                     <label class="acct-radio"><input type="radio" name="limitDepType" value="custom" onchange="toggleLimitForm('limitDeposit',this.value)"> <span>Personalizado</span></label>
                   </div>
-                  <div class="acct-limit-fields" style="display:none">
-                    <select class="acct-input acct-select"><option value="">Selecione o período</option><option>Diário</option><option>Semanal</option><option>Mensal</option><option>Anual</option></select>
-                    <div class="acct-limit-value-row"><input type="text" class="acct-input" placeholder="R$ 0,00"><span class="acct-limit-currency">BRL</span></div>
+                  <div class="acct-limit-fields acct-limit-inline" style="display:none">
+                    <select class="acct-input acct-select"><option value="">Período</option><option>Diário</option><option>Semanal</option><option>Mensal</option><option>Anual</option></select>
+                    <input type="text" class="acct-input" placeholder="R$ 0,00">
                     <button class="acct-btn-save" onclick="saveAcctField('limitDeposit')">Salvar</button>
                   </div>
-                  <span class="acct-limit-tag">Ilimitado</span>
                 </div>
               </div>
 
               <!-- Limite de Apostas -->
               <div class="acct-limit-section">
-                <div class="acct-limit-header">Limite de Apostas</div>
+                <div class="acct-limit-header">Limite de Apostas <span class="acct-limit-tag" id="tagLimitBet">Ilimitado</span></div>
                 <p class="acct-limit-desc">Defina o valor máximo para os gastos totais com apostas durante o período selecionado.</p>
                 <div class="acct-limit-form" id="limitBet">
                   <div class="acct-radio-row">
@@ -859,18 +848,17 @@
                     <label class="acct-radio"><input type="radio" name="limitBetType" value="unlimited" checked onchange="toggleLimitForm('limitBet',this.value)"> <span>Ilimitado</span></label>
                     <label class="acct-radio"><input type="radio" name="limitBetType" value="custom" onchange="toggleLimitForm('limitBet',this.value)"> <span>Personalizado</span></label>
                   </div>
-                  <div class="acct-limit-fields" style="display:none">
-                    <select class="acct-input acct-select"><option value="">Selecione o período</option><option>Diário</option><option>Semanal</option><option>Mensal</option><option>Anual</option></select>
-                    <div class="acct-limit-value-row"><input type="text" class="acct-input" placeholder="R$ 0,00"><span class="acct-limit-currency">BRL</span></div>
+                  <div class="acct-limit-fields acct-limit-inline" style="display:none">
+                    <select class="acct-input acct-select"><option value="">Período</option><option>Diário</option><option>Semanal</option><option>Mensal</option><option>Anual</option></select>
+                    <input type="text" class="acct-input" placeholder="R$ 0,00">
                     <button class="acct-btn-save" onclick="saveAcctField('limitBet')">Salvar</button>
                   </div>
-                  <span class="acct-limit-tag">Ilimitado</span>
                 </div>
               </div>
 
               <!-- Limite de Perdas -->
               <div class="acct-limit-section">
-                <div class="acct-limit-header">Limite de Perdas</div>
+                <div class="acct-limit-header">Limite de Perdas <span class="acct-limit-tag" id="tagLimitLoss">Ilimitado</span></div>
                 <p class="acct-limit-desc">Restrinja o valor máximo que você pode perder com suas apostas durante o período selecionado.</p>
                 <div class="acct-limit-form" id="limitLoss">
                   <div class="acct-radio-row">
@@ -878,18 +866,17 @@
                     <label class="acct-radio"><input type="radio" name="limitLossType" value="unlimited" checked onchange="toggleLimitForm('limitLoss',this.value)"> <span>Ilimitado</span></label>
                     <label class="acct-radio"><input type="radio" name="limitLossType" value="custom" onchange="toggleLimitForm('limitLoss',this.value)"> <span>Personalizado</span></label>
                   </div>
-                  <div class="acct-limit-fields" style="display:none">
-                    <select class="acct-input acct-select"><option value="">Selecione o período</option><option>Diário</option><option>Semanal</option><option>Mensal</option><option>Anual</option></select>
-                    <div class="acct-limit-value-row"><input type="text" class="acct-input" placeholder="R$ 0,00"><span class="acct-limit-currency">BRL</span></div>
+                  <div class="acct-limit-fields acct-limit-inline" style="display:none">
+                    <select class="acct-input acct-select"><option value="">Período</option><option>Diário</option><option>Semanal</option><option>Mensal</option><option>Anual</option></select>
+                    <input type="text" class="acct-input" placeholder="R$ 0,00">
                     <button class="acct-btn-save" onclick="saveAcctField('limitLoss')">Salvar</button>
                   </div>
-                  <span class="acct-limit-tag">Ilimitado</span>
                 </div>
               </div>
 
               <!-- Limite de Tempo -->
               <div class="acct-limit-section">
-                <div class="acct-limit-header">Limite de Tempo</div>
+                <div class="acct-limit-header">Limite de Tempo <span class="acct-limit-tag" id="tagLimitTime">Ilimitado</span></div>
                 <p class="acct-limit-desc">Estabeleça quanto tempo você pode passar apostando em um determinado período.</p>
                 <div class="acct-limit-form" id="limitTime">
                   <div class="acct-radio-row">
@@ -897,12 +884,11 @@
                     <label class="acct-radio"><input type="radio" name="limitTimeType" value="unlimited" checked onchange="toggleLimitForm('limitTime',this.value)"> <span>Ilimitado</span></label>
                     <label class="acct-radio"><input type="radio" name="limitTimeType" value="custom" onchange="toggleLimitForm('limitTime',this.value)"> <span>Personalizado</span></label>
                   </div>
-                  <div class="acct-limit-fields" style="display:none">
-                    <select class="acct-input acct-select"><option value="">Selecione o período</option><option>Diário</option><option>Semanal</option><option>Mensal</option><option>Anual</option></select>
-                    <select class="acct-input acct-select"><option value="">Selecione o tempo desejado para definir o limite de tempo.</option><option>30 minutos</option><option>1 hora</option><option>2 horas</option><option>4 horas</option><option>6 horas</option><option>8 horas</option><option>12 horas</option></select>
+                  <div class="acct-limit-fields acct-limit-inline" style="display:none">
+                    <select class="acct-input acct-select"><option value="">Período</option><option>Diário</option><option>Semanal</option><option>Mensal</option><option>Anual</option></select>
+                    <select class="acct-input acct-select"><option value="">Tempo</option><option>30 min</option><option>1h</option><option>2h</option><option>4h</option><option>6h</option><option>8h</option><option>12h</option></select>
                     <button class="acct-btn-save" onclick="saveAcctField('limitTime')">Salvar</button>
                   </div>
-                  <span class="acct-limit-tag">Ilimitado</span>
                 </div>
               </div>
 

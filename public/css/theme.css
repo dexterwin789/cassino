@@ -36,7 +36,7 @@
 [data-theme="light"] .tab-switch{color:#475569}
 [data-theme="light"] .tab-switch img{filter:brightness(0) saturate(100%);opacity:.7}
 [data-theme="light"] .tab-switch.active{color:#ff3a00}
-[data-theme="light"] .tab-switch.active img{filter:none;opacity:1}
+[data-theme="light"] .tab-switch.active img{filter:brightness(0) saturate(100%) invert(28%) sepia(96%) saturate(3624%) hue-rotate(3deg) brightness(101%) contrast(106%);opacity:1}
 [data-theme="light"] .bars-toggle img{filter:brightness(0) saturate(100%);opacity:.7}
 [data-theme="light"] .topbar-balance{background:rgba(0,0,0,.04)}
 [data-theme="light"] .topbar-balance-btn{color:#1a1a2e}
@@ -225,18 +225,19 @@
 [data-theme="light"] .acct-history-device{color:#64748b}
 
 /* Photo upload */
-[data-theme="light"] .acct-photo-section{background:#fff;border-color:rgba(0,0,0,.08)}
+[data-theme="light"] .acct-photo-card{background:#fff;border-color:rgba(0,0,0,.08)}
+[data-theme="light"] .acct-photo-card-title{color:#475569}
 [data-theme="light"] .acct-photo-preview{border-color:rgba(0,0,0,.1)}
+[data-theme="light"] .acct-photo-img{filter:brightness(0) saturate(100%);opacity:.5}
 [data-theme="light"] .acct-photo-remove{color:#64748b;border-color:rgba(0,0,0,.1) !important}
 
 /* Login table */
-[data-theme="light"] .acct-login-table-head{background:#f8fafc}
-[data-theme="light"] .acct-login-table-head th{color:#64748b;border-color:rgba(0,0,0,.08)}
-[data-theme="light"] .acct-login-table-body td{color:#1a1a2e;border-color:rgba(0,0,0,.04)}
-[data-theme="light"] .acct-login-table-body tr:hover{background:rgba(0,0,0,.02)}
-[data-theme="light"] .acct-login-pagination{color:#64748b}
-[data-theme="light"] .acct-login-pagination button{border-color:rgba(0,0,0,.1);color:#64748b}
-[data-theme="light"] .acct-login-pagination button:hover{background:rgba(0,0,0,.04)}
+[data-theme="light"] .acct-login-wrap{border-color:rgba(0,0,0,.08)}
+[data-theme="light"] .acct-login-table thead{background:#f8fafc}
+[data-theme="light"] .acct-login-table th{color:#64748b;border-color:rgba(0,0,0,.08)}
+[data-theme="light"] .acct-login-table td{color:#1a1a2e;border-color:rgba(0,0,0,.04)}
+[data-theme="light"] .acct-login-table tbody tr:hover{background:rgba(0,0,0,.02)}
+[data-theme="light"] .acct-login-pagination{color:#64748b;border-color:rgba(0,0,0,.06)}
 
 /* Responsible gaming */
 [data-theme="light"] .acct-resp-intro{color:#64748b}
@@ -245,6 +246,17 @@
 [data-theme="light"] .acct-limit-desc{color:#64748b}
 [data-theme="light"] .acct-radio-row{color:#1a1a2e}
 [data-theme="light"] .acct-select{background-color:#f8fafc;border-color:rgba(0,0,0,.1);color:#1a1a2e}
+
+/* All wallet panel titles — MUST be dark in light theme */
+[data-theme="light"] .wallet-panel-title{color:#1a1a2e !important}
+[data-theme="light"] .acct-title{color:#1a1a2e !important}
+[data-theme="light"] .acct-limit-header{color:#1a1a2e !important}
+[data-theme="light"] .wallet-balance-amount{color:#1a1a2e !important}
+[data-theme="light"] .wallet-balance-label{color:#475569}
+[data-theme="light"] .acct-radio-row span{color:#1a1a2e}
+
+/* Avatar default SVG filter in light theme */
+[data-theme="light"] #acctPhotoImg[src*=".svg"]{filter:brightness(0) saturate(100%);opacity:.4}
 
 /* Deposit modal */
 [data-theme="light"] .dep-modal{background:#fff}

@@ -101,6 +101,24 @@ async function autoMigrate() {
     };
     await addCol('users', 'name', 'VARCHAR(128)');
     await addCol('users', 'birth_date', 'DATE');
+    await addCol('users', 'address_cep', 'VARCHAR(16)');
+    await addCol('users', 'address_street', 'TEXT');
+    await addCol('users', 'address_city', 'VARCHAR(128)');
+    await addCol('users', 'address_state', 'VARCHAR(4)');
+    await addCol('users', 'pix_type', "VARCHAR(16) DEFAULT 'cpf'");
+    await addCol('users', 'pix_key', 'VARCHAR(255)');
+
+    // Login history table
+    await pool.query(`CREATE TABLE IF NOT EXISTS login_history (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      ip VARCHAR(64),
+      city VARCHAR(128),
+      state VARCHAR(64),
+      coords VARCHAR(64),
+      user_agent TEXT,
+      created_at TIMESTAMPTZ DEFAULT NOW()
+    )`);
 
     // Ensure admin has valid hash
     const hash = await bcrypt.hash('Admin@12345', 10);

@@ -612,6 +612,60 @@ function updateAuthState() {
         if (acctUid && j.user) acctUid.value = j.user.id || '—';
         var acctEmail = document.getElementById('acctEmailValue');
         if (acctEmail && j.user && j.user.email) acctEmail.textContent = j.user.email;
+        // Phone
+        var acctPhoneVal = document.getElementById('acctPhoneValue');
+        var acctPhoneInp = document.getElementById('acctPhoneInput');
+        if (j.user && j.user.phone) {
+          var ph = j.user.phone.replace(/\D/g,'');
+          var fmtPh = ph.length >= 11 ? '(' + ph.slice(0,2) + ') ' + ph.slice(2,7) + '-' + ph.slice(7) : j.user.phone;
+          if (acctPhoneVal) acctPhoneVal.textContent = '+55 ' + fmtPh;
+          if (acctPhoneInp) acctPhoneInp.value = fmtPh;
+        }
+        // Address
+        if (j.user.address_cep) {
+          var add = (j.user.address_street || '') + ' - ' + (j.user.address_city || '') + ', ' + (j.user.address_state || '');
+          var addrVal = document.getElementById('acctAddressValue');
+          if (addrVal) addrVal.textContent = add;
+          var cepInp = document.getElementById('acctCep');
+          if (cepInp) cepInp.value = j.user.address_cep;
+          var ruaInp = document.getElementById('acctRua');
+          if (ruaInp) ruaInp.value = j.user.address_street || '';
+          var cidInp = document.getElementById('acctCidade');
+          if (cidInp) cidInp.value = j.user.address_city || '';
+          var estInp = document.getElementById('acctEstado');
+          if (estInp) estInp.value = j.user.address_state || '';
+        }
+        // CPF/Doc
+        if (j.user.cpf) {
+          var c = j.user.cpf;
+          var masked = '***.' + c.slice(3,6) + '.' + c.slice(6,9) + '-' + c.slice(9);
+          var docVal = document.getElementById('acctDocValue');
+          if (docVal) docVal.textContent = masked;
+        }
+        // PIX
+        if (j.user.pix_type) {
+          var sel = document.getElementById('acctPixType');
+          if (sel) sel.value = j.user.pix_type;
+          var pInp = document.getElementById('acctPixKeyInput');
+          if (pInp && j.user.pix_key) pInp.value = j.user.pix_key;
+          var pSum = document.getElementById('acctPixSummary');
+          if (pSum && j.user.pix_key) pSum.textContent = '◆ ' + j.user.pix_type.toUpperCase() + ': ' + j.user.pix_key;
+        }
+        // Name
+        if (j.user.name || j.user.username) {
+          var dName = j.user.name || j.user.username;
+          var nameInp = document.querySelector('#acctDados .acct-expand input[readonly][value="Nome do Usuário"]');
+          if (nameInp) nameInp.value = dName;
+        }
+        // Birth date
+        if (j.user.birth_date) {
+          var bd = new Date(j.user.birth_date);
+          var bdStr = bd.toLocaleDateString('pt-BR');
+          var bdInp = document.querySelector('#acctDocumento .acct-expand input[value="01/01/1990"]');
+          if (bdInp) bdInp.value = bdStr;
+        }
+        // Login history
+        populateLoginHistory();
       }
     }).catch(function() {
       document.body.classList.add('is-guest');
@@ -1235,17 +1289,83 @@ function initApp() {
 
 /* ========== SAVE ACCOUNT FIELD ========== */
 function saveAcctField(type) {
-  showToast('Salvo com sucesso!', 'success');
-  // Close section if it's an expandable one
-  var section = document.getElementById('acct' + type.charAt(0).toUpperCase() + type.slice(1));
-  if (section && section.classList.contains('open')) {
-    section.classList.remove('open');
-    var btn = section.querySelector('.acct-toggle-btn');
-    if (btn) {
-      var origTexts = { acctCelular:'EDITAR', acctEndereco:'EDITAR', acctPix:'EDITAR', acctSenha:'EDITAR' };
-      btn.textContent = origTexts[section.id] || 'EDITAR';
-    }
+  if (type === 'phone') {
+    var phoneInp = document.getElementById('acctPhoneInput');
+    if (!phoneInp || !phoneInp.value.trim()) { showToast('Informe o celular.', 'error'); return; }
+    fetch('/api/user/update-phone', {
+      method: 'POST', credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone: phoneInp.value.replace(/\D/g,'') })
+    }).then(function(r) { return r.json(); }).then(function(j) {
+      if (j.ok) {
+        showToast(j.msg, 'success');
+        var d = document.getElementById('acctPhoneValue');
+        if (d) d.textContent = '+55 ' + phoneInp.value;
+        toggleAcctSection('acctCelular');
+      } else { showToast(j.msg || 'Erro', 'error'); }
+    }).catch(function() { showToast('Erro de conexão.', 'error'); });
+    return;
   }
+  if (type === 'address') {
+    var cep = document.getElementById('acctCep');
+    var rua = document.getElementById('acctRua');
+    var cidade = document.getElementById('acctCidade');
+    var estado = document.getElementById('acctEstado');
+    fetch('/api/user/update-address', {
+      method: 'POST', credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ cep: cep ? cep.value : '', street: rua ? rua.value : '', city: cidade ? cidade.value : '', state: estado ? estado.value : '' })
+    }).then(function(r) { return r.json(); }).then(function(j) {
+      if (j.ok) {
+        showToast(j.msg, 'success');
+        var d = document.getElementById('acctAddressValue');
+        if (d) d.textContent = (rua ? rua.value : '') + ' - ' + (cidade ? cidade.value : '') + ', ' + (estado ? estado.value : '');
+        toggleAcctSection('acctEndereco');
+      } else { showToast(j.msg || 'Erro', 'error'); }
+    }).catch(function() { showToast('Erro de conexão.', 'error'); });
+    return;
+  }
+  if (type === 'pix') {
+    var pixType = document.getElementById('acctPixType');
+    var pixKey = document.getElementById('acctPixKeyInput');
+    if (!pixKey || !pixKey.value.trim()) { showToast('Informe a chave PIX.', 'error'); return; }
+    fetch('/api/user/update-pix', {
+      method: 'POST', credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ pix_type: pixType ? pixType.value : 'cpf', pix_key: pixKey.value })
+    }).then(function(r) { return r.json(); }).then(function(j) {
+      if (j.ok) {
+        showToast(j.msg, 'success');
+        var d = document.getElementById('acctPixSummary');
+        if (d) d.textContent = '◆ ' + (pixType ? pixType.value.toUpperCase() : 'CPF') + ': ' + pixKey.value;
+        toggleAcctSection('acctPix');
+      } else { showToast(j.msg || 'Erro', 'error'); }
+    }).catch(function() { showToast('Erro de conexão.', 'error'); });
+    return;
+  }
+  if (type === 'password') {
+    var cur = document.getElementById('acctSenhaAtual');
+    var nova = document.getElementById('acctSenhaNova');
+    var conf = document.getElementById('acctSenhaConfirm');
+    if (!cur || !nova || !conf) return;
+    if (!cur.value || !nova.value) { showToast('Preencha todos os campos.', 'error'); return; }
+    if (nova.value !== conf.value) { showToast('As senhas não coincidem.', 'error'); return; }
+    if (nova.value.length < 6) { showToast('Mínimo 6 caracteres.', 'error'); return; }
+    fetch('/api/user/change-password', {
+      method: 'POST', credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ current_password: cur.value, new_password: nova.value })
+    }).then(function(r) { return r.json(); }).then(function(j) {
+      if (j.ok) {
+        showToast(j.msg, 'success');
+        cur.value = ''; nova.value = ''; conf.value = '';
+        toggleAcctSection('acctSenha');
+      } else { showToast(j.msg || 'Erro', 'error'); }
+    }).catch(function() { showToast('Erro de conexão.', 'error'); });
+    return;
+  }
+  // Generic (limits etc)
+  showToast('Salvo com sucesso!', 'success');
 }
 window.saveAcctField = saveAcctField;
 
@@ -1254,31 +1374,90 @@ function toggleLimitForm(formId, value) {
   var form = document.getElementById(formId);
   if (!form) return;
   var fields = form.querySelector('.acct-limit-fields');
-  var tag = form.querySelector('.acct-limit-tag');
+  var tag = document.getElementById('tag' + formId.charAt(0).toUpperCase() + formId.slice(1));
   if (value === 'unlimited' || value === 'no') {
     if (fields) fields.style.display = 'none';
-    if (tag) tag.style.display = '';
+    if (tag) { tag.style.display = ''; tag.textContent = 'Ilimitado'; tag.style.background = 'rgba(34,197,94,.15)'; tag.style.color = '#22c55e'; }
   } else {
     if (fields) fields.style.display = '';
-    if (tag) tag.style.display = 'none';
+    if (tag) { tag.textContent = 'Personalizado'; tag.style.background = 'rgba(255,57,1,.12)'; tag.style.color = '#ff3a00'; }
   }
 }
 window.toggleLimitForm = toggleLimitForm;
 
 /* ========== PIX MASK ========== */
+var pixMaskHandler = null;
 function updatePixMask() {
   var sel = document.getElementById('acctPixType');
   var inp = document.getElementById('acctPixKeyInput');
+  var label = document.getElementById('acctPixKeyLabel');
   if (!sel || !inp) return;
   var type = sel.value;
-  var masks = { cpf:'000.000.000-00', email:'email@exemplo.com', phone:'(00) 00000-0000', random:'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx' };
+  var masks = { cpf: '000.000.000-00', email: 'email@exemplo.com', phone: '(00) 00000-0000', random: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx' };
+  var labels = { cpf: 'Chave PIX (CPF)', email: 'Chave PIX (E-mail)', phone: 'Chave PIX (Celular)', random: 'Chave PIX (Aleatória)' };
   inp.placeholder = masks[type] || 'Chave PIX';
   inp.value = '';
+  if (label) label.textContent = labels[type] || 'Chave PIX';
+  // Remove old mask handler
+  if (pixMaskHandler) inp.removeEventListener('input', pixMaskHandler);
+  pixMaskHandler = null;
+  // Apply mask for cpf/phone
+  if (type === 'cpf') {
+    pixMaskHandler = function() { applyMaskValue(inp, '000.000.000-00'); };
+    inp.addEventListener('input', pixMaskHandler);
+  } else if (type === 'phone') {
+    pixMaskHandler = function() { applyMaskValue(inp, '(00) 00000-0000'); };
+    inp.addEventListener('input', pixMaskHandler);
+  }
 }
 window.updatePixMask = updatePixMask;
 
+/* ========== INPUT MASKS ========== */
+function applyMaskValue(el, mask) {
+  var v = el.value.replace(/\D/g, '');
+  var result = '';
+  var vi = 0;
+  for (var i = 0; i < mask.length && vi < v.length; i++) {
+    if (mask[i] === '0') { result += v[vi]; vi++; }
+    else { result += mask[i]; if (v[vi] === mask[i]) vi++; }
+  }
+  el.value = result;
+}
+function applyMask(el, mask) {
+  if (!el) return;
+  el.addEventListener('input', function() { applyMaskValue(el, mask); });
+}
+// CEP mask
+applyMask(document.getElementById('acctCep'), '00000-000');
+// Phone mask
+applyMask(document.getElementById('acctPhoneInput'), '(00) 00000-0000');
+
+/* ========== CEP AUTOCOMPLETE ========== */
+var cepInput = document.getElementById('acctCep');
+if (cepInput) {
+  cepInput.addEventListener('blur', function() {
+    var cep = cepInput.value.replace(/\D/g, '');
+    if (cep.length !== 8) return;
+    fetch('https://viacep.com.br/ws/' + cep + '/json/')
+      .then(function(r) { return r.json(); })
+      .then(function(d) {
+        if (d.erro) { showToast('CEP não encontrado.', 'error'); return; }
+        var rua = document.getElementById('acctRua');
+        var cidade = document.getElementById('acctCidade');
+        var estado = document.getElementById('acctEstado');
+        if (rua && d.logradouro) rua.value = d.logradouro;
+        if (cidade && d.localidade) cidade.value = d.localidade;
+        if (estado && d.uf) estado.value = d.uf;
+      }).catch(function() {});
+  });
+}
+
 /* ========== PHOTO UPLOAD ========== */
 var acctPhotoInput = document.getElementById('acctPhotoInput');
+var acctPhotoAlter = document.getElementById('acctPhotoAlter');
+if (acctPhotoAlter) acctPhotoAlter.addEventListener('click', function() {
+  if (acctPhotoInput) acctPhotoInput.click();
+});
 if (acctPhotoInput) {
   acctPhotoInput.addEventListener('change', function(e) {
     var file = e.target.files[0];
@@ -1290,7 +1469,6 @@ if (acctPhotoInput) {
       var src = ev.target.result;
       var img = document.getElementById('acctPhotoImg');
       if (img) img.src = src;
-      // Update header avatars
       var topAvatar = document.getElementById('topbarAvatar');
       if (topAvatar) topAvatar.src = src;
       document.querySelectorAll('.topbar-dropdown-avatar').forEach(function(a) { a.src = src; });
@@ -1299,10 +1477,6 @@ if (acctPhotoInput) {
     reader.readAsDataURL(file);
   });
 }
-var acctPhotoAlter = document.getElementById('acctPhotoAlter');
-if (acctPhotoAlter) acctPhotoAlter.addEventListener('click', function() {
-  if (acctPhotoInput) acctPhotoInput.click();
-});
 var acctPhotoRemove = document.getElementById('acctPhotoRemove');
 if (acctPhotoRemove) acctPhotoRemove.addEventListener('click', function() {
   var defaultSvg = '/public/img/novo/topo3.svg';
@@ -1320,19 +1494,27 @@ function populateLoginHistory() {
   var body = document.getElementById('loginHistoryBody');
   var count = document.getElementById('loginHistoryCount');
   if (!body) return;
-  var now = new Date();
-  var rows = [
-    { date: now.toLocaleDateString('pt-BR') + ' ' + now.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'}), ip: '189.xxx.xxx.xx', city: 'São Paulo, SP', coords: '-23.55, -46.63' }
-  ];
-  body.innerHTML = '';
-  rows.forEach(function(r) {
-    var tr = document.createElement('tr');
-    tr.innerHTML = '<td>' + r.date + '</td><td>' + r.ip + '</td><td>' + r.city + '</td><td>' + r.coords + '</td>';
-    body.appendChild(tr);
-  });
-  if (count) count.textContent = 'Mostrando 1 de 1 registros';
+  fetch('/api/user/login-history', { credentials: 'include' })
+    .then(function(r) { return r.json(); })
+    .then(function(j) {
+      if (!j.ok || !j.rows.length) {
+        body.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--text-muted)">Nenhum registro encontrado.</td></tr>';
+        if (count) count.textContent = '0 registros';
+        return;
+      }
+      body.innerHTML = '';
+      j.rows.forEach(function(r) {
+        var d = new Date(r.created_at);
+        var dt = d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+        var tr = document.createElement('tr');
+        tr.innerHTML = '<td>' + dt + '</td><td>' + (r.ip || '—') + '</td><td>' + ((r.city || '') + (r.state ? ', ' + r.state : '') || '—') + '</td><td>' + (r.coords || '—') + '</td>';
+        body.appendChild(tr);
+      });
+      if (count) count.textContent = 'Mostrando ' + j.rows.length + ' registro' + (j.rows.length > 1 ? 's' : '');
+    }).catch(function() {
+      body.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px">Erro ao carregar histórico.</td></tr>';
+    });
 }
-populateLoginHistory();
 
 /* ========== BALANCE CLICK → WALLET ========== */
 var topbarBalanceBtn = document.getElementById('topbarBalanceBtn');
@@ -1341,13 +1523,6 @@ if (topbarBalanceBtn) {
     e.preventDefault();
     showWalletSection('saldo');
   });
-}
-
-/* ========== FOOTER NAME MIRRORS ========== */
-function updateFooterNameMirrors(name) {
-  document.querySelectorAll('.acctFooterNameMirror').forEach(function(e) { e.textContent = name; });
-  var main = document.getElementById('acctDisplayName');
-  if (main) document.querySelectorAll('.acctFooterNameMirror').forEach(function(e) { e.textContent = main.textContent; });
 }
 
 initApp();

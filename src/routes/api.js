@@ -53,6 +53,13 @@ router.post('/register', async (req, res) => {
     await query('INSERT INTO wallets (user_id, balance_cents) VALUES ($1, 0) ON CONFLICT DO NOTHING', [u.id]);
 
     req.session.user = u;
+
+    // Record login history
+    const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress || '';
+    query('INSERT INTO login_history (user_id, ip, city, state, coords, user_agent) VALUES ($1, $2, $3, $4, $5, $6)',
+      [u.id, ip.split(',')[0].trim(), '', '', '', req.headers['user-agent'] || '']
+    ).catch(e => console.error('[LOGIN_HISTORY]', e));
+
     req.session.save((saveErr) => {
       if (saveErr) console.error('[REGISTER] session save:', saveErr);
       res.json({ ok: true, user: u });
@@ -86,6 +93,13 @@ router.post('/login', async (req, res) => {
 
     delete u.password_hash;
     req.session.user = u;
+
+    // Record login history
+    const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress || '';
+    query('INSERT INTO login_history (user_id, ip, city, state, coords, user_agent) VALUES ($1, $2, $3, $4, $5, $6)',
+      [u.id, ip.split(',')[0].trim(), '', '', '', req.headers['user-agent'] || '']
+    ).catch(e => console.error('[LOGIN_HISTORY]', e));
+
     req.session.save((saveErr) => {
       if (saveErr) console.error('[LOGIN] session save:', saveErr);
       res.json({ ok: true, user: u });
@@ -116,9 +130,19 @@ router.get('/check-cpf', async (req, res) => {
 });
 
 // GET /api/me
-router.get('/me', (req, res) => {
+router.get('/me', async (req, res) => {
   if (!req.session.user) return res.json({ ok: true, logged: false });
-  res.json({ ok: true, logged: true, user: req.session.user });
+  try {
+    const r = await query(
+      'SELECT id, username, name, phone, email, cpf, birth_date, address_cep, address_street, address_city, address_state, pix_type, pix_key FROM users WHERE id = $1',
+      [req.session.user.id]
+    );
+    const u = r.rows[0] || req.session.user;
+    req.session.user = u;
+    res.json({ ok: true, logged: true, user: u });
+  } catch (e) {
+    res.json({ ok: true, logged: true, user: req.session.user });
+  }
 });
 
 // ─── Wallet ───────────────────────────────────────
@@ -255,6 +279,72 @@ router.get('/banners', async (req, res) => {
 });
 
 // ─── User Account ─────────────────────────────────
+
+// GET /api/user/login-history
+router.get('/user/login-history', requireUser, async (req, res) => {
+  try {
+    const r = await query(
+      'SELECT ip, city, state, coords, created_at FROM login_history WHERE user_id = $1 ORDER BY created_at DESC LIMIT 50',
+      [req.session.user.id]
+    );
+    res.json({ ok: true, rows: r.rows });
+  } catch (err) {
+    console.error('[LOGIN_HISTORY]', err);
+    res.json({ ok: true, rows: [] });
+  }
+});
+
+// POST /api/user/update-phone
+router.post('/user/update-phone', requireUser, async (req, res) => {
+  try {
+    const phone = (req.body.phone || '').trim();
+    if (!phone || phone.length < 8) return res.status(400).json({ ok: false, msg: 'Telefone inválido.' });
+    await query('UPDATE users SET phone = $1, updated_at = NOW() WHERE id = $2', [phone, req.session.user.id]);
+    req.session.user.phone = phone;
+    req.session.save(() => {});
+    res.json({ ok: true, msg: 'Celular atualizado!', phone });
+  } catch (err) {
+    console.error('[UPDATE_PHONE]', err);
+    res.status(500).json({ ok: false, msg: 'Erro ao atualizar celular.' });
+  }
+});
+
+// POST /api/user/update-address
+router.post('/user/update-address', requireUser, async (req, res) => {
+  try {
+    const { cep, street, city, state } = req.body;
+    await query(
+      'UPDATE users SET address_cep = $1, address_street = $2, address_city = $3, address_state = $4, updated_at = NOW() WHERE id = $5',
+      [cep || '', street || '', city || '', state || '', req.session.user.id]
+    );
+    req.session.user.address_cep = cep;
+    req.session.user.address_street = street;
+    req.session.user.address_city = city;
+    req.session.user.address_state = state;
+    req.session.save(() => {});
+    res.json({ ok: true, msg: 'Endereço atualizado!' });
+  } catch (err) {
+    console.error('[UPDATE_ADDRESS]', err);
+    res.status(500).json({ ok: false, msg: 'Erro ao atualizar endereço.' });
+  }
+});
+
+// POST /api/user/update-pix
+router.post('/user/update-pix', requireUser, async (req, res) => {
+  try {
+    const { pix_type, pix_key } = req.body;
+    if (!pix_key) return res.status(400).json({ ok: false, msg: 'Informe a chave PIX.' });
+    await query('UPDATE users SET pix_type = $1, pix_key = $2, updated_at = NOW() WHERE id = $3',
+      [pix_type || 'cpf', pix_key, req.session.user.id]);
+    req.session.user.pix_type = pix_type;
+    req.session.user.pix_key = pix_key;
+    req.session.save(() => {});
+    res.json({ ok: true, msg: 'Chave PIX atualizada!' });
+  } catch (err) {
+    console.error('[UPDATE_PIX]', err);
+    res.status(500).json({ ok: false, msg: 'Erro ao atualizar PIX.' });
+  }
+});
 
 // POST /api/user/change-password
 router.post('/user/change-password', requireUser, async (req, res) => {
