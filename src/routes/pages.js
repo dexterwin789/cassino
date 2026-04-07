@@ -63,4 +63,39 @@ router.get('/ranking', (req, res) => {
   res.render('ranking', { title: 'Ranking' });
 });
 
+// Game single page
+router.get('/game/:code', async (req, res) => {
+  try {
+    const code = req.params.code;
+    const gameR = await query('SELECT id, game_code, game_name, image_url, provider, category FROM games WHERE game_code = $1 AND is_active = TRUE', [code]);
+    if (!gameR.rows.length) return res.status(404).send('Jogo não encontrado');
+    const game = gameR.rows[0];
+
+    // Related games (same provider, exclude current)
+    const relatedR = await query(
+      'SELECT id, game_code, game_name, image_url, provider, category FROM games WHERE provider = $1 AND game_code != $2 AND is_active = TRUE ORDER BY sort_order, id DESC LIMIT 12',
+      [game.provider, code]
+    );
+
+    // All providers for the studios slider
+    const providersR = await query('SELECT DISTINCT provider FROM games WHERE is_active = TRUE AND provider IS NOT NULL ORDER BY provider');
+
+    // Random stats
+    const rtp = (92 + Math.random() * 6).toFixed(2);
+    const players24h = Math.floor(800 + Math.random() * 4200);
+    const ganhos24h = (5000 + Math.random() * 45000).toFixed(2);
+
+    res.render('game', {
+      title: game.game_name + ' — CassinoBet',
+      game,
+      relatedGames: relatedR.rows,
+      providers: providersR.rows.map(r => r.provider),
+      stats: { rtp, players24h, ganhos24h }
+    });
+  } catch (err) {
+    console.error('[GAME]', err);
+    res.status(500).send('Erro');
+  }
+});
+
 module.exports = router;

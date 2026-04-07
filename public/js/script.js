@@ -6,12 +6,13 @@ var allGames = [];
 function gameCardHTML(game) {
   var img = game.image_url || '/public/img/games/1.avif';
   var name = game.game_name || 'Jogo';
-  var h = '<div class="game-card" title="' + name + '">';
+  var code = game.game_code || '';
+  var h = '<a href="/game/' + code + '" class="game-card" title="' + name + '" style="text-decoration:none">';
   h += '<img src="' + img + '" alt="' + name + '" draggable="false" loading="lazy">';
   h += '<div class="game-overlay">';
   h += '<span class="game-name">' + name + '</span>';
   h += '<span class="play-btn">&#9654; JOGAR</span>';
-  h += '</div></div>';
+  h += '</div></a>';
   return h;
 }
 
@@ -261,11 +262,12 @@ function applyTagFilter() {
 function searchCardHTML(game) {
   var img = game.image_url || '/public/img/games/1.avif';
   var name = game.game_name || 'Jogo';
-  return '<div class="game-card" title="' + name + '">' +
+  var code = game.game_code || '';
+  return '<a href="/game/' + code + '" class="game-card" title="' + name + '" style="text-decoration:none">' +
     '<img src="' + img + '" alt="' + name + '" draggable="false" loading="lazy">' +
     '<div class="game-overlay">' +
       '<span class="play-btn">&#9654; JOGAR</span>' +
-    '</div></div>';
+    '</div></a>';
 }
 
 function showMoreSearchResults() {
@@ -275,7 +277,8 @@ function showMoreSearchResults() {
   searchShown += next.length;
   var total = searchFiltered.length;
   if (searchFooter && searchCount) {
-    searchCount.textContent = 'Mostrando ' + Math.min(searchShown, total) + ' de ' + total + ' jogos';
+    var pct = total > 0 ? Math.round((Math.min(searchShown, total) / total) * 100) : 0;
+    searchCount.innerHTML = '<div class="progress-track"><div class="progress-fill" style="width:' + pct + '%"></div></div>Mostrando ' + Math.min(searchShown, total) + ' de ' + total + ' jogos';
     searchFooter.style.display = total > 0 ? 'block' : 'none';
     if (searchLoadMore) searchLoadMore.style.display = searchShown >= total ? 'none' : 'inline-block';
   }
