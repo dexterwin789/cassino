@@ -1,4 +1,4 @@
-/* Esportiva — Desktop + Responsive Layout */
+/* CassinoBet — Desktop + Responsive Layout */
 :root {
   --bg-body: #151923;
   --bg-header: #0b1726;
@@ -419,23 +419,79 @@ ul{list-style:none}
 }
 
 /* ===== SEARCH ===== */
-.search-section{margin-bottom:24px}
+.search-section{margin-bottom:24px;position:relative}
 
 .search-box{
   display:flex;align-items:center;gap:10px;
-  padding:12px 16px;border-radius:10px;
-  background:var(--bg-card);border:1px solid var(--border);transition:.2s;
+  padding:0 .625rem;height:2rem;border-radius:8px;
+  background-color:#0e1117;border:1px solid var(--border);transition:.2s;
+  position:relative;z-index:201;
 }
 .search-box:focus-within{
-  border-color:rgba(16,185,129,.3);
-  box-shadow:0 0 0 3px rgba(16,185,129,.06);
+  border-color:rgba(255,57,1,.4);
 }
 .search-icon{color:var(--text-muted);flex-shrink:0}
 .search-box input{
   flex:1;border:none;background:transparent;
-  color:var(--text);font-size:14px;font-weight:500;outline:none;
+  color:#fdffff;font-size:1rem;font-weight:400;
+  line-height:1.5rem;outline:none;
 }
 .search-box input::placeholder{color:var(--text-muted)}
+
+/* Search overlay */
+.search-overlay{
+  position:fixed;inset:0;
+  background:rgba(0,0,0,.6);
+  z-index:200;display:none;
+}
+.search-overlay.active{display:block}
+
+/* Search results dropdown */
+.search-results{
+  display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;
+  background:#0e1117;border:1px solid var(--border);border-radius:12px;
+  z-index:202;max-height:70vh;overflow:hidden;
+  flex-direction:column;
+}
+.search-results.active{display:flex}
+.search-results-tags{
+  display:flex;flex-wrap:wrap;gap:6px;
+  padding:12px 14px;border-bottom:1px solid var(--border);
+}
+.search-tag{
+  padding:4px 12px;border-radius:4px;
+  font-size:12px;font-weight:600;color:var(--text);
+  border:1px solid rgba(255,255,255,.12);
+  background:transparent;cursor:pointer;transition:.2s;
+}
+.search-tag:hover,.search-tag.active{border-color:rgb(255,57,1);color:rgb(255,57,1)}
+.search-results-grid{
+  display:grid;grid-template-columns:repeat(6,1fr);gap:10px;
+  padding:14px;overflow-y:auto;max-height:calc(70vh - 120px);
+}
+.search-results-grid::-webkit-scrollbar{width:4px}
+.search-results-grid::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:4px}
+.search-results-footer{
+  padding:12px;text-align:center;
+  border-top:1px solid var(--border);
+}
+.search-results-count{
+  font-size:13px;font-weight:700;color:var(--text);margin-bottom:8px;
+}
+.search-load-more{
+  display:inline-block;padding:8px 24px;border-radius:6px;
+  border:1px solid rgb(255,57,1);background:transparent;
+  color:rgb(255,57,1);font-size:13px;font-weight:700;
+  cursor:pointer;transition:.2s;
+}
+.search-load-more:hover{background:rgba(255,57,1,.1)}
+.search-close{
+  position:absolute;top:50%;right:.625rem;transform:translateY(-50%);
+  background:none;border:none;color:var(--text-muted);
+  font-size:20px;cursor:pointer;display:none;z-index:1;
+  line-height:1;padding:2px;
+}
+.search-close.active{display:block}
 
 /* ===== GAME SECTIONS ===== */
 .game-section{margin-bottom:28px}
@@ -446,11 +502,14 @@ ul{list-style:none}
 }
 .section-header h2{font-size:18px;font-weight:800}
 .see-all{
-  font-size:12px;font-weight:700;color:var(--green2);
-  padding:6px 14px;border-radius:20px;
-  border:1px solid var(--green2);transition:.2s;
+  display:inline-flex;align-items:center;gap:4px;
+  font-size:.6rem;font-weight:600;line-height:1rem;
+  color:#ff3901;text-decoration:none;
+  padding:0 .5rem;border-radius:9999px;
+  background-color:rgba(255,57,1,.15);
+  border:none;transition:.2s;margin-left:auto;
 }
-.see-all:hover{background:var(--green2);color:#fff}
+.see-all:hover{background-color:rgba(255,57,1,.25)}
 
 .games-row{
   display:flex;gap:14px;overflow-x:auto;
@@ -612,12 +671,14 @@ ul{list-style:none}
 }
 .footer-brand{display:flex;flex-direction:column;gap:12px}
 .footer-logo-img{height:32px;width:auto}
-.footer-social{display:flex;gap:10px}
+.footer-social{display:flex;gap:14px;justify-content:space-between;max-width:220px}
 .footer-social a{
-  color:var(--text-muted);transition:color .2s;
-  display:flex;align-items:center;
+  color:var(--text-muted);transition:all .2s;
+  display:flex;align-items:center;justify-content:center;
+  width:36px;height:36px;border-radius:50%;
+  background:transparent;
 }
-.footer-social a:hover{color:#fff}
+.footer-social a:hover{color:#fff;background:rgb(255,57,1)}
 .footer-col h4{
   font-size:13px;font-weight:700;color:var(--text);
   margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px;
@@ -662,6 +723,7 @@ ul{list-style:none}
 .footer-seo{
   border-top:1px solid var(--border);
   padding:24px 0;text-align:center;
+  display:flex;flex-direction:column;align-items:center;
 }
 .footer-seo-visible{
   color:var(--text-muted);font-size:12px;line-height:1.7;
@@ -693,7 +755,7 @@ ul{list-style:none}
 
 /* Legal block */
 .footer-legal{
-  display:flex;align-items:flex-start;gap:24px;
+  display:flex;align-items:center;gap:24px;
   padding:24px 0;
   border-top:1px solid var(--border);
 }
@@ -1066,6 +1128,7 @@ ul{list-style:none}
 @media(max-width:1024px){
   .provider-grid{grid-template-columns:repeat(4,1fr)}
   .footer-top{grid-template-columns:repeat(3,1fr)}
+  .search-results-grid{grid-template-columns:repeat(4,1fr)}
 }
 @media(max-width:768px){
   .top10-card{flex:0 0 calc((100% - 20px) / 2);padding-left:36px}
@@ -1078,10 +1141,12 @@ ul{list-style:none}
   .footer-top{grid-template-columns:repeat(2,1fr)}
   .footer-legal{flex-direction:column;align-items:center;text-align:center}
   .footer-legal-badge{margin-top:12px}
+  .search-results-grid{grid-template-columns:repeat(3,1fr)}
 }
 @media(max-width:480px){
   .provider-grid{grid-template-columns:repeat(2,1fr)}
   .footer-top{grid-template-columns:1fr}
+  .search-results-grid{grid-template-columns:repeat(2,1fr)}
 }
 
 .btn-auth-submit{

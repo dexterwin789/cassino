@@ -1,4 +1,4 @@
-/* /cassino/public/js/script.js — Esportiva Desktop Layout */
+/* /cassino/public/js/script.js — CassinoBet Desktop Layout */
 
 var allGames = [];
 
@@ -27,24 +27,111 @@ function renderGames(games, containerId, limit) {
 }
 
 /* ========== SEARCH ========== */
+/* ========== SEARCH ========== */
 var searchInput = document.getElementById('searchGames');
+var searchOverlay = document.getElementById('searchOverlay');
+var searchResults = document.getElementById('searchResults');
+var searchGrid = document.getElementById('searchGrid');
+var searchFooter = document.getElementById('searchFooter');
+var searchCount = document.getElementById('searchCount');
+var searchLoadMore = document.getElementById('searchLoadMore');
+var searchCloseBtn = document.getElementById('searchClose');
+var searchTagsEl = document.getElementById('searchTags');
 var searchTimer = null;
-if (searchInput) {
-  searchInput.addEventListener('input', function() {
-    clearTimeout(searchTimer);
-    searchTimer = setTimeout(function() {
-      var q = (searchInput.value || '').trim().toLowerCase();
-      if (!q) { renderAllSections(); return; }
-      var filtered = allGames.filter(function(g) {
-        return (g.game_name || '').toLowerCase().includes(q) ||
-          (g.provider || '').toLowerCase().includes(q) ||
-          (g.category || '').toLowerCase().includes(q);
-      });
-      renderTop10(filtered.slice(0, 9));
-      renderProviderGrids(filtered);
-    }, 300);
+var searchFiltered = [];
+var searchShown = 0;
+var searchPageSize = 15;
+var searchActiveTag = 'Todos';
+
+var searchTags = ['Todos','Slots','Jogar com Bônus','Jogos De Torneio','Megavias','Jogos Vip','Compre Rodadas','Recomendados','Pragmaticplay','Jogos Novos','Cassino ao Vivo','Hacksaw'];
+
+function openSearch() {
+  if (searchOverlay) searchOverlay.classList.add('active');
+  if (searchResults) searchResults.classList.add('active');
+  if (searchCloseBtn) searchCloseBtn.classList.add('active');
+  renderSearchTags();
+}
+
+function closeSearch() {
+  if (searchOverlay) searchOverlay.classList.remove('active');
+  if (searchResults) searchResults.classList.remove('active');
+  if (searchCloseBtn) searchCloseBtn.classList.remove('active');
+  if (searchInput) searchInput.value = '';
+  searchFiltered = [];
+  searchShown = 0;
+  if (searchGrid) searchGrid.innerHTML = '';
+  if (searchFooter) searchFooter.style.display = 'none';
+}
+
+function renderSearchTags() {
+  if (!searchTagsEl) return;
+  searchTagsEl.innerHTML = searchTags.map(function(t) {
+    return '<button class="search-tag' + (t === searchActiveTag ? ' active' : '') + '" data-tag="' + t + '">' + t + '</button>';
+  }).join('');
+  searchTagsEl.querySelectorAll('.search-tag').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      searchActiveTag = btn.dataset.tag;
+      searchTagsEl.querySelectorAll('.search-tag').forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      doSearch();
+    });
   });
 }
+
+function doSearch() {
+  var q = (searchInput ? searchInput.value : '').trim().toLowerCase();
+  searchFiltered = allGames.filter(function(g) {
+    var matchQuery = !q || (g.game_name || '').toLowerCase().includes(q) ||
+      (g.provider || '').toLowerCase().includes(q) ||
+      (g.category || '').toLowerCase().includes(q);
+    var matchTag = true;
+    if (searchActiveTag !== 'Todos') {
+      var tag = searchActiveTag.toLowerCase();
+      matchTag = (g.category || '').toLowerCase().includes(tag) ||
+        (g.provider || '').toLowerCase().includes(tag) ||
+        (g.game_name || '').toLowerCase().includes(tag);
+    }
+    return matchQuery && matchTag;
+  });
+  searchShown = 0;
+  if (searchGrid) searchGrid.innerHTML = '';
+  showMoreSearchResults();
+}
+
+function searchCardHTML(game) {
+  var img = game.image_url || '/public/img/games/1.avif';
+  var name = game.game_name || 'Jogo';
+  return '<div class="game-card" title="' + name + '">' +
+    '<img src="' + img + '" alt="' + name + '" draggable="false" loading="lazy">' +
+    '<div class="game-overlay">' +
+      '<span class="game-name">' + name + '</span>' +
+      '<span class="play-btn">&#9654; JOGAR</span>' +
+    '</div></div>';
+}
+
+function showMoreSearchResults() {
+  if (!searchGrid) return;
+  var next = searchFiltered.slice(searchShown, searchShown + searchPageSize);
+  searchGrid.insertAdjacentHTML('beforeend', next.map(searchCardHTML).join(''));
+  searchShown += next.length;
+  var total = searchFiltered.length;
+  if (searchFooter && searchCount) {
+    searchCount.textContent = 'Mostrando ' + Math.min(searchShown, total) + ' de ' + total + ' jogos';
+    searchFooter.style.display = total > 0 ? 'block' : 'none';
+    if (searchLoadMore) searchLoadMore.style.display = searchShown >= total ? 'none' : 'inline-block';
+  }
+}
+
+if (searchInput) {
+  searchInput.addEventListener('focus', function() { openSearch(); });
+  searchInput.addEventListener('input', function() {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(function() { doSearch(); }, 300);
+  });
+}
+if (searchOverlay) searchOverlay.addEventListener('click', closeSearch);
+if (searchCloseBtn) searchCloseBtn.addEventListener('click', closeSearch);
+if (searchLoadMore) searchLoadMore.addEventListener('click', showMoreSearchResults);
 
 /* Provider grid IDs */
 var providerGrids = [
