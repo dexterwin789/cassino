@@ -50,8 +50,6 @@
             <img src="/public/img/novo/topo3.svg" width="40" height="40" alt="" class="topbar-dropdown-avatar">
             <div class="topbar-dropdown-info">
               <strong id="dropdownUserName">Usuário</strong>
-              <span>RecrutamentoNív</span>
-              <a href="#" class="topbar-dropdown-levels">Ver níveis</a>
             </div>
           </div>
           <div class="topbar-dropdown-date" id="dropdownDate"></div>
@@ -198,6 +196,9 @@
   <!-- MAIN CONTENT -->
   <main class="main-content" id="mainContent">
     <div class="main-container">
+
+    <!-- Home content (hidden when wallet is open) -->
+    <div id="homeContent">
 
     <section class="category-icons">
       <div class="cat-icon-item">
@@ -416,8 +417,10 @@
       </div>
     </section>
 
-    <!-- Wallet / User Section (only visible when logged in) -->
-    <section class="wallet-section is-logged-el" id="wallet-section">
+    </div><!-- #homeContent -->
+
+    <!-- Wallet / User Settings (replaces home content when active) -->
+    <section class="wallet-section is-logged-el" id="wallet-section" style="display:none">
       <div class="wallet-grid">
         <div class="wallet-sidebar-nav">
           <a href="#" class="wallet-nav-item active" data-panel="perfil"><img src="/public/img/novo/drop8.svg" width="16" height="16"> MEU PERFIL</a>
@@ -433,6 +436,7 @@
           <a href="#" class="wallet-nav-item wallet-nav-logout" id="walletLogout"><img src="/public/img/novo/drop12.svg" width="16" height="16"> SAIR</a>
         </div>
         <div class="wallet-content">
+          <!-- MEU PERFIL -->
           <div class="wallet-panel active" id="walletPanelPerfil">
             <div class="wallet-balance-card">
               <div class="wallet-balance-header">
@@ -445,13 +449,64 @@
               </div>
             </div>
           </div>
+          <!-- GESTÃO DE SALDO -->
           <div class="wallet-panel" id="walletPanelSaldo">
-            <h3>Gestão de Saldo</h3>
-            <p style="color:var(--text-muted)">Histórico de depósitos e saques em breve.</p>
+            <div class="wallet-panel-title">Gestão de Saldo</div>
+            <div class="wallet-balance-card">
+              <div class="wallet-balance-header">
+                <span class="wallet-balance-label">Saldo disponível</span>
+              </div>
+              <div class="wallet-balance-amount">R$ <span class="walletBalanceMirror">0,00</span></div>
+              <div class="wallet-balance-actions">
+                <button class="wallet-btn wallet-btn-deposit" onclick="if(typeof openDepositModal==='function')openDepositModal()">Depositar</button>
+                <button class="wallet-btn wallet-btn-withdraw">Sacar</button>
+              </div>
+            </div>
+            <p class="wallet-empty-text">Histórico de depósitos e saques em breve.</p>
           </div>
+          <!-- HISTÓRICO DE APOSTAS -->
           <div class="wallet-panel" id="walletPanelApostas">
-            <h3>Histórico de Apostas</h3>
-            <p style="color:var(--text-muted)">Seu histórico de apostas aparecerá aqui.</p>
+            <div class="wallet-panel-title">Histórico de Apostas</div>
+            <p class="wallet-empty-text">Seu histórico de apostas aparecerá aqui.</p>
+          </div>
+          <!-- EXTRATO COMPLETO -->
+          <div class="wallet-panel" id="walletPanelExtrato">
+            <div class="wallet-panel-title">Extrato Completo</div>
+            <p class="wallet-empty-text">Nenhuma movimentação encontrada.</p>
+          </div>
+          <!-- TEMA -->
+          <div class="wallet-panel" id="walletPanelTema">
+            <div class="wallet-panel-title">Tema</div>
+            <div class="wallet-theme-options">
+              <button class="wallet-theme-card theme-btn-dark" data-set-theme="dark">
+                <div class="wallet-theme-preview wallet-theme-preview-dark"></div>
+                <span>Escuro</span>
+              </button>
+              <button class="wallet-theme-card theme-btn-light" data-set-theme="light">
+                <div class="wallet-theme-preview wallet-theme-preview-light"></div>
+                <span>Claro</span>
+              </button>
+            </div>
+          </div>
+          <!-- NOTIFICAÇÕES -->
+          <div class="wallet-panel" id="walletPanelNotif">
+            <div class="wallet-panel-title">Notificações</div>
+            <p class="wallet-empty-text">Nenhuma notificação no momento.</p>
+          </div>
+          <!-- INDIQUE E GANHE -->
+          <div class="wallet-panel" id="walletPanelIndique">
+            <div class="wallet-panel-title">Indique e Ganhe</div>
+            <p class="wallet-empty-text">Compartilhe seu link de indicação e ganhe bônus!</p>
+          </div>
+          <!-- PRÊMIOS E RECOMPENSAS -->
+          <div class="wallet-panel" id="walletPanelPremios">
+            <div class="wallet-panel-title">Prêmios e Recompensas</div>
+            <p class="wallet-empty-text">Nenhum prêmio disponível.</p>
+          </div>
+          <!-- INFORME DE RENDIMENTOS -->
+          <div class="wallet-panel" id="walletPanelRendimentos">
+            <div class="wallet-panel-title">Informe de Rendimentos</div>
+            <p class="wallet-empty-text">Nenhum informe disponível.</p>
           </div>
         </div>
       </div>

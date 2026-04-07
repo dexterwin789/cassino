@@ -638,7 +638,7 @@ if (topbarRefresh) topbarRefresh.addEventListener('click', function(e) {
 // Balance button opens wallet section
 var topbarBalanceBtn = document.getElementById('topbarBalanceBtn');
 if (topbarBalanceBtn) topbarBalanceBtn.addEventListener('click', function() {
-  window.location.href = '/#wallet-section';
+  showWalletSection();
   if (topbarDropdown && topbarDropdown.classList.contains('open')) topbarDropdown.classList.remove('open');
 });
 
@@ -674,12 +674,12 @@ if (dropdownMenu) dropdownMenu.addEventListener('click', function(e) {
   if (barsToggle) barsToggle.click();
 });
 
-// Dropdown Wallet → scroll to wallet section
+// Dropdown Wallet → open wallet section
 var dropdownWallet = document.getElementById('dropdownWallet');
 if (dropdownWallet) dropdownWallet.addEventListener('click', function(e) {
   e.preventDefault();
   if (topbarDropdown) topbarDropdown.classList.remove('open');
-  window.location.href = '/#wallet-section';
+  showWalletSection();
 });
 
 /* ========== THEME TOGGLE ========== */
@@ -688,6 +688,9 @@ function setTheme(mode) {
   localStorage.setItem('cassinoBetTheme', mode);
   document.querySelectorAll('.theme-btn-dark').forEach(function(b) { b.classList.toggle('active', mode === 'dark'); });
   document.querySelectorAll('.theme-btn-light').forEach(function(b) { b.classList.toggle('active', mode === 'light'); });
+  document.querySelectorAll('.wallet-theme-card').forEach(function(c) {
+    c.classList.toggle('active', c.getAttribute('data-set-theme') === mode);
+  });
 }
 // Init theme from localStorage
 (function() {
@@ -713,6 +716,7 @@ function refreshWalletUI() {
       });
       var wBal = document.getElementById('walletMainBalance');
       if (wBal) wBal.textContent = bal;
+      document.querySelectorAll('.walletBalanceMirror').forEach(function(el) { el.textContent = bal; });
     }).catch(function() {});
 }
 
@@ -736,7 +740,35 @@ function startWatchPayment(txId) {
   }, 2000);
 }
 
-/* ========== WALLET SECTION ========== */
+/* ========== WALLET SECTION (show/hide home) ========== */
+function showWalletSection(panel) {
+  var home = document.getElementById('homeContent');
+  var wallet = document.getElementById('wallet-section');
+  if (home) home.style.display = 'none';
+  if (wallet) wallet.style.display = '';
+  if (panel) {
+    document.querySelectorAll('.wallet-nav-item').forEach(function(n) { n.classList.remove('active'); });
+    var navItem = document.querySelector('.wallet-nav-item[data-panel="' + panel + '"]');
+    if (navItem) navItem.classList.add('active');
+    document.querySelectorAll('.wallet-panel').forEach(function(p) { p.classList.remove('active'); });
+    var target = document.getElementById('walletPanel' + panel.charAt(0).toUpperCase() + panel.slice(1));
+    if (target) target.classList.add('active');
+  }
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function hideWalletSection() {
+  var home = document.getElementById('homeContent');
+  var wallet = document.getElementById('wallet-section');
+  if (home) home.style.display = '';
+  if (wallet) wallet.style.display = 'none';
+}
+
+// Make accessible globally
+window.showWalletSection = showWalletSection;
+window.hideWalletSection = hideWalletSection;
+
+// Nav item switching
 document.querySelectorAll('.wallet-nav-item[data-panel]').forEach(function(item) {
   item.addEventListener('click', function(e) {
     e.preventDefault();
@@ -749,11 +781,13 @@ document.querySelectorAll('.wallet-nav-item[data-panel]').forEach(function(item)
   });
 });
 
+// Wallet deposit button
 var walletDepositBtn = document.getElementById('walletDepositBtn');
 if (walletDepositBtn) walletDepositBtn.addEventListener('click', function() {
   if (typeof openDepositModal === 'function') openDepositModal();
 });
 
+// Wallet logout
 var walletLogout = document.getElementById('walletLogout');
 if (walletLogout) walletLogout.addEventListener('click', function(e) {
   e.preventDefault();
@@ -761,6 +795,51 @@ if (walletLogout) walletLogout.addEventListener('click', function(e) {
     .then(function() { window.location.reload(); })
     .catch(function() { window.location.reload(); });
 });
+
+// Wallet theme cards
+document.querySelectorAll('.wallet-theme-card[data-set-theme]').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    var mode = btn.getAttribute('data-set-theme');
+    if (typeof setTheme === 'function') setTheme(mode);
+    document.querySelectorAll('.wallet-theme-card').forEach(function(c) { c.classList.remove('active'); });
+    btn.classList.add('active');
+  });
+});
+
+// Dropdown links that open wallet panels
+var dropdownPanelMap = {
+  'dropdownNotif': 'notif',
+  'dropdownPrizes': 'premios',
+  'dropdownBets': 'apostas',
+  'dropdownReferrals': 'indique',
+  'dropdownAccount': 'perfil',
+  'dropdownPassword': 'perfil',
+  'dropdownSupport': null,
+  'dropdownPromos': null
+};
+Object.keys(dropdownPanelMap).forEach(function(id) {
+  var el = document.getElementById(id);
+  var panel = dropdownPanelMap[id];
+  if (el && panel) {
+    el.addEventListener('click', function(e) {
+      e.preventDefault();
+      if (topbarDropdown) topbarDropdown.classList.remove('open');
+      showWalletSection(panel);
+    });
+  }
+});
+
+// Logo click → back to home
+var topbarLogo = document.querySelector('.topbar-logo');
+if (topbarLogo) {
+  topbarLogo.addEventListener('click', function(e) {
+    var wallet = document.getElementById('wallet-section');
+    if (wallet && wallet.style.display !== 'none') {
+      e.preventDefault();
+      hideWalletSection();
+    }
+  });
+}
 
 /* ========== TOAST ========== */
 function showToast(msg, type) {
@@ -1006,7 +1085,16 @@ function initApp() {
     initBannerDots();
     showBanner(0);
     startBannerAuto();
-    updateAuthState().then(dismissPreloader).catch(dismissPreloader);
+    updateAuthState().then(function() {
+      dismissPreloader();
+      // Auto-open deposit modal if redirected from registration
+      if (window.location.search.indexOf('openDeposit=1') !== -1) {
+        history.replaceState(null, '', window.location.pathname);
+        setTimeout(function() {
+          if (typeof openDepositModal === 'function') openDepositModal();
+        }, 300);
+      }
+    }).catch(dismissPreloader);
   }).catch(function() {
     dismissPreloader();
   });

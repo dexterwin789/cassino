@@ -471,8 +471,8 @@
           if (j && j.ok) {
             closeRegisterModal();
             if (typeof showToast === 'function') showToast('Conta criada com sucesso!', 'success');
-            // Redirect to home logged in
-            setTimeout(function() { window.location.href = '/'; }, 600);
+            // Redirect to home logged in with deposit modal flag
+            setTimeout(function() { window.location.href = '/?openDeposit=1'; }, 600);
           } else {
             if (typeof showToast === 'function') showToast(j.msg || 'Erro ao registrar', 'error');
           }
@@ -482,7 +482,7 @@
     } else {
       closeRegisterModal();
       if (typeof showToast === 'function') showToast('Conta criada com sucesso!', 'success');
-      setTimeout(function() { window.location.href = '/'; }, 600);
+      setTimeout(function() { window.location.href = '/?openDeposit=1'; }, 600);
     }
   });
 

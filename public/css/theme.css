@@ -25,24 +25,28 @@
   --text-muted: #64748b;
   --border: rgba(0,0,0,.08);
 }
-[data-theme="light"] .topbar{background:#fff;border-color:rgba(0,0,0,.08)}
-[data-theme="light"] .sidebar{background:#fff;border-color:rgba(0,0,0,.06)}
-[data-theme="light"] .game-card{background:#fff;border-color:rgba(0,0,0,.08)}
-[data-theme="light"] .menu-title{color:#1a1a2e}
-[data-theme="light"] .sidebar-link{color:#475569}
-[data-theme="light"] .sidebar-link:hover,[data-theme="light"] .sidebar-link.active{color:#ff3a00;background:rgba(255,58,0,.06)}
-[data-theme="light"] .sidebar-icon{filter:none;opacity:.6}
+
+/* Body / Main background */
+[data-theme="light"] body{background:#f0f2f5;color:#1a1a2e}
+[data-theme="light"] .main-content{background:#f0f2f5}
+[data-theme="light"] .main-container{color:#1a1a2e}
+
+/* Topbar */
+[data-theme="light"] .topbar{background:#fff;border-color:rgba(0,0,0,.08);box-shadow:0 1px 4px rgba(0,0,0,.06)}
 [data-theme="light"] .tab-switch{color:#475569}
 [data-theme="light"] .tab-switch.active{color:#ff3a00}
-[data-theme="light"] .section-header h2{color:#1a1a2e}
-[data-theme="light"] .search-input{background:#f0f2f5;color:#1a1a2e;border-color:rgba(0,0,0,.1)}
-[data-theme="light"] .search-input::placeholder{color:#94a3b8}
+[data-theme="light"] .bars-toggle img{filter:none;opacity:.6}
 [data-theme="light"] .topbar-balance{background:rgba(0,0,0,.04)}
 [data-theme="light"] .topbar-balance-btn{color:#1a1a2e}
+[data-theme="light"] .topbar-balance-val{color:#1a1a2e}
 [data-theme="light"] .topbar-balance-refresh{border-color:rgba(0,0,0,.08)}
 [data-theme="light"] .topbar-balance-refresh img,
 [data-theme="light"] .topbar-notif img{filter:none;opacity:.6}
 [data-theme="light"] .topbar-user-btn{border-color:rgba(0,0,0,.15)}
+[data-theme="light"] .btn-login{border-color:rgba(0,0,0,.15);color:#1a1a2e}
+[data-theme="light"] .topbar-notif-badge{background:#ff3a00}
+
+/* Dropdown */
 [data-theme="light"] .topbar-dropdown{background:#fff;border-color:rgba(0,0,0,.1);box-shadow:0 8px 32px rgba(0,0,0,.15)}
 [data-theme="light"] .topbar-dropdown-header{border-color:rgba(0,0,0,.06)}
 [data-theme="light"] .topbar-dropdown-info strong{color:#1a1a2e}
@@ -54,10 +58,75 @@
 [data-theme="light"] .dropdown-theme-row{color:#475569}
 [data-theme="light"] .dropdown-theme-row img{filter:none;opacity:.5}
 [data-theme="light"] .topbar-dropdown-logout{color:#ef4444!important;border-color:rgba(0,0,0,.06)}
-[data-theme="light"] .btn-login{border-color:rgba(0,0,0,.15);color:#1a1a2e}
-[data-theme="light"] .preloader{background:#f0f2f5}
-[data-theme="light"] .preloader-bar{background:rgba(0,0,0,.08)}
-/* Footer light */
+[data-theme="light"] .theme-btn{border-color:rgba(0,0,0,.12);color:#64748b}
+[data-theme="light"] .theme-btn.active{border-color:#ff3901;color:#ff3901;background:rgba(255,57,1,.08)}
+
+/* Sidebar */
+[data-theme="light"] .sidebar{background:#fff;border-color:rgba(0,0,0,.06)}
+[data-theme="light"] .sidebar-cards{background:#f8fafc}
+[data-theme="light"] .sq-card{background:#f0f2f5;border-color:rgba(0,0,0,.06)}
+[data-theme="light"] .sq-label{color:#475569}
+[data-theme="light"] .menu-title{color:#1a1a2e}
+[data-theme="light"] .menu-list li{color:#475569}
+[data-theme="light"] .menu-list li:hover{color:#ff3a00;background:rgba(255,58,0,.06)}
+[data-theme="light"] .menu-list li.active{color:#ff3a00}
+[data-theme="light"] .mi{filter:none;opacity:.55}
+[data-theme="light"] .sidebar-bottom a{color:#475569}
+[data-theme="light"] .sidebar-bottom a:hover{color:#ff3a00}
+[data-theme="light"] .sidebar-lang{color:#475569;border-color:rgba(0,0,0,.06)}
+[data-theme="light"] .sidebar-section-border{border-color:rgba(0,0,0,.06)}
+
+/* Category Icons */
+[data-theme="light"] .cat-icon-item span{color:#1a1a2e}
+
+/* Search */
+[data-theme="light"] .search-box{background:#fff;border-color:rgba(0,0,0,.1)}
+[data-theme="light"] .search-box input{color:#1a1a2e}
+[data-theme="light"] .search-box input::placeholder{color:#94a3b8}
+[data-theme="light"] .search-icon{color:#94a3b8}
+[data-theme="light"] .search-close{color:#64748b}
+[data-theme="light"] .search-results{background:#fff;border-color:rgba(0,0,0,.08)}
+[data-theme="light"] .search-tag{background:#f0f2f5;color:#475569;border-color:rgba(0,0,0,.06)}
+[data-theme="light"] .search-tag.active{background:rgba(255,58,0,.08);color:#ff3a00;border-color:#ff3a00}
+[data-theme="light"] .search-message{color:#64748b}
+
+/* Section headers */
+[data-theme="light"] .section-header h2{color:#1a1a2e}
+
+/* Game cards */
+[data-theme="light"] .game-card{background:#fff;border-color:rgba(0,0,0,.08)}
+[data-theme="light"] .provider-grid .game-card{background:#fff;border-color:rgba(0,0,0,.06)}
+
+/* Top10 slider */
+[data-theme="light"] .top10-arrow{background:rgba(0,0,0,.06);color:#475569;border-color:rgba(0,0,0,.08)}
+[data-theme="light"] .top10-arrow:hover{background:rgba(0,0,0,.1)}
+[data-theme="light"] .top10-rank{color:rgba(0,0,0,.08)}
+
+/* Ligas */
+[data-theme="light"] .ligas-bar{background:rgba(0,0,0,.03);color:#1a1a2e}
+[data-theme="light"] .liga-item{background:#fff;border-color:rgba(0,0,0,.06)}
+[data-theme="light"] .liga-name span{color:#475569}
+
+/* Studios */
+[data-theme="light"] .estudio-card{box-shadow:0 2px 8px rgba(0,0,0,.08)}
+
+/* Ganhos */
+[data-theme="light"] .ganhos-tab{color:#475569;border-color:rgba(0,0,0,.08)}
+[data-theme="light"] .ganhos-tab.active{color:#fff;border-color:#ff3a00;background:#ff3a00}
+[data-theme="light"] .ganhos-trophy-text{color:#1a1a2e}
+[data-theme="light"] .ganho-card{background:#fff;border:1px solid rgba(0,0,0,.06)}
+[data-theme="light"] .ganho-user{color:#1a1a2e}
+[data-theme="light"] .ganho-game{color:#64748b}
+
+/* Apostas */
+[data-theme="light"] .aposta-row:nth-child(odd){background:#f8fafc}
+[data-theme="light"] .aposta-row:nth-child(even){background:#fff}
+[data-theme="light"] .aposta-user{color:#1a1a2e}
+
+/* Promo strip */
+[data-theme="light"] .promo-strip-item{box-shadow:0 2px 8px rgba(0,0,0,.06)}
+
+/* Footer */
 [data-theme="light"] .site-footer{border-color:rgba(0,0,0,.08)}
 [data-theme="light"] .footer-col h4{color:#1a1a2e}
 [data-theme="light"] .footer-col a{color:#64748b}
@@ -66,20 +135,109 @@
 [data-theme="light"] .footer-social a:hover{color:#fff;background:#ff3a00}
 [data-theme="light"] .footer-sponsor{border-color:rgba(0,0,0,.06)}
 [data-theme="light"] .sponsor-label,[data-theme="light"] .sponsor-sub{color:#64748b}
+[data-theme="light"] .footer-seo-visible{color:#64748b}
+[data-theme="light"] .footer-seo-hidden p{color:#64748b}
+[data-theme="light"] .footer-seo-hidden strong{color:#1a1a2e}
+[data-theme="light"] .footer-seo-toggle{color:#64748b}
+[data-theme="light"] .footer-seo-toggle:hover{color:#ff3a00}
+[data-theme="light"] .footer-brasil{color:#1a1a2e;border-color:rgba(0,0,0,.06)}
+[data-theme="light"] .footer-legal{border-color:rgba(0,0,0,.06)}
+[data-theme="light"] .footer-legal-text p{color:#64748b}
+[data-theme="light"] .footer-legal-text strong{color:#1a1a2e}
+[data-theme="light"] .footer-badges{border-color:rgba(0,0,0,.06)}
+[data-theme="light"] .footer-contacts{color:#64748b;border-color:rgba(0,0,0,.06)}
 [data-theme="light"] .footer-copyright{color:#94a3b8;border-color:rgba(0,0,0,.06)}
-/* Cards + sections light */
-[data-theme="light"] .quick-icon-card{background:#fff;border-color:rgba(0,0,0,.06)}
-[data-theme="light"] .quick-icon-label{color:#475569}
-[data-theme="light"] .ganhos-tab{color:#475569;border-color:rgba(0,0,0,.08)}
-[data-theme="light"] .ganhos-tab.active{color:#ff3a00;border-color:#ff3a00}
-[data-theme="light"] .ganhos-row{background:#f8fafc;border-color:rgba(0,0,0,.04)}
-[data-theme="light"] .aposta-row{background:#f8fafc;border-color:rgba(0,0,0,.04)}
-[data-theme="light"] .stat-card{background:#fff;border-color:rgba(0,0,0,.06)}
-[data-theme="light"] .provider-grid .game-card{background:#fff;border-color:rgba(0,0,0,.06)}
-/* Bottom nav light */
-[data-theme="light"] .bnav{background:#fff;border-color:rgba(0,0,0,.08)}
+[data-theme="light"] .footer-contact-btn{color:#1a1a2e!important;border-color:rgba(0,0,0,.12)}
+
+/* Bottom nav */
+[data-theme="light"] .bottom-nav{background:#fff;border-color:rgba(0,0,0,.08)}
 [data-theme="light"] .bnav-item{color:#64748b}
 [data-theme="light"] .bnav-item.active{color:#ff3a00}
-/* Search + badges */
-[data-theme="light"] .search-wrap{background:#f0f2f5;border-color:rgba(0,0,0,.1)}
-[data-theme="light"] .sidebar-cards{background:#f8fafc}
+
+/* Preloader */
+[data-theme="light"] .preloader{background:#f0f2f5}
+[data-theme="light"] .preloader-bar{background:rgba(0,0,0,.08)}
+
+/* Wallet section */
+[data-theme="light"] .wallet-grid{border-color:rgba(0,0,0,.08)}
+[data-theme="light"] .wallet-sidebar-nav{background:#f8fafc;border-color:rgba(0,0,0,.06)}
+[data-theme="light"] .wallet-nav-item{color:#475569}
+[data-theme="light"] .wallet-nav-item img{filter:none;opacity:.5}
+[data-theme="light"] .wallet-nav-item:hover{background:rgba(0,0,0,.03);color:#1a1a2e}
+[data-theme="light"] .wallet-nav-item.active{color:#ff3a00;background:rgba(255,58,0,.06)}
+[data-theme="light"] .wallet-content{color:#1a1a2e}
+[data-theme="light"] .wallet-balance-card{background:#f8fafc;border-color:rgba(0,0,0,.06)}
+[data-theme="light"] .wallet-balance-amount{color:#1a1a2e}
+[data-theme="light"] .wallet-balance-header{color:#64748b}
+[data-theme="light"] .wallet-btn-withdraw{background:rgba(0,0,0,.04);color:#1a1a2e;border-color:rgba(0,0,0,.1)}
+[data-theme="light"] .wallet-btn-withdraw:hover{background:rgba(0,0,0,.08)}
+[data-theme="light"] .wallet-panel h3{color:#1a1a2e}
+[data-theme="light"] .wallet-panel p{color:#64748b}
+
+/* Deposit modal */
+[data-theme="light"] .dep-modal{background:#fff}
+[data-theme="light"] .dep-modal::-webkit-scrollbar-thumb{background:#ccc}
+[data-theme="light"] .dep-header-text strong{color:#1a1a2e}
+[data-theme="light"] .dep-header-text span{color:#64748b}
+[data-theme="light"] .dep-back img{filter:none;opacity:.5}
+[data-theme="light"] .dep-method-card{background:#f8fafc;border-color:rgba(0,0,0,.08)}
+[data-theme="light"] .dep-method-active{background:rgba(255,57,1,.06);border-color:#ff3901}
+[data-theme="light"] .dep-payment-label{color:#64748b}
+[data-theme="light"] .dep-payment-method{background:#f0f2f5;color:#1a1a2e}
+[data-theme="light"] .dep-value-label{color:#1a1a2e}
+[data-theme="light"] .dep-value-input{background:#f0f2f5;color:#1a1a2e;border-color:rgba(0,0,0,.1)}
+[data-theme="light"] .dep-value-input::placeholder{color:#94a3b8}
+[data-theme="light"] .dep-brl{color:#64748b}
+[data-theme="light"] .dep-val-btn{color:#ff3901;background:rgba(55,162,92,.06);border-color:rgba(55,162,92,.1)}
+[data-theme="light"] .dep-cupom-input{background:#f0f2f5;color:#1a1a2e;border-color:rgba(0,0,0,.1)}
+[data-theme="light"] .dep-cupom-input::placeholder{color:#94a3b8}
+[data-theme="light"] .dep-cupom-icon{color:#94a3b8}
+[data-theme="light"] .dep-qr-title{color:#475569}
+[data-theme="light"] .dep-qr-amount-box{background:#f8fafc;border-color:rgba(0,0,0,.08)}
+[data-theme="light"] .dep-qr-code{background:#f0f2f5;border-color:rgba(0,0,0,.1);color:#1a1a2e}
+[data-theme="light"] .dep-qr-countdown-time{color:#1a1a2e}
+[data-theme="light"] .dep-qr-countdown-bar{background:rgba(0,0,0,.06)}
+[data-theme="light"] .dep-qr-status{color:#64748b}
+[data-theme="light"] .dep-qr-approved{background:rgba(255,255,255,.97)}
+[data-theme="light"] .dep-qr-approved span{color:#64748b}
+
+/* Login/Register modals */
+[data-theme="light"] .login-modal{background:#fff}
+[data-theme="light"] .login-topbar{background:#f8fafc}
+[data-theme="light"] .login-topbar-line{color:#64748b}
+[data-theme="light"] .login-close img{filter:none;opacity:.5}
+[data-theme="light"] .login-field{border-color:rgba(0,0,0,.15)}
+[data-theme="light"] .login-field input{color:#1a1a2e}
+[data-theme="light"] .login-field input:-webkit-autofill,
+[data-theme="light"] .login-field input:-webkit-autofill:hover,
+[data-theme="light"] .login-field input:-webkit-autofill:focus{-webkit-text-fill-color:#1a1a2e;-webkit-box-shadow:0 0 0 1000px #fff inset}
+[data-theme="light"] .login-field label{color:rgba(0,0,0,.4)}
+[data-theme="light"] .login-field input:focus ~ label,
+[data-theme="light"] .login-field input:not(:placeholder-shown) ~ label{color:#64748b}
+[data-theme="light"] .login-forgot{color:#64748b}
+[data-theme="light"] .login-submit:disabled{background:#ccc;color:#888}
+[data-theme="light"] .login-divider span{color:#94a3b8}
+[data-theme="light"] .login-divider::before,[data-theme="light"] .login-divider::after{background:rgba(0,0,0,.1)}
+[data-theme="light"] .login-google{background:#f0f2f5;color:#1a1a2e}
+[data-theme="light"] .login-google:hover{background:#e2e8f0}
+[data-theme="light"] .login-eye{opacity:.4}
+[data-theme="light"] .login-eye img{filter:none}
+/* Register extras light */
+[data-theme="light"] .reg-validate-btn{border-color:rgba(0,0,0,.15);color:#64748b}
+[data-theme="light"] .reg-validate-btn:hover{border-color:#ff3a00;color:#ff3a00}
+[data-theme="light"] .reg-cpf-info{background:#f8fafc;border-bottom-color:#ff3901}
+[data-theme="light"] .reg-cpf-name{color:#1a1a2e}
+[data-theme="light"] .reg-cpf-numbers{color:#64748b}
+[data-theme="light"] .reg-trocar-btn{border-color:rgba(0,0,0,.12);color:#ff3901}
+[data-theme="light"] .reg-phone-prefix{color:#475569}
+[data-theme="light"] .reg-select-field select{background:#f8fafc;color:#1a1a2e;border-color:rgba(0,0,0,.12)}
+[data-theme="light"] .reg-check{color:#64748b}
+[data-theme="light"] .login-field-date input[type="date"]{color-scheme:light;color:#1a1a2e}
+[data-theme="light"] .login-field-date input[type="date"]::-webkit-calendar-picker-indicator{filter:none}
+[data-theme="light"] .login-field-date label{color:#64748b}
+
+/* Overlay color */
+[data-theme="light"] .sidebar-overlay.active{background:rgba(0,0,0,.25)}
+
+/* Toast */
+[data-theme="light"] .toast-container .toast{box-shadow:0 4px 16px rgba(0,0,0,.15)}

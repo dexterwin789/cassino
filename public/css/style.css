@@ -947,6 +947,32 @@ body.search-lock{overflow:hidden!important}
 .wallet-content{padding:24px;position:relative}
 .wallet-panel{display:none}
 .wallet-panel.active{display:block}
+.wallet-panel-title{
+  font-size:18px;font-weight:800;color:var(--text);
+  margin-bottom:16px;
+}
+.wallet-empty-text{
+  color:var(--text-muted);font-size:14px;margin-top:12px;
+}
+.wallet-theme-options{
+  display:flex;gap:16px;
+}
+.wallet-theme-card{
+  width:160px;padding:16px;border-radius:12px;
+  border:2px solid var(--border);background:transparent;
+  display:flex;flex-direction:column;align-items:center;gap:10px;
+  cursor:pointer;transition:.2s;color:var(--text-muted);font-size:13px;font-weight:600;
+}
+.wallet-theme-card:hover{border-color:rgba(255,57,1,.3)}
+.wallet-theme-card.active,.wallet-theme-card[data-set-theme="dark"].active,
+.wallet-theme-card[data-set-theme="light"].active{
+  border-color:#ff3901;color:#ff3901;
+}
+.wallet-theme-preview{
+  width:100%;height:80px;border-radius:8px;
+}
+.wallet-theme-preview-dark{background:linear-gradient(135deg,#0b1726,#1e2230)}
+.wallet-theme-preview-light{background:linear-gradient(135deg,#f0f2f5,#fff)}
 .wallet-balance-card{
   background:rgba(255,255,255,.03);
   border:1px solid var(--border);border-radius:12px;
@@ -968,14 +994,6 @@ body.search-lock{overflow:hidden!important}
 .wallet-btn-deposit:hover{filter:brightness(1.1)}
 .wallet-btn-withdraw{background:rgba(255,255,255,.08);color:var(--text);border:1px solid var(--border)}
 .wallet-btn-withdraw:hover{background:rgba(255,255,255,.12)}
-/* light */
-[data-theme="light"] .wallet-sidebar-nav{background:#f8fafc;border-color:rgba(0,0,0,.06)}
-[data-theme="light"] .wallet-nav-item{color:#475569}
-[data-theme="light"] .wallet-nav-item img{filter:none;opacity:.5}
-[data-theme="light"] .wallet-nav-item:hover{background:rgba(0,0,0,.03)}
-[data-theme="light"] .wallet-nav-item.active{color:#ff3a00;background:rgba(255,58,0,.06)}
-[data-theme="light"] .wallet-balance-card{background:#f8fafc;border-color:rgba(0,0,0,.06)}
-[data-theme="light"] .wallet-grid{border-color:rgba(0,0,0,.08)}
 @media(max-width:768px){
   .wallet-grid{grid-template-columns:1fr}
   .wallet-sidebar-nav{flex-direction:row;overflow-x:auto;border-right:none;border-bottom:1px solid var(--border);padding:0}
@@ -1907,7 +1925,7 @@ body.search-lock{overflow:hidden!important}
 }
 .dep-overlay.open{display:flex;opacity:1}
 .dep-modal{
-  width:500px;max-width:96vw;max-height:800px;
+  width:500px;max-width:96vw;max-height:840px;
   background:#1e2230;border-radius:12px;
   overflow:hidden;overflow-y:auto;
   display:flex;flex-direction:column;
