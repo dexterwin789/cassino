@@ -1,0 +1,308 @@
+<%- include('partials/head') %>
+
+<!-- TOP BAR -->
+<header class="topbar" id="topbar">
+  <div class="topbar-tabs" id="topbarTabs">
+    <button class="tab-switch active" data-tab="cassino">
+      <img src="/public/img/novo/carta1.svg" width="17" height="17" alt="Cassino">
+      CASSINO
+    </button>
+    <button class="tab-switch" data-tab="esportes">
+      <img src="/public/img/novo/bola1.svg" width="17" height="17" alt="Esportes">
+      ESPORTES
+    </button>
+  </div>
+  <div class="topbar-container">
+    <button class="bars-toggle" id="barsToggle" title="Toggle sidebar">
+      <img src="/public/img/novo/bars1.svg" width="16" height="16" alt="Menu">
+    </button>
+    <a href="/" class="topbar-logo">
+      <img src="/public/img/novo/logo.png" alt="CassinoBet" class="logo-img">
+    </a>
+    <div class="topbar-spacer"></div>
+    <span class="responsible-label is-guest-el">Jogo Responsável</span>
+    <div class="topbar-auth is-guest-el">
+      <button class="btn-register" id="btnOpenRegister">Registre-se</button>
+      <button class="btn-login" id="btnOpenLogin">Entrar</button>
+    </div>
+    <div class="topbar-wallet is-logged-el">
+      <span class="wallet-balance" id="walletBalance">R$ 0,00</span>
+      <button class="btn-deposit-top" id="btnDepositTop">Depositar</button>
+    </div>
+  </div>
+</header>
+
+<div class="app-layout" id="appLayout">
+  <!-- SIDEBAR (same as home) -->
+  <%- include('partials/sidebar') %>
+
+  <main class="main-content" id="mainContent">
+    <div class="main-container">
+
+      <!-- Banner area (same as home) -->
+      <section class="banner-area">
+        <div class="banner-main" id="bannerMain">
+          <% if (typeof banners !== 'undefined' && banners.length) { %>
+            <div class="banner-slider" id="bannerSlider">
+              <% banners.forEach(function(b, i) { %>
+              <a href="<%= b.link_url || '#' %>" class="banner-slide <%= i === 0 ? 'active' : '' %>">
+                <img src="<%= b.image_url %>" alt="Banner" loading="<%= i === 0 ? 'eager' : 'lazy' %>">
+              </a>
+              <% }); %>
+            </div>
+            <div class="banner-dots" id="bannerDots"></div>
+            <button class="banner-arrow banner-prev" id="bannerPrev">&#8249;</button>
+            <button class="banner-arrow banner-next" id="bannerNext">&#8250;</button>
+          <% } %>
+        </div>
+        <div class="banner-side">
+          <% if (typeof banners !== 'undefined' && banners.length > 1) { %>
+            <a href="<%= banners[1] ? banners[1].link_url || '#' : '#' %>" class="banner-side-item">
+              <img src="<%= banners[1] ? banners[1].image_url : '' %>" alt="Promo" loading="lazy">
+            </a>
+          <% } %>
+          <% if (typeof banners !== 'undefined' && banners.length > 2) { %>
+            <a href="<%= banners[2] ? banners[2].link_url || '#' : '#' %>" class="banner-side-item">
+              <img src="<%= banners[2] ? banners[2].image_url : '' %>" alt="Promo" loading="lazy">
+            </a>
+          <% } %>
+        </div>
+      </section>
+
+      <!-- Archive header -->
+      <section class="archive-header">
+        <a href="/" class="archive-back">&larr;</a>
+        <span class="archive-title" id="archiveTitle">Todos os jogos de cassino em <strong id="archiveLabelStrong"><%= typeof filterLabel !== 'undefined' ? filterLabel : 'Todos os Jogos' %></strong></span>
+      </section>
+
+      <!-- Filter bar -->
+      <section class="archive-filters">
+        <div class="archive-search-box">
+          <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="archiveSearch" placeholder="Pesquise um jogo..." autocomplete="off">
+        </div>
+        <div class="archive-provider-wrap">
+          <button class="archive-provider-btn" id="providerBtn">Provedores: <span id="providerLabel">Todos</span></button>
+          <div class="archive-provider-dropdown" id="providerDropdown">
+            <% if (typeof providers !== 'undefined') { %>
+              <% providers.forEach(function(p) { %>
+              <label class="archive-provider-item">
+                <input type="checkbox" value="<%= p %>" class="provider-check"> <%= p %>
+              </label>
+              <% }); %>
+            <% } %>
+          </div>
+        </div>
+      </section>
+
+      <!-- Games grid -->
+      <section class="game-section">
+        <div class="provider-grid" id="archiveGrid"></div>
+      </section>
+
+      <!-- Footer: count + load more -->
+      <div class="archive-footer" id="archiveFooter" style="display:none">
+        <div class="archive-count" id="archiveCount"></div>
+        <button class="archive-load-more" id="archiveLoadMore">Carregar mais</button>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<!-- Bottom nav mobile -->
+<nav class="bottom-nav">
+  <a href="/" class="bnav-item active">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+    <span>Início</span>
+  </a>
+  <a href="#" class="bnav-item" id="bnav-search">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <span>Buscar</span>
+  </a>
+  <button class="bnav-item bnav-deposit" id="bnav-deposit">
+    <div class="bnav-deposit-icon">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    </div>
+    <span>Depositar</span>
+  </button>
+  <a href="#" class="bnav-item" id="bnav-promos">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12v10H4V12M2 7h20v5H2zM12 22V7M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
+    <span>Promoções</span>
+  </a>
+  <a href="#" class="bnav-item" id="bnav-menu">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+    <span>Menu</span>
+  </a>
+</nav>
+
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+<div id="toastContainer" class="toast-container"></div>
+
+<script>
+(function(){
+  var allGames = <%- JSON.stringify(games) %>;
+  var PAGE_SIZE = 24;
+  var shown = 0;
+  var filtered = allGames.slice();
+  var activeProviders = [];
+
+  var grid = document.getElementById('archiveGrid');
+  var footer = document.getElementById('archiveFooter');
+  var countEl = document.getElementById('archiveCount');
+  var loadMoreBtn = document.getElementById('archiveLoadMore');
+  var searchInput = document.getElementById('archiveSearch');
+  var providerBtn = document.getElementById('providerBtn');
+  var providerDropdown = document.getElementById('providerDropdown');
+  var providerLabel = document.getElementById('providerLabel');
+
+  function cardHTML(g) {
+    var img = g.image_url || '/public/img/games/1.avif';
+    var name = g.game_name || 'Jogo';
+    return '<div class="game-card" title="' + name + '">' +
+      '<img src="' + img + '" alt="' + name + '" draggable="false" loading="lazy">' +
+      '<div class="game-overlay">' +
+        '<span class="play-btn">&#9654; JOGAR</span>' +
+      '</div></div>';
+  }
+
+  function applyFilters() {
+    var q = (searchInput ? searchInput.value : '').trim().toLowerCase();
+    filtered = allGames.filter(function(g) {
+      // Provider filter
+      if (activeProviders.length > 0) {
+        var prov = (g.provider || '').toLowerCase();
+        var match = false;
+        for (var i = 0; i < activeProviders.length; i++) {
+          if (prov === activeProviders[i].toLowerCase()) { match = true; break; }
+        }
+        if (!match) return false;
+      }
+      // Text filter
+      if (q.length >= 2) {
+        return (g.game_name || '').toLowerCase().includes(q) ||
+          (g.provider || '').toLowerCase().includes(q) ||
+          (g.category || '').toLowerCase().includes(q);
+      }
+      return true;
+    });
+    shown = 0;
+    if (grid) grid.innerHTML = '';
+    showMore();
+  }
+
+  function showMore() {
+    if (!grid) return;
+    var next = filtered.slice(shown, shown + PAGE_SIZE);
+    grid.insertAdjacentHTML('beforeend', next.map(cardHTML).join(''));
+    shown += next.length;
+    var total = filtered.length;
+    if (footer && countEl) {
+      countEl.innerHTML = '<span style="border-bottom:2px solid rgb(255,57,1);padding-bottom:2px">Mostrando ' + Math.min(shown, total) + ' de ' + total + ' jogos</span>';
+      footer.style.display = total > 0 ? '' : 'none';
+      if (loadMoreBtn) loadMoreBtn.style.display = shown >= total ? 'none' : 'inline-block';
+    }
+  }
+
+  // Init
+  applyFilters();
+
+  // Load more
+  if (loadMoreBtn) loadMoreBtn.addEventListener('click', showMore);
+
+  // Search
+  var searchTimer = null;
+  if (searchInput) searchInput.addEventListener('input', function() {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(applyFilters, 300);
+  });
+
+  // Provider dropdown toggle
+  if (providerBtn) providerBtn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    providerDropdown.classList.toggle('open');
+  });
+  document.addEventListener('click', function(e) {
+    if (providerDropdown && !providerDropdown.contains(e.target) && e.target !== providerBtn) {
+      providerDropdown.classList.remove('open');
+    }
+  });
+
+  // Provider checkbox change
+  if (providerDropdown) providerDropdown.addEventListener('change', function() {
+    var checks = providerDropdown.querySelectorAll('.provider-check:checked');
+    activeProviders = [];
+    checks.forEach(function(c) { activeProviders.push(c.value); });
+    if (providerLabel) providerLabel.textContent = activeProviders.length ? activeProviders.join(', ') : 'Todos';
+    applyFilters();
+  });
+
+  /* === Banner slider (same logic as home) === */
+  var bannerIndex = 0, bannerTimer = null;
+  var bannerSlider = document.getElementById('bannerSlider');
+  var bannerDotsEl = document.getElementById('bannerDots');
+  var bannerPrev = document.getElementById('bannerPrev');
+  var bannerNext = document.getElementById('bannerNext');
+
+  function getBannerSlides() { return bannerSlider ? bannerSlider.querySelectorAll('.banner-slide') : []; }
+  function showBanner(i) {
+    var slides = getBannerSlides();
+    if (!slides.length) return;
+    bannerIndex = ((i % slides.length) + slides.length) % slides.length;
+    slides.forEach(function(s, idx) { s.classList.toggle('active', idx === bannerIndex); });
+    var dots = bannerDotsEl ? bannerDotsEl.querySelectorAll('.dot') : [];
+    dots.forEach(function(d, idx) { d.classList.toggle('active', idx === bannerIndex); });
+  }
+  function startBannerAuto() { stopBannerAuto(); bannerTimer = setInterval(function() { showBanner(bannerIndex + 1); }, 5000); }
+  function stopBannerAuto() { if (bannerTimer) clearInterval(bannerTimer); bannerTimer = null; }
+  function initBannerDots() {
+    var slides = getBannerSlides();
+    if (!bannerDotsEl || !slides.length) return;
+    var html = '';
+    for (var i = 0; i < slides.length; i++) html += '<button class="dot ' + (i === 0 ? 'active' : '') + '" data-i="' + i + '"></button>';
+    bannerDotsEl.innerHTML = html;
+    bannerDotsEl.addEventListener('click', function(e) {
+      var dot = e.target.closest('.dot');
+      if (dot) { showBanner(+dot.dataset.i); startBannerAuto(); }
+    });
+  }
+  if (bannerPrev) bannerPrev.addEventListener('click', function() { showBanner(bannerIndex - 1); startBannerAuto(); });
+  if (bannerNext) bannerNext.addEventListener('click', function() { showBanner(bannerIndex + 1); startBannerAuto(); });
+  initBannerDots();
+  showBanner(0);
+  startBannerAuto();
+
+  /* === Sidebar toggle === */
+  var sidebar = document.getElementById('sidebar');
+  var sidebarOverlay = document.getElementById('sidebarOverlay');
+  var barsToggle = document.getElementById('barsToggle');
+  var topbarTabs = document.getElementById('topbarTabs');
+  function isMobile() { return window.innerWidth <= 768; }
+  if (barsToggle) barsToggle.addEventListener('click', function() {
+    if (isMobile()) {
+      if (sidebar) sidebar.classList.toggle('mobile-open');
+      if (sidebarOverlay) sidebarOverlay.classList.toggle('active');
+    } else {
+      if (sidebar) sidebar.classList.toggle('collapsed');
+      if (topbarTabs) topbarTabs.classList.toggle('collapsed');
+    }
+  });
+  if (sidebarOverlay) sidebarOverlay.addEventListener('click', function() {
+    if (sidebar) sidebar.classList.remove('mobile-open');
+    if (sidebarOverlay) sidebarOverlay.classList.remove('active');
+  });
+
+  /* Toast */
+  window.showToast = function(msg, type) {
+    var container = document.getElementById('toastContainer');
+    if (!container) { alert(msg); return; }
+    var toast = document.createElement('div');
+    toast.className = 'toast ' + (type || 'info');
+    toast.textContent = msg;
+    container.appendChild(toast);
+    setTimeout(function() { toast.style.opacity = '0'; toast.style.transform = 'translateX(20px)'; toast.style.transition = '.3s'; setTimeout(function() { toast.remove(); }, 300); }, 3000);
+  };
+})();
+</script>
+</body>
+</html>

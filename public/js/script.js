@@ -127,22 +127,30 @@ function handleSearchState() {
   if (searchFooter) searchFooter.style.display = 'none';
 
   if (q.length === 0) {
-    // Empty — show nothing, just the open dropdown
     if (searchTagsEl) searchTagsEl.innerHTML = '';
     if (searchGrid) searchGrid.innerHTML = '';
     return;
   }
-  if (q.length < 3) {
-    // Min 3 chars warning
+  // Special "all" command — shows every game
+  if (q.toLowerCase() === 'all') {
+    searchActiveTag = 'Todos';
+    searchFiltered = allGames.slice();
+    searchShown = 0;
+    var allTags = extractTags(searchFiltered);
+    renderSearchTags(allTags);
+    if (searchGrid) { searchGrid.innerHTML = ''; searchGrid.style.display = 'grid'; }
+    showMoreSearchResults();
+    return;
+  }
+  if (q.length < 2) {
     if (searchMessage) {
-      searchMessage.textContent = 'Pesquisa mínima de 3 caracteres';
+      searchMessage.textContent = 'Pesquisa mínima de 2 caracteres';
       searchMessage.style.display = 'block';
     }
     if (searchTagsEl) searchTagsEl.innerHTML = '';
     if (searchGrid) searchGrid.innerHTML = '';
     return;
   }
-  // Do the actual search
   doSearch();
 }
 
