@@ -605,6 +605,9 @@ function updateAuthState() {
         // Account section data
         var acctName = document.getElementById('acctFooterName');
         if (acctName && j.user) acctName.textContent = j.user.name || j.user.username || 'Usuário';
+        // Mirror name to all footer bars
+        var uName = (j.user && (j.user.name || j.user.username)) || 'Usuário';
+        document.querySelectorAll('.acctFooterNameMirror').forEach(function(e) { e.textContent = uName; });
         var acctUid = document.getElementById('acctUserId');
         if (acctUid && j.user) acctUid.value = j.user.id || '—';
         var acctEmail = document.getElementById('acctEmailValue');
@@ -826,8 +829,7 @@ document.querySelectorAll('#walletMainMenu .wallet-nav-item[data-panel]').forEac
       // Open sub-menu, show perfil panel
       showWalletSubMenu();
       document.querySelectorAll('.wallet-nav-item').forEach(function(n) { n.classList.remove('active'); });
-      var subPerfil = document.querySelector('#walletSubMenu .wallet-nav-item[data-panel="perfil"]');
-      if (subPerfil) subPerfil.classList.add('active');
+      // Show perfil panel (no sub-menu item for it — the back button acts as header)
       document.querySelectorAll('.wallet-panel').forEach(function(p) { p.classList.remove('active'); });
       var perfilPanel = document.getElementById('walletPanelPerfil');
       if (perfilPanel) perfilPanel.classList.add('active');
@@ -894,18 +896,20 @@ function startAcctTimer() {
     var diff = Math.floor((Date.now() - acctLoginStart) / 1000);
     var m = Math.floor(diff / 60);
     var s = diff % 60;
-    el.textContent = (m < 10 ? '0' : '') + m + 'm ' + (s < 10 ? '0' : '') + s + 's';
+    var txt = (m < 10 ? '0' : '') + m + 'm ' + (s < 10 ? '0' : '') + s + 's';
+    el.textContent = txt;
+    document.querySelectorAll('.acctLoggedTimeMirror').forEach(function(e) { e.textContent = txt; });
   }, 1000);
 }
 
 function updateAcctInfo() {
   // Set last login
   var lastLogin = document.getElementById('acctLastLogin');
-  if (lastLogin) {
-    var now = new Date();
-    lastLogin.textContent = now.toLocaleDateString('pt-BR') + ', ' +
-      now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-  }
+  var now = new Date();
+  var loginTxt = now.toLocaleDateString('pt-BR') + ', ' +
+    now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  if (lastLogin) lastLogin.textContent = loginTxt;
+  document.querySelectorAll('.acctLastLoginMirror').forEach(function(e) { e.textContent = loginTxt; });
   // Set current time for login history
   var currentTime = document.getElementById('acctCurrentTime');
   if (currentTime) {
@@ -1227,6 +1231,123 @@ function initApp() {
   }).catch(function() {
     dismissPreloader();
   });
+}
+
+/* ========== SAVE ACCOUNT FIELD ========== */
+function saveAcctField(type) {
+  showToast('Salvo com sucesso!', 'success');
+  // Close section if it's an expandable one
+  var section = document.getElementById('acct' + type.charAt(0).toUpperCase() + type.slice(1));
+  if (section && section.classList.contains('open')) {
+    section.classList.remove('open');
+    var btn = section.querySelector('.acct-toggle-btn');
+    if (btn) {
+      var origTexts = { acctCelular:'EDITAR', acctEndereco:'EDITAR', acctPix:'EDITAR', acctSenha:'EDITAR' };
+      btn.textContent = origTexts[section.id] || 'EDITAR';
+    }
+  }
+}
+window.saveAcctField = saveAcctField;
+
+/* ========== TOGGLE LIMIT FORM ========== */
+function toggleLimitForm(formId, value) {
+  var form = document.getElementById(formId);
+  if (!form) return;
+  var fields = form.querySelector('.acct-limit-fields');
+  var tag = form.querySelector('.acct-limit-tag');
+  if (value === 'unlimited' || value === 'no') {
+    if (fields) fields.style.display = 'none';
+    if (tag) tag.style.display = '';
+  } else {
+    if (fields) fields.style.display = '';
+    if (tag) tag.style.display = 'none';
+  }
+}
+window.toggleLimitForm = toggleLimitForm;
+
+/* ========== PIX MASK ========== */
+function updatePixMask() {
+  var sel = document.getElementById('acctPixType');
+  var inp = document.getElementById('acctPixKeyInput');
+  if (!sel || !inp) return;
+  var type = sel.value;
+  var masks = { cpf:'000.000.000-00', email:'email@exemplo.com', phone:'(00) 00000-0000', random:'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx' };
+  inp.placeholder = masks[type] || 'Chave PIX';
+  inp.value = '';
+}
+window.updatePixMask = updatePixMask;
+
+/* ========== PHOTO UPLOAD ========== */
+var acctPhotoInput = document.getElementById('acctPhotoInput');
+if (acctPhotoInput) {
+  acctPhotoInput.addEventListener('change', function(e) {
+    var file = e.target.files[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) { showToast('Selecione uma imagem válida.', 'error'); return; }
+    if (file.size > 5 * 1024 * 1024) { showToast('Imagem muito grande (máx 5MB).', 'error'); return; }
+    var reader = new FileReader();
+    reader.onload = function(ev) {
+      var src = ev.target.result;
+      var img = document.getElementById('acctPhotoImg');
+      if (img) img.src = src;
+      // Update header avatars
+      var topAvatar = document.getElementById('topbarAvatar');
+      if (topAvatar) topAvatar.src = src;
+      document.querySelectorAll('.topbar-dropdown-avatar').forEach(function(a) { a.src = src; });
+      showToast('Foto atualizada!', 'success');
+    };
+    reader.readAsDataURL(file);
+  });
+}
+var acctPhotoAlter = document.getElementById('acctPhotoAlter');
+if (acctPhotoAlter) acctPhotoAlter.addEventListener('click', function() {
+  if (acctPhotoInput) acctPhotoInput.click();
+});
+var acctPhotoRemove = document.getElementById('acctPhotoRemove');
+if (acctPhotoRemove) acctPhotoRemove.addEventListener('click', function() {
+  var defaultSvg = '/public/img/novo/topo3.svg';
+  var img = document.getElementById('acctPhotoImg');
+  if (img) img.src = defaultSvg;
+  var topAvatar = document.getElementById('topbarAvatar');
+  if (topAvatar) topAvatar.src = defaultSvg;
+  document.querySelectorAll('.topbar-dropdown-avatar').forEach(function(a) { a.src = defaultSvg; });
+  if (acctPhotoInput) acctPhotoInput.value = '';
+  showToast('Foto removida.', 'info');
+});
+
+/* ========== LOGIN HISTORY TABLE ========== */
+function populateLoginHistory() {
+  var body = document.getElementById('loginHistoryBody');
+  var count = document.getElementById('loginHistoryCount');
+  if (!body) return;
+  var now = new Date();
+  var rows = [
+    { date: now.toLocaleDateString('pt-BR') + ' ' + now.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'}), ip: '189.xxx.xxx.xx', city: 'São Paulo, SP', coords: '-23.55, -46.63' }
+  ];
+  body.innerHTML = '';
+  rows.forEach(function(r) {
+    var tr = document.createElement('tr');
+    tr.innerHTML = '<td>' + r.date + '</td><td>' + r.ip + '</td><td>' + r.city + '</td><td>' + r.coords + '</td>';
+    body.appendChild(tr);
+  });
+  if (count) count.textContent = 'Mostrando 1 de 1 registros';
+}
+populateLoginHistory();
+
+/* ========== BALANCE CLICK → WALLET ========== */
+var topbarBalanceBtn = document.getElementById('topbarBalanceBtn');
+if (topbarBalanceBtn) {
+  topbarBalanceBtn.addEventListener('click', function(e) {
+    e.preventDefault();
+    showWalletSection('saldo');
+  });
+}
+
+/* ========== FOOTER NAME MIRRORS ========== */
+function updateFooterNameMirrors(name) {
+  document.querySelectorAll('.acctFooterNameMirror').forEach(function(e) { e.textContent = name; });
+  var main = document.getElementById('acctDisplayName');
+  if (main) document.querySelectorAll('.acctFooterNameMirror').forEach(function(e) { e.textContent = main.textContent; });
 }
 
 initApp();
