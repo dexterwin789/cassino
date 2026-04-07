@@ -422,18 +422,28 @@
     <!-- Wallet / User Settings (replaces home content when active) -->
     <section class="wallet-section is-logged-el" id="wallet-section" style="display:none">
       <div class="wallet-grid">
-        <div class="wallet-sidebar-nav">
-          <a href="#" class="wallet-nav-item active" data-panel="perfil"><img src="/public/img/novo/drop8.svg" width="16" height="16"> MEU PERFIL</a>
-          <a href="#" class="wallet-nav-item" data-panel="saldo"><img src="/public/img/novo/drop5.svg" width="16" height="16"> GESTÃO DE SALDO</a>
-          <a href="#" class="wallet-nav-item" data-panel="apostas"><img src="/public/img/novo/drop6.svg" width="16" height="16"> HISTÓRICO DE APOSTAS</a>
-          <a href="#" class="wallet-nav-item" data-panel="extrato"><img src="/public/img/novo/drop5.svg" width="16" height="16"> EXTRATO COMPLETO</a>
+        <div class="wallet-sidebar-nav" id="walletMainMenu">
+          <a href="#" class="wallet-nav-item active" data-panel="perfil" data-has-submenu="true"><img src="/public/img/novo/drop8.svg" width="18" height="18"> MEU PERFIL <svg class="wallet-nav-arrow" viewBox="0 0 6 10"><path d="M1 1l4 4-4 4" stroke="currentColor" stroke-width="1.5" fill="none"/></svg></a>
+          <a href="#" class="wallet-nav-item" data-panel="saldo"><img src="/public/img/novo/gestao.svg" width="18" height="18"> GESTÃO DE SALDO</a>
+          <a href="#" class="wallet-nav-item" data-panel="apostas"><img src="/public/img/novo/historico.svg" width="18" height="18"> HISTÓRICO DE APOSTAS</a>
+          <a href="#" class="wallet-nav-item" data-panel="extrato"><img src="/public/img/novo/extrato.svg" width="18" height="18"> EXTRATO COMPLETO</a>
           <div class="wallet-nav-divider"></div>
-          <a href="#" class="wallet-nav-item" data-panel="tema"><img src="/public/img/novo/drop2.svg" width="16" height="16"> TEMA</a>
-          <a href="#" class="wallet-nav-item" data-panel="notif"><img src="/public/img/novo/drop3.svg" width="16" height="16"> NOTIFICAÇÕES</a>
-          <a href="#" class="wallet-nav-item" data-panel="indique"><img src="/public/img/novo/drop7.svg" width="16" height="16"> INDIQUE E GANHE</a>
-          <a href="#" class="wallet-nav-item" data-panel="premios"><img src="/public/img/novo/drop4.svg" width="16" height="16"> PRÊMIOS E RECOMPENSAS</a>
-          <a href="#" class="wallet-nav-item" data-panel="rendimentos"><img src="/public/img/novo/drop5.svg" width="16" height="16"> INFORME DE RENDIMENTOS</a>
-          <a href="#" class="wallet-nav-item wallet-nav-logout" id="walletLogout"><img src="/public/img/novo/drop12.svg" width="16" height="16"> SAIR</a>
+          <a href="#" class="wallet-nav-item" data-panel="tema"><img src="/public/img/novo/drop2.svg" width="18" height="18"> TEMA</a>
+          <a href="#" class="wallet-nav-item" data-panel="notif"><img src="/public/img/novo/drop3.svg" width="18" height="18"> NOTIFICAÇÕES <span class="wallet-nav-badge">0</span></a>
+          <a href="#" class="wallet-nav-item" data-panel="indique"><img src="/public/img/novo/drop7.svg" width="18" height="18"> INDIQUE E GANHE <span class="wallet-nav-value">R$ 50,00</span></a>
+          <a href="#" class="wallet-nav-item" data-panel="premios"><img src="/public/img/novo/drop4.svg" width="18" height="18"> PRÊMIOS E RECOMPENSAS</a>
+          <a href="#" class="wallet-nav-item" data-panel="rendimentos"><img src="/public/img/novo/informe.svg" width="18" height="18"> INFORME DE RENDIMENTOS</a>
+          <a href="#" class="wallet-nav-item wallet-nav-logout" id="walletLogout"><img src="/public/img/novo/drop12.svg" width="18" height="18"> SAIR</a>
+        </div>
+        <!-- Sub-menu for Meu Perfil -->
+        <div class="wallet-sidebar-nav wallet-sub-menu" id="walletSubMenu" style="display:none">
+          <a href="#" class="wallet-sub-back" id="walletSubBack"><svg viewBox="0 0 6 10" width="8" height="12"><path d="M5 1L1 5l4 4" stroke="currentColor" stroke-width="1.5" fill="none"/></svg> VOLTAR</a>
+          <div class="wallet-nav-divider"></div>
+          <a href="#" class="wallet-nav-item active" data-panel="perfil"><img src="/public/img/novo/drop8.svg" width="18" height="18"> Meu Perfil</a>
+          <a href="#" class="wallet-nav-item" data-panel="dadosConta"><img src="/public/img/novo/drop8.svg" width="18" height="18"> Dados da Conta</a>
+          <a href="#" class="wallet-nav-item" data-panel="loginSeg"><img src="/public/img/novo/drop9.svg" width="18" height="18"> Login e Segurança</a>
+          <a href="#" class="wallet-nav-item" data-panel="histLogin"><img src="/public/img/novo/historico.svg" width="18" height="18"> Histórico de Login</a>
+          <a href="#" class="wallet-nav-item" data-panel="jogoResp"><img src="/public/img/novo/safe.svg" width="18" height="18"> Jogo Responsável</a>
         </div>
         <div class="wallet-content">
           <!-- MEU PERFIL -->
@@ -507,6 +517,329 @@
           <div class="wallet-panel" id="walletPanelRendimentos">
             <div class="wallet-panel-title">Informe de Rendimentos</div>
             <p class="wallet-empty-text">Nenhum informe disponível.</p>
+          </div>
+
+          <!-- DADOS DA CONTA -->
+          <div class="wallet-panel" id="walletPanelDadosConta">
+            <div class="wallet-panel-title">Dados da Conta</div>
+
+            <!-- E-mail -->
+            <div class="acct-section" id="acctEmail">
+              <div class="acct-section-header" onclick="toggleAcctSection('acctEmail')">
+                <div class="acct-section-left">
+                  <span class="acct-title">E-mail</span>
+                  <span class="acct-badge acct-badge-pending">Não verificado</span>
+                </div>
+                <button class="acct-toggle-btn">EDITAR</button>
+              </div>
+              <div class="acct-summary"><span class="acct-summary-value" id="acctEmailValue">usuario@email.com</span></div>
+              <div class="acct-expand">
+                <div class="acct-field-group">
+                  <label class="acct-label">E-mail</label>
+                  <input type="email" class="acct-input" value="usuario@email.com">
+                </div>
+                <div class="acct-actions">
+                  <button class="acct-btn-save">Salvar</button>
+                  <button class="acct-btn-cancel" onclick="toggleAcctSection('acctEmail')">Cancelar</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Celular -->
+            <div class="acct-section" id="acctCelular">
+              <div class="acct-section-header" onclick="toggleAcctSection('acctCelular')">
+                <div class="acct-section-left">
+                  <span class="acct-title">Celular</span>
+                  <span class="acct-badge acct-badge-pending">Não verificado</span>
+                </div>
+                <button class="acct-toggle-btn">EDITAR</button>
+              </div>
+              <div class="acct-summary"><span class="acct-summary-value" id="acctPhoneValue">(11) 99999-9999</span></div>
+              <div class="acct-expand">
+                <div class="acct-field-group">
+                  <label class="acct-label">Celular</label>
+                  <div class="acct-phone-row">
+                    <span class="acct-phone-prefix">🇧🇷 +55</span>
+                    <input type="tel" class="acct-input" value="(11) 99999-9999">
+                  </div>
+                </div>
+                <div class="acct-actions">
+                  <button class="acct-btn-save">Salvar</button>
+                  <button class="acct-btn-cancel" onclick="toggleAcctSection('acctCelular')">Cancelar</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Endereço -->
+            <div class="acct-section" id="acctEndereco">
+              <div class="acct-section-header" onclick="toggleAcctSection('acctEndereco')">
+                <div class="acct-section-left">
+                  <span class="acct-title">Endereço</span>
+                  <span class="acct-badge acct-badge-complete">Completo</span>
+                </div>
+                <button class="acct-toggle-btn">EDITAR</button>
+              </div>
+              <div class="acct-summary"><span class="acct-summary-value">Rua Exemplo, 123 - São Paulo, SP</span></div>
+              <div class="acct-expand">
+                <div class="acct-field-row">
+                  <div class="acct-field-group acct-field-half">
+                    <label class="acct-label">CEP</label>
+                    <input type="text" class="acct-input" value="01001-000">
+                  </div>
+                  <div class="acct-field-group acct-field-half">
+                    <label class="acct-label">País</label>
+                    <input type="text" class="acct-input" value="Brasil" readonly>
+                  </div>
+                </div>
+                <div class="acct-field-group">
+                  <label class="acct-label">Rua</label>
+                  <input type="text" class="acct-input" value="Rua Exemplo, 123">
+                </div>
+                <div class="acct-field-row">
+                  <div class="acct-field-group acct-field-half">
+                    <label class="acct-label">Cidade</label>
+                    <input type="text" class="acct-input" value="São Paulo">
+                  </div>
+                  <div class="acct-field-group acct-field-half">
+                    <label class="acct-label">Estado</label>
+                    <input type="text" class="acct-input" value="SP">
+                  </div>
+                </div>
+                <div class="acct-actions">
+                  <button class="acct-btn-save">Salvar</button>
+                  <button class="acct-btn-cancel" onclick="toggleAcctSection('acctEndereco')">Cancelar</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Documento -->
+            <div class="acct-section" id="acctDocumento">
+              <div class="acct-section-header" onclick="toggleAcctSection('acctDocumento')">
+                <div class="acct-section-left">
+                  <span class="acct-title">Documento</span>
+                  <span class="acct-badge acct-badge-verified">Verificado</span>
+                </div>
+                <button class="acct-toggle-btn">VER DADOS</button>
+              </div>
+              <div class="acct-summary"><span class="acct-summary-value">CPF: ***.***.***-00 | Nascimento: 01/01/1990</span></div>
+              <div class="acct-expand">
+                <div class="acct-field-group">
+                  <label class="acct-label">CPF</label>
+                  <input type="text" class="acct-input" value="***.***.***-00" readonly>
+                </div>
+                <div class="acct-field-row">
+                  <div class="acct-field-group acct-field-half">
+                    <label class="acct-label">Data de Nascimento</label>
+                    <input type="text" class="acct-input" value="01/01/1990" readonly>
+                  </div>
+                  <div class="acct-field-group acct-field-half">
+                    <label class="acct-label">Nome Completo</label>
+                    <input type="text" class="acct-input" value="Nome do Usuário" readonly>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Contratos e Aceites -->
+            <div class="acct-section" id="acctContratos">
+              <div class="acct-section-header" onclick="toggleAcctSection('acctContratos')">
+                <div class="acct-section-left">
+                  <span class="acct-title">Contratos e Aceites</span>
+                  <span class="acct-badge acct-badge-complete">Completo</span>
+                </div>
+                <button class="acct-toggle-btn">VISUALIZAR</button>
+              </div>
+              <div class="acct-summary"><span class="acct-summary-value">Todos os termos aceitos</span></div>
+              <div class="acct-expand">
+                <div class="acct-contract-item">
+                  <span>Termos e condições gerais de uso</span>
+                  <label class="acct-switch"><input type="checkbox" checked disabled><span class="acct-switch-slider"></span></label>
+                </div>
+                <div class="acct-contract-item">
+                  <span>Política de privacidade</span>
+                  <label class="acct-switch"><input type="checkbox" checked disabled><span class="acct-switch-slider"></span></label>
+                </div>
+                <div class="acct-contract-item">
+                  <span>Política de Bônus</span>
+                  <label class="acct-switch"><input type="checkbox" checked disabled><span class="acct-switch-slider"></span></label>
+                </div>
+                <div class="acct-contract-item">
+                  <span>Política de jogo responsável</span>
+                  <label class="acct-switch"><input type="checkbox" checked disabled><span class="acct-switch-slider"></span></label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Meu Pix -->
+            <div class="acct-section" id="acctPix">
+              <div class="acct-section-header" onclick="toggleAcctSection('acctPix')">
+                <div class="acct-section-left">
+                  <span class="acct-title">Meu Pix</span>
+                </div>
+                <button class="acct-toggle-btn">EDITAR</button>
+              </div>
+              <div class="acct-summary"><span class="acct-summary-value">Chave CPF: ***.***.***-00</span></div>
+              <div class="acct-expand">
+                <div class="acct-field-group">
+                  <label class="acct-label">Tipo de Chave</label>
+                  <select class="acct-input acct-select">
+                    <option value="cpf" selected>CPF</option>
+                    <option value="email">E-mail</option>
+                    <option value="phone">Celular</option>
+                    <option value="random">Chave Aleatória</option>
+                  </select>
+                </div>
+                <div class="acct-field-group">
+                  <label class="acct-label">Chave PIX</label>
+                  <input type="text" class="acct-input" value="***.***.***-00">
+                </div>
+                <div class="acct-actions">
+                  <button class="acct-btn-save">Salvar</button>
+                  <button class="acct-btn-cancel" onclick="toggleAcctSection('acctPix')">Cancelar</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Dados da conta -->
+            <div class="acct-section" id="acctDados">
+              <div class="acct-section-header" onclick="toggleAcctSection('acctDados')">
+                <div class="acct-section-left">
+                  <span class="acct-title">Dados da conta</span>
+                </div>
+                <button class="acct-toggle-btn">VER DADOS</button>
+              </div>
+              <div class="acct-summary"><span class="acct-summary-value">BRA | BRL | PT-BR</span></div>
+              <div class="acct-expand">
+                <div class="acct-field-row">
+                  <div class="acct-field-group acct-field-half">
+                    <label class="acct-label">País</label>
+                    <input type="text" class="acct-input" value="Brasil" readonly>
+                  </div>
+                  <div class="acct-field-group acct-field-half">
+                    <label class="acct-label">Moeda</label>
+                    <input type="text" class="acct-input" value="BRL" readonly>
+                  </div>
+                </div>
+                <div class="acct-field-row">
+                  <div class="acct-field-group acct-field-half">
+                    <label class="acct-label">Idioma</label>
+                    <input type="text" class="acct-input" value="PT-BR" readonly>
+                  </div>
+                  <div class="acct-field-group acct-field-half">
+                    <label class="acct-label">Fuso Horário</label>
+                    <input type="text" class="acct-input" value="America/Sao_Paulo" readonly>
+                  </div>
+                </div>
+                <div class="acct-field-group">
+                  <label class="acct-label">ID da conta</label>
+                  <input type="text" class="acct-input" value="—" readonly id="acctUserId">
+                </div>
+              </div>
+            </div>
+
+            <!-- Notificações toggle -->
+            <div class="acct-section acct-section-inline" id="acctNotifToggle">
+              <div class="acct-section-left" style="flex:1">
+                <span class="acct-title">Quero receber atualizações sobre ofertas e bônus</span>
+              </div>
+              <label class="acct-switch"><input type="checkbox" checked><span class="acct-switch-slider"></span></label>
+            </div>
+
+            <!-- Footer bar -->
+            <div class="acct-footer-bar">
+              <span>Olá, <strong id="acctFooterName">Usuário</strong></span>
+              <span>Tempo logado: <strong id="acctLoggedTime">00m 00s</strong></span>
+              <span>Último login: <strong id="acctLastLogin">—</strong></span>
+            </div>
+          </div>
+
+          <!-- LOGIN E SEGURANÇA -->
+          <div class="wallet-panel" id="walletPanelLoginSeg">
+            <div class="wallet-panel-title">Login e Segurança</div>
+            <div class="acct-section" id="acctSenha">
+              <div class="acct-section-header" onclick="toggleAcctSection('acctSenha')">
+                <div class="acct-section-left">
+                  <span class="acct-title">Alterar Senha</span>
+                </div>
+                <button class="acct-toggle-btn">EDITAR</button>
+              </div>
+              <div class="acct-summary"><span class="acct-summary-value">••••••••</span></div>
+              <div class="acct-expand">
+                <div class="acct-field-group">
+                  <label class="acct-label">Senha atual</label>
+                  <input type="password" class="acct-input" placeholder="Digite sua senha atual">
+                </div>
+                <div class="acct-field-group">
+                  <label class="acct-label">Nova senha</label>
+                  <input type="password" class="acct-input" placeholder="Digite a nova senha">
+                </div>
+                <div class="acct-field-group">
+                  <label class="acct-label">Confirmar nova senha</label>
+                  <input type="password" class="acct-input" placeholder="Confirme a nova senha">
+                </div>
+                <div class="acct-actions">
+                  <button class="acct-btn-save">Salvar</button>
+                  <button class="acct-btn-cancel" onclick="toggleAcctSection('acctSenha')">Cancelar</button>
+                </div>
+              </div>
+            </div>
+            <div class="acct-section acct-section-inline">
+              <div class="acct-section-left" style="flex:1">
+                <span class="acct-title">Autenticação em dois fatores</span>
+                <span class="acct-summary-value" style="font-size:12px;display:block;margin-top:2px">Adicione uma camada extra de segurança</span>
+              </div>
+              <label class="acct-switch"><input type="checkbox"><span class="acct-switch-slider"></span></label>
+            </div>
+          </div>
+
+          <!-- HISTÓRICO DE LOGIN -->
+          <div class="wallet-panel" id="walletPanelHistLogin">
+            <div class="wallet-panel-title">Histórico de Login</div>
+            <div class="acct-login-history">
+              <div class="acct-history-row">
+                <div class="acct-history-info">
+                  <span class="acct-history-date">Hoje, às <span id="acctCurrentTime">--:--</span></span>
+                  <span class="acct-history-device">Navegador Web • Windows</span>
+                </div>
+                <span class="acct-badge acct-badge-verified">Atual</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- JOGO RESPONSÁVEL -->
+          <div class="wallet-panel" id="walletPanelJogoResp">
+            <div class="wallet-panel-title">Jogo Responsável</div>
+            <div class="acct-responsible">
+              <p class="wallet-empty-text" style="margin-bottom:16px">Definimos limites para manter sua experiência saudável e divertida.</p>
+              <div class="acct-section acct-section-inline">
+                <div class="acct-section-left" style="flex:1">
+                  <span class="acct-title">Limite de depósito diário</span>
+                  <span class="acct-summary-value" style="font-size:12px;display:block;margin-top:2px">Sem limite definido</span>
+                </div>
+                <button class="acct-toggle-btn">DEFINIR</button>
+              </div>
+              <div class="acct-section acct-section-inline">
+                <div class="acct-section-left" style="flex:1">
+                  <span class="acct-title">Limite de depósito semanal</span>
+                  <span class="acct-summary-value" style="font-size:12px;display:block;margin-top:2px">Sem limite definido</span>
+                </div>
+                <button class="acct-toggle-btn">DEFINIR</button>
+              </div>
+              <div class="acct-section acct-section-inline">
+                <div class="acct-section-left" style="flex:1">
+                  <span class="acct-title">Limite de depósito mensal</span>
+                  <span class="acct-summary-value" style="font-size:12px;display:block;margin-top:2px">Sem limite definido</span>
+                </div>
+                <button class="acct-toggle-btn">DEFINIR</button>
+              </div>
+              <div class="acct-section acct-section-inline">
+                <div class="acct-section-left" style="flex:1">
+                  <span class="acct-title">Autoexclusão temporária</span>
+                  <span class="acct-summary-value" style="font-size:12px;display:block;margin-top:2px">Bloqueie sua conta por um período</span>
+                </div>
+                <button class="acct-toggle-btn" style="color:#ef4444">ATIVAR</button>
+              </div>
+            </div>
           </div>
         </div>
       </div>

@@ -602,6 +602,13 @@ function updateAuthState() {
         var wBal = document.getElementById('walletMainBalance');
         var wUid = document.getElementById('walletUserId');
         if (wUid && j.user) wUid.textContent = j.user.id || '';
+        // Account section data
+        var acctName = document.getElementById('acctFooterName');
+        if (acctName && j.user) acctName.textContent = j.user.name || j.user.username || 'Usuário';
+        var acctUid = document.getElementById('acctUserId');
+        if (acctUid && j.user) acctUid.value = j.user.id || '—';
+        var acctEmail = document.getElementById('acctEmailValue');
+        if (acctEmail && j.user && j.user.email) acctEmail.textContent = j.user.email;
       }
     }).catch(function() {
       document.body.classList.add('is-guest');
@@ -746,10 +753,22 @@ function showWalletSection(panel) {
   var wallet = document.getElementById('wallet-section');
   if (home) home.style.display = 'none';
   if (wallet) wallet.style.display = '';
+
+  // Determine which menu to show
+  var subPanels = ['perfil','dadosConta','loginSeg','histLogin','jogoResp'];
+  var isSubPanel = panel && subPanels.indexOf(panel) !== -1;
+
+  if (isSubPanel) {
+    showWalletSubMenu();
+  }
+
   if (panel) {
-    document.querySelectorAll('.wallet-nav-item').forEach(function(n) { n.classList.remove('active'); });
-    var navItem = document.querySelector('.wallet-nav-item[data-panel="' + panel + '"]');
-    if (navItem) navItem.classList.add('active');
+    var activeMenu = isSubPanel ? document.getElementById('walletSubMenu') : document.getElementById('walletMainMenu');
+    if (activeMenu) {
+      activeMenu.querySelectorAll('.wallet-nav-item').forEach(function(n) { n.classList.remove('active'); });
+      var navItem = activeMenu.querySelector('.wallet-nav-item[data-panel="' + panel + '"]');
+      if (navItem) navItem.classList.add('active');
+    }
     document.querySelectorAll('.wallet-panel').forEach(function(p) { p.classList.remove('active'); });
     var target = document.getElementById('walletPanel' + panel.charAt(0).toUpperCase() + panel.slice(1));
     if (target) target.classList.add('active');
@@ -762,17 +781,73 @@ function hideWalletSection() {
   var wallet = document.getElementById('wallet-section');
   if (home) home.style.display = '';
   if (wallet) wallet.style.display = 'none';
+  // Reset to main menu
+  hideWalletSubMenu();
+}
+
+// Sub-menu show/hide
+function showWalletSubMenu() {
+  var main = document.getElementById('walletMainMenu');
+  var sub = document.getElementById('walletSubMenu');
+  if (main) main.style.display = 'none';
+  if (sub) sub.style.display = '';
+}
+function hideWalletSubMenu() {
+  var main = document.getElementById('walletMainMenu');
+  var sub = document.getElementById('walletSubMenu');
+  if (main) main.style.display = '';
+  if (sub) sub.style.display = 'none';
 }
 
 // Make accessible globally
 window.showWalletSection = showWalletSection;
 window.hideWalletSection = hideWalletSection;
 
-// Nav item switching
-document.querySelectorAll('.wallet-nav-item[data-panel]').forEach(function(item) {
+// Sub-menu back button
+var walletSubBack = document.getElementById('walletSubBack');
+if (walletSubBack) walletSubBack.addEventListener('click', function(e) {
+  e.preventDefault();
+  hideWalletSubMenu();
+  // Activate perfil panel + main menu item
+  document.querySelectorAll('.wallet-nav-item').forEach(function(n) { n.classList.remove('active'); });
+  var mainPerfil = document.querySelector('#walletMainMenu .wallet-nav-item[data-panel="perfil"]');
+  if (mainPerfil) mainPerfil.classList.add('active');
+  document.querySelectorAll('.wallet-panel').forEach(function(p) { p.classList.remove('active'); });
+  var perfilPanel = document.getElementById('walletPanelPerfil');
+  if (perfilPanel) perfilPanel.classList.add('active');
+});
+
+// Nav item switching — main menu
+document.querySelectorAll('#walletMainMenu .wallet-nav-item[data-panel]').forEach(function(item) {
   item.addEventListener('click', function(e) {
     e.preventDefault();
+    var hasSubmenu = item.getAttribute('data-has-submenu');
+    if (hasSubmenu) {
+      // Open sub-menu, show perfil panel
+      showWalletSubMenu();
+      document.querySelectorAll('.wallet-nav-item').forEach(function(n) { n.classList.remove('active'); });
+      var subPerfil = document.querySelector('#walletSubMenu .wallet-nav-item[data-panel="perfil"]');
+      if (subPerfil) subPerfil.classList.add('active');
+      document.querySelectorAll('.wallet-panel').forEach(function(p) { p.classList.remove('active'); });
+      var perfilPanel = document.getElementById('walletPanelPerfil');
+      if (perfilPanel) perfilPanel.classList.add('active');
+      return;
+    }
+    hideWalletSubMenu();
     document.querySelectorAll('.wallet-nav-item').forEach(function(n) { n.classList.remove('active'); });
+    item.classList.add('active');
+    var panel = item.getAttribute('data-panel');
+    document.querySelectorAll('.wallet-panel').forEach(function(p) { p.classList.remove('active'); });
+    var target = document.getElementById('walletPanel' + panel.charAt(0).toUpperCase() + panel.slice(1));
+    if (target) target.classList.add('active');
+  });
+});
+
+// Nav item switching — sub-menu
+document.querySelectorAll('#walletSubMenu .wallet-nav-item[data-panel]').forEach(function(item) {
+  item.addEventListener('click', function(e) {
+    e.preventDefault();
+    document.querySelectorAll('#walletSubMenu .wallet-nav-item').forEach(function(n) { n.classList.remove('active'); });
     item.classList.add('active');
     var panel = item.getAttribute('data-panel');
     document.querySelectorAll('.wallet-panel').forEach(function(p) { p.classList.remove('active'); });
@@ -786,6 +861,60 @@ var walletDepositBtn = document.getElementById('walletDepositBtn');
 if (walletDepositBtn) walletDepositBtn.addEventListener('click', function() {
   if (typeof openDepositModal === 'function') openDepositModal();
 });
+
+/* ========== ACCOUNT SECTION EXPAND/COLLAPSE ========== */
+function toggleAcctSection(id) {
+  var section = document.getElementById(id);
+  if (!section) return;
+  section.classList.toggle('open');
+  var btn = section.querySelector('.acct-toggle-btn');
+  if (btn) {
+    if (section.classList.contains('open')) {
+      btn.textContent = 'CANCELAR';
+    } else {
+      // Restore original text
+      var origTexts = { acctEmail:'EDITAR', acctCelular:'EDITAR', acctEndereco:'EDITAR',
+        acctDocumento:'VER DADOS', acctContratos:'VISUALIZAR', acctPix:'EDITAR',
+        acctDados:'VER DADOS', acctSenha:'EDITAR' };
+      btn.textContent = origTexts[id] || 'EDITAR';
+    }
+  }
+}
+window.toggleAcctSection = toggleAcctSection;
+
+/* ========== ACCOUNT LOGGED TIME TIMER ========== */
+var acctLoginStart = Date.now();
+var acctTimerInterval = null;
+
+function startAcctTimer() {
+  var el = document.getElementById('acctLoggedTime');
+  if (!el) return;
+  if (acctTimerInterval) clearInterval(acctTimerInterval);
+  acctTimerInterval = setInterval(function() {
+    var diff = Math.floor((Date.now() - acctLoginStart) / 1000);
+    var m = Math.floor(diff / 60);
+    var s = diff % 60;
+    el.textContent = (m < 10 ? '0' : '') + m + 'm ' + (s < 10 ? '0' : '') + s + 's';
+  }, 1000);
+}
+
+function updateAcctInfo() {
+  // Set last login
+  var lastLogin = document.getElementById('acctLastLogin');
+  if (lastLogin) {
+    var now = new Date();
+    lastLogin.textContent = now.toLocaleDateString('pt-BR') + ', ' +
+      now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  }
+  // Set current time for login history
+  var currentTime = document.getElementById('acctCurrentTime');
+  if (currentTime) {
+    currentTime.textContent = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  }
+  startAcctTimer();
+}
+// Start timer on load
+updateAcctInfo();
 
 // Wallet logout
 var walletLogout = document.getElementById('walletLogout');

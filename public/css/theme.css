@@ -35,13 +35,13 @@
 [data-theme="light"] .topbar{background:#fff;border-color:rgba(0,0,0,.08);box-shadow:0 1px 4px rgba(0,0,0,.06)}
 [data-theme="light"] .tab-switch{color:#475569}
 [data-theme="light"] .tab-switch.active{color:#ff3a00}
-[data-theme="light"] .bars-toggle img{filter:none;opacity:.6}
+[data-theme="light"] .bars-toggle img{filter:brightness(0) saturate(100%);opacity:.7}
 [data-theme="light"] .topbar-balance{background:rgba(0,0,0,.04)}
 [data-theme="light"] .topbar-balance-btn{color:#1a1a2e}
 [data-theme="light"] .topbar-balance-val{color:#1a1a2e}
 [data-theme="light"] .topbar-balance-refresh{border-color:rgba(0,0,0,.08)}
 [data-theme="light"] .topbar-balance-refresh img,
-[data-theme="light"] .topbar-notif img{filter:none;opacity:.6}
+[data-theme="light"] .topbar-notif img{filter:brightness(0) saturate(100%);opacity:.7}
 [data-theme="light"] .topbar-user-btn{border-color:rgba(0,0,0,.15)}
 [data-theme="light"] .btn-login{border-color:rgba(0,0,0,.15);color:#1a1a2e}
 [data-theme="light"] .topbar-notif-badge{background:#ff3a00}
@@ -54,9 +54,9 @@
 [data-theme="light"] .topbar-dropdown-date{color:#94a3b8;border-color:rgba(0,0,0,.06)}
 [data-theme="light"] .topbar-dropdown-nav a{color:#475569}
 [data-theme="light"] .topbar-dropdown-nav a:hover{background:rgba(0,0,0,.04);color:#1a1a2e}
-[data-theme="light"] .topbar-dropdown-nav a img{filter:none;opacity:.5}
+[data-theme="light"] .topbar-dropdown-nav a img{filter:brightness(0) saturate(100%);opacity:.7}
 [data-theme="light"] .dropdown-theme-row{color:#475569}
-[data-theme="light"] .dropdown-theme-row img{filter:none;opacity:.5}
+[data-theme="light"] .dropdown-theme-row img{filter:brightness(0) saturate(100%);opacity:.7}
 [data-theme="light"] .topbar-dropdown-logout{color:#ef4444!important;border-color:rgba(0,0,0,.06)}
 [data-theme="light"] .theme-btn{border-color:rgba(0,0,0,.12);color:#64748b}
 [data-theme="light"] .theme-btn.active{border-color:#ff3901;color:#ff3901;background:rgba(255,57,1,.08)}
@@ -70,11 +70,13 @@
 [data-theme="light"] .menu-list li{color:#475569}
 [data-theme="light"] .menu-list li:hover{color:#ff3a00;background:rgba(255,58,0,.06)}
 [data-theme="light"] .menu-list li.active{color:#ff3a00}
-[data-theme="light"] .mi{filter:none;opacity:.55}
+[data-theme="light"] .mi{filter:brightness(0) saturate(100%);opacity:.7}
 [data-theme="light"] .sidebar-bottom a{color:#475569}
 [data-theme="light"] .sidebar-bottom a:hover{color:#ff3a00}
+[data-theme="light"] .sidebar-bottom a img{filter:brightness(0) saturate(100%);opacity:.7}
 [data-theme="light"] .sidebar-lang{color:#475569;border-color:rgba(0,0,0,.06)}
 [data-theme="light"] .sidebar-section-border{border-color:rgba(0,0,0,.06)}
+[data-theme="light"] .sq-card img{filter:brightness(0) saturate(100%);opacity:.7}
 
 /* Category Icons */
 [data-theme="light"] .cat-icon-item span{color:#1a1a2e}
@@ -103,8 +105,8 @@
 [data-theme="light"] .top10-rank{color:rgba(0,0,0,.08)}
 
 /* Ligas */
-[data-theme="light"] .ligas-bar{background:rgba(0,0,0,.03);color:#1a1a2e}
-[data-theme="light"] .liga-item{background:#fff;border-color:rgba(0,0,0,.06)}
+[data-theme="light"] .ligas-bar{color:#1a1a2e}
+[data-theme="light"] .liga-item{background:transparent}
 [data-theme="light"] .liga-name span{color:#475569}
 
 /* Studios */
@@ -162,7 +164,7 @@
 [data-theme="light"] .wallet-grid{border-color:rgba(0,0,0,.08)}
 [data-theme="light"] .wallet-sidebar-nav{background:#f8fafc;border-color:rgba(0,0,0,.06)}
 [data-theme="light"] .wallet-nav-item{color:#475569}
-[data-theme="light"] .wallet-nav-item img{filter:none;opacity:.5}
+[data-theme="light"] .wallet-nav-item img{filter:brightness(0) saturate(100%);opacity:.7}
 [data-theme="light"] .wallet-nav-item:hover{background:rgba(0,0,0,.03);color:#1a1a2e}
 [data-theme="light"] .wallet-nav-item.active{color:#ff3a00;background:rgba(255,58,0,.06)}
 [data-theme="light"] .wallet-content{color:#1a1a2e}
@@ -173,6 +175,26 @@
 [data-theme="light"] .wallet-btn-withdraw:hover{background:rgba(0,0,0,.08)}
 [data-theme="light"] .wallet-panel h3{color:#1a1a2e}
 [data-theme="light"] .wallet-panel p{color:#64748b}
+[data-theme="light"] .wallet-sub-back{color:#475569}
+[data-theme="light"] .wallet-sub-back:hover{color:#1a1a2e}
+
+/* Account sections (Dados da Conta) */
+[data-theme="light"] .acct-section{background:#fff;border-color:rgba(0,0,0,.08)}
+[data-theme="light"] .acct-section-header:hover{background:rgba(0,0,0,.02)}
+[data-theme="light"] .acct-title{color:#1a1a2e}
+[data-theme="light"] .acct-summary-value{color:#64748b}
+[data-theme="light"] .acct-expand{border-color:rgba(0,0,0,.06)}
+[data-theme="light"] .acct-input{background:#f8fafc;border-color:rgba(0,0,0,.1);color:#1a1a2e}
+[data-theme="light"] .acct-label{color:#64748b}
+[data-theme="light"] .acct-btn-cancel{border-color:rgba(0,0,0,.1);color:#64748b}
+[data-theme="light"] .acct-contract-item{color:#1a1a2e;border-color:rgba(0,0,0,.06)}
+[data-theme="light"] .acct-switch-slider{background:rgba(0,0,0,.12)}
+[data-theme="light"] .acct-section-inline{background:#fff;border-color:rgba(0,0,0,.08)}
+[data-theme="light"] .acct-footer-bar{background:#f8fafc;border-color:rgba(0,0,0,.06);color:#64748b}
+[data-theme="light"] .acct-footer-bar strong{color:#1a1a2e}
+[data-theme="light"] .acct-history-row{background:#fff;border-color:rgba(0,0,0,.08)}
+[data-theme="light"] .acct-history-date{color:#1a1a2e}
+[data-theme="light"] .acct-history-device{color:#64748b}
 
 /* Deposit modal */
 [data-theme="light"] .dep-modal{background:#fff}
