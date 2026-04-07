@@ -4,9 +4,11 @@
 CREATE TABLE IF NOT EXISTS users (
   id            SERIAL PRIMARY KEY,
   username      VARCHAR(64) NOT NULL UNIQUE,
+  name          VARCHAR(128),
   phone         VARCHAR(32),
   email         VARCHAR(255),
-  cpf           VARCHAR(14),
+  cpf           VARCHAR(14) UNIQUE,
+  birth_date    DATE,
   password_hash VARCHAR(255) NOT NULL,
   bonus         NUMERIC(14,2) NOT NULL DEFAULT 0,
   balance       NUMERIC(14,2) NOT NULL DEFAULT 0,

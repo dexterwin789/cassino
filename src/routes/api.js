@@ -9,35 +9,48 @@ const { createSale } = require('../services/blackcat');
 // POST /api/register
 router.post('/register', async (req, res) => {
   try {
-    const { username, password, phone } = req.body;
-    const user = (username || '').trim();
+    const { username, password, phone, cpf, email, name, birth_date } = req.body;
+    const user = (username || email || '').trim();
     const pass = password || '';
     const ph = (phone || '').trim();
+    const cleanCpf = (cpf || '').replace(/\D/g, '');
+    const cleanEmail = (email || '').trim();
+    const cleanName = (name || '').trim();
 
-    if (!user || user.length < 3 || user.length > 32) {
-      return res.status(400).json({ ok: false, msg: 'Usuário deve ter 3-32 caracteres.' });
+    if (!user || user.length < 3 || user.length > 64) {
+      return res.status(400).json({ ok: false, msg: 'E-mail deve ter pelo menos 3 caracteres.' });
     }
-    if (pass.length < 6 || pass.length > 16) {
-      return res.status(400).json({ ok: false, msg: 'Senha deve ter 6-16 caracteres.' });
+    if (pass.length < 6 || pass.length > 64) {
+      return res.status(400).json({ ok: false, msg: 'Senha deve ter 6-64 caracteres.' });
     }
     if (ph && ph.length < 8) {
       return res.status(400).json({ ok: false, msg: 'Telefone inválido.' });
     }
 
-    const exists = await query('SELECT id FROM users WHERE username = $1', [user]);
+    // Check duplicate CPF
+    if (cleanCpf) {
+      const cpfExists = await query('SELECT id FROM users WHERE cpf = $1', [cleanCpf]);
+      if (cpfExists.rows.length) {
+        return res.status(409).json({ ok: false, msg: 'CPF já cadastrado.' });
+      }
+    }
+
+    // Check duplicate email/username
+    const exists = await query('SELECT id FROM users WHERE username = $1 OR email = $2', [user, cleanEmail || user]);
     if (exists.rows.length) {
-      return res.status(409).json({ ok: false, msg: 'Usuário já existe.' });
+      return res.status(409).json({ ok: false, msg: 'E-mail já cadastrado.' });
     }
 
     const hash = await bcrypt.hash(pass, 10);
     const r = await query(
-      'INSERT INTO users (username, phone, password_hash) VALUES ($1, $2, $3) RETURNING id, username, phone',
-      [user, ph || null, hash]
+      `INSERT INTO users (username, name, phone, email, cpf, birth_date, password_hash) 
+       VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id, username, name, phone, email, cpf`,
+      [user, cleanName || null, ph || null, cleanEmail || null, cleanCpf || null, birth_date || null, hash]
     );
     const u = r.rows[0];
 
     // Create wallet
-    await query('INSERT INTO wallets (user_id, balance_cents) VALUES ($1, 0)', [u.id]);
+    await query('INSERT INTO wallets (user_id, balance_cents) VALUES ($1, 0) ON CONFLICT DO NOTHING', [u.id]);
 
     req.session.user = u;
     req.session.save((saveErr) => {
@@ -46,6 +59,9 @@ router.post('/register', async (req, res) => {
     });
   } catch (err) {
     console.error('[REGISTER]', err);
+    if (err.code === '23505') {
+      return res.status(409).json({ ok: false, msg: 'E-mail ou CPF já cadastrado.' });
+    }
     res.status(500).json({ ok: false, msg: 'Erro ao registrar.' });
   }
 });
@@ -53,12 +69,16 @@ router.post('/register', async (req, res) => {
 // POST /api/login
 router.post('/login', async (req, res) => {
   try {
-    const { username, password } = req.body;
-    if (!username || !password) {
+    const login = (req.body.login || req.body.username || '').trim();
+    const password = req.body.password || '';
+    if (!login || !password) {
       return res.status(400).json({ ok: false, msg: 'Preencha todos os campos.' });
     }
 
-    const r = await query('SELECT id, username, phone, password_hash FROM users WHERE username = $1', [username.trim()]);
+    const r = await query(
+      'SELECT id, username, name, phone, email, cpf, password_hash FROM users WHERE username = $1 OR email = $1 OR cpf = $2',
+      [login, login.replace(/\D/g, '')]
+    );
     const u = r.rows[0];
     if (!u || !(await bcrypt.compare(password, u.password_hash))) {
       return res.status(401).json({ ok: false, msg: 'Usuário ou senha inválidos.' });
@@ -81,6 +101,18 @@ router.post('/logout', (req, res) => {
   req.session.destroy(() => {
     res.json({ ok: true });
   });
+});
+
+// GET /api/check-cpf
+router.get('/check-cpf', async (req, res) => {
+  const cpf = (req.query.cpf || '').replace(/\D/g, '');
+  if (!cpf || cpf.length !== 11) return res.json({ exists: false });
+  try {
+    const r = await query('SELECT id FROM users WHERE cpf = $1', [cpf]);
+    res.json({ exists: r.rows.length > 0 });
+  } catch (e) {
+    res.json({ exists: false });
+  }
 });
 
 // GET /api/me
@@ -248,6 +280,23 @@ router.post('/user/change-password', requireUser, async (req, res) => {
   } catch (err) {
     console.error('[CHANGE_PASSWORD]', err);
     res.status(500).json({ ok: false, msg: 'Erro ao alterar senha.' });
+  }
+});
+
+// GET /api/deposit/status?tx_id=123
+router.get('/deposit/status', requireUser, async (req, res) => {
+  try {
+    const txId = parseInt(req.query.tx_id);
+    if (!txId) return res.status(400).json({ ok: false, msg: 'tx_id obrigatório.' });
+    const r = await query(
+      'SELECT status, amount_cents FROM transactions WHERE id = $1 AND user_id = $2',
+      [txId, req.session.user.id]
+    );
+    if (!r.rows[0]) return res.status(404).json({ ok: false, msg: 'Transação não encontrada.' });
+    res.json({ ok: true, status: r.rows[0].status, amount_cents: r.rows[0].amount_cents });
+  } catch (err) {
+    console.error('[DEPOSIT_STATUS]', err);
+    res.status(500).json({ ok: false, msg: 'Erro interno.' });
   }
 });
 

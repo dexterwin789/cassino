@@ -92,7 +92,6 @@
             <!-- CPF info bar -->
             <div class="reg-cpf-info" id="regCpfInfo">
               <div class="reg-cpf-data">
-                <span class="reg-cpf-name" id="regCpfName">---</span>
                 <span class="reg-cpf-numbers" id="regCpfNumbers">---</span>
               </div>
               <button type="button" class="reg-trocar-btn" id="regTrocarCpf">Trocar CPF</button>
@@ -239,6 +238,18 @@
 
       <!-- Depositar -->
       <button class="dep-submit" id="depSubmitBtn" type="button">DEPOSITAR</button>
+
+      <!-- QR Code Result (hidden until PIX generated) -->
+      <div class="dep-qr-result" id="depQrResult" style="display:none">
+        <div class="dep-qr-status" id="depQrStatus">Aguardando pagamento...</div>
+        <div class="dep-qr-amount" id="depQrAmount"></div>
+        <img class="dep-qr-img" id="depQrImg" alt="QR Code PIX" src="">
+        <div class="dep-qr-copy-wrap">
+          <input type="text" class="dep-qr-code" id="depQrCode" readonly>
+          <button class="dep-qr-copy-btn" id="depQrCopyBtn" type="button">Copiar</button>
+        </div>
+        <span class="dep-qr-timer" id="depQrTimer"></span>
+      </div>
     </div>
   </div>
 </div>
@@ -296,8 +307,9 @@
     if (typeof apiPost === 'function') {
       apiPost('/api/login', { login: login, password: password })
         .then(function(data) {
-          if (data && data.ok) { closeLoginModal(); window.location.reload(); }
-          else { if (typeof showToast === 'function') showToast(data.msg || 'Erro ao entrar', 'error'); }
+          var j = data.json || data;
+          if (j && j.ok) { closeLoginModal(); window.location.reload(); }
+          else { if (typeof showToast === 'function') showToast(j.msg || 'Erro ao entrar', 'error'); }
         })
         .catch(function() { if (typeof showToast === 'function') showToast('Erro ao conectar', 'error'); })
         .finally(function() { loginSubmit.disabled = false; loginSubmit.textContent = 'Entrar'; checkLoginValid(); });
@@ -349,7 +361,7 @@
 
   setupEyeToggle(document.getElementById('regTogglePw'), regPasswordInput);
 
-  /* Validate CPF → spinner → show fields */
+  /* Validate CPF → spinner → check API → show fields */
   if (regValidateBtn) regValidateBtn.addEventListener('click', function() {
     var cpf = (regCpf.value || '').replace(/\D/g, '');
     if (cpf.length !== 11) {
@@ -361,15 +373,30 @@
     regValidateBtn.disabled = true;
     regCpf.disabled = true;
 
-    setTimeout(function() {
-      var masked = cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
-      var fakeName = 'Usuário C**** S**** A*****';
-      var fakeBirth = '**/**/**9';
-      document.getElementById('regCpfName').textContent = fakeName;
-      document.getElementById('regCpfNumbers').textContent = masked + '  |  ' + fakeBirth;
-      regValidateBtn.style.display = 'none';
-      if (regExtraFields) regExtraFields.style.display = 'flex';
-    }, 1200);
+    /* Check if CPF already registered */
+    fetch('/api/check-cpf?cpf=' + cpf, { credentials: 'include' })
+      .then(function(r) { return r.json().catch(function() { return {}; }); })
+      .then(function(data) {
+        if (data.exists) {
+          if (typeof showToast === 'function') showToast('CPF já cadastrado. Faça login.', 'error');
+          regCpf.disabled = false;
+          regValidateBtn.querySelector('.reg-validate-text').style.display = '';
+          regValidateBtn.querySelector('.reg-validate-spinner').style.display = 'none';
+          regValidateBtn.disabled = false;
+          return;
+        }
+        var masked = cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+        document.getElementById('regCpfNumbers').textContent = masked;
+        regValidateBtn.style.display = 'none';
+        if (regExtraFields) regExtraFields.style.display = 'flex';
+      })
+      .catch(function() {
+        /* Fallback: just show fields without check */
+        var masked = cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+        document.getElementById('regCpfNumbers').textContent = masked;
+        regValidateBtn.style.display = 'none';
+        if (regExtraFields) regExtraFields.style.display = 'flex';
+      });
   });
 
   /* Trocar CPF */
@@ -422,12 +449,13 @@
     if (typeof apiPost === 'function') {
       apiPost('/api/register', { cpf: cpf, email: emailVal, phone: phone, password: password, username: emailVal, name: nameVal, birth_date: birthVal })
         .then(function(data) {
-          if (data && data.ok) {
+          var j = data.json || data;
+          if (j && j.ok) {
             closeRegisterModal();
             if (typeof showToast === 'function') showToast('Usuário cadastrado com sucesso!', 'success');
             setTimeout(function() { openDepositModal(); }, 400);
           } else {
-            if (typeof showToast === 'function') showToast(data.msg || 'Erro ao registrar', 'error');
+            if (typeof showToast === 'function') showToast(j.msg || 'Erro ao registrar', 'error');
           }
         })
         .catch(function() { if (typeof showToast === 'function') showToast('Erro ao conectar', 'error'); })
@@ -453,6 +481,7 @@
   };
   window.closeDepositModal = function() {
     if (depModal) { depModal.classList.remove('open'); document.body.style.overflow = ''; }
+    if (typeof resetDepositModal === 'function') resetDepositModal();
   };
   if (depBannerClose) depBannerClose.addEventListener('click', closeDepositModal);
   if (depBack) depBack.addEventListener('click', closeDepositModal);
@@ -497,15 +526,103 @@
     depCupomWrap.style.display = vis ? 'none' : 'block';
   });
 
-  /* Depositar */
+  /* Depositar — call API and show QR code */
+  var depQrResult = document.getElementById('depQrResult');
+  var depQrStatus = document.getElementById('depQrStatus');
+  var depQrAmount = document.getElementById('depQrAmount');
+  var depQrImg = document.getElementById('depQrImg');
+  var depQrCode = document.getElementById('depQrCode');
+  var depQrCopyBtn = document.getElementById('depQrCopyBtn');
+  var depQrTimer = document.getElementById('depQrTimer');
+  var depPaymentPollId = null;
+
+  function showDepQr(data) {
+    if (depQrResult) depQrResult.style.display = '';
+    if (depQrAmount) depQrAmount.textContent = 'R$ ' + (data.amount_cents / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+    if (depQrCode) depQrCode.value = data.copyPaste || '';
+    if (depQrStatus) depQrStatus.textContent = 'Aguardando pagamento...';
+    if (depQrImg) {
+      if (data.qrCodeBase64) {
+        depQrImg.src = data.qrCodeBase64;
+      } else if (data.copyPaste) {
+        depQrImg.src = 'https://quickchart.io/qr?size=200&margin=2&text=' + encodeURIComponent(data.copyPaste);
+      }
+    }
+    // Hide the form part, show QR
+    depSubmitBtn.style.display = 'none';
+    // Start polling for payment
+    if (data.tx_id) startDepositPoll(data.tx_id);
+  }
+
+  function startDepositPoll(txId) {
+    if (depPaymentPollId) clearInterval(depPaymentPollId);
+    depPaymentPollId = setInterval(function() {
+      fetch('/api/deposit/status?tx_id=' + txId, { credentials: 'include' })
+        .then(function(r) { return r.json(); })
+        .then(function(j) {
+          if (j.ok && j.status === 'paid') {
+            clearInterval(depPaymentPollId);
+            if (depQrStatus) { depQrStatus.textContent = 'Pagamento confirmado!'; depQrStatus.style.color = '#22c55e'; }
+            if (typeof showToast === 'function') showToast('Depósito confirmado!', 'success');
+            if (typeof refreshWalletUI === 'function') refreshWalletUI();
+            setTimeout(function() { closeDepositModal(); resetDepositModal(); }, 2500);
+          }
+        }).catch(function() {});
+    }, 4000);
+  }
+
+  function resetDepositModal() {
+    if (depQrResult) depQrResult.style.display = 'none';
+    if (depSubmitBtn) { depSubmitBtn.style.display = ''; depSubmitBtn.disabled = false; depSubmitBtn.textContent = 'DEPOSITAR'; }
+    if (depValueInput) depValueInput.value = '';
+    if (depQrStatus) { depQrStatus.textContent = ''; depQrStatus.style.color = ''; }
+    if (depPaymentPollId) { clearInterval(depPaymentPollId); depPaymentPollId = null; }
+    document.querySelectorAll('.dep-val-btn').forEach(function(b) {
+      b.classList.remove('dep-val-selected');
+      var c = b.querySelector('.dep-val-check'); if (c) c.remove();
+    });
+  }
+
+  if (depQrCopyBtn) depQrCopyBtn.addEventListener('click', function() {
+    var code = depQrCode ? depQrCode.value : '';
+    if (code && navigator.clipboard) {
+      navigator.clipboard.writeText(code).then(function() {
+        if (typeof showToast === 'function') showToast('Código PIX copiado!', 'success');
+      });
+    }
+  });
+
   if (depSubmitBtn) depSubmitBtn.addEventListener('click', function() {
     var val = depValueInput ? depValueInput.value : '';
     if (!val || isNaN(val) || +val <= 0) {
       if (typeof showToast === 'function') showToast('Digite um valor válido', 'error');
       return;
     }
-    if (typeof showToast === 'function') showToast('Depósito de R$ ' + (+val).toLocaleString('pt-BR') + ' iniciado!', 'success');
-    closeDepositModal();
+    if (+val < 30) {
+      if (typeof showToast === 'function') showToast('Valor mínimo: R$ 30', 'error');
+      return;
+    }
+    depSubmitBtn.disabled = true;
+    depSubmitBtn.textContent = 'Gerando PIX...';
+
+    fetch('/api/deposit/create', {
+      method: 'POST', credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ amount_brl: +val })
+    }).then(function(r) { return r.json(); })
+    .then(function(j) {
+      if (!j.ok) {
+        depSubmitBtn.disabled = false;
+        depSubmitBtn.textContent = 'DEPOSITAR';
+        if (typeof showToast === 'function') showToast(j.msg || 'Erro ao gerar PIX', 'error');
+        return;
+      }
+      showDepQr(j);
+    }).catch(function() {
+      depSubmitBtn.disabled = false;
+      depSubmitBtn.textContent = 'DEPOSITAR';
+      if (typeof showToast === 'function') showToast('Erro de conexão', 'error');
+    });
   });
 
   /* ===== SWITCH MODALS ===== */

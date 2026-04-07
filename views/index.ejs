@@ -20,10 +20,56 @@
       <img src="/public/img/novo/logo.png" alt="CassinoBet" class="logo-img">
     </a>
     <div class="topbar-spacer"></div>
-    <span class="responsible-label is-guest-el">Jogo Responsável</span>
+    <!-- GUEST -->
     <div class="topbar-auth is-guest-el">
       <button class="btn-register" id="btnOpenRegister">Registre-se</button>
       <button class="btn-login" id="btnOpenLogin">Entrar</button>
+    </div>
+    <!-- LOGGED IN -->
+    <div class="topbar-logged is-logged-el">
+      <button class="topbar-notif" id="topbarNotif" title="Notificações">
+        <img src="/public/img/novo/topo1.svg" width="16" height="16" alt="">
+        <span class="topbar-notif-badge" id="topbarNotifBadge">0</span>
+      </button>
+      <button class="btn-deposit" id="btnDeposit">Depositar</button>
+      <div class="topbar-balance" id="topbarBalance">
+        <button class="topbar-balance-btn" id="topbarBalanceBtn">
+          <span class="topbar-balance-val" id="walletBalance">R$ 0,00</span>
+        </button>
+        <button class="topbar-balance-refresh" id="topbarRefresh" title="Atualizar saldo">
+          <img src="/public/img/novo/topo2.svg" width="16" height="16" alt="">
+        </button>
+      </div>
+      <div class="topbar-user-wrap">
+        <button class="topbar-user-btn" id="topbarUserBtn">
+          <img src="/public/img/novo/topo3.svg" width="28" height="28" alt="" class="topbar-user-avatar" id="topbarAvatar">
+        </button>
+        <!-- User dropdown -->
+        <div class="topbar-dropdown" id="topbarDropdown">
+          <div class="topbar-dropdown-header">
+            <img src="/public/img/novo/topo3.svg" width="40" height="40" alt="" class="topbar-dropdown-avatar">
+            <div class="topbar-dropdown-info">
+              <strong id="dropdownUserName">Usuário</strong>
+              <span>RecrutamentoNív</span>
+              <a href="#" class="topbar-dropdown-levels">Ver níveis</a>
+            </div>
+          </div>
+          <div class="topbar-dropdown-date" id="dropdownDate"></div>
+          <a href="#" class="topbar-dropdown-clubvip">Ver mais sobre <strong>ClubVip</strong></a>
+          <nav class="topbar-dropdown-nav">
+            <a href="/dashboard"><img src="/public/img/novo/bars1.svg" width="16" height="16"> Menu</a>
+            <a href="/dashboard/notifications"><img src="/public/img/novo/topo1.svg" width="16" height="16"> Notificações</a>
+            <a href="/dashboard/wallet"><img src="/public/img/novo/topo2.svg" width="16" height="16"> Carteira</a>
+            <a href="/dashboard/bets"><img src="/public/img/novo/carta1.svg" width="16" height="16"> Apostas</a>
+            <a href="/dashboard/referrals"><img src="/public/img/novo/bola1.svg" width="16" height="16"> Indicações</a>
+            <a href="/dashboard/settings"><img src="/public/img/novo/bars1.svg" width="16" height="16"> Dados da conta</a>
+            <a href="/dashboard/password"><img src="/public/img/novo/bars1.svg" width="16" height="16"> Alterar senha</a>
+            <a href="#" class="topbar-dropdown-support"><img src="/public/img/novo/modal1.svg" width="16" height="16"> Suporte ao vivo</a>
+            <a href="/promotions"><img src="/public/img/novo/bars1.svg" width="16" height="16"> Promoções</a>
+            <a href="#" id="dropdownLogout" class="topbar-dropdown-logout"><img src="/public/img/novo/bars1.svg" width="16" height="16"> Sair</a>
+          </nav>
+        </div>
+      </div>
     </div>
   </div>
 </header>

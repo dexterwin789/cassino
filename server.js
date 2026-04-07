@@ -94,6 +94,14 @@ async function autoMigrate() {
     const sql = fs.readFileSync(path.join(__dirname, 'src/config/schema.sql'), 'utf8');
     await pool.query(sql);
     console.log('[MIGRATE] Schema applied.');
+
+    // Add columns if missing (safe migrations)
+    const addCol = async (table, col, type) => {
+      try { await pool.query(`ALTER TABLE ${table} ADD COLUMN IF NOT EXISTS ${col} ${type}`); } catch(e) {}
+    };
+    await addCol('users', 'name', 'VARCHAR(128)');
+    await addCol('users', 'birth_date', 'DATE');
+
     // Ensure admin has valid hash
     const hash = await bcrypt.hash('Admin@12345', 10);
     await pool.query(`UPDATE admin_users SET password_hash = $1 WHERE username = 'admin' AND password_hash LIKE '%placeholder%'`, [hash]);

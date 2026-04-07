@@ -590,102 +590,76 @@ function updateAuthState() {
       var logged = !!(j && j.ok && j.logged);
       document.body.classList.toggle('is-logged', logged);
       document.body.classList.toggle('is-guest', !logged);
-      if (logged) refreshWalletUI();
+      if (logged) {
+        refreshWalletUI();
+        // Set user name in dropdown
+        var nameEl = document.getElementById('dropdownUserName');
+        if (nameEl && j.user) nameEl.textContent = j.user.name || j.user.username || 'Usuário';
+        // Set date
+        var dateEl = document.getElementById('dropdownDate');
+        if (dateEl) dateEl.textContent = 'Atualizado em: ' + new Date().toLocaleString('pt-BR');
+      }
     }).catch(function() {
       document.body.classList.add('is-guest');
       document.body.classList.remove('is-logged');
     });
 }
 
-/* ========== AUTH MODAL ========== */
-var authModal = document.getElementById('authModal');
-var authClose = document.getElementById('authClose');
-var formRegister = document.getElementById('formRegister');
-var formLogin = document.getElementById('formLogin');
-
-function openAuth(tab) {
-  if (authModal) authModal.classList.add('open');
-  document.body.style.overflow = 'hidden';
-  setAuthTab(tab || 'register');
-}
-function closeAuth() {
-  if (authModal) authModal.classList.remove('open');
-  document.body.style.overflow = '';
-}
-function setAuthTab(which) {
-  var isReg = which === 'register';
-  if (authModal) authModal.querySelectorAll('.auth-tab').forEach(function(t) {
-    t.classList.toggle('active', t.dataset.tab === which);
-  });
-  if (formRegister) formRegister.style.display = isReg ? '' : 'none';
-  if (formLogin) formLogin.style.display = isReg ? 'none' : '';
-}
-
-if (authClose) authClose.addEventListener('click', closeAuth);
-if (authModal) authModal.addEventListener('click', function(e) { if (e.target === authModal) closeAuth(); });
-
-if (authModal) authModal.querySelectorAll('.auth-tab').forEach(function(t) {
-  t.addEventListener('click', function() { setAuthTab(t.dataset.tab); });
-});
-
+/* ========== AUTH BUTTONS ========== */
 var btnOpenRegister = document.getElementById('btnOpenRegister');
 var btnOpenLogin = document.getElementById('btnOpenLogin');
 if (btnOpenRegister) btnOpenRegister.addEventListener('click', function() {
   if (typeof openRegisterModal === 'function') openRegisterModal();
-  else openAuth('register');
 });
 if (btnOpenLogin) btnOpenLogin.addEventListener('click', function() {
   if (typeof openLoginModal === 'function') openLoginModal();
-  else openAuth('login');
 });
 
-// Register
-if (formRegister) formRegister.addEventListener('submit', function(e) {
-  e.preventDefault();
-  var fd = new FormData(formRegister);
-  var name = (fd.get('name') || '').trim();
-  var cpf = (fd.get('cpf') || '').trim();
-  var email = (fd.get('email') || '').trim();
-  var phone = (fd.get('phone') || '').trim();
-  var password = fd.get('password') || '';
-  var password_confirm = fd.get('password_confirm') || '';
-
-  if (password !== password_confirm) return showToast('As senhas n\u00e3o coincidem', 'error');
-  if (password.length < 6) return showToast('Senha deve ter pelo menos 6 caracteres', 'error');
-
-  apiPost('/api/register', { name: name, cpf: cpf, email: email, phone: phone, password: password, username: email })
-    .then(function(r) {
-      if (!r.ok) { showToast(r.json.error || r.json.msg || 'Erro ao registrar', 'error'); return; }
-      closeAuth();
-      showToast('Conta criada com sucesso!', 'success');
-      updateAuthState();
-    });
-});
-
-// Login
-if (formLogin) formLogin.addEventListener('submit', function(e) {
-  e.preventDefault();
-  var fd = new FormData(formLogin);
-  var login = (fd.get('login') || '').trim();
-  var password = fd.get('password') || '';
-  if (!login || !password) return showToast('Preencha todos os campos', 'error');
-
-  apiPost('/api/login', { username: login, password: password })
-    .then(function(r) {
-      if (!r.ok) {
-        showToast(r.json.error === 'invalid_credentials' ? 'Usu\u00e1rio ou senha inv\u00e1lidos' : (r.json.error || r.json.msg || 'Erro ao entrar'), 'error');
-        return;
-      }
-      closeAuth();
-      showToast('Bem-vindo!', 'success');
-      updateAuthState();
-    });
-});
-
-/* ========== DEPOSIT (handled by login-modal.ejs) ========== */
-var btnDepositTop = document.getElementById('btnDepositTop');
-if (btnDepositTop) btnDepositTop.addEventListener('click', function() {
+/* ========== LOGGED-IN HEADER ========== */
+// Deposit button
+var btnDeposit = document.getElementById('btnDeposit');
+if (btnDeposit) btnDeposit.addEventListener('click', function() {
   if (typeof openDepositModal === 'function') openDepositModal();
+});
+
+// Refresh balance
+var topbarRefresh = document.getElementById('topbarRefresh');
+if (topbarRefresh) topbarRefresh.addEventListener('click', function(e) {
+  e.stopPropagation();
+  topbarRefresh.classList.add('spinning');
+  refreshWalletUI();
+  setTimeout(function() { topbarRefresh.classList.remove('spinning'); }, 600);
+});
+
+// Balance button opens wallet (future)
+var topbarBalanceBtn = document.getElementById('topbarBalanceBtn');
+if (topbarBalanceBtn) topbarBalanceBtn.addEventListener('click', function() {
+  // TODO: open wallet drawer
+  if (typeof showToast === 'function') showToast('Carteira em breve!', 'info');
+});
+
+// User dropdown
+var topbarUserBtn = document.getElementById('topbarUserBtn');
+var topbarDropdown = document.getElementById('topbarDropdown');
+if (topbarUserBtn && topbarDropdown) {
+  topbarUserBtn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    topbarDropdown.classList.toggle('open');
+  });
+  document.addEventListener('click', function(e) {
+    if (topbarDropdown.classList.contains('open') && !topbarDropdown.contains(e.target) && e.target !== topbarUserBtn) {
+      topbarDropdown.classList.remove('open');
+    }
+  });
+}
+
+// Logout
+var dropdownLogout = document.getElementById('dropdownLogout');
+if (dropdownLogout) dropdownLogout.addEventListener('click', function(e) {
+  e.preventDefault();
+  fetch('/api/logout', { method: 'POST', credentials: 'include' })
+    .then(function() { window.location.reload(); })
+    .catch(function() { window.location.reload(); });
 });
 
 /* ========== WALLET ========== */
@@ -694,8 +668,9 @@ function refreshWalletUI() {
     .then(function(res) { return res.json().catch(function() { return null; }); })
     .then(function(j) {
       if (!j || !j.ok) return;
-      var balEl = document.getElementById('walletBalance');
-      if (balEl) balEl.textContent = j.balance_brl || 'R$ 0,00';
+      document.querySelectorAll('#walletBalance, .topbar-balance-val').forEach(function(el) {
+        el.textContent = 'R$ ' + (j.balance_brl || '0,00');
+      });
     }).catch(function() {});
 }
 
