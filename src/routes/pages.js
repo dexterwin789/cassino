@@ -37,6 +37,7 @@ router.get('/games', async (req, res) => {
     const gamesR = await query(sql, params);
     const bannersR = await query('SELECT id, image_url, link_url FROM banners WHERE is_active = TRUE ORDER BY sort_order, id');
     const providersR = await query('SELECT DISTINCT provider FROM games WHERE is_active = TRUE AND provider IS NOT NULL ORDER BY provider');
+    const categoriesR = await query('SELECT DISTINCT category FROM games WHERE is_active = TRUE AND category IS NOT NULL ORDER BY category');
 
     let filterLabel = 'Todos os Jogos';
     if (provider) filterLabel = 'Jogos da ' + provider.toUpperCase();
@@ -47,6 +48,7 @@ router.get('/games', async (req, res) => {
       games: gamesR.rows,
       banners: bannersR.rows,
       providers: providersR.rows.map(r => r.provider),
+      categories: categoriesR.rows.map(r => r.category),
       filterLabel: filterLabel,
       currentProvider: provider,
       currentCategory: category

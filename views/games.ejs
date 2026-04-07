@@ -93,6 +93,18 @@
             <% } %>
           </div>
         </div>
+        <div class="archive-provider-wrap">
+          <button class="archive-provider-btn" id="categoryBtn">Categorias: <span id="categoryLabel">Todos</span></button>
+          <div class="archive-provider-dropdown" id="categoryDropdown">
+            <% if (typeof categories !== 'undefined') { %>
+              <% categories.forEach(function(c) { %>
+              <label class="archive-provider-item">
+                <input type="checkbox" value="<%= c %>" class="category-check"> <%= c %>
+              </label>
+              <% }); %>
+            <% } %>
+          </div>
+        </div>
       </section>
 
       <!-- Games grid -->
@@ -146,6 +158,7 @@
   var shown = 0;
   var filtered = allGames.slice();
   var activeProviders = [];
+  var activeCategories = [];
 
   var grid = document.getElementById('archiveGrid');
   var footer = document.getElementById('archiveFooter');
@@ -155,6 +168,9 @@
   var providerBtn = document.getElementById('providerBtn');
   var providerDropdown = document.getElementById('providerDropdown');
   var providerLabel = document.getElementById('providerLabel');
+  var categoryBtn = document.getElementById('categoryBtn');
+  var categoryDropdown = document.getElementById('categoryDropdown');
+  var categoryLabel = document.getElementById('categoryLabel');
 
   function cardHTML(g) {
     var img = g.image_url || '/public/img/games/1.avif';
@@ -177,6 +193,15 @@
           if (prov === activeProviders[i].toLowerCase()) { match = true; break; }
         }
         if (!match) return false;
+      }
+      // Category filter
+      if (activeCategories.length > 0) {
+        var cat = (g.category || '').toLowerCase();
+        var match2 = false;
+        for (var j = 0; j < activeCategories.length; j++) {
+          if (cat === activeCategories[j].toLowerCase()) { match2 = true; break; }
+        }
+        if (!match2) return false;
       }
       // Text filter
       if (q.length >= 2) {
@@ -221,10 +246,20 @@
   if (providerBtn) providerBtn.addEventListener('click', function(e) {
     e.stopPropagation();
     providerDropdown.classList.toggle('open');
+    if (categoryDropdown) categoryDropdown.classList.remove('open');
+  });
+  // Category dropdown toggle
+  if (categoryBtn) categoryBtn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    categoryDropdown.classList.toggle('open');
+    if (providerDropdown) providerDropdown.classList.remove('open');
   });
   document.addEventListener('click', function(e) {
     if (providerDropdown && !providerDropdown.contains(e.target) && e.target !== providerBtn) {
       providerDropdown.classList.remove('open');
+    }
+    if (categoryDropdown && !categoryDropdown.contains(e.target) && e.target !== categoryBtn) {
+      categoryDropdown.classList.remove('open');
     }
   });
 
@@ -234,6 +269,15 @@
     activeProviders = [];
     checks.forEach(function(c) { activeProviders.push(c.value); });
     if (providerLabel) providerLabel.textContent = activeProviders.length ? activeProviders.join(', ') : 'Todos';
+    applyFilters();
+  });
+
+  // Category checkbox change
+  if (categoryDropdown) categoryDropdown.addEventListener('change', function() {
+    var checks = categoryDropdown.querySelectorAll('.category-check:checked');
+    activeCategories = [];
+    checks.forEach(function(c) { activeCategories.push(c.value); });
+    if (categoryLabel) categoryLabel.textContent = activeCategories.length ? activeCategories.join(', ') : 'Todos';
     applyFilters();
   });
 

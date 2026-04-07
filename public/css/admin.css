@@ -10,8 +10,8 @@
   --adm-line: rgba(255,255,255,.08);
   --adm-text: #f4f6fb;
   --adm-muted: rgba(255,255,255,.55);
-  --adm-green1: #6EE7B7;
-  --adm-green2: #10B981;
+  --adm-green1: #ff6b3a;
+  --adm-green2: #ff3a00;
   --adm-accent: #2b8cff;
   --adm-danger: #ff4d4d;
   --adm-success: #2ee76b;
@@ -441,7 +441,7 @@ body {
   background: rgba(0,0,0,.25);
 }
 .adm-tag.ok { border-color: rgba(46,231,107,.3); background: rgba(46,231,107,.08); color: #2ee76b; }
-.adm-tag.warn { border-color: rgba(16,185,129,.35); background: rgba(16,185,129,.1); color: #10B981; }
+.adm-tag.warn { border-color: rgba(255,58,0,.35); background: rgba(255,58,0,.1); color: #ff3a00; }
 .adm-tag.bad { border-color: rgba(255,77,77,.3); background: rgba(255,77,77,.08); color: #ff4d4d; }
 
 /* ─── Quick Actions ────────────────────────────── */

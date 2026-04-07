@@ -90,8 +90,13 @@ function openSearch() {
   searchIsOpen = true;
   stopPlaceholderAnim();
   if (searchInput) searchInput.placeholder = 'Pesquise um jogo de cassino...';
+  // Scroll page to top so search results are visible
+  window.scrollTo({top: 0, behavior: 'instant'});
   var section = document.getElementById('searchSection');
-  if (section) section.classList.add('search-active');
+  if (section) {
+    section.classList.add('search-active');
+    section.scrollIntoView({block: 'start', behavior: 'instant'});
+  }
   if (searchOverlay) searchOverlay.classList.add('active');
   if (searchResults) searchResults.classList.add('active');
   if (searchCloseBtn) searchCloseBtn.classList.add('active');

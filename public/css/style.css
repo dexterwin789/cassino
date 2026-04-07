@@ -96,9 +96,24 @@ ul{list-style:none}
 
 .btn-register{
   padding:8px 20px;border-radius:8px;border:none;
-  background:var(--green2);color:#fff;font-weight:700;font-size:13px;transition:.2s;
+  background:#37a25c;color:#fff;font-weight:700;font-size:13px;transition:.2s;
+  position:relative;z-index:1;
+  overflow:visible;
 }
-.btn-register:hover{background:var(--green3)}
+.btn-register::before{
+  content:'';position:absolute;inset:-2px;border-radius:10px;
+  background:conic-gradient(from var(--neon-angle,0deg),#ffd700,#ffaa00,#ffd700,#fff8dc,#ffd700);
+  z-index:-1;
+  animation:neonRotateRegister 2.5s linear infinite;
+}
+.btn-register::after{
+  content:'';position:absolute;inset:0;border-radius:8px;
+  background:#37a25c;z-index:-1;
+}
+@property --neon-angle{syntax:'<angle>';initial-value:0deg;inherits:false}
+@keyframes neonRotateRegister{to{--neon-angle:360deg}}
+.btn-register:hover{background:#2e8c4e}
+.btn-register:hover::after{background:#2e8c4e}
 
 .btn-login{
   padding:8px 20px;border-radius:8px;
@@ -533,9 +548,11 @@ body.search-lock{overflow:hidden!important}
 .search-results{
   display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;
   background:#0e1117;border:1px solid var(--border);border-radius:12px;
-  z-index:202;max-height:70vh;overflow:hidden;
+  z-index:202;max-height:70vh;overflow-y:auto;
   flex-direction:column;
 }
+.search-results::-webkit-scrollbar{width:4px}
+.search-results::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:4px}
 .search-results.active{display:flex}
 .search-results-tags{
   display:flex;flex-wrap:wrap;gap:6px;
@@ -550,7 +567,7 @@ body.search-lock{overflow:hidden!important}
 .search-tag:hover,.search-tag.active{border-color:rgb(255,57,1);color:rgb(255,57,1)}
 .search-results-grid{
   display:grid;grid-template-columns:repeat(6,1fr);gap:16px;
-  padding:14px;overflow-y:auto;max-height:calc(70vh - 120px);
+  padding:14px;
 }
 .search-results-grid::-webkit-scrollbar{width:4px}
 .search-results-grid::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:4px}

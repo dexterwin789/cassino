@@ -18,17 +18,17 @@
         <% const layout = typeof t.layout_config === 'string' ? JSON.parse(t.layout_config) : (t.layout_config || {}); %>
         <!-- Mini Preview -->
         <div class="theme-mini-preview" style="background:<%= vars.bg || '#000' %>">
-          <div class="tmp-header" style="background:<%= vars.card || '#1b2838' %>;border-bottom:2px solid <%= vars.green1 || '#6EE7B7' %>">
-            <div class="tmp-logo" style="background:<%= vars.green1 || '#6EE7B7' %>"></div>
+          <div class="tmp-header" style="background:<%= vars.card || '#1b2838' %>;border-bottom:2px solid <%= vars.green1 || '#ff6b3a' %>">
+            <div class="tmp-logo" style="background:<%= vars.green1 || '#ff6b3a' %>"></div>
             <div class="tmp-btns">
-              <span style="background:<%= vars.blue || '#10B981' %>"></span>
-              <span style="background:<%= vars.green2 || '#10B981' %>"></span>
+              <span style="background:<%= vars.blue || '#ff3a00' %>"></span>
+              <span style="background:<%= vars.green2 || '#ff3a00' %>"></span>
             </div>
           </div>
-          <div class="tmp-banner" style="background:linear-gradient(135deg,<%= vars.green3 || '#047857' %>,<%= vars.accent || '#10B981' %>);aspect-ratio:<%= layout.bannerAspect || '16/7' %>"></div>
+          <div class="tmp-banner" style="background:linear-gradient(135deg,<%= vars.green3 || '#cc2e00' %>,<%= vars.accent || '#ff3a00' %>);aspect-ratio:<%= layout.bannerAspect || '16/7' %>"></div>
           <div class="tmp-games">
             <% for(let i=0; i < Math.min(layout.gamesPerRow || 4, 6); i++) { %>
-            <div class="tmp-game" style="background:<%= vars.card || '#1b2838' %>;border:1px solid <%= vars.green3 || '#047857' %>30"></div>
+            <div class="tmp-game" style="background:<%= vars.card || '#1b2838' %>;border:1px solid <%= vars.green3 || '#cc2e00' %>30"></div>
             <% } %>
           </div>
         </div>
@@ -134,36 +134,36 @@
           <div class="te-color-item">
             <label>Verde 1</label>
             <div class="te-color-pick">
-              <input type="color" id="cGreen1" value="#6EE7B7" />
-              <input type="text" class="te-color-hex" data-for="cGreen1" value="#6EE7B7" />
+              <input type="color" id="cGreen1" value="#ff6b3a" />
+              <input type="text" class="te-color-hex" data-for="cGreen1" value="#ff6b3a" />
             </div>
           </div>
           <div class="te-color-item">
             <label>Verde 2</label>
             <div class="te-color-pick">
-              <input type="color" id="cGreen2" value="#10B981" />
-              <input type="text" class="te-color-hex" data-for="cGreen2" value="#10B981" />
+              <input type="color" id="cGreen2" value="#ff3a00" />
+              <input type="text" class="te-color-hex" data-for="cGreen2" value="#ff3a00" />
             </div>
           </div>
           <div class="te-color-item">
             <label>Verde 3</label>
             <div class="te-color-pick">
-              <input type="color" id="cGreen3" value="#047857" />
-              <input type="text" class="te-color-hex" data-for="cGreen3" value="#047857" />
+              <input type="color" id="cGreen3" value="#cc2e00" />
+              <input type="text" class="te-color-hex" data-for="cGreen3" value="#cc2e00" />
             </div>
           </div>
           <div class="te-color-item">
             <label>Azul</label>
             <div class="te-color-pick">
-              <input type="color" id="cBlue" value="#10B981" />
-              <input type="text" class="te-color-hex" data-for="cBlue" value="#10B981" />
+              <input type="color" id="cBlue" value="#ff3a00" />
+              <input type="text" class="te-color-hex" data-for="cBlue" value="#ff3a00" />
             </div>
           </div>
           <div class="te-color-item">
             <label>Accent</label>
             <div class="te-color-pick">
-              <input type="color" id="cAccent" value="#10B981" />
-              <input type="text" class="te-color-hex" data-for="cAccent" value="#10B981" />
+              <input type="color" id="cAccent" value="#ff3a00" />
+              <input type="text" class="te-color-hex" data-for="cAccent" value="#ff3a00" />
             </div>
           </div>
           <div class="te-color-item">
@@ -385,7 +385,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('teDesc').value = theme?.description || '';
 
     const cv = theme?.css_vars || {};
-    const defaults = { black:'#0B1726', bg:'#0d1b2a', card:'#1b2838', text:'#f6f6f6', green1:'#6EE7B7', green2:'#10B981', green3:'#047857', blue:'#10B981', accent:'#10B981', success:'#34D399', danger:'#ff4d4d' };
+    const defaults = { black:'#0B1726', bg:'#0d1b2a', card:'#1b2838', text:'#f6f6f6', green1:'#ff6b3a', green2:'#ff3a00', green3:'#cc2e00', blue:'#ff3a00', accent:'#ff3a00', success:'#34D399', danger:'#ff4d4d' };
     for (const [fid, key] of Object.entries(colorMap)) {
       const v = cv[key] || defaults[key];
       document.getElementById(fid).value = v;
