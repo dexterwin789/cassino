@@ -266,10 +266,10 @@ INSERT INTO themes (slug, name, description, css_vars, layout_config, is_active)
     "card": "#13132e",
     "text": "#eef0ff",
     "green1": "#c084fc",
-    "green2": "#a855f7",
+    "green2": "#ff3a00",
     "green3": "#7c3aed",
     "blue": "#06b6d4",
-    "accent": "#a855f7",
+    "accent": "#ff3a00",
     "danger": "#f43f5e",
     "success": "#22d3ee"
   }',

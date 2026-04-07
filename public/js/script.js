@@ -90,18 +90,24 @@ function openSearch() {
   searchIsOpen = true;
   stopPlaceholderAnim();
   if (searchInput) searchInput.placeholder = 'Pesquise um jogo de cassino...';
+  var section = document.getElementById('searchSection');
+  if (section) section.classList.add('search-active');
   if (searchOverlay) searchOverlay.classList.add('active');
   if (searchResults) searchResults.classList.add('active');
   if (searchCloseBtn) searchCloseBtn.classList.add('active');
+  document.body.classList.add('search-lock');
   handleSearchState();
 }
 
 function closeSearch() {
   searchIsOpen = false;
+  var section = document.getElementById('searchSection');
+  if (section) section.classList.remove('search-active');
   if (searchOverlay) searchOverlay.classList.remove('active');
   if (searchResults) searchResults.classList.remove('active');
   if (searchCloseBtn) searchCloseBtn.classList.remove('active');
   if (searchInput) { searchInput.value = ''; searchInput.blur(); }
+  document.body.classList.remove('search-lock');
   searchFiltered = [];
   searchShown = 0;
   searchActiveTag = 'Todos';
@@ -241,7 +247,6 @@ function searchCardHTML(game) {
   return '<div class="game-card" title="' + name + '">' +
     '<img src="' + img + '" alt="' + name + '" draggable="false" loading="lazy">' +
     '<div class="game-overlay">' +
-      '<span class="game-name">' + name + '</span>' +
       '<span class="play-btn">&#9654; JOGAR</span>' +
     '</div></div>';
 }
@@ -269,6 +274,7 @@ if (searchInput) {
 if (searchOverlay) searchOverlay.addEventListener('click', closeSearch);
 if (searchCloseBtn) searchCloseBtn.addEventListener('click', closeSearch);
 if (searchLoadMore) searchLoadMore.addEventListener('click', showMoreSearchResults);
+document.addEventListener('keydown', function(e) { if (e.key === 'Escape' && searchIsOpen) closeSearch(); });
 
 // Start placeholder animation on load
 startPlaceholderAnim();

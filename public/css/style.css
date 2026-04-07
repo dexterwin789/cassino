@@ -425,8 +425,9 @@ ul{list-style:none}
   display:flex;align-items:center;gap:10px;
   padding:.375rem .75rem;border-radius:8px;
   background-color:#0e1117;border:1px solid var(--border);transition:.2s;
-  position:relative;z-index:201;
+  position:relative;z-index:10;
 }
+.search-section.search-active .search-box{z-index:201;}
 .search-box:focus-within{
   border-color:rgba(255,57,1,.4);
 }
@@ -455,6 +456,9 @@ ul{list-style:none}
 }
 .search-overlay.active{display:block}
 
+/* Body scroll lock when search is open */
+body.search-lock{overflow:hidden!important}
+
 /* Search results dropdown */
 .search-results{
   display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;
@@ -475,11 +479,19 @@ ul{list-style:none}
 }
 .search-tag:hover,.search-tag.active{border-color:rgb(255,57,1);color:rgb(255,57,1)}
 .search-results-grid{
-  display:grid;grid-template-columns:repeat(6,1fr);gap:10px;
+  display:grid;grid-template-columns:repeat(6,1fr);gap:16px;
   padding:14px;overflow-y:auto;max-height:calc(70vh - 120px);
 }
 .search-results-grid::-webkit-scrollbar{width:4px}
 .search-results-grid::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:4px}
+
+/* Search game cards — match provider grid */
+.search-results-grid .game-card{border-radius:12px;overflow:hidden;background:var(--bg-card);border:1px solid var(--border);cursor:pointer;position:relative;transition:.2s}
+.search-results-grid .game-card:hover{transform:translateY(-3px);box-shadow:0 8px 25px rgba(0,0,0,.4);border-color:rgba(255,57,1,.25)}
+.search-results-grid .game-card img{width:100%;height:193px;object-fit:cover;display:block}
+.search-results-grid .game-card .game-overlay{position:absolute;inset:0;background:rgba(0,0,0,.55);display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;transition:opacity .25s ease;border-radius:12px}
+.search-results-grid .game-card:hover .game-overlay{opacity:1}
+.search-results-grid .game-card .play-btn{display:flex;align-items:center;gap:.5rem;background-color:rgb(255,57,1);color:rgb(33,36,37);padding:.375rem .625rem;border-radius:.375rem;font-size:.7rem;font-weight:700;text-transform:uppercase;box-shadow:0 4px 14px rgba(255,57,1,.35)}
 .search-results-footer{
   padding:12px;text-align:center;
   border-top:1px solid var(--border);
@@ -1144,6 +1156,7 @@ ul{list-style:none}
   .top10-rank{font-size:clamp(80px,15vw,120px);letter-spacing:-14px}
   .provider-grid{grid-template-columns:repeat(3,1fr);gap:10px}
   .provider-grid .game-card img{height:150px}
+  .search-results-grid .game-card img{height:150px}
   .ligas-row{gap:12px}
   .liga-icon{width:52px;height:52px}
   .liga-icon img{width:32px;height:32px}
