@@ -223,7 +223,7 @@
     var total = filtered.length;
     if (footer && countEl) {
       var pct = total > 0 ? Math.round((Math.min(shown, total) / total) * 100) : 0;
-      countEl.innerHTML = '<div class="progress-track"><div class="progress-fill" style="width:' + pct + '%"></div></div><span style="border-bottom:2px solid rgb(255,57,1);padding-bottom:2px">Mostrando ' + Math.min(shown, total) + ' de ' + total + ' jogos</span>';
+      countEl.innerHTML = '<div class="progress-track"><div class="progress-fill" style="width:' + pct + '%"></div></div>Mostrando ' + Math.min(shown, total) + ' de ' + total + ' jogos';
       footer.style.display = total > 0 ? '' : 'none';
       if (loadMoreBtn) loadMoreBtn.style.display = shown >= total ? 'none' : 'inline-block';
     }

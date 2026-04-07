@@ -1216,7 +1216,7 @@ body.search-lock{overflow:hidden!important}
 /* ===== GAME PAGE (gp-) ===== */
 .gp-hero{
   position:relative;border-radius:16px;overflow:hidden;
-  height:420px;display:flex;align-items:center;justify-content:center;
+  height:850px;display:flex;align-items:center;justify-content:center;
   margin-bottom:0;
 }
 .gp-hero-bg{
@@ -1251,10 +1251,35 @@ body.search-lock{overflow:hidden!important}
   font-size:12px;color:var(--text-muted);font-weight:500;
 }
 
+/* Fullscreen mode */
+.gp-hero.gp-fullscreen{
+  position:fixed;inset:0;z-index:9999;
+  height:100vh;width:100vw;border-radius:0;
+}
+.gp-hero.gp-fullscreen .gp-hero-bg{filter:blur(30px) brightness(.35)}
+.gp-fs-close{
+  position:absolute;top:16px;right:16px;z-index:10;
+  width:36px;height:36px;border-radius:50%;
+  background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.15);
+  color:#fff;font-size:22px;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:.2s;
+}
+.gp-fs-close:hover{background:rgba(255,57,1,.4)}
+.gp-fs-back{
+  position:absolute;top:16px;left:16px;z-index:10;
+  width:36px;height:36px;border-radius:50%;
+  background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.15);
+  color:#fff;font-size:22px;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:.2s;text-decoration:none;
+}
+.gp-fs-back:hover{background:rgba(255,57,1,.4)}
+
 /* Info bar */
 .gp-info-bar{
   display:flex;align-items:center;justify-content:space-between;
-  padding:16px 0;border-bottom:1px solid var(--border);
+  padding:.75rem .875rem;
+  background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.1);
+  border-top:0;border-bottom-left-radius:.5rem;border-bottom-right-radius:.5rem;
   margin-bottom:20px;
 }
 .gp-info-left{display:flex;flex-direction:column;gap:2px}
@@ -1277,13 +1302,15 @@ body.search-lock{overflow:hidden!important}
 
 /* Stats */
 .gp-stats{
-  display:grid;grid-template-columns:repeat(3,1fr);gap:14px;
-  margin-bottom:28px;
+  display:flex;gap:.75rem;flex-wrap:wrap;justify-content:space-between;
+  padding:1.25rem 1.5rem;
+  background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.1);
+  border-radius:.5rem;
+  margin-bottom:20px;
 }
 .gp-stat-card{
-  display:flex;align-items:center;gap:12px;
-  padding:16px 18px;border-radius:12px;
-  background:var(--bg-card);border:1px solid var(--border);
+  display:flex;align-items:center;gap:.75rem;
+  flex:1 1 0%;
 }
 .gp-stat-icon{
   width:40px;height:40px;border-radius:10px;
@@ -1311,41 +1338,62 @@ body.search-lock{overflow:hidden!important}
 }
 .gp-slider-nav{display:flex;align-items:center;gap:8px}
 .gp-slider-arrow{
-  width:32px;height:32px;border-radius:50%;
-  border:1px solid var(--border);background:rgba(255,255,255,.04);
-  color:var(--text);font-size:20px;line-height:1;
+  width:28px;height:28px;
+  border:none;background:transparent;
+  color:var(--text-muted);font-size:22px;line-height:1;
   display:flex;align-items:center;justify-content:center;
-  cursor:pointer;transition:.2s;
+  cursor:pointer;transition:.2s;padding:0;
 }
-.gp-slider-arrow:hover{border-color:rgb(255,57,1);color:rgb(255,57,1);background:rgba(255,57,1,.08)}
+.gp-slider-arrow:hover{color:rgb(255,57,1)}
 
-/* Studios in game page */
-.gp-studio-card{
-  flex:0 0 166px;height:80px;
-  display:flex;align-items:center;justify-content:center;
-  background:radial-gradient(ellipse at center,#fc3801 0%,#992201 100%);
-  border-radius:12px;
-  transition:transform .2s,box-shadow .2s;
+/* Game cards in sliders — match provider-grid dimensions */
+.gp-slider-card img{width:100%;height:193px;object-fit:cover;display:block}
+.gp-slider-card .game-overlay{
+  position:absolute;inset:0;
+  background:rgba(0,0,0,.55);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  opacity:0;transition:opacity .25s ease;border-radius:12px;
 }
-.gp-studio-card:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(252,56,1,.35)}
-.gp-studio-name{
-  font-size:14px;font-weight:800;color:#fff;
-  text-transform:uppercase;letter-spacing:1px;
+.gp-slider-card:hover .game-overlay{opacity:1}
+.gp-slider-card:hover{
+  transform:translateY(-3px);
+  box-shadow:0 8px 25px rgba(0,0,0,.4);
+  border-color:rgba(255,57,1,.25);
 }
+.gp-slider-card .play-btn{
+  display:flex;align-items:center;gap:.5rem;
+  background-color:rgb(255,57,1);color:rgb(33,36,37);
+  padding:.375rem .625rem;border-radius:.375rem;
+  font-size:.7rem;font-weight:700;text-transform:uppercase;
+  box-shadow:0 4px 14px rgba(255,57,1,.35);
+}
+
+/* Studios in game page — same as home */
+.gp-studios-track .estudio-card{
+  flex:0 0 166px;height:110px;
+}
+
+/* Section header layout for studios */
+.gp-providers-section .section-header{
+  display:flex;align-items:center;justify-content:space-between;
+}
+.gp-providers-section .section-header h2{margin-right:8px}
 
 @media(max-width:1024px){
-  .gp-stats{grid-template-columns:1fr 1fr}
+  .gp-hero{height:600px}
+  .gp-stats{flex-direction:column}
   .gp-slider-card{flex:0 0 calc((100% - 48px) / 4);min-width:140px}
 }
 @media(max-width:768px){
-  .gp-hero{height:340px}
+  .gp-hero{height:500px}
   .gp-hero-image{width:150px;height:170px}
-  .gp-stats{grid-template-columns:1fr}
+  .gp-stats{flex-direction:column}
   .gp-info-bar{flex-direction:column;gap:12px;align-items:flex-start}
   .gp-slider-card{flex:0 0 calc((100% - 24px) / 3);min-width:120px}
+  .gp-slider-card img{height:150px}
 }
 @media(max-width:480px){
-  .gp-hero{height:300px}
+  .gp-hero{height:420px}
   .gp-hero-image{width:130px;height:148px}
   .gp-hero-actions{flex-wrap:wrap;justify-content:center}
   .gp-slider-card{flex:0 0 calc((100% - 12px) / 2);min-width:110px}
