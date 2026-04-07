@@ -37,35 +37,134 @@ var searchCount = document.getElementById('searchCount');
 var searchLoadMore = document.getElementById('searchLoadMore');
 var searchCloseBtn = document.getElementById('searchClose');
 var searchTagsEl = document.getElementById('searchTags');
+var searchMessage = document.getElementById('searchMessage');
 var searchTimer = null;
 var searchFiltered = [];
 var searchShown = 0;
 var searchPageSize = 15;
 var searchActiveTag = 'Todos';
+var searchIsOpen = false;
 
-var searchTags = ['Todos','Slots','Jogar com Bônus','Jogos De Torneio','Megavias','Jogos Vip','Compre Rodadas','Recomendados','Pragmaticplay','Jogos Novos','Cassino ao Vivo','Hacksaw'];
+/* Animated placeholder */
+var placeholderPhrases = ['Fortune Tiger...','Aviator...','Big Bass Bonanza...','Sweet Bonanza...','Mines...','Gates of Olympus...','Spaceman...','Roleta Brasileira...','Fortune Ox...','Sugar Rush...'];
+var phIdx = 0;
+var phCharIdx = 0;
+var phDeleting = false;
+var phInterval = null;
+
+function animatePlaceholder() {
+  if (!searchInput || searchIsOpen) return;
+  var phrase = placeholderPhrases[phIdx];
+  if (!phDeleting) {
+    phCharIdx++;
+    searchInput.placeholder = phrase.substring(0, phCharIdx);
+    if (phCharIdx >= phrase.length) {
+      phDeleting = true;
+      clearInterval(phInterval);
+      setTimeout(function() { phInterval = setInterval(animatePlaceholder, 40); }, 1500);
+      return;
+    }
+  } else {
+    phCharIdx--;
+    searchInput.placeholder = phrase.substring(0, phCharIdx);
+    if (phCharIdx <= 0) {
+      phDeleting = false;
+      phIdx = (phIdx + 1) % placeholderPhrases.length;
+      clearInterval(phInterval);
+      setTimeout(function() { phInterval = setInterval(animatePlaceholder, 80); }, 300);
+      return;
+    }
+  }
+}
+function startPlaceholderAnim() {
+  stopPlaceholderAnim();
+  phCharIdx = 0;
+  phDeleting = false;
+  phInterval = setInterval(animatePlaceholder, 80);
+}
+function stopPlaceholderAnim() {
+  if (phInterval) { clearInterval(phInterval); phInterval = null; }
+}
 
 function openSearch() {
+  searchIsOpen = true;
+  stopPlaceholderAnim();
+  if (searchInput) searchInput.placeholder = 'Pesquise um jogo de cassino...';
   if (searchOverlay) searchOverlay.classList.add('active');
   if (searchResults) searchResults.classList.add('active');
   if (searchCloseBtn) searchCloseBtn.classList.add('active');
-  renderSearchTags();
+  handleSearchState();
 }
 
 function closeSearch() {
+  searchIsOpen = false;
   if (searchOverlay) searchOverlay.classList.remove('active');
   if (searchResults) searchResults.classList.remove('active');
   if (searchCloseBtn) searchCloseBtn.classList.remove('active');
-  if (searchInput) searchInput.value = '';
+  if (searchInput) { searchInput.value = ''; searchInput.blur(); }
   searchFiltered = [];
   searchShown = 0;
+  searchActiveTag = 'Todos';
   if (searchGrid) searchGrid.innerHTML = '';
   if (searchFooter) searchFooter.style.display = 'none';
+  if (searchTagsEl) searchTagsEl.innerHTML = '';
+  if (searchMessage) searchMessage.style.display = 'none';
+  startPlaceholderAnim();
 }
 
-function renderSearchTags() {
+function handleSearchState() {
+  var q = (searchInput ? searchInput.value : '').trim();
+  // Hide everything first
+  if (searchMessage) searchMessage.style.display = 'none';
+  if (searchTagsEl) searchTagsEl.style.display = 'none';
+  if (searchGrid) searchGrid.style.display = 'none';
+  if (searchFooter) searchFooter.style.display = 'none';
+
+  if (q.length === 0) {
+    // Empty — show nothing, just the open dropdown
+    if (searchTagsEl) searchTagsEl.innerHTML = '';
+    if (searchGrid) searchGrid.innerHTML = '';
+    return;
+  }
+  if (q.length < 3) {
+    // Min 3 chars warning
+    if (searchMessage) {
+      searchMessage.textContent = 'Pesquisa mínima de 3 caracteres';
+      searchMessage.style.display = 'block';
+    }
+    if (searchTagsEl) searchTagsEl.innerHTML = '';
+    if (searchGrid) searchGrid.innerHTML = '';
+    return;
+  }
+  // Do the actual search
+  doSearch();
+}
+
+function extractTags(games) {
+  var tagSet = {};
+  games.forEach(function(g) {
+    if (g.provider) tagSet[g.provider] = true;
+    if (g.category) {
+      g.category.split(',').forEach(function(c) {
+        var t = c.trim();
+        if (t) tagSet[t] = true;
+      });
+    }
+  });
+  var tags = ['Todos'];
+  Object.keys(tagSet).sort().forEach(function(t) { tags.push(t); });
+  return tags;
+}
+
+function renderSearchTags(tags) {
   if (!searchTagsEl) return;
-  searchTagsEl.innerHTML = searchTags.map(function(t) {
+  if (!tags || tags.length <= 1) {
+    searchTagsEl.style.display = 'none';
+    searchTagsEl.innerHTML = '';
+    return;
+  }
+  searchTagsEl.style.display = 'flex';
+  searchTagsEl.innerHTML = tags.map(function(t) {
     return '<button class="search-tag' + (t === searchActiveTag ? ' active' : '') + '" data-tag="' + t + '">' + t + '</button>';
   }).join('');
   searchTagsEl.querySelectorAll('.search-tag').forEach(function(btn) {
@@ -73,28 +172,66 @@ function renderSearchTags() {
       searchActiveTag = btn.dataset.tag;
       searchTagsEl.querySelectorAll('.search-tag').forEach(function(b) { b.classList.remove('active'); });
       btn.classList.add('active');
-      doSearch();
+      applyTagFilter();
     });
   });
 }
 
 function doSearch() {
   var q = (searchInput ? searchInput.value : '').trim().toLowerCase();
-  searchFiltered = allGames.filter(function(g) {
-    var matchQuery = !q || (g.game_name || '').toLowerCase().includes(q) ||
+  searchActiveTag = 'Todos';
+
+  // Find all games matching text query
+  var queryMatched = allGames.filter(function(g) {
+    return (g.game_name || '').toLowerCase().includes(q) ||
       (g.provider || '').toLowerCase().includes(q) ||
       (g.category || '').toLowerCase().includes(q);
-    var matchTag = true;
-    if (searchActiveTag !== 'Todos') {
-      var tag = searchActiveTag.toLowerCase();
-      matchTag = (g.category || '').toLowerCase().includes(tag) ||
-        (g.provider || '').toLowerCase().includes(tag) ||
-        (g.game_name || '').toLowerCase().includes(tag);
-    }
-    return matchQuery && matchTag;
   });
+
+  if (queryMatched.length === 0) {
+    // No results
+    if (searchMessage) {
+      searchMessage.textContent = 'Não encontramos resultados para sua busca';
+      searchMessage.style.display = 'block';
+    }
+    if (searchTagsEl) { searchTagsEl.innerHTML = ''; searchTagsEl.style.display = 'none'; }
+    if (searchGrid) { searchGrid.innerHTML = ''; searchGrid.style.display = 'none'; }
+    if (searchFooter) searchFooter.style.display = 'none';
+    return;
+  }
+
+  // Build dynamic tags from results
+  var dynamicTags = extractTags(queryMatched);
+  renderSearchTags(dynamicTags);
+
+  // Store full query results and show
+  searchFiltered = queryMatched;
   searchShown = 0;
-  if (searchGrid) searchGrid.innerHTML = '';
+  if (searchGrid) { searchGrid.innerHTML = ''; searchGrid.style.display = 'grid'; }
+  showMoreSearchResults();
+}
+
+function applyTagFilter() {
+  var q = (searchInput ? searchInput.value : '').trim().toLowerCase();
+  var queryMatched = allGames.filter(function(g) {
+    return (g.game_name || '').toLowerCase().includes(q) ||
+      (g.provider || '').toLowerCase().includes(q) ||
+      (g.category || '').toLowerCase().includes(q);
+  });
+
+  if (searchActiveTag !== 'Todos') {
+    var tag = searchActiveTag.toLowerCase();
+    searchFiltered = queryMatched.filter(function(g) {
+      return (g.category || '').toLowerCase().includes(tag) ||
+        (g.provider || '').toLowerCase().includes(tag);
+    });
+  } else {
+    searchFiltered = queryMatched;
+  }
+
+  searchShown = 0;
+  if (searchGrid) { searchGrid.innerHTML = ''; searchGrid.style.display = 'grid'; }
+  if (searchMessage) searchMessage.style.display = 'none';
   showMoreSearchResults();
 }
 
@@ -126,12 +263,15 @@ if (searchInput) {
   searchInput.addEventListener('focus', function() { openSearch(); });
   searchInput.addEventListener('input', function() {
     clearTimeout(searchTimer);
-    searchTimer = setTimeout(function() { doSearch(); }, 300);
+    searchTimer = setTimeout(function() { handleSearchState(); }, 300);
   });
 }
 if (searchOverlay) searchOverlay.addEventListener('click', closeSearch);
 if (searchCloseBtn) searchCloseBtn.addEventListener('click', closeSearch);
 if (searchLoadMore) searchLoadMore.addEventListener('click', showMoreSearchResults);
+
+// Start placeholder animation on load
+startPlaceholderAnim();
 
 /* Provider grid IDs */
 var providerGrids = [
