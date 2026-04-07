@@ -550,28 +550,7 @@
   </div>
 </div>
 
-<!-- ══════════ AUTH MODAL (Register only) ══════════ -->
-<div class="modal-overlay" id="authModal">
-  <div class="modal-box auth-box">
-    <button class="modal-close" id="authClose">&times;</button>
-    <div class="auth-tabs">
-      <button class="auth-tab active" data-tab="register">Registre-se</button>
-    </div>
-    <!-- Register -->
-    <form class="auth-form" id="formRegister">
-      <input type="text" name="name" placeholder="Nome completo" required>
-      <input type="text" name="cpf" placeholder="CPF" required>
-      <input type="email" name="email" placeholder="E-mail" required>
-      <input type="tel" name="phone" placeholder="Telefone" required>
-      <input type="password" name="password" placeholder="Senha" required>
-      <input type="password" name="password_confirm" placeholder="Confirmar senha" required>
-      <label class="check-label"><input type="checkbox" required> Tenho mais de 18 anos e aceito os termos</label>
-      <button type="submit" class="btn-auth-submit">Criar conta</button>
-    </form>
-  </div>
-</div>
-
-<!-- ══════════ LOGIN MODAL ══════════ -->
+<!-- ══════════ LOGIN / REGISTER MODALS ══════════ -->
 <%- include('partials/login-modal') %>
 
 <!-- ══════════ TOAST ══════════ -->

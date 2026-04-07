@@ -1,155 +1,244 @@
 <!-- ══════════ LOGIN MODAL ══════════ -->
 <div class="login-overlay" id="loginModal">
   <div class="login-modal">
-    <!-- Left: image panel -->
     <div class="login-left">
       <img src="/public/img/novo/login-banner.png" alt="" class="login-left-img">
     </div>
-    <!-- Right: form panel -->
     <div class="login-right">
       <!-- Top bar -->
       <div class="login-topbar">
         <button class="login-help-btn" type="button">
           <img src="/public/img/novo/modal1.svg" width="24" height="24" alt="">
-          Precisa de Ajuda?
+          <span>Precisa de<br>Ajuda?</span>
         </button>
-        <span class="login-topbar-text">Não tem uma conta? <a href="#" class="login-link" id="loginGoRegister">Crie uma conta aqui</a></span>
+        <div class="login-topbar-right">
+          <span class="login-topbar-line">Não tem uma conta?</span>
+          <a href="#" class="login-link" id="loginGoRegister">Crie uma conta aqui</a>
+        </div>
         <button class="login-close" id="loginClose" type="button">
           <img src="/public/img/novo/modal2.svg" width="24" height="24" alt="Fechar">
         </button>
       </div>
 
-      <!-- Logo -->
-      <div class="login-logo">
-        <img src="/public/img/novo/logo.png" alt="CassinoBet" style="width:306px;height:28px;object-fit:contain">
+      <!-- Body -->
+      <div class="login-body">
+        <!-- Logo -->
+        <div class="login-logo">
+          <img src="/public/img/novo/logo.png" alt="CassinoBet" style="width:306px;height:28px;object-fit:contain">
+        </div>
+
+        <!-- Form -->
+        <form class="login-form" id="loginForm" autocomplete="off">
+          <div class="login-field">
+            <input type="text" id="loginEmail" name="login" placeholder=" " autocomplete="username">
+            <label for="loginEmail">E-mail ou CPF</label>
+          </div>
+          <div class="login-field">
+            <input type="password" id="loginPassword" name="password" placeholder=" " autocomplete="current-password">
+            <label for="loginPassword">Senha</label>
+            <button type="button" class="login-eye" id="loginTogglePw" tabindex="-1">
+              <img src="/public/img/novo/modal3.svg" width="16" height="16" alt="" class="eye-off">
+              <img src="/public/img/novo/modal5.svg" width="16" height="16" alt="" class="eye-on" style="display:none">
+            </button>
+          </div>
+          <a href="#" class="login-forgot">Esqueceu a senha?</a>
+          <button type="submit" class="login-submit" id="loginSubmit" disabled>Entrar</button>
+        </form>
+
+        <!-- Divider -->
+        <div class="login-divider"><span>ENTRAR USANDO SUA CONTA:</span></div>
+
+        <!-- Google -->
+        <button class="login-google" type="button">
+          <img src="/public/img/novo/modal4.svg" width="14" height="14" alt="">
+          Entrar com Google
+        </button>
+
+        <!-- Create account -->
+        <button class="login-create-account" type="button" id="loginGoRegister2">Crie uma conta aqui</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ REGISTER MODAL ══════════ -->
+<div class="login-overlay" id="registerModal">
+  <div class="login-modal">
+    <div class="login-left">
+      <img src="/public/img/novo/login-banner.png" alt="" class="login-left-img">
+    </div>
+    <div class="login-right">
+      <!-- Top bar -->
+      <div class="login-topbar">
+        <button class="login-help-btn" type="button">
+          <img src="/public/img/novo/modal1.svg" width="24" height="24" alt="">
+          <span>Precisa de<br>Ajuda?</span>
+        </button>
+        <div class="login-topbar-right">
+          <span class="login-topbar-line">Já tem login?</span>
+          <a href="#" class="login-link" id="regGoLogin">Faça login aqui</a>
+        </div>
+        <button class="login-close" id="registerClose" type="button">
+          <img src="/public/img/novo/modal2.svg" width="24" height="24" alt="Fechar">
+        </button>
       </div>
 
-      <!-- Form -->
-      <form class="login-form" id="loginForm" autocomplete="off">
-        <!-- Email / CPF -->
-        <div class="login-field">
-          <input type="text" id="loginEmail" name="login" required autocomplete="username">
-          <label for="loginEmail">E-mail ou nome de usuário</label>
-        </div>
-        <!-- Password -->
-        <div class="login-field">
-          <input type="password" id="loginPassword" name="password" required autocomplete="current-password">
-          <label for="loginPassword">Senha</label>
-          <button type="button" class="login-eye" id="loginTogglePw" tabindex="-1">
-            <img src="/public/img/novo/modal3.svg" width="16" height="16" alt="" class="eye-off">
-            <img src="/public/img/novo/modal5.svg" width="16" height="16" alt="" class="eye-on" style="display:none">
-          </button>
-        </div>
+      <!-- Body -->
+      <div class="login-body">
+        <!-- Google -->
+        <button class="login-google reg-google" type="button">
+          <img src="/public/img/novo/modal4.svg" width="14" height="14" alt="">
+          Registrar com Google
+        </button>
 
-        <!-- Submit -->
-        <button type="submit" class="login-submit" id="loginSubmit" disabled>Entrar</button>
-      </form>
+        <!-- Divider -->
+        <div class="login-divider"><span>ou</span></div>
 
-      <!-- Divider -->
-      <div class="login-divider"><span>ENTRAR USANDO SUA CONTA:</span></div>
+        <!-- CPF field -->
+        <form class="login-form" id="registerForm" autocomplete="off">
+          <div class="login-field login-field-cpf">
+            <input type="text" id="regCpf" name="cpf" placeholder=" " maxlength="14" autocomplete="off">
+            <label for="regCpf">CPF *</label>
+            <button type="button" class="reg-validate-btn" id="regValidateBtn">Validar</button>
+          </div>
 
-      <!-- Google -->
-      <button class="login-google" type="button">
-        <img src="/public/img/novo/modal4.svg" width="14" height="14" alt="">
-        Entrar com Google
-      </button>
-
-      <!-- Create account -->
-      <button class="login-create-account" type="button" id="loginGoRegister2">Crie uma conta aqui</button>
+          <!-- Continue button (disabled until CPF validated) -->
+          <button type="submit" class="login-submit reg-continue" id="regContinueBtn" disabled>Por favor, digite e valide seu CPF para continuar...</button>
+        </form>
+      </div>
     </div>
   </div>
 </div>
 
 <script>
 (function(){
-  var modal = document.getElementById('loginModal');
-  var form = document.getElementById('loginForm');
+  /* ===== LOGIN MODAL ===== */
+  var loginModal = document.getElementById('loginModal');
+  var loginForm = document.getElementById('loginForm');
   var emailInput = document.getElementById('loginEmail');
   var pwInput = document.getElementById('loginPassword');
-  var submitBtn = document.getElementById('loginSubmit');
+  var loginSubmit = document.getElementById('loginSubmit');
   var togglePw = document.getElementById('loginTogglePw');
-  var closeBtn = document.getElementById('loginClose');
+  var loginClose = document.getElementById('loginClose');
 
-  /* Open / close */
   window.openLoginModal = function() {
-    if (modal) { modal.classList.add('open'); document.body.style.overflow = 'hidden'; }
+    if (loginModal) { loginModal.classList.add('open'); document.body.style.overflow = 'hidden'; }
   };
   window.closeLoginModal = function() {
-    if (modal) { modal.classList.remove('open'); document.body.style.overflow = ''; }
+    if (loginModal) { loginModal.classList.remove('open'); document.body.style.overflow = ''; }
   };
 
-  if (closeBtn) closeBtn.addEventListener('click', closeLoginModal);
-  if (modal) modal.addEventListener('click', function(e) { if (e.target === modal) closeLoginModal(); });
-  document.addEventListener('keydown', function(e) { if (e.key === 'Escape' && modal && modal.classList.contains('open')) closeLoginModal(); });
+  if (loginClose) loginClose.addEventListener('click', closeLoginModal);
+  if (loginModal) loginModal.addEventListener('click', function(e) { if (e.target === loginModal) closeLoginModal(); });
 
-  /* Bind all login buttons site-wide */
+  /* Bind login buttons */
   document.querySelectorAll('.btn-login, #heroLogin').forEach(function(btn) {
-    btn.addEventListener('click', function(e) {
-      e.preventDefault();
-      openLoginModal();
-    });
+    btn.addEventListener('click', function(e) { e.preventDefault(); openLoginModal(); });
   });
 
   /* Password toggle */
   if (togglePw) togglePw.addEventListener('click', function() {
-    var isPassword = pwInput.type === 'password';
-    pwInput.type = isPassword ? 'text' : 'password';
-    togglePw.querySelector('.eye-off').style.display = isPassword ? 'none' : '';
-    togglePw.querySelector('.eye-on').style.display = isPassword ? '' : 'none';
+    var isPw = pwInput.type === 'password';
+    pwInput.type = isPw ? 'text' : 'password';
+    togglePw.querySelector('.eye-off').style.display = isPw ? 'none' : '';
+    togglePw.querySelector('.eye-on').style.display = isPw ? '' : 'none';
   });
 
   /* Enable/disable submit */
-  function checkValid() {
+  function checkLoginValid() {
     var valid = emailInput && emailInput.value.trim().length > 0 && pwInput && pwInput.value.length > 0;
-    if (submitBtn) submitBtn.disabled = !valid;
+    if (loginSubmit) loginSubmit.disabled = !valid;
   }
-  if (emailInput) emailInput.addEventListener('input', checkValid);
-  if (pwInput) pwInput.addEventListener('input', checkValid);
+  if (emailInput) emailInput.addEventListener('input', checkLoginValid);
+  if (pwInput) pwInput.addEventListener('input', checkLoginValid);
 
-  /* Submit */
-  if (form) form.addEventListener('submit', function(e) {
+  /* Submit login */
+  if (loginForm) loginForm.addEventListener('submit', function(e) {
     e.preventDefault();
     var login = (emailInput.value || '').trim();
     var password = pwInput.value || '';
     if (!login || !password) return;
-
-    submitBtn.disabled = true;
-    submitBtn.textContent = 'Entrando...';
-
+    loginSubmit.disabled = true;
+    loginSubmit.textContent = 'Entrando...';
     if (typeof apiPost === 'function') {
       apiPost('/api/login', { login: login, password: password })
         .then(function(data) {
-          if (data && data.ok) {
-            closeLoginModal();
-            window.location.reload();
-          } else {
-            if (typeof showToast === 'function') showToast(data.msg || 'Erro ao entrar', 'error');
-          }
+          if (data && data.ok) { closeLoginModal(); window.location.reload(); }
+          else { if (typeof showToast === 'function') showToast(data.msg || 'Erro ao entrar', 'error'); }
         })
-        .catch(function() {
-          if (typeof showToast === 'function') showToast('Erro ao conectar', 'error');
-        })
-        .finally(function() {
-          submitBtn.disabled = false;
-          submitBtn.textContent = 'Entrar';
-          checkValid();
-        });
-    } else {
-      if (typeof showToast === 'function') showToast('Login não disponível', 'error');
-      submitBtn.disabled = false;
-      submitBtn.textContent = 'Entrar';
+        .catch(function() { if (typeof showToast === 'function') showToast('Erro ao conectar', 'error'); })
+        .finally(function() { loginSubmit.disabled = false; loginSubmit.textContent = 'Entrar'; checkLoginValid(); });
     }
   });
 
-  /* "Crie uma conta" links → open register (old auth modal) */
+  /* ===== REGISTER MODAL ===== */
+  var regModal = document.getElementById('registerModal');
+  var regClose = document.getElementById('registerClose');
+  var regCpf = document.getElementById('regCpf');
+  var regValidateBtn = document.getElementById('regValidateBtn');
+  var regContinueBtn = document.getElementById('regContinueBtn');
+  var regForm = document.getElementById('registerForm');
+
+  window.openRegisterModal = function() {
+    if (regModal) { regModal.classList.add('open'); document.body.style.overflow = 'hidden'; }
+  };
+  window.closeRegisterModal = function() {
+    if (regModal) { regModal.classList.remove('open'); document.body.style.overflow = ''; }
+  };
+
+  if (regClose) regClose.addEventListener('click', closeRegisterModal);
+  if (regModal) regModal.addEventListener('click', function(e) { if (e.target === regModal) closeRegisterModal(); });
+
+  /* Bind register buttons */
+  document.querySelectorAll('.btn-register, #heroRegister, #btnOpenRegister').forEach(function(btn) {
+    btn.addEventListener('click', function(e) { e.preventDefault(); openRegisterModal(); });
+  });
+
+  /* CPF mask */
+  if (regCpf) regCpf.addEventListener('input', function() {
+    var v = regCpf.value.replace(/\D/g, '').substring(0, 11);
+    if (v.length > 9) v = v.replace(/(\d{3})(\d{3})(\d{3})(\d{1,2})/, '$1.$2.$3-$4');
+    else if (v.length > 6) v = v.replace(/(\d{3})(\d{3})(\d{1,3})/, '$1.$2.$3');
+    else if (v.length > 3) v = v.replace(/(\d{3})(\d{1,3})/, '$1.$2');
+    regCpf.value = v;
+  });
+
+  /* Validate CPF button */
+  if (regValidateBtn) regValidateBtn.addEventListener('click', function() {
+    var cpf = (regCpf.value || '').replace(/\D/g, '');
+    if (cpf.length !== 11) {
+      if (typeof showToast === 'function') showToast('Digite um CPF válido com 11 dígitos', 'error');
+      return;
+    }
+    regContinueBtn.disabled = false;
+    regContinueBtn.textContent = 'Continuar';
+    regContinueBtn.classList.add('reg-validated');
+    if (typeof showToast === 'function') showToast('CPF validado!', 'success');
+  });
+
+  /* Register form submit */
+  if (regForm) regForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+    var cpf = (regCpf.value || '').replace(/\D/g, '');
+    if (cpf.length !== 11) return;
+    if (typeof showToast === 'function') showToast('Registro será implementado em breve', 'info');
+  });
+
+  /* Switch between modals */
   var goReg1 = document.getElementById('loginGoRegister');
   var goReg2 = document.getElementById('loginGoRegister2');
-  function goRegister(e) {
-    e.preventDefault();
-    closeLoginModal();
-    if (typeof openAuth === 'function') openAuth('register');
-  }
-  if (goReg1) goReg1.addEventListener('click', goRegister);
-  if (goReg2) goReg2.addEventListener('click', goRegister);
+  var goLogin = document.getElementById('regGoLogin');
+
+  function switchToRegister(e) { e.preventDefault(); closeLoginModal(); setTimeout(openRegisterModal, 150); }
+  function switchToLogin(e) { e.preventDefault(); closeRegisterModal(); setTimeout(openLoginModal, 150); }
+
+  if (goReg1) goReg1.addEventListener('click', switchToRegister);
+  if (goReg2) goReg2.addEventListener('click', switchToRegister);
+  if (goLogin) goLogin.addEventListener('click', switchToLogin);
+
+  /* Escape closes any open modal */
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') { closeLoginModal(); closeRegisterModal(); }
+  });
 })();
 </script>
