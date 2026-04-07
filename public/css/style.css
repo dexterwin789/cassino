@@ -505,6 +505,7 @@ ul{list-style:none}
 /* ===== ESTUDIOS ===== */
 .estudios-grid{
   display:flex;gap:12px;
+  justify-content:space-between;
   overflow-x:auto;scrollbar-width:none;
   padding-bottom:4px;
 }
@@ -628,8 +629,12 @@ ul{list-style:none}
   transition:color .2s;
 }
 .footer-col a:hover{color:#fff}
+.footer-btn-icon{
+  width:16px;height:16px;vertical-align:middle;margin-right:4px;
+  display:inline-block;
+}
 .footer-contact-btn{
-  display:inline-block;padding:6px 16px;
+  display:inline-flex;align-items:center;padding:6px 16px;
   border:1px solid var(--border);border-radius:999px;
   font-size:12px;font-weight:600;color:var(--text)!important;
   transition:all .2s;
@@ -652,12 +657,76 @@ ul{list-style:none}
 .sponsor-logos{display:flex;justify-content:center;gap:20px;align-items:center}
 .sponsor-logos img{height:36px;width:auto;opacity:.7;transition:opacity .2s}
 .sponsor-logos img:hover{opacity:1}
-.footer-bottom{
+
+/* SEO text block */
+.footer-seo{
   border-top:1px solid var(--border);
-  padding-top:20px;text-align:center;
+  padding:24px 0;text-align:center;
 }
-.footer-bottom p{color:var(--text-muted);font-size:12px;margin:4px 0}
-.footer-copy{opacity:.6}
+.footer-seo-visible{
+  color:var(--text-muted);font-size:12px;line-height:1.7;
+  margin:0 0 8px;
+}
+.footer-seo-hidden{
+  text-align:left;margin-top:16px;
+}
+.footer-seo-hidden p{
+  color:var(--text-muted);font-size:12px;line-height:1.7;
+  margin:0 0 14px;
+}
+.footer-seo-hidden strong{color:var(--text);font-weight:700}
+.footer-seo-toggle{
+  background:none;border:none;
+  color:var(--text-muted);font-size:12px;font-weight:600;
+  cursor:pointer;text-decoration:underline;
+  padding:4px 8px;transition:color .2s;
+}
+.footer-seo-toggle:hover{color:#fff}
+
+/* Feito com amor */
+.footer-brasil{
+  text-align:center;padding:24px 0;
+  font-size:15px;font-weight:600;color:var(--text);
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  border-top:1px solid var(--border);
+}
+
+/* Legal block */
+.footer-legal{
+  display:flex;align-items:flex-start;gap:24px;
+  padding:24px 0;
+  border-top:1px solid var(--border);
+}
+.footer-legal-text{flex:1;min-width:0}
+.footer-legal-text p{
+  color:var(--text-muted);font-size:11px;line-height:1.7;
+  margin:0 0 10px;
+}
+.footer-legal-text strong{color:var(--text);font-weight:700}
+.footer-legal-text u{text-decoration:underline}
+.footer-legal-badge{flex-shrink:0;display:flex;align-items:center}
+
+/* Badges strip */
+.footer-badges{
+  display:flex;justify-content:center;align-items:center;
+  gap:24px;flex-wrap:wrap;
+  padding:24px 0;
+  border-top:1px solid var(--border);
+}
+.footer-badges img{height:36px;width:auto;opacity:.7;transition:opacity .2s}
+.footer-badges img:hover{opacity:1}
+
+/* Contacts bar */
+.footer-contacts{
+  display:flex;justify-content:center;align-items:center;
+  gap:12px;flex-wrap:wrap;
+  padding:20px 0;
+  border-top:1px solid var(--border);
+  font-size:12px;color:var(--text-muted);
+}
+.footer-contacts a{color:rgb(255,57,1);text-decoration:none;font-weight:600}
+.footer-contacts a:hover{text-decoration:underline}
+.footer-contacts-sep{color:var(--text-muted);opacity:.4}
 
 /* ===== BOTTOM NAV (mobile) ===== */
 .bottom-nav{
@@ -1007,6 +1076,8 @@ ul{list-style:none}
   .liga-icon{width:52px;height:52px}
   .liga-icon img{width:32px;height:32px}
   .footer-top{grid-template-columns:repeat(2,1fr)}
+  .footer-legal{flex-direction:column;align-items:center;text-align:center}
+  .footer-legal-badge{margin-top:12px}
 }
 @media(max-width:480px){
   .provider-grid{grid-template-columns:repeat(2,1fr)}

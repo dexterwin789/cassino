@@ -556,6 +556,20 @@ function showToast(msg, type) {
   }, 3000);
 }
 
+/* ========== FOOTER SEO TOGGLE ========== */
+function toggleFooterSeo() {
+  var more = document.getElementById('footerSeoMore');
+  var btn = document.getElementById('footerSeoToggle');
+  if (!more || !btn) return;
+  if (more.style.display === 'none') {
+    more.style.display = 'block';
+    btn.textContent = 'Ver menos';
+  } else {
+    more.style.display = 'none';
+    btn.textContent = 'Ver mais';
+  }
+}
+
 /* ========== GANHOS TABS ========== */
 document.querySelectorAll('.ganhos-tab').forEach(function(tab) {
   tab.addEventListener('click', function() {
@@ -586,7 +600,7 @@ function randomName() {
 function randomGame() {
   if (allGames.length > 0) {
     var g = allGames[Math.floor(Math.random() * allGames.length)];
-    return { name: g.title, img: g.thumb || gameImages[Math.floor(Math.random() * gameImages.length)] };
+    return { name: g.game_name || 'Jogo', img: g.image_url || gameImages[Math.floor(Math.random() * gameImages.length)] };
   }
   var gameNames = ['Fortune Tiger','Aviator','Mines','Sweet Bonanza','Roleta Brasileira','Gates of Olympus','Spaceman','Penalty Shootout','Sugar Rush','Bikini Paradise','Fortune Ox','Dragon Tiger'];
   var idx = Math.floor(Math.random() * gameNames.length);
