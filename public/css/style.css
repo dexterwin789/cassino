@@ -1609,11 +1609,220 @@ body.search-lock{overflow:hidden!important}
   transition:.2s;
 }
 .reg-validate-btn:hover{border-color:#ff3a00;color:#ff3a00}
-.reg-continue{
-  background:#555;color:rgba(255,255,255,.5);font-size:13px;
+
+/* Extra fields after CPF validation */
+.reg-extra-fields{
+  display:flex;flex-direction:column;gap:12px;
+  animation:regFadeIn .4s ease;
 }
-.reg-continue.reg-validated{
-  background:#ff3901;color:#fff;font-size:15px;
+@keyframes regFadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+.reg-cpf-info{
+  display:flex;align-items:center;justify-content:space-between;
+  background:#1a1d26;border-radius:6px;padding:10px 14px;
+  border-bottom:2px solid #ff3901;
+}
+.reg-cpf-data{display:flex;flex-direction:column;gap:2px}
+.reg-cpf-name{color:#fff;font-size:13px;font-weight:700}
+.reg-cpf-numbers{color:rgba(255,255,255,.45);font-size:11px}
+.reg-trocar-btn{
+  background:transparent;border:1px solid rgba(255,255,255,.15);
+  color:#ff3901;padding:4px 12px;border-radius:4px;
+  font-size:11px;font-weight:600;cursor:pointer;transition:.2s;
+}
+.reg-trocar-btn:hover{border-color:#ff3901;background:rgba(255,57,1,.1)}
+
+/* Phone field */
+.reg-phone-field{position:relative}
+.reg-phone-prefix{
+  position:absolute;left:12px;top:50%;transform:translateY(-50%);
+  display:flex;align-items:center;gap:6px;
+  color:rgba(255,255,255,.7);font-size:13px;font-weight:600;
+  pointer-events:none;z-index:2;
+}
+.reg-phone-field input{padding-left:72px}
+.reg-phone-label{left:72px!important}
+
+/* Info icon */
+.field-info-icon{
+  position:absolute;right:12px;top:50%;transform:translateY(-50%);
+  color:rgba(255,255,255,.3);font-size:14px;pointer-events:none;
+}
+
+/* Select field */
+.reg-select-field select{
+  appearance:none;-webkit-appearance:none;
+  background:#1a1d26 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23888' viewBox='0 0 16 16'%3E%3Cpath d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E") no-repeat right 12px center;
+  color:#fff;border:1px solid rgba(255,255,255,.08);
+  border-radius:6px;padding:14px 12px;font-size:13px;
+  width:100%;cursor:pointer;
+}
+
+/* Checkbox */
+.reg-check{
+  display:flex;align-items:flex-start;gap:10px;
+  color:rgba(255,255,255,.55);font-size:11px;line-height:1.4;
+  cursor:pointer;
+}
+.reg-check input[type="checkbox"]{
+  width:16px;height:16px;min-width:16px;margin-top:1px;
+  accent-color:#ff3901;cursor:pointer;
+}
+.reg-check a{color:#ff3901}
+
+/* Submit button */
+.reg-submit-btn{
+  background:linear-gradient(135deg,#ff3901,#ff6b3a);
+  color:#fff;border:none;border-radius:.25rem;
+  padding:14px;font-size:15px;font-weight:800;
+  text-transform:uppercase;letter-spacing:.5px;
+  cursor:pointer;transition:.2s;width:100%;
+}
+.reg-submit-btn:disabled{opacity:.45;cursor:not-allowed}
+.reg-submit-btn:not(:disabled):hover{filter:brightness(1.1)}
+
+/* ===== DEPOSIT MODAL ===== */
+.dep-overlay{
+  position:fixed;inset:0;z-index:9999;
+  background:rgba(0,0,0,.65);
+  display:none;align-items:center;justify-content:center;
+  opacity:0;transition:opacity .25s ease;
+}
+.dep-overlay.open{display:flex;opacity:1}
+.dep-modal{
+  width:500px;max-width:96vw;max-height:800px;
+  background:#1e2230;border-radius:12px;
+  overflow:hidden;overflow-y:auto;
+  display:flex;flex-direction:column;
+}
+.dep-modal::-webkit-scrollbar{width:4px}
+.dep-modal::-webkit-scrollbar-thumb{background:#333;border-radius:4px}
+
+/* Banner */
+.dep-banner{position:relative;width:100%;height:185px;flex-shrink:0;overflow:hidden}
+.dep-banner-img{width:100%;height:100%;object-fit:cover;display:block}
+.dep-banner-close{
+  position:absolute;top:10px;right:10px;
+  background:rgba(0,0,0,.35);border:none;border-radius:50%;
+  width:32px;height:32px;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:.2s;
+  box-shadow:0 2px 8px rgba(0,0,0,.3);
+}
+.dep-banner-close:hover{background:rgba(0,0,0,.55)}
+
+/* Header */
+.dep-header{
+  display:flex;align-items:center;gap:12px;
+  padding:16px 20px 8px;
+}
+.dep-back{
+  background:transparent;border:none;cursor:pointer;padding:4px;
+  display:flex;align-items:center;justify-content:center;
+  opacity:.6;transition:.2s;
+}
+.dep-back:hover{opacity:1}
+.dep-header-text{display:flex;flex-direction:column}
+.dep-header-text strong{color:#fff;font-size:16px}
+.dep-header-text span{color:rgba(255,255,255,.45);font-size:12px}
+
+/* Body */
+.dep-body{padding:0 20px 20px;display:flex;flex-direction:column;gap:14px}
+
+/* Methods */
+.dep-methods{display:flex;gap:10px}
+.dep-method-card{
+  width:72px;height:72px;
+  display:flex;align-items:center;justify-content:center;
+  border-radius:8px;border:1px solid rgba(255,255,255,.08);
+  background:#1a1d26;cursor:pointer;transition:.2s;
+}
+.dep-method-active{
+  background:#0f2d52;border-color:#ff3901;
+  box-shadow:0 0 12px rgba(255,57,1,.25);
+}
+
+/* Payment label */
+.dep-payment-label{
+  color:rgba(255,255,255,.5);font-size:11px;
+  text-transform:uppercase;letter-spacing:.3px;
+}
+.dep-payment-method{
+  background:#424344;color:#fff;font-size:13px;font-weight:600;
+  padding:10px 14px;border-radius:.375rem;
+}
+
+/* Value section */
+.dep-value-header{display:flex;align-items:center;justify-content:space-between}
+.dep-value-label{color:#fff;font-size:13px}
+.dep-cupom-toggle{
+  background:transparent;border:none;color:#ff3901;
+  font-size:12px;cursor:pointer;text-decoration:underline;
+}
+.dep-value-input-wrap{position:relative}
+.dep-value-input{
+  width:100%;background:#424344;color:#fff;
+  border:1px solid rgba(255,255,255,.08);border-radius:.375rem;
+  padding:10px 80px 10px 14px;font-size:.875rem;height:2.5rem;
+  box-sizing:border-box;
+}
+.dep-value-input::placeholder{color:rgba(255,255,255,.3)}
+.dep-brl{
+  position:absolute;right:12px;top:50%;transform:translateY(-50%);
+  display:flex;align-items:center;gap:6px;
+  color:rgba(255,255,255,.6);font-size:12px;font-weight:600;
+  pointer-events:none;
+}
+
+/* Value buttons grid */
+.dep-values-grid{
+  display:flex;flex-wrap:wrap;gap:8px;
+}
+.dep-val-btn{
+  position:relative;
+  flex:1 1 calc(33.333% - 6px);min-width:calc(33.333% - 6px);
+  background:rgba(55,162,92,.1);
+  border:1px solid rgba(55,162,92,.05);
+  border-radius:.375rem;padding:14px 8px;
+  color:#ff3901;font-size:14px;font-weight:800;
+  text-align:center;cursor:pointer;transition:.2s;
+}
+.dep-val-btn:hover{border-color:#37a25c;background:rgba(55,162,92,.2)}
+.dep-val-selected{border-color:#ffd700!important;background:rgba(255,215,0,.08)!important}
+.dep-badge,.dep-badge-super{
+  position:absolute;top:-1px;right:-1px;
+  background:#ffd700;color:#000;
+  font-size:8px;font-weight:800;text-transform:uppercase;
+  padding:2px 6px;border-radius:0 .375rem 0 6px;
+  line-height:1.2;
+}
+.dep-badge-super{background:#ff6b3a;color:#fff;font-size:7px}
+
+/* Coupon */
+.dep-cupom-wrap{margin-top:4px}
+.dep-cupom-input{
+  width:100%;background:#424344;color:#fff;
+  border:1px solid rgba(255,255,255,.08);border-radius:.375rem;
+  height:60px;text-align:center;font-size:1.875rem;
+  padding:0 14px;box-sizing:border-box;
+}
+.dep-cupom-input::placeholder{color:rgba(255,255,255,.25);font-size:14px}
+
+/* Submit */
+.dep-submit{
+  background:#37a25c;color:#fff;border:none;
+  border-radius:.375rem;padding:.75rem;
+  font-size:1.125rem;font-weight:700;
+  cursor:pointer;transition:.2s;width:100%;
+  text-transform:uppercase;
+}
+.dep-submit:hover{filter:brightness(1.1)}
+
+/* Deposit responsive */
+@media(max-width:520px){
+  .dep-modal{max-width:100%;border-radius:0;max-height:100vh}
+  .dep-banner{height:140px}
+  .dep-val-btn{flex:1 1 calc(33.333% - 6px);font-size:12px;padding:10px 4px}
 }
 
 /* Responsive */

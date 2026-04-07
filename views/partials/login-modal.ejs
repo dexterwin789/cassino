@@ -5,7 +5,6 @@
       <img src="/public/img/novo/login-banner.png" alt="" class="login-left-img">
     </div>
     <div class="login-right">
-      <!-- Top bar -->
       <div class="login-topbar">
         <button class="login-help-btn" type="button">
           <img src="/public/img/novo/modal1.svg" width="24" height="24" alt="">
@@ -19,15 +18,10 @@
           <img src="/public/img/novo/modal2.svg" width="24" height="24" alt="Fechar">
         </button>
       </div>
-
-      <!-- Body -->
       <div class="login-body">
-        <!-- Logo -->
         <div class="login-logo">
           <img src="/public/img/novo/logo.png" alt="CassinoBet" style="width:306px;height:28px;object-fit:contain">
         </div>
-
-        <!-- Form -->
         <form class="login-form" id="loginForm" autocomplete="off">
           <div class="login-field">
             <input type="text" id="loginEmail" name="login" placeholder=" " autocomplete="username">
@@ -44,17 +38,11 @@
           <a href="#" class="login-forgot">Esqueceu a senha?</a>
           <button type="submit" class="login-submit" id="loginSubmit" disabled>Entrar</button>
         </form>
-
-        <!-- Divider -->
         <div class="login-divider"><span>ENTRAR USANDO SUA CONTA:</span></div>
-
-        <!-- Google -->
         <button class="login-google" type="button">
           <img src="/public/img/novo/modal4.svg" width="14" height="14" alt="">
           Entrar com Google
         </button>
-
-        <!-- Create account -->
         <button class="login-create-account" type="button" id="loginGoRegister2">Crie uma conta aqui</button>
       </div>
     </div>
@@ -68,57 +56,196 @@
       <img src="/public/img/novo/login-banner.png" alt="" class="login-left-img">
     </div>
     <div class="login-right">
-      <!-- Top bar -->
       <div class="login-topbar">
         <button class="login-help-btn" type="button">
           <img src="/public/img/novo/modal1.svg" width="24" height="24" alt="">
           <span>Precisa de<br>Ajuda?</span>
         </button>
         <div class="login-topbar-right">
-          <span class="login-topbar-line">Já tem login?</span>
+          <span class="login-topbar-line">Já tem uma conta?</span>
           <a href="#" class="login-link" id="regGoLogin">Faça login aqui</a>
         </div>
         <button class="login-close" id="registerClose" type="button">
           <img src="/public/img/novo/modal2.svg" width="24" height="24" alt="Fechar">
         </button>
       </div>
-
-      <!-- Body -->
       <div class="login-body">
-        <!-- Google -->
         <button class="login-google reg-google" type="button">
           <img src="/public/img/novo/modal4.svg" width="14" height="14" alt="">
           Registrar com Google
         </button>
+        <div class="login-divider"><span>OU</span></div>
 
-        <!-- Divider -->
-        <div class="login-divider"><span>ou</span></div>
-
-        <!-- CPF field -->
         <form class="login-form" id="registerForm" autocomplete="off">
+          <!-- CPF step -->
           <div class="login-field login-field-cpf">
             <input type="text" id="regCpf" name="cpf" placeholder=" " maxlength="14" autocomplete="off">
             <label for="regCpf">CPF *</label>
             <button type="button" class="reg-validate-btn" id="regValidateBtn">Validar</button>
           </div>
 
-          <!-- Continue button (disabled until CPF validated) -->
-          <button type="submit" class="login-submit reg-continue" id="regContinueBtn" disabled>Por favor, digite e valide seu CPF para continuar...</button>
+          <!-- Extra fields (hidden until CPF validated) -->
+          <div class="reg-extra-fields" id="regExtraFields" style="display:none">
+            <!-- CPF info bar -->
+            <div class="reg-cpf-info" id="regCpfInfo">
+              <div class="reg-cpf-data">
+                <span class="reg-cpf-name" id="regCpfName">---</span>
+                <span class="reg-cpf-numbers" id="regCpfNumbers">---</span>
+              </div>
+              <button type="button" class="reg-trocar-btn" id="regTrocarCpf">Trocar CPF</button>
+            </div>
+
+            <!-- Email -->
+            <div class="login-field">
+              <input type="email" id="regEmail" name="email" placeholder=" " autocomplete="email">
+              <label for="regEmail">E-mail *</label>
+              <span class="field-info-icon">ⓘ</span>
+            </div>
+
+            <!-- Telefone -->
+            <div class="login-field reg-phone-field">
+              <span class="reg-phone-prefix"><img src="/public/img/novo/BRA.png" alt="" style="width:18px;height:13px"> +55</span>
+              <input type="tel" id="regPhone" name="phone" placeholder=" " maxlength="15" autocomplete="tel">
+              <label for="regPhone" class="reg-phone-label">Telefone *</label>
+              <span class="field-info-icon">ⓘ</span>
+            </div>
+
+            <!-- Senha -->
+            <div class="login-field">
+              <input type="password" id="regPassword" name="password" placeholder=" " autocomplete="new-password">
+              <label for="regPassword">Senha *</label>
+              <button type="button" class="login-eye" id="regTogglePw" tabindex="-1">
+                <img src="/public/img/novo/modal3.svg" width="16" height="16" alt="" class="eye-off">
+                <img src="/public/img/novo/modal5.svg" width="16" height="16" alt="" class="eye-on" style="display:none">
+              </button>
+            </div>
+
+            <!-- Nacionalidade -->
+            <div class="login-field reg-select-field">
+              <select id="regNationality" name="nationality">
+                <option value="br" selected>Brasileiro (a)</option>
+                <option value="other">Estrangeiro (a)</option>
+              </select>
+            </div>
+
+            <!-- Checkbox -->
+            <label class="reg-check">
+              <input type="checkbox" id="regTerms" name="terms">
+              <span>Confirmo que <strong><u>tenho mais de 18 anos</u></strong> e aceito os <a href="#" class="login-link">Termos e Condições</a> e a <a href="#" class="login-link">Política de Privacidade</a>.</span>
+            </label>
+
+            <!-- Submit -->
+            <button type="submit" class="reg-submit-btn" id="regSubmitBtn" disabled>CONCLUIR REGISTRO</button>
+          </div>
         </form>
       </div>
     </div>
   </div>
 </div>
 
+<!-- ══════════ DEPOSIT MODAL ══════════ -->
+<div class="dep-overlay" id="depositModal">
+  <div class="dep-modal">
+    <!-- Banner -->
+    <div class="dep-banner">
+      <img src="/public/img/novo/bannermodalcompra.jfif" alt="" class="dep-banner-img">
+      <button class="dep-banner-close" id="depBannerClose" type="button">
+        <img src="/public/img/novo/fecharbanner.svg" width="19" height="19" alt="Fechar">
+      </button>
+    </div>
+
+    <!-- Header -->
+    <div class="dep-header">
+      <button class="dep-back" id="depBack" type="button">
+        <img src="/public/img/novo/voltarbanner.svg" width="16" height="16" alt="">
+      </button>
+      <div class="dep-header-text">
+        <strong>Depositar</strong>
+        <span>Adicione saldo à sua conta</span>
+      </div>
+    </div>
+
+    <!-- Body -->
+    <div class="dep-body">
+      <!-- PIX method -->
+      <div class="dep-methods">
+        <div class="dep-method-card dep-method-active">
+          <img src="/public/img/novo/footer2.svg" alt="PIX" style="width:48px;height:48px;object-fit:contain">
+        </div>
+        <div class="dep-method-card">
+          <img src="/public/img/novo/footer2.svg" alt="PIX" style="width:48px;height:48px;object-fit:contain;opacity:.4">
+        </div>
+      </div>
+
+      <!-- Método -->
+      <div class="dep-payment-label">Método de Pagamento</div>
+      <div class="dep-payment-method">PAYBROKERS</div>
+
+      <!-- Valor -->
+      <div class="dep-value-header">
+        <span class="dep-value-label"><strong>Valor a ser depositado:</strong></span>
+        <button class="dep-cupom-toggle" id="depCupomToggle" type="button">Possui cupom?</button>
+      </div>
+      <div class="dep-value-input-wrap">
+        <input type="text" class="dep-value-input" id="depValueInput" placeholder="Valor" value="">
+        <span class="dep-brl"><img src="/public/img/novo/BRA.png" alt="" style="width:16px;height:12px"> BRL</span>
+      </div>
+
+      <!-- Value buttons -->
+      <div class="dep-values-grid">
+        <button class="dep-val-btn" type="button" data-value="50">R$ 50</button>
+        <button class="dep-val-btn" type="button" data-value="100">
+          <span class="dep-badge dep-badge-super">SUPER HOT 🔥</span>
+          R$ 100
+        </button>
+        <button class="dep-val-btn" type="button" data-value="150">R$ 150</button>
+        <button class="dep-val-btn" type="button" data-value="250">R$ 250</button>
+        <button class="dep-val-btn" type="button" data-value="500">
+          <span class="dep-badge">HOT</span>
+          R$ 500
+        </button>
+        <button class="dep-val-btn" type="button" data-value="1000">
+          <span class="dep-badge">HOT</span>
+          R$ 1.000
+        </button>
+        <button class="dep-val-btn" type="button" data-value="2000">R$ 2.000</button>
+        <button class="dep-val-btn" type="button" data-value="5000">
+          <span class="dep-badge">HOT</span>
+          R$ 5.000
+        </button>
+        <button class="dep-val-btn" type="button" data-value="10000">R$ 10.000</button>
+      </div>
+
+      <!-- Coupon (hidden) -->
+      <div class="dep-cupom-wrap" id="depCupomWrap" style="display:none">
+        <input type="text" class="dep-cupom-input" id="depCupomInput" placeholder="🎟️ Possui cupom?">
+      </div>
+
+      <!-- Depositar -->
+      <button class="dep-submit" id="depSubmitBtn" type="button">DEPOSITAR</button>
+    </div>
+  </div>
+</div>
+
 <script>
 (function(){
+  /* ===== PASSWORD EYE TOGGLE HELPER ===== */
+  function setupEyeToggle(btn, input) {
+    if (!btn || !input) return;
+    btn.addEventListener('click', function() {
+      var isPw = input.type === 'password';
+      input.type = isPw ? 'text' : 'password';
+      btn.querySelector('.eye-off').style.display = isPw ? 'none' : '';
+      btn.querySelector('.eye-on').style.display = isPw ? '' : 'none';
+    });
+  }
+
   /* ===== LOGIN MODAL ===== */
   var loginModal = document.getElementById('loginModal');
   var loginForm = document.getElementById('loginForm');
   var emailInput = document.getElementById('loginEmail');
   var pwInput = document.getElementById('loginPassword');
   var loginSubmit = document.getElementById('loginSubmit');
-  var togglePw = document.getElementById('loginTogglePw');
   var loginClose = document.getElementById('loginClose');
 
   window.openLoginModal = function() {
@@ -127,24 +254,15 @@
   window.closeLoginModal = function() {
     if (loginModal) { loginModal.classList.remove('open'); document.body.style.overflow = ''; }
   };
-
   if (loginClose) loginClose.addEventListener('click', closeLoginModal);
   if (loginModal) loginModal.addEventListener('click', function(e) { if (e.target === loginModal) closeLoginModal(); });
 
-  /* Bind login buttons */
   document.querySelectorAll('.btn-login, #heroLogin').forEach(function(btn) {
     btn.addEventListener('click', function(e) { e.preventDefault(); openLoginModal(); });
   });
 
-  /* Password toggle */
-  if (togglePw) togglePw.addEventListener('click', function() {
-    var isPw = pwInput.type === 'password';
-    pwInput.type = isPw ? 'text' : 'password';
-    togglePw.querySelector('.eye-off').style.display = isPw ? 'none' : '';
-    togglePw.querySelector('.eye-on').style.display = isPw ? '' : 'none';
-  });
+  setupEyeToggle(document.getElementById('loginTogglePw'), pwInput);
 
-  /* Enable/disable submit */
   function checkLoginValid() {
     var valid = emailInput && emailInput.value.trim().length > 0 && pwInput && pwInput.value.length > 0;
     if (loginSubmit) loginSubmit.disabled = !valid;
@@ -152,7 +270,6 @@
   if (emailInput) emailInput.addEventListener('input', checkLoginValid);
   if (pwInput) pwInput.addEventListener('input', checkLoginValid);
 
-  /* Submit login */
   if (loginForm) loginForm.addEventListener('submit', function(e) {
     e.preventDefault();
     var login = (emailInput.value || '').trim();
@@ -176,8 +293,13 @@
   var regClose = document.getElementById('registerClose');
   var regCpf = document.getElementById('regCpf');
   var regValidateBtn = document.getElementById('regValidateBtn');
-  var regContinueBtn = document.getElementById('regContinueBtn');
+  var regExtraFields = document.getElementById('regExtraFields');
   var regForm = document.getElementById('registerForm');
+  var regSubmitBtn = document.getElementById('regSubmitBtn');
+  var regPhone = document.getElementById('regPhone');
+  var regPasswordInput = document.getElementById('regPassword');
+  var regTerms = document.getElementById('regTerms');
+  var regTrocarCpf = document.getElementById('regTrocarCpf');
 
   window.openRegisterModal = function() {
     if (regModal) { regModal.classList.add('open'); document.body.style.overflow = 'hidden'; }
@@ -185,11 +307,9 @@
   window.closeRegisterModal = function() {
     if (regModal) { regModal.classList.remove('open'); document.body.style.overflow = ''; }
   };
-
   if (regClose) regClose.addEventListener('click', closeRegisterModal);
   if (regModal) regModal.addEventListener('click', function(e) { if (e.target === regModal) closeRegisterModal(); });
 
-  /* Bind register buttons */
   document.querySelectorAll('.btn-register, #heroRegister, #btnOpenRegister').forEach(function(btn) {
     btn.addEventListener('click', function(e) { e.preventDefault(); openRegisterModal(); });
   });
@@ -203,28 +323,148 @@
     regCpf.value = v;
   });
 
-  /* Validate CPF button */
+  /* Phone mask */
+  if (regPhone) regPhone.addEventListener('input', function() {
+    var v = regPhone.value.replace(/\D/g, '').substring(0, 11);
+    if (v.length > 6) v = v.replace(/(\d{2})(\d{5})(\d{1,4})/, '($1) $2-$3');
+    else if (v.length > 2) v = v.replace(/(\d{2})(\d{1,5})/, '($1) $2');
+    regPhone.value = v;
+  });
+
+  setupEyeToggle(document.getElementById('regTogglePw'), regPasswordInput);
+
+  /* Validate CPF → loading → show fields */
   if (regValidateBtn) regValidateBtn.addEventListener('click', function() {
     var cpf = (regCpf.value || '').replace(/\D/g, '');
     if (cpf.length !== 11) {
       if (typeof showToast === 'function') showToast('Digite um CPF válido com 11 dígitos', 'error');
       return;
     }
-    regContinueBtn.disabled = false;
-    regContinueBtn.textContent = 'Continuar';
-    regContinueBtn.classList.add('reg-validated');
-    if (typeof showToast === 'function') showToast('CPF validado!', 'success');
+    regValidateBtn.textContent = '...';
+    regValidateBtn.disabled = true;
+    regCpf.disabled = true;
+
+    setTimeout(function() {
+      var masked = cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+      var fakeName = 'Usuário C**** S**** A*****';
+      var fakeBirth = '**/**/**9';
+      document.getElementById('regCpfName').textContent = fakeName;
+      document.getElementById('regCpfNumbers').textContent = masked + '  |  ' + fakeBirth;
+      regValidateBtn.style.display = 'none';
+      if (regExtraFields) regExtraFields.style.display = 'flex';
+    }, 1200);
   });
 
-  /* Register form submit */
+  /* Trocar CPF */
+  if (regTrocarCpf) regTrocarCpf.addEventListener('click', function() {
+    regCpf.disabled = false;
+    regCpf.value = '';
+    regCpf.focus();
+    regValidateBtn.style.display = '';
+    regValidateBtn.textContent = 'Validar';
+    regValidateBtn.disabled = false;
+    if (regExtraFields) regExtraFields.style.display = 'none';
+  });
+
+  /* Check register valid */
+  function checkRegValid() {
+    var email = document.getElementById('regEmail');
+    var pw = regPasswordInput;
+    var terms = regTerms;
+    var valid = email && email.value.trim().length > 3
+      && regPhone && regPhone.value.replace(/\D/g, '').length >= 10
+      && pw && pw.value.length >= 6
+      && terms && terms.checked;
+    if (regSubmitBtn) regSubmitBtn.disabled = !valid;
+  }
+  ['regEmail','regPhone','regPassword'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.addEventListener('input', checkRegValid);
+  });
+  if (regTerms) regTerms.addEventListener('change', checkRegValid);
+
+  /* Submit register */
   if (regForm) regForm.addEventListener('submit', function(e) {
     e.preventDefault();
+    if (regSubmitBtn.disabled) return;
     var cpf = (regCpf.value || '').replace(/\D/g, '');
-    if (cpf.length !== 11) return;
-    if (typeof showToast === 'function') showToast('Registro será implementado em breve', 'info');
+    var emailVal = (document.getElementById('regEmail').value || '').trim();
+    var phone = (regPhone.value || '').replace(/\D/g, '');
+    var password = regPasswordInput.value || '';
+    regSubmitBtn.disabled = true;
+    regSubmitBtn.textContent = 'Registrando...';
+
+    if (typeof apiPost === 'function') {
+      apiPost('/api/register', { cpf: cpf, email: emailVal, phone: phone, password: password, username: emailVal, name: emailVal.split('@')[0] })
+        .then(function(data) {
+          if (data && data.ok) {
+            closeRegisterModal();
+            if (typeof showToast === 'function') showToast('Usuário cadastrado com sucesso!', 'success');
+            setTimeout(function() { openDepositModal(); }, 400);
+          } else {
+            if (typeof showToast === 'function') showToast(data.msg || 'Erro ao registrar', 'error');
+          }
+        })
+        .catch(function() { if (typeof showToast === 'function') showToast('Erro ao conectar', 'error'); })
+        .finally(function() { regSubmitBtn.disabled = false; regSubmitBtn.textContent = 'CONCLUIR REGISTRO'; checkRegValid(); });
+    } else {
+      closeRegisterModal();
+      if (typeof showToast === 'function') showToast('Usuário cadastrado com sucesso!', 'success');
+      setTimeout(function() { openDepositModal(); }, 400);
+    }
   });
 
-  /* Switch between modals */
+  /* ===== DEPOSIT MODAL ===== */
+  var depModal = document.getElementById('depositModal');
+  var depBannerClose = document.getElementById('depBannerClose');
+  var depBack = document.getElementById('depBack');
+  var depValueInput = document.getElementById('depValueInput');
+  var depCupomToggle = document.getElementById('depCupomToggle');
+  var depCupomWrap = document.getElementById('depCupomWrap');
+  var depSubmitBtn = document.getElementById('depSubmitBtn');
+
+  window.openDepositModal = function() {
+    if (depModal) { depModal.classList.add('open'); document.body.style.overflow = 'hidden'; }
+  };
+  window.closeDepositModal = function() {
+    if (depModal) { depModal.classList.remove('open'); document.body.style.overflow = ''; }
+  };
+  if (depBannerClose) depBannerClose.addEventListener('click', closeDepositModal);
+  if (depBack) depBack.addEventListener('click', closeDepositModal);
+  if (depModal) depModal.addEventListener('click', function(e) { if (e.target === depModal) closeDepositModal(); });
+
+  document.querySelectorAll('#bnav-deposit, .bnav-deposit').forEach(function(btn) {
+    btn.addEventListener('click', function(e) { e.preventDefault(); openDepositModal(); });
+  });
+
+  /* Value buttons */
+  document.querySelectorAll('.dep-val-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var val = btn.dataset.value;
+      if (depValueInput) depValueInput.value = val;
+      document.querySelectorAll('.dep-val-btn').forEach(function(b) { b.classList.remove('dep-val-selected'); });
+      btn.classList.add('dep-val-selected');
+    });
+  });
+
+  /* Cupom toggle */
+  if (depCupomToggle) depCupomToggle.addEventListener('click', function() {
+    var vis = depCupomWrap.style.display !== 'none';
+    depCupomWrap.style.display = vis ? 'none' : 'block';
+  });
+
+  /* Depositar */
+  if (depSubmitBtn) depSubmitBtn.addEventListener('click', function() {
+    var val = depValueInput ? depValueInput.value : '';
+    if (!val || isNaN(val) || +val <= 0) {
+      if (typeof showToast === 'function') showToast('Digite um valor válido', 'error');
+      return;
+    }
+    if (typeof showToast === 'function') showToast('Depósito de R$ ' + (+val).toLocaleString('pt-BR') + ' iniciado!', 'success');
+    closeDepositModal();
+  });
+
+  /* ===== SWITCH MODALS ===== */
   var goReg1 = document.getElementById('loginGoRegister');
   var goReg2 = document.getElementById('loginGoRegister2');
   var goLogin = document.getElementById('regGoLogin');
@@ -236,9 +476,8 @@
   if (goReg2) goReg2.addEventListener('click', switchToRegister);
   if (goLogin) goLogin.addEventListener('click', switchToLogin);
 
-  /* Escape closes any open modal */
   document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') { closeLoginModal(); closeRegisterModal(); }
+    if (e.key === 'Escape') { closeLoginModal(); closeRegisterModal(); closeDepositModal(); }
   });
 })();
 </script>

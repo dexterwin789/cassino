@@ -517,40 +517,8 @@
 </nav>
 
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
-<!-- ══════════ DEPOSIT MODAL ══════════ -->
-<div class="modal-overlay" id="depositModal">
-  <div class="modal-box deposit-box">
-    <div class="modal-header">
-      <h3>Depositar via PIX</h3>
-      <button class="modal-close" id="depositClose">&times;</button>
-    </div>
-    <div class="modal-body">
-      <div class="deposit-chips">
-        <button class="chip" data-val="30">R$ 30</button>
-        <button class="chip" data-val="50">R$ 50</button>
-        <button class="chip" data-val="100">R$ 100</button>
-        <button class="chip" data-val="200">R$ 200</button>
-        <button class="chip" data-val="500">R$ 500</button>
-        <button class="chip" data-val="1000">R$ 1.000</button>
-      </div>
-      <div class="deposit-input-wrap">
-        <label>Ou digite o valor:</label>
-        <input type="text" id="depositAmount" placeholder="R$ 0,00" inputmode="numeric">
-      </div>
-      <button class="btn-confirm-deposit" id="btnConfirmDeposit">Gerar PIX</button>
-      <div class="pix-result" id="pixResult" style="display:none">
-        <img id="pixQr" src="" alt="QR Code">
-        <div class="pix-copy-wrap">
-          <input type="text" id="pixCode" readonly>
-          <button class="btn-copy-pix" id="btnCopyPix">Copiar</button>
-        </div>
-        <p class="pix-status" id="pixStatus">Aguardando pagamento...</p>
-      </div>
-    </div>
-  </div>
-</div>
 
-<!-- ══════════ LOGIN / REGISTER MODALS ══════════ -->
+<!-- ══════════ LOGIN / REGISTER / DEPOSIT MODALS ══════════ -->
 <%- include('partials/login-modal') %>
 
 <!-- ══════════ TOAST ══════════ -->

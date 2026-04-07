@@ -682,90 +682,10 @@ if (formLogin) formLogin.addEventListener('submit', function(e) {
     });
 });
 
-/* ========== DEPOSIT MODAL ========== */
-var depositModal = document.getElementById('depositModal');
-var depositClose = document.getElementById('depositClose');
-var depositAmount = document.getElementById('depositAmount');
-var btnConfirmDeposit = document.getElementById('btnConfirmDeposit');
-var pixResult = document.getElementById('pixResult');
-var pixQr = document.getElementById('pixQr');
-var pixCode = document.getElementById('pixCode');
-var pixStatus = document.getElementById('pixStatus');
-var btnCopyPix = document.getElementById('btnCopyPix');
-
-function openDeposit() {
-  var logged = document.body.classList.contains('is-logged');
-  if (!logged) { openAuth('login'); return; }
-  if (depositModal) depositModal.classList.add('open');
-  document.body.style.overflow = 'hidden';
-  if (pixResult) pixResult.style.display = 'none';
-}
-function closeDeposit() {
-  if (depositModal) depositModal.classList.remove('open');
-  document.body.style.overflow = '';
-}
-
-if (depositClose) depositClose.addEventListener('click', closeDeposit);
-if (depositModal) depositModal.addEventListener('click', function(e) { if (e.target === depositModal) closeDeposit(); });
-
+/* ========== DEPOSIT (handled by login-modal.ejs) ========== */
 var btnDepositTop = document.getElementById('btnDepositTop');
-var bnavDeposit = document.getElementById('bnav-deposit');
-if (btnDepositTop) btnDepositTop.addEventListener('click', openDeposit);
-if (bnavDeposit) bnavDeposit.addEventListener('click', openDeposit);
-
-// Chip selection
-if (depositModal) depositModal.querySelectorAll('.chip').forEach(function(chip) {
-  chip.addEventListener('click', function() {
-    depositModal.querySelectorAll('.chip').forEach(function(c) { c.classList.remove('active'); });
-    chip.classList.add('active');
-    if (depositAmount) depositAmount.value = 'R$ ' + Number(chip.dataset.val).toLocaleString('pt-BR');
-  });
-});
-
-// Generate PIX
-if (btnConfirmDeposit) btnConfirmDeposit.addEventListener('click', function() {
-  var raw = (depositAmount ? depositAmount.value : '').replace(/[^\d]/g, '');
-  var val = raw ? Number(raw) : 0;
-  if (!val || val < 10) return showToast('Valor m\u00ednimo: R$10', 'error');
-
-  btnConfirmDeposit.disabled = true;
-  btnConfirmDeposit.textContent = 'Gerando PIX...';
-
-  fetch('/api/deposit/create', {
-    method: 'POST', credentials: 'include',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ amount_brl: val })
-  }).then(function(res) { return res.json().catch(function() { return {}; }); })
-  .then(function(j) {
-    btnConfirmDeposit.disabled = false;
-    btnConfirmDeposit.textContent = 'Gerar PIX';
-
-    if (!j.ok) { showToast('Erro: ' + (j.error || j.msg || 'desconhecido'), 'error'); return; }
-
-    var copyPaste = j.copyPaste || '';
-    if (j.raw && j.raw.data && j.raw.data.paymentData) {
-      copyPaste = copyPaste || j.raw.data.paymentData.copyPaste || j.raw.data.paymentData.qrCode || '';
-    }
-    if (!copyPaste) { showToast('PIX n\u00e3o retornou c\u00f3digo', 'error'); return; }
-
-    if (pixResult) pixResult.style.display = '';
-    if (pixQr) pixQr.src = 'https://quickchart.io/qr?size=200&margin=2&text=' + encodeURIComponent(copyPaste);
-    if (pixCode) pixCode.value = copyPaste;
-    if (pixStatus) pixStatus.textContent = 'Aguardando pagamento...';
-    if (j.tx_id) startWatchPayment(j.tx_id);
-  }).catch(function() {
-    btnConfirmDeposit.disabled = false;
-    btnConfirmDeposit.textContent = 'Gerar PIX';
-    showToast('Erro ao gerar PIX', 'error');
-  });
-});
-
-if (btnCopyPix) btnCopyPix.addEventListener('click', function() {
-  if (navigator.clipboard && pixCode) {
-    navigator.clipboard.writeText(pixCode.value).then(function() {
-      showToast('PIX copiado!', 'success');
-    }).catch(function() { if (pixCode) { pixCode.select(); document.execCommand('copy'); } });
-  }
+if (btnDepositTop) btnDepositTop.addEventListener('click', function() {
+  if (typeof openDepositModal === 'function') openDepositModal();
 });
 
 /* ========== WALLET ========== */
