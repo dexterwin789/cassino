@@ -90,12 +90,16 @@ function openSearch() {
   searchIsOpen = true;
   stopPlaceholderAnim();
   if (searchInput) searchInput.placeholder = 'Pesquise um jogo de cassino...';
-  // Scroll page to top so search results are visible
-  window.scrollTo({top: 0, behavior: 'instant'});
   var section = document.getElementById('searchSection');
   if (section) {
+    // Scroll so the search section sits just below the header (topbar height ~64px + some margin)
+    var rect = section.getBoundingClientRect();
+    var topbarH = 64;
+    var desiredOffset = topbarH + 36; // 100px from true top
+    var scrollTarget = window.scrollY + rect.top - desiredOffset;
+    if (scrollTarget < 0) scrollTarget = 0;
+    window.scrollTo({top: scrollTarget, behavior: 'instant'});
     section.classList.add('search-active');
-    section.scrollIntoView({block: 'start', behavior: 'instant'});
   }
   if (searchOverlay) searchOverlay.classList.add('active');
   if (searchResults) searchResults.classList.add('active');

@@ -100,16 +100,60 @@ async function seed() {
     ['stack-em', 'Stack Em', '/public/img/games/1.avif', 'hacksaw', 'hacksaw', 47],
     ['fruit-party', 'Fruit Party', '/public/img/games/12.webp', 'pp', 'pp', 48],
     ['dog-house', 'The Dog House Megaways', '/public/img/games/4.webp', 'pp', 'quente', 49],
-    ['buffalo-king', 'Buffalo King Megaways', '/public/img/games/8.webp', 'pp', 'pp', 50]
+    ['buffalo-king', 'Buffalo King Megaways', '/public/img/games/8.webp', 'pp', 'pp', 50],
+    // ── Batch 3 — mais jogos ──
+    ['fortune-pirates', 'Fortune Pirates', '/public/img/games/1.avif', 'pg', 'pg', 51],
+    ['fortune-fruits', 'Fortune Fruits', '/public/img/games/2.webp', 'pg', 'pg', 52],
+    ['midas-fortune', 'Midas Fortune', '/public/img/games/5.webp', 'pg', 'quente', 53],
+    ['fortune-dragon', 'Fortune Dragon', '/public/img/games/7.webp', 'pg', 'pg', 54],
+    ['master-chens-fortune', 'Master Chens Fortune', '/public/img/games/9.webp', 'pg', 'pg', 55],
+    ['fortune-of-giza', 'Fortune of Giza', '/public/img/games/11.webp', 'pg', 'pg', 56],
+    ['fairytale-fortune', 'Fairytale Fortune', '/public/img/games/3.webp', 'pp', 'pp', 57],
+    ['octobeer-fortunes', 'Octobeer Fortunes', '/public/img/games/6.webp', 'pp', 'pp', 58],
+    ['fortune-gems-2', 'Fortune Gems 2', '/public/img/games/10.avif', 'pp', 'quente', 59],
+    ['pandas-fortune-2', 'Pandas Fortune 2', '/public/img/games/4.webp', 'pp', 'pp', 60],
+    ['fortune-gems-3', 'Fortune Gems 3', '/public/img/games/8.webp', 'pp', 'pp', 61],
+    ['fortune-gems', 'Fortune Gems', '/public/img/games/12.webp', 'pp', 'pp', 62],
+    ['fortune-tree', 'Fortune Tree', '/public/img/games/2.webp', 'pp', 'pp', 63],
+    ['drago-jewels', 'Drago Jewels of Fortune', '/public/img/games/5.webp', 'pp', 'quente', 64],
+    ['three-star-fortune', 'Three Star Fortune', '/public/img/games/9.webp', 'pp', 'pp', 65],
+    ['pandas-fortune', 'Pandas Fortune', '/public/img/games/7.webp', 'pp', 'pp', 66],
+    ['fortune-pig', 'Fortune Pig', '/public/img/games/1.avif', 'pg', 'pg', 67],
+    ['fortune-monkey', 'Fortune Monkey', '/public/img/games/3.webp', 'pg', 'pg', 68],
+    ['papai-noel-fortune', 'Papai Noel da Fortuna', '/public/img/games/11.webp', 'pg', 'pg', 69],
+    ['golden-wealth-baccarat', 'Golden Wealth Baccarat', '/public/img/games/6.webp', 'evolution', 'live', 70],
+    ['mega-ball', 'Mega Ball', '/public/img/games/10.avif', 'evolution', 'live', 71],
+    ['dream-catcher', 'Dream Catcher', '/public/img/games/4.webp', 'evolution', 'live', 72],
+    ['football-studio', 'Football Studio', '/public/img/games/8.webp', 'evolution', 'live', 73],
+    ['speed-baccarat', 'Speed Baccarat', '/public/img/games/12.webp', 'evolution', 'live', 74],
+    ['mines-deluxe', 'Mines Deluxe', '/public/img/games/2.webp', 'wg', 'mines', 75],
+    ['hilo', 'HiLo', '/public/img/games/9.webp', 'spribe', 'spribe', 76],
+    ['mini-roulette', 'Mini Roulette', '/public/img/games/5.webp', 'spribe', 'spribe', 77],
+    ['hotline-2', 'Hotline 2', '/public/img/games/7.webp', 'netent', 'netent', 78],
+    ['twin-spin', 'Twin Spin', '/public/img/games/3.webp', 'netent', 'netent', 79],
+    ['rise-of-olympus', 'Rise of Olympus', '/public/img/games/11.webp', 'playngo', 'playngo', 80],
+    ['legacy-of-dead', 'Legacy of Dead', '/public/img/games/1.avif', 'playngo', 'playngo', 81],
+    ['san-quentin', 'San Quentin', '/public/img/games/6.webp', 'nolimit', 'nolimit', 82],
+    ['fire-in-the-hole', 'Fire in the Hole', '/public/img/games/10.avif', 'nolimit', 'nolimit', 83]
   ];
   for (const [code, name, img, provider, category, sort] of games) {
     await query(`
       INSERT INTO games (game_code, game_name, image_url, provider, category, sort_order) 
       VALUES ($1, $2, $3, $4, $5, $6)
-      ON CONFLICT (game_code) DO NOTHING
+      ON CONFLICT (game_code) DO UPDATE SET game_name=$2, image_url=$3, provider=$4, category=$5, sort_order=$6
     `, [code, name, img, provider, category, sort]);
   }
   console.log('[SEED] Games ✓ (' + games.length + ')');
+
+  // ─── 4b. Fix theme colors (green/purple → orange) ──
+  await query(`
+    UPDATE themes SET css_vars = jsonb_set(jsonb_set(jsonb_set(jsonb_set(css_vars::jsonb, 
+      '{green1}', '"#ff6b3a"'), '{green2}', '"#ff3a00"'), '{green3}', '"#cc2e00"'), '{accent}', '"#ff3a00"')
+    WHERE css_vars::text LIKE '%10B981%' OR css_vars::text LIKE '%10b981%' 
+       OR css_vars::text LIKE '%c084fc%' OR css_vars::text LIKE '%6EE7B7%' 
+       OR css_vars::text LIKE '%6ee7b7%' OR css_vars::text LIKE '%7c3aed%'
+  `);
+  console.log('[SEED] Theme colors fixed → orange ✓');
 
   // ─── 5. Banners ─────────────────────────────────
   const banners = [
