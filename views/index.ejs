@@ -273,7 +273,7 @@
     <section class="search-section" id="searchSection">
       <div class="search-box" id="searchBox">
         <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input type="search" id="searchGames" name="search_games_nofill_x" placeholder="Pesquise um jogo de cassino..." autocomplete="new-password" role="presentation" data-lpignore="true" data-form-type="other">
+        <input type="text" id="searchGames" name="search_games_nofill_x" placeholder="Pesquise um jogo de cassino..." autocomplete="off" role="presentation" data-lpignore="true" data-form-type="other" data-1p-ignore="true" aria-autocomplete="none">
         <button class="search-close" id="searchClose">&times;</button>
       </div>
       <div class="search-results" id="searchResults">
@@ -427,10 +427,10 @@
         <div class="wallet-sidebar-nav" id="walletMainMenu">
           <a href="#" class="wallet-nav-item active" data-panel="perfil" data-has-submenu="true"><img src="/public/img/novo/drop8.svg" width="18" height="18"> MEU PERFIL <svg class="wallet-nav-arrow" viewBox="0 0 6 10"><path d="M1 1l4 4-4 4" stroke="currentColor" stroke-width="1.5" fill="none"/></svg></a>
           <a href="#" class="wallet-nav-item" data-panel="saldo" data-has-submenu="saldo"><img src="/public/img/novo/gestao.svg" width="18" height="18"> GESTÃO DE SALDO <svg class="wallet-nav-arrow" viewBox="0 0 6 10"><path d="M1 1l4 4-4 4" stroke="currentColor" stroke-width="1.5" fill="none"/></svg></a>
-          <a href="#" class="wallet-nav-item" data-panel="apostas"><img src="/public/img/novo/historico.svg" width="18" height="18"> HISTÓRICO DE APOSTAS</a>
+          <a href="#" class="wallet-nav-item" data-panel="apostas" data-has-submenu="apostas"><img src="/public/img/novo/historico.svg" width="18" height="18"> HISTÓRICO DE APOSTAS <svg class="wallet-nav-arrow" viewBox="0 0 6 10"><path d="M1 1l4 4-4 4" stroke="currentColor" stroke-width="1.5" fill="none"/></svg></a>
           <a href="#" class="wallet-nav-item" data-panel="extrato"><img src="/public/img/novo/extrato.svg" width="18" height="18"> EXTRATO COMPLETO</a>
           <div class="wallet-nav-divider"></div>
-          <a href="#" class="wallet-nav-item" data-panel="tema"><img src="/public/img/novo/drop2.svg" width="18" height="18"> TEMA</a>
+          <a href="#" class="wallet-nav-item wallet-nav-tema" data-panel="tema"><img src="/public/img/novo/drop2.svg" width="18" height="18"> TEMA <div class="wallet-tema-toggle"><button class="theme-btn theme-btn-dark" title="Dark"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button><button class="theme-btn theme-btn-light" title="Light"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3" stroke="currentColor" stroke-width="2"/><line x1="12" y1="21" x2="12" y2="23" stroke="currentColor" stroke-width="2"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64" stroke="currentColor" stroke-width="2"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" stroke="currentColor" stroke-width="2"/><line x1="1" y1="12" x2="3" y2="12" stroke="currentColor" stroke-width="2"/><line x1="21" y1="12" x2="23" y2="12" stroke="currentColor" stroke-width="2"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36" stroke="currentColor" stroke-width="2"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" stroke="currentColor" stroke-width="2"/></svg></button></div></a>
           <a href="#" class="wallet-nav-item" data-panel="notif"><img src="/public/img/novo/drop3.svg" width="18" height="18"> NOTIFICAÇÕES <span class="wallet-nav-badge">0</span></a>
           <a href="#" class="wallet-nav-item" data-panel="indique"><img src="/public/img/novo/drop7.svg" width="18" height="18"> INDIQUE E GANHE <span class="wallet-nav-value">R$ 50,00</span></a>
           <a href="#" class="wallet-nav-item" data-panel="premios"><img src="/public/img/novo/drop4.svg" width="18" height="18"> PRÊMIOS E RECOMPENSAS</a>
@@ -445,6 +445,13 @@
           <a href="#" class="wallet-nav-item" data-panel="loginSeg"><img src="/public/img/novo/drop9.svg" width="18" height="18"> LOGIN E SEGURANÇA <svg class="wallet-nav-arrow" viewBox="0 0 6 10"><path d="M1 1l4 4-4 4" stroke="currentColor" stroke-width="1.5" fill="none"/></svg></a>
           <a href="#" class="wallet-nav-item" data-panel="histLogin"><img src="/public/img/novo/historico.svg" width="18" height="18"> HISTÓRICO DE LOGIN <svg class="wallet-nav-arrow" viewBox="0 0 6 10"><path d="M1 1l4 4-4 4" stroke="currentColor" stroke-width="1.5" fill="none"/></svg></a>
           <a href="#" class="wallet-nav-item" data-panel="jogoResp"><img src="/public/img/novo/safe.svg" width="18" height="18"> JOGO RESPONSÁVEL <svg class="wallet-nav-arrow" viewBox="0 0 6 10"><path d="M1 1l4 4-4 4" stroke="currentColor" stroke-width="1.5" fill="none"/></svg></a>
+        </div>
+        <!-- Sub-menu for Histórico de Apostas -->
+        <div class="wallet-sidebar-nav wallet-sub-menu" id="walletSubMenuApostas" style="display:none">
+          <a href="#" class="wallet-sub-back" id="walletSubBackApostas"><svg viewBox="0 0 6 10" width="8" height="12"><path d="M5 1L1 5l4 4" stroke="currentColor" stroke-width="1.5" fill="none"/></svg> HISTÓRICO DE APOSTAS</a>
+          <div class="wallet-nav-divider"></div>
+          <a href="#" class="wallet-nav-item" data-panel="apostasCassino"><img src="/public/img/novo/4.svg" width="18" height="18"> APOSTAS DE CASSINO <svg class="wallet-nav-arrow" viewBox="0 0 6 10"><path d="M1 1l4 4-4 4" stroke="currentColor" stroke-width="1.5" fill="none"/></svg></a>
+          <a href="#" class="wallet-nav-item" data-panel="apostasEsportivas"><img src="/public/img/novo/11.svg" width="18" height="18"> APOSTAS ESPORTIVAS <svg class="wallet-nav-arrow" viewBox="0 0 6 10"><path d="M1 1l4 4-4 4" stroke="currentColor" stroke-width="1.5" fill="none"/></svg></a>
         </div>
         <!-- Sub-menu for Gestão de Saldo -->
         <div class="wallet-sidebar-nav wallet-sub-menu" id="walletSubMenuSaldo" style="display:none">
@@ -466,7 +473,7 @@
                 </div>
                 <div class="wallet-balance-amount">R$ <span id="walletMainBalance">0,00</span></div>
                 <div class="wallet-balance-actions">
-                  <button class="wallet-btn wallet-btn-deposit bnav-deposit" id="walletDepositBtn">Depositar</button>
+                  <button class="wallet-btn wallet-btn-deposit" id="walletDepositBtn">Depositar</button>
                   <button class="wallet-btn wallet-btn-withdraw" id="walletWithdrawBtn">Sacar</button>
                 </div>
               </div>
@@ -624,15 +631,119 @@
               <span>Último login: <strong class="acctLastLoginMirror">—</strong></span>
             </div>
           </div>
-          <!-- HISTÓRICO DE APOSTAS -->
+          <!-- HISTÓRICO DE APOSTAS (default) -->
           <div class="wallet-panel" id="walletPanelApostas">
             <div class="wallet-panel-title">Histórico de Apostas</div>
-            <p class="wallet-empty-text">Seu histórico de apostas aparecerá aqui.</p>
+            <p class="wallet-empty-text">Selecione uma categoria no menu lateral.</p>
+          </div>
+          <!-- APOSTAS DE CASSINO -->
+          <div class="wallet-panel" id="walletPanelApostasCassino">
+            <div class="wallet-panel-title">HISTÓRICO DE APOSTAS DE CASSINO</div>
+            <div class="hist-controls" style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center">
+              <div class="hist-tabs" id="betCassinoTabs" style="display:flex;gap:4px;flex-wrap:wrap">
+                <button class="hist-tab active" data-period="today">Somente hoje</button>
+                <button class="hist-tab" data-period="yesterday">Somente ontem</button>
+                <button class="hist-tab" data-period="7d">Últimos 7 dias</button>
+                <button class="hist-tab" data-period="30d">Últimos 30 dias</button>
+                <button class="hist-tab" data-period="90d">Últimos 90 dias</button>
+                <button class="hist-tab" data-period="total">Período total</button>
+              </div>
+            </div>
+            <div class="acct-login-wrap">
+              <table class="acct-login-table">
+                <thead>
+                  <tr>
+                    <th>Jogo</th>
+                    <th>ID</th>
+                    <th>Aposta</th>
+                    <th>Resultado</th>
+                    <th>Data</th>
+                  </tr>
+                </thead>
+                <tbody id="betCassinoBody"><tr><td colspan="5" style="text-align:center;padding:20px;color:var(--text-muted)">Não ha informações para exibir.</td></tr></tbody>
+              </table>
+              <div class="acct-login-pagination">
+                <span id="betCassinoCount">0 registros</span>
+              </div>
+            </div>
+            <div class="acct-footer-bar">
+              <span>Olá, <strong class="acctFooterNameMirror">Usuário</strong></span>
+              <span>Tempo logado: <strong class="acctLoggedTimeMirror">00m 00s</strong></span>
+              <span>Último login: <strong class="acctLastLoginMirror">—</strong></span>
+            </div>
+          </div>
+          <!-- APOSTAS ESPORTIVAS -->
+          <div class="wallet-panel" id="walletPanelApostasEsportivas">
+            <div class="wallet-panel-title">HISTÓRICO DE APOSTAS ESPORTIVAS</div>
+            <div class="hist-controls" style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center">
+              <div class="hist-tabs" id="betSportTabs" style="display:flex;gap:4px;flex-wrap:wrap">
+                <button class="hist-tab active" data-period="today">Somente hoje</button>
+                <button class="hist-tab" data-period="yesterday">Somente ontem</button>
+                <button class="hist-tab" data-period="7d">Últimos 7 dias</button>
+                <button class="hist-tab" data-period="30d">Últimos 30 dias</button>
+                <button class="hist-tab" data-period="90d">Últimos 90 dias</button>
+                <button class="hist-tab" data-period="total">Período total</button>
+              </div>
+            </div>
+            <div class="acct-login-wrap">
+              <table class="acct-login-table">
+                <thead>
+                  <tr>
+                    <th>Evento</th>
+                    <th>ID</th>
+                    <th>Aposta</th>
+                    <th>Resultado</th>
+                    <th>Data</th>
+                  </tr>
+                </thead>
+                <tbody id="betSportBody"><tr><td colspan="5" style="text-align:center;padding:20px;color:var(--text-muted)">Não ha informações para exibir.</td></tr></tbody>
+              </table>
+              <div class="acct-login-pagination">
+                <span id="betSportCount">0 registros</span>
+              </div>
+            </div>
+            <div class="acct-footer-bar">
+              <span>Olá, <strong class="acctFooterNameMirror">Usuário</strong></span>
+              <span>Tempo logado: <strong class="acctLoggedTimeMirror">00m 00s</strong></span>
+              <span>Último login: <strong class="acctLastLoginMirror">—</strong></span>
+            </div>
           </div>
           <!-- EXTRATO COMPLETO -->
           <div class="wallet-panel" id="walletPanelExtrato">
             <div class="wallet-panel-title">Extrato Completo</div>
-            <p class="wallet-empty-text">Nenhuma movimentação encontrada.</p>
+            <div class="hist-controls" style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center">
+              <div class="hist-tabs" id="extratoTabs" style="display:flex;gap:4px;flex-wrap:wrap">
+                <button class="hist-tab active" data-period="today">Somente hoje</button>
+                <button class="hist-tab" data-period="yesterday">Somente ontem</button>
+                <button class="hist-tab" data-period="7d">Últimos 7 dias</button>
+                <button class="hist-tab" data-period="30d">Últimos 30 dias</button>
+                <button class="hist-tab" data-period="90d">Últimos 90 dias</button>
+                <button class="hist-tab" data-period="total">Período total</button>
+              </div>
+            </div>
+            <div class="acct-login-wrap">
+              <table class="acct-login-table">
+                <thead>
+                  <tr>
+                    <th>Tipo</th>
+                    <th>ID</th>
+                    <th>Descrição</th>
+                    <th>Valor</th>
+                    <th>Saldo</th>
+                    <th>Data</th>
+                  </tr>
+                </thead>
+                <tbody id="extratoBody"><tr><td colspan="6" style="text-align:center;padding:20px;color:var(--text-muted)">Nenhuma movimentação encontrada.</td></tr></tbody>
+              </table>
+              <div class="acct-login-pagination">
+                <span id="extratoCount">0 registros</span>
+              </div>
+            </div>
+            <div class="acct-footer-bar">
+              <span>Olá, <strong class="acctFooterNameMirror">Usuário</strong></span>
+              <span>Tempo logado: <strong class="acctLoggedTimeMirror">00m 00s</strong></span>
+              <span>Último login: <strong class="acctLastLoginMirror">—</strong></span>
+            </div>
           </div>
           <!-- TEMA -->
           <div class="wallet-panel" id="walletPanelTema">

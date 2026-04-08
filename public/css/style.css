@@ -221,7 +221,7 @@ ul{list-style:none}
 .topbar-dropdown.open{display:block}
 
 .topbar-dropdown-header{
-  display:flex;gap:12px;padding:16px;
+  display:flex;gap:12px;padding:16px;align-items:center;
   border-bottom:1px solid rgba(255,255,255,.06);
 }
 .topbar-dropdown-avatar{width:40px;height:40px;border-radius:50%;object-fit:cover}
@@ -2419,6 +2419,12 @@ body.search-lock{overflow:hidden!important}
   cursor:pointer;transition:.2s;
 }
 .theme-btn.active{border-color:#ff3901;color:#ff3901;background:rgba(255,57,1,.1)}
+
+/* Wallet sidebar tema inline toggle */
+.wallet-nav-tema{display:flex;align-items:center;justify-content:space-between !important}
+.wallet-tema-toggle{display:flex;gap:4px;margin-left:auto}
+.wallet-tema-toggle .theme-btn{width:28px;height:28px;border-radius:50%;border:2px solid rgba(255,255,255,.1);background:transparent;color:rgba(255,255,255,.4);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.2s}
+.wallet-tema-toggle .theme-btn.active{border-color:#ff3901;color:#ff3901;background:rgba(255,57,1,.1)}
 
 /* Deposit responsive */
 @media(max-width:520px){

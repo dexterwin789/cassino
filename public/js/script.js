@@ -28,15 +28,7 @@ function renderGames(games, containerId, limit) {
 }
 
 /* ========== SEARCH ========== */
-/* ========== SEARCH ========== */
 var searchInput = document.getElementById('searchGames');
-if (searchInput) {
-  searchInput.setAttribute('readonly', '');
-  searchInput.value = '';
-  setTimeout(function() { searchInput.removeAttribute('readonly'); searchInput.value = ''; }, 100);
-  setTimeout(function() { searchInput.value = ''; }, 500);
-  setTimeout(function() { searchInput.value = ''; }, 1500);
-}
 var searchOverlay = document.getElementById('searchOverlay');
 var searchResults = document.getElementById('searchResults');
 var searchGrid = document.getElementById('searchGrid');
@@ -52,6 +44,18 @@ var searchShown = 0;
 var searchPageSize = 15;
 var searchActiveTag = 'Todos';
 var searchIsOpen = false;
+
+// Aggressive autofill prevention
+if (searchInput) {
+  searchInput.setAttribute('readonly', '');
+  searchInput.value = '';
+  setTimeout(function() { searchInput.removeAttribute('readonly'); searchInput.value = ''; }, 200);
+  setTimeout(function() { if (!searchIsOpen && searchInput.value) searchInput.value = ''; }, 600);
+  setTimeout(function() { if (!searchIsOpen && searchInput.value) searchInput.value = ''; }, 1500);
+  // Poll for password manager fills for first 3 seconds
+  var _sfPoll = setInterval(function() { if (!searchIsOpen && searchInput.value) searchInput.value = ''; }, 150);
+  setTimeout(function() { clearInterval(_sfPoll); }, 3000);
+}
 
 /* Animated placeholder */
 var placeholderPhrases = ['Fortune Tiger...','Aviator...','Big Bass Bonanza...','Sweet Bonanza...','Mines...','Gates of Olympus...','Spaceman...','Roleta Brasileira...','Fortune Ox...','Sugar Rush...'];
@@ -866,6 +870,11 @@ function startWatchPayment(txId) {
 
 /* ========== WALLET SECTION (show/hide home) ========== */
 function showWalletSection(panel) {
+  // Depositar — just open modal, don't navigate
+  if (panel === 'depositar') {
+    if (typeof openDepositModal === 'function') openDepositModal();
+    return;
+  }
   var home = document.getElementById('homeContent');
   var wallet = document.getElementById('wallet-section');
   if (home) home.style.display = 'none';
@@ -873,20 +882,25 @@ function showWalletSection(panel) {
 
   // Determine which menu to show
   var subPanels = ['perfil','dadosConta','loginSeg','histLogin','jogoResp'];
-  var saldoPanels = ['saldo','carteira','depositar','sacar','histTransacoes'];
+  var saldoPanels = ['saldo','carteira','sacar','histTransacoes'];
+  var apostasPanels = ['apostas','apostasCassino','apostasEsportivas'];
   var isSubPanel = panel && subPanels.indexOf(panel) !== -1;
   var isSaldoPanel = panel && saldoPanels.indexOf(panel) !== -1;
+  var isApostasPanel = panel && apostasPanels.indexOf(panel) !== -1;
 
   if (isSubPanel) {
     showWalletSubMenu();
   } else if (isSaldoPanel) {
     showSaldoSubMenu();
+  } else if (isApostasPanel) {
+    showApostasSubMenu();
   }
 
   if (panel) {
     var activeMenu;
     if (isSubPanel) activeMenu = document.getElementById('walletSubMenu');
     else if (isSaldoPanel) activeMenu = document.getElementById('walletSubMenuSaldo');
+    else if (isApostasPanel) activeMenu = document.getElementById('walletSubMenuApostas');
     else activeMenu = document.getElementById('walletMainMenu');
     if (activeMenu) {
       activeMenu.querySelectorAll('.wallet-nav-item').forEach(function(n) { n.classList.remove('active'); });
@@ -896,10 +910,6 @@ function showWalletSection(panel) {
     document.querySelectorAll('.wallet-panel').forEach(function(p) { p.classList.remove('active'); });
     var target = document.getElementById('walletPanel' + panel.charAt(0).toUpperCase() + panel.slice(1));
     if (target) target.classList.add('active');
-    // Auto-open deposit modal when Depositar panel is activated
-    if (panel === 'depositar' && typeof openDepositModal === 'function') {
-      setTimeout(function() { openDepositModal(); }, 100);
-    }
     // Load withdrawals when sacar panel is shown
     if (panel === 'sacar') loadWithdrawals();
     // Load transactions when history panel is shown
@@ -922,25 +932,41 @@ function showWalletSubMenu() {
   var main = document.getElementById('walletMainMenu');
   var sub = document.getElementById('walletSubMenu');
   var subSaldo = document.getElementById('walletSubMenuSaldo');
+  var subApostas = document.getElementById('walletSubMenuApostas');
   if (main) main.style.display = 'none';
   if (sub) sub.style.display = '';
   if (subSaldo) subSaldo.style.display = 'none';
+  if (subApostas) subApostas.style.display = 'none';
 }
 function showSaldoSubMenu() {
   var main = document.getElementById('walletMainMenu');
   var sub = document.getElementById('walletSubMenu');
   var subSaldo = document.getElementById('walletSubMenuSaldo');
+  var subApostas = document.getElementById('walletSubMenuApostas');
   if (main) main.style.display = 'none';
   if (sub) sub.style.display = 'none';
   if (subSaldo) subSaldo.style.display = '';
+  if (subApostas) subApostas.style.display = 'none';
+}
+function showApostasSubMenu() {
+  var main = document.getElementById('walletMainMenu');
+  var sub = document.getElementById('walletSubMenu');
+  var subSaldo = document.getElementById('walletSubMenuSaldo');
+  var subApostas = document.getElementById('walletSubMenuApostas');
+  if (main) main.style.display = 'none';
+  if (sub) sub.style.display = 'none';
+  if (subSaldo) subSaldo.style.display = 'none';
+  if (subApostas) subApostas.style.display = '';
 }
 function hideWalletSubMenu() {
   var main = document.getElementById('walletMainMenu');
   var sub = document.getElementById('walletSubMenu');
   var subSaldo = document.getElementById('walletSubMenuSaldo');
+  var subApostas = document.getElementById('walletSubMenuApostas');
   if (main) main.style.display = '';
   if (sub) sub.style.display = 'none';
   if (subSaldo) subSaldo.style.display = 'none';
+  if (subApostas) subApostas.style.display = 'none';
 }
 
 // Make accessible globally
@@ -966,6 +992,9 @@ document.querySelectorAll('#walletMainMenu .wallet-nav-item[data-panel]').forEac
   item.addEventListener('click', function(e) {
     e.preventDefault();
     var hasSubmenu = item.getAttribute('data-has-submenu');
+    var panel = item.getAttribute('data-panel');
+    // Tema — do nothing (toggle buttons handle it inline)
+    if (panel === 'tema') return;
     if (hasSubmenu === 'true') {
       // Open Meu Perfil sub-menu
       showWalletSubMenu();
@@ -982,15 +1011,24 @@ document.querySelectorAll('#walletMainMenu .wallet-nav-item[data-panel]').forEac
       document.querySelectorAll('.wallet-panel').forEach(function(p) { p.classList.remove('active'); });
       var saldoPanel = document.getElementById('walletPanelCarteira');
       if (saldoPanel) saldoPanel.classList.add('active');
-      // Mark carteira as active in sub-menu
       var cartItem = document.querySelector('#walletSubMenuSaldo .wallet-nav-item[data-panel="carteira"]');
       if (cartItem) cartItem.classList.add('active');
+      return;
+    }
+    if (hasSubmenu === 'apostas') {
+      // Open Histórico de Apostas sub-menu
+      showApostasSubMenu();
+      document.querySelectorAll('.wallet-nav-item').forEach(function(n) { n.classList.remove('active'); });
+      document.querySelectorAll('.wallet-panel').forEach(function(p) { p.classList.remove('active'); });
+      var cassinoPanel = document.getElementById('walletPanelApostasCassino');
+      if (cassinoPanel) cassinoPanel.classList.add('active');
+      var cassinoItem = document.querySelector('#walletSubMenuApostas .wallet-nav-item[data-panel="apostasCassino"]');
+      if (cassinoItem) cassinoItem.classList.add('active');
       return;
     }
     hideWalletSubMenu();
     document.querySelectorAll('.wallet-nav-item').forEach(function(n) { n.classList.remove('active'); });
     item.classList.add('active');
-    var panel = item.getAttribute('data-panel');
     document.querySelectorAll('.wallet-panel').forEach(function(p) { p.classList.remove('active'); });
     var target = document.getElementById('walletPanel' + panel.charAt(0).toUpperCase() + panel.slice(1));
     if (target) target.classList.add('active');
@@ -1014,16 +1052,17 @@ document.querySelectorAll('#walletSubMenu .wallet-nav-item[data-panel]').forEach
 document.querySelectorAll('#walletSubMenuSaldo .wallet-nav-item[data-panel]').forEach(function(item) {
   item.addEventListener('click', function(e) {
     e.preventDefault();
+    var panel = item.getAttribute('data-panel');
+    // Depositar — just open modal, don't navigate
+    if (panel === 'depositar') {
+      if (typeof openDepositModal === 'function') openDepositModal();
+      return;
+    }
     document.querySelectorAll('#walletSubMenuSaldo .wallet-nav-item').forEach(function(n) { n.classList.remove('active'); });
     item.classList.add('active');
-    var panel = item.getAttribute('data-panel');
     document.querySelectorAll('.wallet-panel').forEach(function(p) { p.classList.remove('active'); });
     var target = document.getElementById('walletPanel' + panel.charAt(0).toUpperCase() + panel.slice(1));
     if (target) target.classList.add('active');
-    // Auto-open deposit modal
-    if (panel === 'depositar' && typeof openDepositModal === 'function') {
-      setTimeout(function() { openDepositModal(); }, 100);
-    }
     if (panel === 'sacar') loadWithdrawals();
     if (panel === 'histTransacoes') loadTransactions();
   });
@@ -1040,6 +1079,32 @@ if (walletSubBackSaldo) walletSubBackSaldo.addEventListener('click', function(e)
   document.querySelectorAll('.wallet-panel').forEach(function(p) { p.classList.remove('active'); });
   var saldoPanel = document.getElementById('walletPanelSaldo');
   if (saldoPanel) saldoPanel.classList.add('active');
+});
+
+// Nav item switching — sub-menu (Histórico de Apostas)
+document.querySelectorAll('#walletSubMenuApostas .wallet-nav-item[data-panel]').forEach(function(item) {
+  item.addEventListener('click', function(e) {
+    e.preventDefault();
+    document.querySelectorAll('#walletSubMenuApostas .wallet-nav-item').forEach(function(n) { n.classList.remove('active'); });
+    item.classList.add('active');
+    var panel = item.getAttribute('data-panel');
+    document.querySelectorAll('.wallet-panel').forEach(function(p) { p.classList.remove('active'); });
+    var target = document.getElementById('walletPanel' + panel.charAt(0).toUpperCase() + panel.slice(1));
+    if (target) target.classList.add('active');
+  });
+});
+
+// Apostas sub-menu back button
+var walletSubBackApostas = document.getElementById('walletSubBackApostas');
+if (walletSubBackApostas) walletSubBackApostas.addEventListener('click', function(e) {
+  e.preventDefault();
+  hideWalletSubMenu();
+  document.querySelectorAll('.wallet-nav-item').forEach(function(n) { n.classList.remove('active'); });
+  var mainApostas = document.querySelector('#walletMainMenu .wallet-nav-item[data-panel="apostas"]');
+  if (mainApostas) mainApostas.classList.add('active');
+  document.querySelectorAll('.wallet-panel').forEach(function(p) { p.classList.remove('active'); });
+  var apostasPanel = document.getElementById('walletPanelApostasCassino');
+  if (apostasPanel) apostasPanel.classList.add('active');
 });
 
 // Wallet deposit button — just opens modal over current page
@@ -1512,6 +1577,7 @@ function saveAcctField(type) {
 window.saveAcctField = saveAcctField;
 
 /* ========== TOGGLE LIMIT FORM ========== */
+var _limitsLoaded = false;
 function toggleLimitForm(formId, value) {
   var form = document.getElementById(formId);
   if (!form) return;
@@ -1520,6 +1586,8 @@ function toggleLimitForm(formId, value) {
   if (value === 'unlimited' || value === 'no') {
     if (fields) fields.style.display = 'none';
     if (tag) { tag.style.display = ''; tag.textContent = 'Ilimitado'; tag.style.background = 'rgba(34,197,94,.15)'; tag.style.color = '#22c55e'; }
+    // Auto-save when user switches back to unlimited (not on initial load)
+    if (_limitsLoaded) saveLimits();
   } else {
     if (fields) fields.style.display = '';
     if (tag) { tag.textContent = 'Personalizado'; tag.style.background = 'rgba(255,57,1,.12)'; tag.style.color = '#ff3a00'; }
@@ -1771,6 +1839,8 @@ function populateLimits(user) {
   if (timePeriod && user.limit_time_period) timePeriod.value = user.limit_time_period;
   var timeValue = document.getElementById('limitTimeValue');
   if (timeValue && user.limit_time_value) timeValue.value = user.limit_time_value;
+  // Mark limits as loaded so subsequent toggles auto-save
+  _limitsLoaded = true;
 }
 
 /* ========== WITHDRAWAL ========== */
@@ -1868,10 +1938,10 @@ function loadTransactions() {
     });
 }
 
-// History tab switching
-document.querySelectorAll('.hist-tab').forEach(function(tab) {
+// Transaction History tab switching (scoped to histTransacoes panel)
+document.querySelectorAll('#walletPanelHistTransacoes .hist-tab').forEach(function(tab) {
   tab.addEventListener('click', function() {
-    document.querySelectorAll('.hist-tab').forEach(function(t) { t.classList.remove('active'); });
+    document.querySelectorAll('#walletPanelHistTransacoes .hist-tab').forEach(function(t) { t.classList.remove('active'); });
     tab.classList.add('active');
     histCurrentType = tab.getAttribute('data-type');
     loadTransactions();
@@ -1884,6 +1954,30 @@ if (histPeriodEl) {
     loadTransactions();
   });
 }
+
+// Betting history tab switching — Cassino
+document.querySelectorAll('#betCassinoTabs .hist-tab').forEach(function(tab) {
+  tab.addEventListener('click', function() {
+    document.querySelectorAll('#betCassinoTabs .hist-tab').forEach(function(t) { t.classList.remove('active'); });
+    tab.classList.add('active');
+  });
+});
+
+// Betting history tab switching — Esportivas
+document.querySelectorAll('#betSportTabs .hist-tab').forEach(function(tab) {
+  tab.addEventListener('click', function() {
+    document.querySelectorAll('#betSportTabs .hist-tab').forEach(function(t) { t.classList.remove('active'); });
+    tab.classList.add('active');
+  });
+});
+
+// Extrato tab switching
+document.querySelectorAll('#extratoTabs .hist-tab').forEach(function(tab) {
+  tab.addEventListener('click', function() {
+    document.querySelectorAll('#extratoTabs .hist-tab').forEach(function(t) { t.classList.remove('active'); });
+    tab.classList.add('active');
+  });
+});
 
 /* ========== POPULATE PIX ON SACAR ========== */
 function populateSacarPix(user) {
