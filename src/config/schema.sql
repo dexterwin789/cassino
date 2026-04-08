@@ -214,6 +214,58 @@ CREATE TABLE IF NOT EXISTS admin_audit_log (
 CREATE INDEX IF NOT EXISTS idx_audit_admin ON admin_audit_log(admin_id);
 CREATE INDEX IF NOT EXISTS idx_audit_action ON admin_audit_log(action);
 
+-- ─── Sports Categories ────────────────────────────
+CREATE TABLE IF NOT EXISTS sports_categories (
+  id            SERIAL PRIMARY KEY,
+  name          VARCHAR(128) NOT NULL,
+  slug          VARCHAR(128) NOT NULL UNIQUE,
+  icon_url      VARCHAR(512),
+  sort_order    INT NOT NULL DEFAULT 0,
+  is_active     BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- ─── Leagues ──────────────────────────────────────
+CREATE TABLE IF NOT EXISTS leagues (
+  id            SERIAL PRIMARY KEY,
+  sport_id      INT REFERENCES sports_categories(id) ON DELETE CASCADE,
+  name          VARCHAR(256) NOT NULL,
+  slug          VARCHAR(256) NOT NULL UNIQUE,
+  country       VARCHAR(64),
+  icon_url      VARCHAR(512),
+  sort_order    INT NOT NULL DEFAULT 0,
+  is_active     BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_leagues_sport ON leagues(sport_id);
+
+-- ─── Coupons ──────────────────────────────────────
+CREATE TABLE IF NOT EXISTS coupons (
+  id              SERIAL PRIMARY KEY,
+  code            VARCHAR(64) NOT NULL UNIQUE,
+  description     TEXT,
+  type            VARCHAR(32) NOT NULL DEFAULT 'bonus',
+  value_cents     INT NOT NULL DEFAULT 0,
+  value_pct       NUMERIC(5,2) NOT NULL DEFAULT 0,
+  min_deposit     INT NOT NULL DEFAULT 0,
+  max_uses        INT NOT NULL DEFAULT 0,
+  used_count      INT NOT NULL DEFAULT 0,
+  max_per_user    INT NOT NULL DEFAULT 1,
+  is_active       BOOLEAN NOT NULL DEFAULT TRUE,
+  starts_at       TIMESTAMPTZ,
+  expires_at      TIMESTAMPTZ,
+  created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS user_coupons (
+  id          SERIAL PRIMARY KEY,
+  user_id     INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  coupon_id   INT NOT NULL REFERENCES coupons(id) ON DELETE CASCADE,
+  used_at     TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_user_coupons_user ON user_coupons(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_coupons_coupon ON user_coupons(coupon_id);
+
 -- Session table (created automatically by connect-pg-simple but defining for clarity)
 CREATE TABLE IF NOT EXISTS sessions (
   sid    VARCHAR NOT NULL PRIMARY KEY,

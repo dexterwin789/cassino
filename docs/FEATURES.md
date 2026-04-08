@@ -85,18 +85,20 @@
 - **Contato** — botões de e-mail e chat ao vivo
 - **Badges** — selos 18+, PIX, SSL, jogo responsável
 
-## 14. Admin (futuro)
-Áreas planejadas para o painel administrativo:
-- [ ] Dashboard com métricas (usuários, receita, apostas, depósitos)
-- [ ] Gerenciamento de usuários (CRUD, bloqueio, verificação KYC)
-- [ ] Gerenciamento de jogos/provedores
-- [ ] Configuração de promoções/bônus
-- [ ] Configuração de saques (aprovação manual/automática)
-- [ ] Relatórios financeiros
-- [ ] Configuração de limites e jogo responsável
-- [ ] Gerenciamento de indicações
-- [ ] Sistema de notificações push
-- [ ] Configuração de temas/layout
-- [ ] Logs de atividade/auditoria
+## 14. Admin
+Painel administrativo completo:
+- [x] Dashboard com métricas (usuários, receita, apostas, depósitos, GGR, saques pendentes)
+- [x] Gerenciamento de usuários (CRUD, bloqueio com motivo, verificação KYC, ajuste de saldo)
+- [x] Gerenciamento de jogos/provedores
+- [x] Configuração de promoções/bônus
+- [x] Configuração de saques (aprovação/rejeição manual com reembolso)
+- [x] Relatórios financeiros (receita vs saques, GGR, gráficos diários, exportação CSV)
+- [x] Configuração de limites e jogo responsável (depósito, aposta, perda, tempo)
+- [x] Gerenciamento de indicações (afiliados)
+- [x] Sistema de notificações push (global e individual)
+- [x] Configuração de temas/layout
+- [x] Logs de atividade/auditoria
+- [x] Configuração de ligas/esportes (categorias + ligas CRUD)
+- [x] Gerenciamento de cupons (códigos, validade, limites de uso)
 - [ ] Configuração de ligas/esportes
 - [ ] Gerenciamento de cupons

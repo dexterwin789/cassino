@@ -98,6 +98,30 @@ router.get('/support', requireAdmin, (req, res) => {
   res.render('admin/support', { title: 'Suporte', admin: req.session.admin });
 });
 
+router.get('/withdrawals', requireAdmin, (req, res) => {
+  res.render('admin/withdrawals', { title: 'Saques', admin: req.session.admin });
+});
+
+router.get('/reports', requireAdmin, (req, res) => {
+  res.render('admin/reports', { title: 'Relatórios', admin: req.session.admin });
+});
+
+router.get('/notifications', requireAdmin, (req, res) => {
+  res.render('admin/notifications', { title: 'Notificações', admin: req.session.admin });
+});
+
+router.get('/limits', requireAdmin, (req, res) => {
+  res.render('admin/limits', { title: 'Jogo Responsável', admin: req.session.admin });
+});
+
+router.get('/leagues', requireAdmin, (req, res) => {
+  res.render('admin/leagues', { title: 'Ligas & Esportes', admin: req.session.admin });
+});
+
+router.get('/coupons', requireAdmin, (req, res) => {
+  res.render('admin/coupons', { title: 'Cupons', admin: req.session.admin });
+});
+
 router.get('/promotions', requireAdmin, (req, res) => {
   res.render('admin/promotions', { title: 'Promoções', admin: req.session.admin });
 });

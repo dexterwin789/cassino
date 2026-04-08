@@ -37,6 +37,7 @@ router.get('/users', async (req, res) => {
 
     const rowsR = await query(`
       SELECT u.id, u.username, u.phone, u.bonus, u.balance, u.credit_score, u.is_active, u.created_at,
+             u.kyc_status, u.block_reason,
              COALESCE(w.balance_cents, 0) AS wallet_balance_cents
       FROM users u
       LEFT JOIN wallets w ON w.user_id = u.id
@@ -720,6 +721,604 @@ router.get('/audit', async (req, res) => {
     res.json({ ok: true, page, limit, total, rows: rowsR.rows });
   } catch (err) {
     res.status(500).json({ ok: false, msg: 'Erro ao listar logs.' });
+  }
+});
+
+// ─── Withdrawals ──────────────────────────────────
+
+router.get('/withdrawals', async (req, res) => {
+  try {
+    const q = (req.query.q || '').trim();
+    const status = req.query.status || '';
+    const from = req.query.from || '';
+    const to = req.query.to || '';
+    const limit = Math.min(Math.max(parseInt(req.query.limit) || 25, 1), 200);
+    const page = Math.max(parseInt(req.query.page) || 1, 1);
+    const offset = (page - 1) * limit;
+
+    let where = [];
+    let params = [];
+    let idx = 1;
+
+    if (q) {
+      where.push(`(CAST(w.id AS TEXT) = $${idx} OR CAST(w.user_id AS TEXT) = $${idx})`);
+      params.push(q);
+      idx++;
+    }
+    const allowedStatuses = ['pending', 'approved', 'rejected', 'paid'];
+    if (status && allowedStatuses.includes(status)) {
+      where.push(`w.status = $${idx}`);
+      params.push(status);
+      idx++;
+    }
+    if (from) { where.push(`w.created_at >= $${idx}`); params.push(from + ' 00:00:00'); idx++; }
+    if (to) { where.push(`w.created_at <= $${idx}`); params.push(to + ' 23:59:59'); idx++; }
+
+    const whereSql = where.length ? 'WHERE ' + where.join(' AND ') : '';
+    const countR = await query(`SELECT COUNT(*) AS c FROM withdrawals w ${whereSql}`, params);
+    const total = parseInt(countR.rows[0].c);
+
+    const rowsR = await query(`
+      SELECT w.id, w.user_id, u.username, w.amount_cents, w.pix_type, w.pix_key, w.status, w.admin_note, w.created_at, w.updated_at
+      FROM withdrawals w
+      LEFT JOIN users u ON u.id = w.user_id
+      ${whereSql}
+      ORDER BY w.id DESC
+      LIMIT $${idx} OFFSET $${idx + 1}
+    `, [...params, limit, offset]);
+
+    res.json({ ok: true, page, limit, total, rows: rowsR.rows });
+  } catch (err) {
+    console.error('[ADMIN API WITHDRAWALS]', err);
+    res.status(500).json({ ok: false, msg: 'Erro ao listar saques.' });
+  }
+});
+
+router.post('/withdrawals/:id/approve', async (req, res) => {
+  try {
+    const { admin_note } = req.body;
+    await query(
+      "UPDATE withdrawals SET status = 'approved', admin_note = $2, updated_at = NOW() WHERE id = $1 AND status = 'pending'",
+      [req.params.id, admin_note || null]
+    );
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ ok: false, msg: 'Erro ao aprovar.' });
+  }
+});
+
+router.post('/withdrawals/:id/reject', async (req, res) => {
+  try {
+    const { admin_note } = req.body;
+    const wd = await query('SELECT user_id, amount_cents FROM withdrawals WHERE id = $1', [req.params.id]);
+    if (!wd.rows[0]) return res.status(404).json({ ok: false, msg: 'Saque não encontrado.' });
+
+    await query(
+      "UPDATE withdrawals SET status = 'rejected', admin_note = $2, updated_at = NOW() WHERE id = $1 AND status = 'pending'",
+      [req.params.id, admin_note || 'Rejeitado pelo admin']
+    );
+    // Refund wallet
+    await query('UPDATE wallets SET balance_cents = balance_cents + $2 WHERE user_id = $1', [wd.rows[0].user_id, wd.rows[0].amount_cents]);
+
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ ok: false, msg: 'Erro ao rejeitar.' });
+  }
+});
+
+// ─── Financial Reports ────────────────────────────
+
+router.get('/reports', async (req, res) => {
+  try {
+    const from = req.query.from || new Date(Date.now() - 30*86400000).toISOString().slice(0,10);
+    const to = req.query.to || new Date().toISOString().slice(0,10);
+    const fromTs = from + ' 00:00:00';
+    const toTs = to + ' 23:59:59';
+
+    const [depR, wdR, betR, winR, usersR, newR] = await Promise.all([
+      query("SELECT COUNT(*) AS c, COALESCE(SUM(amount_cents),0) AS total FROM transactions WHERE type='deposit' AND status='paid' AND created_at BETWEEN $1 AND $2", [fromTs, toTs]),
+      query("SELECT COUNT(*) AS c, COALESCE(SUM(amount_cents),0) AS total FROM withdrawals WHERE status IN ('approved','paid') AND created_at BETWEEN $1 AND $2", [fromTs, toTs]),
+      query("SELECT COALESCE(SUM(amount_cents),0) AS total FROM bets WHERE created_at BETWEEN $1 AND $2", [fromTs, toTs]),
+      query("SELECT COALESCE(SUM(payout_cents),0) AS total FROM bets WHERE status='won' AND created_at BETWEEN $1 AND $2", [fromTs, toTs]),
+      query("SELECT COUNT(DISTINCT user_id) AS c FROM transactions WHERE created_at BETWEEN $1 AND $2", [fromTs, toTs]),
+      query("SELECT COUNT(*) AS c FROM users WHERE created_at BETWEEN $1 AND $2", [fromTs, toTs])
+    ]);
+
+    // Daily breakdown
+    const dailyR = await query(`
+      SELECT d.d,
+        COALESCE((SELECT SUM(amount_cents) FROM transactions WHERE type='deposit' AND status='paid' AND DATE(created_at)=d.d), 0) AS dep,
+        COALESCE((SELECT SUM(amount_cents) FROM withdrawals WHERE status IN ('approved','paid') AND DATE(created_at)=d.d), 0) AS wd,
+        COALESCE((SELECT SUM(amount_cents) FROM bets WHERE DATE(created_at)=d.d), 0) AS bet,
+        COALESCE((SELECT SUM(payout_cents) FROM bets WHERE status='won' AND DATE(created_at)=d.d), 0) AS win
+      FROM generate_series($1::date, $2::date, '1 day'::interval) AS d(d)
+      ORDER BY d.d
+    `, [from, to]);
+
+    const deposits_total = parseInt(depR.rows[0].total);
+    const withdrawals_total = parseInt(wdR.rows[0].total);
+    const bets_total = parseInt(betR.rows[0].total);
+    const wins_total = parseInt(winR.rows[0].total);
+
+    res.json({
+      ok: true,
+      deposits_total, deposits_count: parseInt(depR.rows[0].c),
+      withdrawals_total, withdrawals_count: parseInt(wdR.rows[0].c),
+      bets_total, wins_total,
+      ggr: bets_total - wins_total,
+      active_users: parseInt(usersR.rows[0].c),
+      new_users: parseInt(newR.rows[0].c),
+      daily: dailyR.rows
+    });
+  } catch (err) {
+    console.error('[ADMIN API REPORTS]', err);
+    res.status(500).json({ ok: false, msg: 'Erro ao gerar relatório.' });
+  }
+});
+
+router.get('/reports/csv', async (req, res) => {
+  try {
+    const from = req.query.from || new Date(Date.now() - 30*86400000).toISOString().slice(0,10);
+    const to = req.query.to || new Date().toISOString().slice(0,10);
+
+    const dailyR = await query(`
+      SELECT d.d,
+        COALESCE((SELECT SUM(amount_cents) FROM transactions WHERE type='deposit' AND status='paid' AND DATE(created_at)=d.d), 0) AS dep,
+        COALESCE((SELECT SUM(amount_cents) FROM withdrawals WHERE status IN ('approved','paid') AND DATE(created_at)=d.d), 0) AS wd,
+        COALESCE((SELECT SUM(amount_cents) FROM bets WHERE DATE(created_at)=d.d), 0) AS bet,
+        COALESCE((SELECT SUM(payout_cents) FROM bets WHERE status='won' AND DATE(created_at)=d.d), 0) AS win
+      FROM generate_series($1::date, $2::date, '1 day'::interval) AS d(d)
+      ORDER BY d.d
+    `, [from, to]);
+
+    let csv = 'Data,Depósitos (R$),Saques (R$),Apostado (R$),Pago (R$),GGR (R$)\n';
+    dailyR.rows.forEach(r => {
+      const d = new Date(r.d).toLocaleDateString('pt-BR');
+      csv += `${d},${(parseInt(r.dep)/100).toFixed(2)},${(parseInt(r.wd)/100).toFixed(2)},${(parseInt(r.bet)/100).toFixed(2)},${(parseInt(r.win)/100).toFixed(2)},${((parseInt(r.bet)-parseInt(r.win))/100).toFixed(2)}\n`;
+    });
+
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', `attachment; filename=relatorio_${from}_${to}.csv`);
+    res.send(csv);
+  } catch (err) {
+    res.status(500).json({ ok: false, msg: 'Erro ao exportar.' });
+  }
+});
+
+// ─── Notifications ────────────────────────────────
+
+router.get('/notifications', async (req, res) => {
+  try {
+    const q = (req.query.q || '').trim();
+    const tipo = req.query.tipo || '';
+    const target = req.query.target || '';
+    const limit = Math.min(Math.max(parseInt(req.query.limit) || 25, 1), 200);
+    const page = Math.max(parseInt(req.query.page) || 1, 1);
+    const offset = (page - 1) * limit;
+
+    let where = [];
+    let params = [];
+    let idx = 1;
+
+    if (q) {
+      where.push(`(n.titulo ILIKE $${idx} OR n.mensagem ILIKE $${idx})`);
+      params.push(`%${q}%`);
+      idx++;
+    }
+    if (tipo) {
+      where.push(`n.tipo = $${idx}`);
+      params.push(tipo);
+      idx++;
+    }
+    if (target === 'global') {
+      where.push('n.user_id = 0');
+    } else if (target === 'individual') {
+      where.push('n.user_id > 0');
+    }
+
+    const whereSql = where.length ? 'WHERE ' + where.join(' AND ') : '';
+    const countR = await query(`SELECT COUNT(*) AS c FROM notifications n ${whereSql}`, params);
+    const total = parseInt(countR.rows[0].c);
+
+    const rowsR = await query(`
+      SELECT n.id, n.user_id, n.tipo, n.titulo, n.mensagem, n.link, n.lida, n.created_at,
+             CASE WHEN n.user_id > 0 THEN u.username ELSE NULL END AS username
+      FROM notifications n
+      LEFT JOIN users u ON n.user_id > 0 AND u.id = n.user_id
+      ${whereSql}
+      ORDER BY n.id DESC
+      LIMIT $${idx} OFFSET $${idx + 1}
+    `, [...params, limit, offset]);
+
+    res.json({ ok: true, page, limit, total, rows: rowsR.rows });
+  } catch (err) {
+    console.error('[ADMIN API NOTIFICATIONS]', err);
+    res.status(500).json({ ok: false, msg: 'Erro ao listar notificações.' });
+  }
+});
+
+router.post('/notifications', async (req, res) => {
+  try {
+    const { titulo, mensagem, tipo, user_id, link } = req.body;
+    if (!titulo) return res.status(400).json({ ok: false, msg: 'Título obrigatório.' });
+
+    const r = await query(
+      'INSERT INTO notifications (user_id, tipo, titulo, mensagem, link) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+      [parseInt(user_id) || 0, tipo || 'info', titulo, mensagem || '', link || '']
+    );
+    res.json({ ok: true, notification: r.rows[0] });
+  } catch (err) {
+    res.status(500).json({ ok: false, msg: 'Erro ao criar notificação.' });
+  }
+});
+
+router.delete('/notifications/:id', async (req, res) => {
+  try {
+    await query('DELETE FROM notifications WHERE id = $1', [req.params.id]);
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ ok: false, msg: 'Erro ao excluir.' });
+  }
+});
+
+// ─── User Limits (Responsible Gaming) ─────────────
+
+router.get('/limits', async (req, res) => {
+  try {
+    const q = (req.query.q || '').trim();
+    const limit_type = req.query.limit_type || '';
+    const limit = Math.min(Math.max(parseInt(req.query.limit) || 25, 1), 200);
+    const page = Math.max(parseInt(req.query.page) || 1, 1);
+    const offset = (page - 1) * limit;
+
+    let where = [];
+    let params = [];
+    let idx = 1;
+
+    if (q) {
+      where.push(`CAST(ul.user_id AS TEXT) = $${idx}`);
+      params.push(q);
+      idx++;
+    }
+    if (limit_type) {
+      where.push(`ul.limit_type = $${idx}`);
+      params.push(limit_type);
+      idx++;
+    }
+
+    const whereSql = where.length ? 'WHERE ' + where.join(' AND ') : '';
+    const countR = await query(`SELECT COUNT(*) AS c FROM user_limits ul ${whereSql}`, params);
+    const total = parseInt(countR.rows[0].c);
+
+    const rowsR = await query(`
+      SELECT ul.id, ul.user_id, u.username, ul.limit_type, ul.period, ul.limit_value, ul.is_active, ul.enforced_by, ul.admin_notes, ul.created_at
+      FROM user_limits ul
+      LEFT JOIN users u ON u.id = ul.user_id
+      ${whereSql}
+      ORDER BY ul.id DESC
+      LIMIT $${idx} OFFSET $${idx + 1}
+    `, [...params, limit, offset]);
+
+    res.json({ ok: true, page, limit, total, rows: rowsR.rows });
+  } catch (err) {
+    console.error('[ADMIN API LIMITS]', err);
+    res.status(500).json({ ok: false, msg: 'Erro ao listar limites.' });
+  }
+});
+
+router.post('/limits', async (req, res) => {
+  try {
+    const { user_id, limit_type, period, limit_value, admin_notes } = req.body;
+    if (!user_id || !limit_type) return res.status(400).json({ ok: false, msg: 'User ID e tipo obrigatórios.' });
+
+    const r = await query(
+      `INSERT INTO user_limits (user_id, limit_type, period, limit_value, enforced_by, admin_notes)
+       VALUES ($1, $2, $3, $4, 'admin', $5)
+       ON CONFLICT (user_id, limit_type, period) DO UPDATE SET limit_value = $4, enforced_by = 'admin', admin_notes = $5, is_active = TRUE, updated_at = NOW()
+       RETURNING *`,
+      [parseInt(user_id), limit_type, period || 'daily', parseInt(limit_value) || 0, admin_notes || null]
+    );
+    res.json({ ok: true, limit: r.rows[0] });
+  } catch (err) {
+    console.error('[ADMIN API LIMITS CREATE]', err);
+    res.status(500).json({ ok: false, msg: 'Erro ao criar limite.' });
+  }
+});
+
+router.post('/limits/:id/toggle', async (req, res) => {
+  try {
+    await query('UPDATE user_limits SET is_active = NOT is_active, updated_at = NOW() WHERE id = $1', [req.params.id]);
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ ok: false, msg: 'Erro.' });
+  }
+});
+
+router.delete('/limits/:id', async (req, res) => {
+  try {
+    await query('DELETE FROM user_limits WHERE id = $1', [req.params.id]);
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ ok: false, msg: 'Erro ao excluir.' });
+  }
+});
+
+// ─── Leagues & Sports ─────────────────────────────
+
+router.get('/leagues', async (req, res) => {
+  try {
+    const q = (req.query.q || '').trim();
+    const limit = Math.min(Math.max(parseInt(req.query.limit) || 25, 1), 200);
+    const page = Math.max(parseInt(req.query.page) || 1, 1);
+    const offset = (page - 1) * limit;
+
+    let where = [];
+    let params = [];
+    let idx = 1;
+
+    if (q) {
+      where.push(`(item.name ILIKE $${idx} OR item.slug ILIKE $${idx})`);
+      params.push(`%${q}%`);
+      idx++;
+    }
+
+    const whereSql = where.length ? 'WHERE ' + where.join(' AND ') : '';
+
+    // Combine sports + leagues into one list
+    const countR = await query(`
+      SELECT (SELECT COUNT(*) FROM sports_categories sc ${whereSql.replace(/item\./g,'sc.')}) +
+             (SELECT COUNT(*) FROM leagues l ${whereSql.replace(/item\./g,'l.')}) AS c
+    `, params.length ? [...params, ...params] : []);
+    const total = parseInt(countR.rows[0].c);
+
+    const rowsR = await query(`
+      (SELECT sc.id, 'sport' AS item_type, sc.name, sc.slug, NULL AS country, NULL AS sport_name, sc.sort_order, sc.is_active, sc.created_at
+       FROM sports_categories sc ${whereSql.replace(/item\./g,'sc.')}
+      )
+      UNION ALL
+      (SELECT l.id, 'league' AS item_type, l.name, l.slug, l.country, sc.name AS sport_name, l.sort_order, l.is_active, l.created_at
+       FROM leagues l
+       LEFT JOIN sports_categories sc ON sc.id = l.sport_id
+       ${whereSql.replace(/item\./g,'l.')}
+      )
+      ORDER BY item_type, sort_order, name
+      LIMIT $${idx} OFFSET $${idx + 1}
+    `, [...params, ...params, limit, offset]);
+
+    res.json({ ok: true, page, limit, total, rows: rowsR.rows });
+  } catch (err) {
+    console.error('[ADMIN API LEAGUES]', err);
+    res.status(500).json({ ok: false, msg: 'Erro ao listar.' });
+  }
+});
+
+router.post('/sports', async (req, res) => {
+  try {
+    const { name, slug, icon_url, sort_order } = req.body;
+    if (!name || !slug) return res.status(400).json({ ok: false, msg: 'Nome e slug obrigatórios.' });
+    const r = await query(
+      'INSERT INTO sports_categories (name, slug, icon_url, sort_order) VALUES ($1, $2, $3, $4) RETURNING *',
+      [name, slug, icon_url || null, parseInt(sort_order) || 0]
+    );
+    res.json({ ok: true, sport: r.rows[0] });
+  } catch (err) {
+    if (err.code === '23505') return res.status(409).json({ ok: false, msg: 'Slug já existe.' });
+    res.status(500).json({ ok: false, msg: 'Erro ao criar esporte.' });
+  }
+});
+
+router.post('/leagues', async (req, res) => {
+  try {
+    const { sport_id, name, slug, country, icon_url, sort_order } = req.body;
+    if (!name || !slug) return res.status(400).json({ ok: false, msg: 'Nome e slug obrigatórios.' });
+    const r = await query(
+      'INSERT INTO leagues (sport_id, name, slug, country, icon_url, sort_order) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+      [parseInt(sport_id) || null, name, slug, country || null, icon_url || null, parseInt(sort_order) || 0]
+    );
+    res.json({ ok: true, league: r.rows[0] });
+  } catch (err) {
+    if (err.code === '23505') return res.status(409).json({ ok: false, msg: 'Slug já existe.' });
+    res.status(500).json({ ok: false, msg: 'Erro ao criar liga.' });
+  }
+});
+
+router.post('/leagues/:id/toggle', async (req, res) => {
+  try {
+    const { item_type } = req.body;
+    if (item_type === 'sport') {
+      await query('UPDATE sports_categories SET is_active = NOT is_active WHERE id = $1', [req.params.id]);
+    } else {
+      await query('UPDATE leagues SET is_active = NOT is_active WHERE id = $1', [req.params.id]);
+    }
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ ok: false, msg: 'Erro.' });
+  }
+});
+
+router.delete('/leagues/:id', async (req, res) => {
+  try {
+    const { item_type } = req.body;
+    if (item_type === 'sport') {
+      await query('DELETE FROM sports_categories WHERE id = $1', [req.params.id]);
+    } else {
+      await query('DELETE FROM leagues WHERE id = $1', [req.params.id]);
+    }
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ ok: false, msg: 'Erro ao excluir.' });
+  }
+});
+
+// ─── Coupons ──────────────────────────────────────
+
+router.get('/coupons', async (req, res) => {
+  try {
+    const q = (req.query.q || '').trim();
+    const active = req.query.active || '';
+    const limit = Math.min(Math.max(parseInt(req.query.limit) || 25, 1), 200);
+    const page = Math.max(parseInt(req.query.page) || 1, 1);
+    const offset = (page - 1) * limit;
+
+    let where = [];
+    let params = [];
+    let idx = 1;
+
+    if (q) {
+      where.push(`(c.code ILIKE $${idx} OR c.description ILIKE $${idx})`);
+      params.push(`%${q}%`);
+      idx++;
+    }
+    if (active === '1' || active === '0') {
+      where.push(`c.is_active = $${idx}`);
+      params.push(active === '1');
+      idx++;
+    }
+
+    const whereSql = where.length ? 'WHERE ' + where.join(' AND ') : '';
+    const countR = await query(`SELECT COUNT(*) AS c FROM coupons c ${whereSql}`, params);
+    const total = parseInt(countR.rows[0].c);
+
+    const rowsR = await query(`
+      SELECT c.*
+      FROM coupons c
+      ${whereSql}
+      ORDER BY c.id DESC
+      LIMIT $${idx} OFFSET $${idx + 1}
+    `, [...params, limit, offset]);
+
+    res.json({ ok: true, page, limit, total, rows: rowsR.rows });
+  } catch (err) {
+    console.error('[ADMIN API COUPONS]', err);
+    res.status(500).json({ ok: false, msg: 'Erro ao listar cupons.' });
+  }
+});
+
+router.post('/coupons', async (req, res) => {
+  try {
+    const { code, description, type, value_cents, value_pct, min_deposit, max_uses, max_per_user, starts_at, expires_at } = req.body;
+    if (!code) return res.status(400).json({ ok: false, msg: 'Código obrigatório.' });
+
+    const r = await query(
+      `INSERT INTO coupons (code, description, type, value_cents, value_pct, min_deposit, max_uses, max_per_user, starts_at, expires_at)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *`,
+      [code.toUpperCase(), description || '', type || 'bonus', parseInt(value_cents) || 0, parseFloat(value_pct) || 0, parseInt(min_deposit) || 0, parseInt(max_uses) || 0, parseInt(max_per_user) || 1, starts_at || null, expires_at || null]
+    );
+    res.json({ ok: true, coupon: r.rows[0] });
+  } catch (err) {
+    if (err.code === '23505') return res.status(409).json({ ok: false, msg: 'Código já existe.' });
+    res.status(500).json({ ok: false, msg: 'Erro ao criar cupom.' });
+  }
+});
+
+router.post('/coupons/:id/toggle', async (req, res) => {
+  try {
+    await query('UPDATE coupons SET is_active = NOT is_active WHERE id = $1', [req.params.id]);
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ ok: false, msg: 'Erro.' });
+  }
+});
+
+router.delete('/coupons/:id', async (req, res) => {
+  try {
+    await query('DELETE FROM coupons WHERE id = $1', [req.params.id]);
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ ok: false, msg: 'Erro ao excluir.' });
+  }
+});
+
+// ─── Enhanced User Actions (KYC + Balance) ────────
+
+router.post('/users/:id/kyc', async (req, res) => {
+  try {
+    const { kyc_status, kyc_notes } = req.body;
+    const allowed = ['pending', 'verified', 'rejected'];
+    if (!allowed.includes(kyc_status)) return res.status(400).json({ ok: false, msg: 'Status inválido.' });
+
+    await query('UPDATE users SET kyc_status = $2, kyc_notes = $3, updated_at = NOW() WHERE id = $1', [req.params.id, kyc_status, kyc_notes || null]);
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ ok: false, msg: 'Erro ao atualizar KYC.' });
+  }
+});
+
+router.post('/users/:id/balance', async (req, res) => {
+  try {
+    const { amount_cents, reason } = req.body;
+    const amt = parseInt(amount_cents);
+    if (!amt) return res.status(400).json({ ok: false, msg: 'Valor obrigatório.' });
+
+    await query('UPDATE wallets SET balance_cents = balance_cents + $2 WHERE user_id = $1', [req.params.id, amt]);
+
+    // Log in audit
+    await query(
+      'INSERT INTO admin_audit_log (admin_id, action, target_type, target_id, details, ip_address) VALUES ($1, $2, $3, $4, $5, $6)',
+      [req.session.admin.id, 'balance_adjust', 'user', parseInt(req.params.id), JSON.stringify({ amount_cents: amt, reason: reason || '' }), req.ip]
+    );
+
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ ok: false, msg: 'Erro ao ajustar saldo.' });
+  }
+});
+
+router.post('/users/:id/block', async (req, res) => {
+  try {
+    const { block_reason } = req.body;
+    await query('UPDATE users SET is_active = FALSE, block_reason = $2, updated_at = NOW() WHERE id = $1', [req.params.id, block_reason || 'Bloqueado pelo admin']);
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ ok: false, msg: 'Erro ao bloquear.' });
+  }
+});
+
+// ─── Enhanced Dashboard Stats ─────────────────────
+
+router.get('/stats/enhanced', async (req, res) => {
+  try {
+    const [usersR, depR, wdR, revenueR, todayR, gamesR, betR, winR, weekR, pendingWdR] = await Promise.all([
+      query('SELECT COUNT(*) AS c FROM users'),
+      query("SELECT COUNT(*) AS c FROM transactions WHERE type='deposit' AND status='paid'"),
+      query("SELECT COUNT(*) AS c, COALESCE(SUM(amount_cents),0) AS total FROM withdrawals WHERE status IN ('approved','paid')"),
+      query("SELECT COALESCE(SUM(amount_cents),0) AS total FROM transactions WHERE type='deposit' AND status='paid'"),
+      query("SELECT COUNT(*) AS c FROM users WHERE created_at >= CURRENT_DATE"),
+      query('SELECT COUNT(*) AS c FROM games WHERE is_active = TRUE'),
+      query("SELECT COALESCE(SUM(amount_cents),0) AS total FROM bets"),
+      query("SELECT COALESCE(SUM(payout_cents),0) AS total FROM bets WHERE status='won'"),
+      query(`SELECT DATE(created_at) AS d, COUNT(*) AS c FROM users WHERE created_at >= CURRENT_DATE - INTERVAL '7 days' GROUP BY DATE(created_at) ORDER BY d`),
+      query("SELECT COUNT(*) AS c, COALESCE(SUM(amount_cents),0) AS total FROM withdrawals WHERE status='pending'")
+    ]);
+
+    const recentR = await query(`
+      SELECT t.id, t.user_id, u.username, t.amount_cents, t.status, t.created_at
+      FROM transactions t LEFT JOIN users u ON u.id = t.user_id
+      WHERE t.type = 'deposit'
+      ORDER BY t.id DESC LIMIT 7
+    `);
+
+    const totalBets = parseInt(betR.rows[0].total);
+    const totalWins = parseInt(winR.rows[0].total);
+
+    res.json({
+      ok: true,
+      totalUsers: parseInt(usersR.rows[0].c),
+      totalDeposits: parseInt(depR.rows[0].c),
+      totalRevenue: parseInt(revenueR.rows[0].total),
+      todayUsers: parseInt(todayR.rows[0].c),
+      totalGames: parseInt(gamesR.rows[0].c),
+      totalWithdrawals: parseInt(wdR.rows[0].c),
+      totalWithdrawalsAmount: parseInt(wdR.rows[0].total),
+      pendingWithdrawals: parseInt(pendingWdR.rows[0].c),
+      pendingWithdrawalsAmount: parseInt(pendingWdR.rows[0].total),
+      ggr: totalBets - totalWins,
+      weekChart: weekR.rows,
+      recentDeposits: recentR.rows
+    });
+  } catch (err) {
+    console.error('[ADMIN API STATS ENHANCED]', err);
+    res.status(500).json({ ok: false, msg: 'Erro.' });
   }
 });
 

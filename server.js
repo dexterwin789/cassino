@@ -108,6 +108,9 @@ async function autoMigrate() {
     await addCol('users', 'pix_type', "VARCHAR(16) DEFAULT 'cpf'");
     await addCol('users', 'pix_key', 'VARCHAR(255)');
     await addCol('users', 'avatar_url', 'TEXT');
+    await addCol('users', 'kyc_status', "VARCHAR(16) DEFAULT 'pending'");
+    await addCol('users', 'kyc_notes', 'TEXT');
+    await addCol('users', 'block_reason', 'TEXT');
 
     // Jogo Responsável limits
     await addCol('users', 'limit_deposit_type', "VARCHAR(16) DEFAULT 'unlimited'");
@@ -160,6 +163,59 @@ async function autoMigrate() {
       created_at TIMESTAMPTZ DEFAULT NOW()
     )`);
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_notif_user ON notifications(user_id, lida, created_at DESC)`);
+
+    // Sports categories
+    await pool.query(`CREATE TABLE IF NOT EXISTS sports_categories (
+      id SERIAL PRIMARY KEY,
+      name VARCHAR(128) NOT NULL,
+      slug VARCHAR(128) NOT NULL UNIQUE,
+      icon_url VARCHAR(512),
+      sort_order INT NOT NULL DEFAULT 0,
+      is_active BOOLEAN NOT NULL DEFAULT TRUE,
+      created_at TIMESTAMPTZ DEFAULT NOW()
+    )`);
+
+    // Leagues
+    await pool.query(`CREATE TABLE IF NOT EXISTS leagues (
+      id SERIAL PRIMARY KEY,
+      sport_id INT REFERENCES sports_categories(id) ON DELETE CASCADE,
+      name VARCHAR(256) NOT NULL,
+      slug VARCHAR(256) NOT NULL UNIQUE,
+      country VARCHAR(64),
+      icon_url VARCHAR(512),
+      sort_order INT NOT NULL DEFAULT 0,
+      is_active BOOLEAN NOT NULL DEFAULT TRUE,
+      created_at TIMESTAMPTZ DEFAULT NOW()
+    )`);
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_leagues_sport ON leagues(sport_id)`);
+
+    // Coupons
+    await pool.query(`CREATE TABLE IF NOT EXISTS coupons (
+      id SERIAL PRIMARY KEY,
+      code VARCHAR(64) NOT NULL UNIQUE,
+      description TEXT,
+      type VARCHAR(32) NOT NULL DEFAULT 'bonus',
+      value_cents INT NOT NULL DEFAULT 0,
+      value_pct NUMERIC(5,2) NOT NULL DEFAULT 0,
+      min_deposit INT NOT NULL DEFAULT 0,
+      max_uses INT NOT NULL DEFAULT 0,
+      used_count INT NOT NULL DEFAULT 0,
+      max_per_user INT NOT NULL DEFAULT 1,
+      is_active BOOLEAN NOT NULL DEFAULT TRUE,
+      starts_at TIMESTAMPTZ,
+      expires_at TIMESTAMPTZ,
+      created_at TIMESTAMPTZ DEFAULT NOW()
+    )`);
+
+    // User coupons (track usage)
+    await pool.query(`CREATE TABLE IF NOT EXISTS user_coupons (
+      id SERIAL PRIMARY KEY,
+      user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      coupon_id INT NOT NULL REFERENCES coupons(id) ON DELETE CASCADE,
+      used_at TIMESTAMPTZ DEFAULT NOW()
+    )`);
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_user_coupons_user ON user_coupons(user_id)`);
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_user_coupons_coupon ON user_coupons(coupon_id)`);
 
     // Seed test notifications for user 24
     const notifCount = await pool.query('SELECT COUNT(*) FROM notifications WHERE user_id = 24');

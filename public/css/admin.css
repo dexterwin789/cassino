@@ -443,6 +443,7 @@ body {
 .adm-tag.ok { border-color: rgba(46,231,107,.3); background: rgba(46,231,107,.08); color: #2ee76b; }
 .adm-tag.warn { border-color: rgba(255,58,0,.35); background: rgba(255,58,0,.1); color: #ff3a00; }
 .adm-tag.bad { border-color: rgba(255,77,77,.3); background: rgba(255,77,77,.08); color: #ff4d4d; }
+.adm-tag.info { border-color: rgba(43,140,255,.3); background: rgba(43,140,255,.08); color: #2b8cff; }
 
 /* ─── Quick Actions ────────────────────────────── */
 .adm-quick-actions {
@@ -842,7 +843,7 @@ body {
 
 /* ─── Responsive ───────────────────────────────── */
 @media (max-width: 1024px) {
-  .adm-stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .adm-stats-grid { grid-template-columns: repeat(3, 1fr) !important; }
   .adm-dashboard-grid { grid-template-columns: 1fr; }
 }
 
@@ -860,12 +861,12 @@ body {
   .adm-mobile-menu {
     display: block;
   }
-  .adm-stats-grid { grid-template-columns: 1fr 1fr; }
+  .adm-stats-grid { grid-template-columns: 1fr 1fr !important; }
   .adm-content { padding: 16px; }
   .adm-toolbar { gap: 8px; }
   .adm-field input, .adm-field select { min-width: 140px; }
 }
 
 @media (max-width: 480px) {
-  .adm-stats-grid { grid-template-columns: 1fr; }
+  .adm-stats-grid { grid-template-columns: 1fr !important; }
 }

@@ -1,0 +1,89 @@
+<%- include('layout-head', { title: 'Jogo Responsável', page: 'limits' }) %>
+
+<div class="adm-page-card" data-page="limits">
+  <div class="adm-page-head">
+    <div>
+      <h3>Jogo Responsável</h3>
+      <p class="adm-muted">Limites de depósito, aposta, perda e auto-exclusão dos usuários</p>
+    </div>
+    <button class="adm-btn" data-action="refresh">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+      Atualizar
+    </button>
+  </div>
+  <div class="adm-toolbar">
+    <div class="adm-field"><label>Buscar (user_id)</label><input type="text" placeholder="id do usuário" data-filter="q" /></div>
+    <div class="adm-field"><label>Tipo de limite</label><select data-filter="limit_type"><option value="">Todos</option><option value="deposit">Depósito</option><option value="bet">Aposta</option><option value="loss">Perda</option><option value="time">Tempo</option></select></div>
+    <div class="adm-field"><label>Por página</label><select data-filter="limit"><option value="10">10</option><option value="25" selected>25</option><option value="50">50</option></select></div>
+    <div class="adm-field"><label>&nbsp;</label><button class="adm-btn primary" data-action="apply">Aplicar</button></div>
+  </div>
+  <div class="adm-table-wrap">
+    <table class="adm-table">
+      <thead><tr><th>ID</th><th>Usuário</th><th>Tipo</th><th>Período</th><th>Valor</th><th>Configurado por</th><th>Status</th><th>Ações</th></tr></thead>
+      <tbody data-tbody></tbody>
+    </table>
+  </div>
+  <div class="adm-pager">
+    <div class="adm-muted"><span data-count>0</span> resultados</div>
+    <div class="adm-pager-btns">
+      <button class="adm-btn" data-action="prev">‹ Anterior</button>
+      <span class="adm-muted">Página <span data-page-num>1</span></span>
+      <button class="adm-btn" data-action="next">Próxima ›</button>
+    </div>
+  </div>
+</div>
+
+<!-- Override limit modal -->
+<div id="limitModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:999;background:rgba(0,0,0,.7);place-items:center;">
+  <div style="background:var(--adm-card);border:1px solid var(--adm-line);border-radius:var(--adm-radius);padding:24px;max-width:440px;width:90%;">
+    <h3 style="margin:0 0 16px;font-weight:900;">Impor Limite ao Usuário</h3>
+    <div class="adm-field" style="margin-bottom:12px"><label>User ID</label><input type="number" id="limUserId" /></div>
+    <div class="adm-field" style="margin-bottom:12px"><label>Tipo</label><select id="limType"><option value="deposit">Depósito</option><option value="bet">Aposta</option><option value="loss">Perda</option><option value="time">Tempo de sessão</option></select></div>
+    <div class="adm-field" style="margin-bottom:12px"><label>Período</label><select id="limPeriod"><option value="daily">Diário</option><option value="weekly">Semanal</option><option value="monthly">Mensal</option></select></div>
+    <div class="adm-field" style="margin-bottom:12px"><label>Valor (centavos ou minutos)</label><input type="number" id="limValue" /></div>
+    <div class="adm-field" style="margin-bottom:16px"><label>Observação</label><input type="text" id="limNotes" placeholder="Motivo da imposição..." /></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;">
+      <button class="adm-btn" id="limCancel">Cancelar</button>
+      <button class="adm-btn primary" id="limSave">Salvar Limite</button>
+    </div>
+  </div>
+</div>
+
+<script src="/public/js/admin.js" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const modal = document.getElementById('limitModal');
+
+  document.querySelector('.adm-page-head')?.insertAdjacentHTML('beforeend',
+    '<button class="adm-btn primary" id="btnAddLimit" style="margin-left:auto"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Impor Limite</button>'
+  );
+
+  document.addEventListener('click', e => {
+    if (e.target.closest('#btnAddLimit')) {
+      modal.style.display = 'grid';
+    }
+    if (e.target.closest('#limCancel')) {
+      modal.style.display = 'none';
+    }
+  });
+
+  document.getElementById('limSave')?.addEventListener('click', async () => {
+    const body = {
+      user_id: document.getElementById('limUserId').value,
+      limit_type: document.getElementById('limType').value,
+      period: document.getElementById('limPeriod').value,
+      limit_value: document.getElementById('limValue').value,
+      admin_notes: document.getElementById('limNotes').value
+    };
+    const r = await fetch('/admin/api/limits', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(body), credentials: 'same-origin'
+    });
+    const d = await r.json();
+    if (d.ok) { modal.style.display = 'none'; location.reload(); }
+    else alert(d.msg || 'Erro');
+  });
+});
+</script>
+
+<%- include('layout-foot') %>

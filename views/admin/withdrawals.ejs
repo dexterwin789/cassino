@@ -1,10 +1,10 @@
-<%- include('layout-head', { title: 'Usuários', page: 'users' }) %>
+<%- include('layout-head', { title: 'Saques', page: 'withdrawals' }) %>
 
-<div class="adm-page-card" data-page="users">
+<div class="adm-page-card" data-page="withdrawals">
   <div class="adm-page-head">
     <div>
-      <h3>Usuários</h3>
-      <p class="adm-muted">Lista completa com saldo de carteira</p>
+      <h3>Saques</h3>
+      <p class="adm-muted">Aprovação e gerenciamento de saques</p>
     </div>
     <button class="adm-btn" data-action="refresh">
       <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
@@ -12,14 +12,16 @@
     </button>
   </div>
   <div class="adm-toolbar">
-    <div class="adm-field"><label>Buscar</label><input type="text" placeholder="id / username / telefone" data-filter="q" /></div>
-    <div class="adm-field"><label>Status</label><select data-filter="active"><option value="">Todos</option><option value="1">Ativo</option><option value="0">Inativo</option></select></div>
-    <div class="adm-field"><label>Por página</label><select data-filter="limit"><option value="10">10</option><option value="25" selected>25</option><option value="50">50</option><option value="100">100</option></select></div>
+    <div class="adm-field"><label>Buscar</label><input type="text" placeholder="id / user_id" data-filter="q" /></div>
+    <div class="adm-field"><label>Status</label><select data-filter="status"><option value="">Todos</option><option value="pending">Pendente</option><option value="approved">Aprovado</option><option value="rejected">Rejeitado</option><option value="paid">Pago</option></select></div>
+    <div class="adm-field"><label>De</label><input type="date" data-filter="from" /></div>
+    <div class="adm-field"><label>Até</label><input type="date" data-filter="to" /></div>
+    <div class="adm-field"><label>Por página</label><select data-filter="limit"><option value="10">10</option><option value="25" selected>25</option><option value="50">50</option></select></div>
     <div class="adm-field"><label>&nbsp;</label><button class="adm-btn primary" data-action="apply">Aplicar</button></div>
   </div>
   <div class="adm-table-wrap">
     <table class="adm-table">
-      <thead><tr><th>ID</th><th>Usuário</th><th>Telefone</th><th>Saldo</th><th>Bônus</th><th>KYC</th><th>Status</th><th>Criado</th><th>Ações</th></tr></thead>
+      <thead><tr><th>ID</th><th>Usuário</th><th>Valor</th><th>Chave PIX</th><th>Status</th><th>Criado</th><th>Ações</th></tr></thead>
       <tbody data-tbody></tbody>
     </table>
   </div>

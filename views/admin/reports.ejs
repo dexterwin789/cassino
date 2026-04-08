@@ -1,0 +1,159 @@
+<%- include('layout-head', { title: 'Relatórios', page: 'reports' }) %>
+
+<div class="adm-dashboard">
+  <!-- Period Selector -->
+  <div class="adm-page-card" style="margin-bottom:24px">
+    <div class="adm-page-head">
+      <div>
+        <h3>Relatórios Financeiros</h3>
+        <p class="adm-muted">Visão geral de receita, saques e GGR</p>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button class="adm-btn" id="btnExportCsv">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Exportar CSV
+        </button>
+      </div>
+    </div>
+    <div class="adm-toolbar">
+      <div class="adm-field"><label>De</label><input type="date" id="reportFrom" /></div>
+      <div class="adm-field"><label>Até</label><input type="date" id="reportTo" /></div>
+      <div class="adm-field"><label>Período rápido</label>
+        <select id="reportQuick">
+          <option value="7">Últimos 7 dias</option>
+          <option value="30" selected>Últimos 30 dias</option>
+          <option value="90">Últimos 90 dias</option>
+          <option value="365">Último ano</option>
+        </select>
+      </div>
+      <div class="adm-field"><label>&nbsp;</label><button class="adm-btn primary" id="btnLoadReport">Gerar Relatório</button></div>
+    </div>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="adm-stats-grid" id="reportStats">
+    <div class="adm-stat-card">
+      <div class="adm-stat-icon" style="background:rgba(46,231,107,.12);color:#2ee76b;">
+        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      </div>
+      <div class="adm-stat-info">
+        <div class="adm-stat-label">Depósitos</div>
+        <div class="adm-stat-value" id="rptDeposits">-</div>
+        <div class="adm-stat-sub" id="rptDepositsCount">0 transações</div>
+      </div>
+    </div>
+    <div class="adm-stat-card">
+      <div class="adm-stat-icon" style="background:rgba(255,58,0,.12);color:#ff3a00;">
+        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+      </div>
+      <div class="adm-stat-info">
+        <div class="adm-stat-label">Saques</div>
+        <div class="adm-stat-value" id="rptWithdrawals">-</div>
+        <div class="adm-stat-sub" id="rptWithdrawalsCount">0 transações</div>
+      </div>
+    </div>
+    <div class="adm-stat-card">
+      <div class="adm-stat-icon" style="background:rgba(43,140,255,.12);color:#2b8cff;">
+        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+      </div>
+      <div class="adm-stat-info">
+        <div class="adm-stat-label">GGR (Lucro Bruto)</div>
+        <div class="adm-stat-value" id="rptGgr">-</div>
+        <div class="adm-stat-sub" id="rptGgrPct">-</div>
+      </div>
+    </div>
+    <div class="adm-stat-card">
+      <div class="adm-stat-icon" style="background:rgba(255,215,0,.12);color:#ffd700;">
+        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      </div>
+      <div class="adm-stat-info">
+        <div class="adm-stat-label">Usuários Ativos</div>
+        <div class="adm-stat-value" id="rptActiveUsers">-</div>
+        <div class="adm-stat-sub" id="rptNewUsers">0 novos</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts -->
+  <div class="adm-dashboard-grid">
+    <div class="adm-chart-card">
+      <div class="adm-chart-head"><h3>Receita vs Saques (diário)</h3></div>
+      <div class="adm-chart-body"><canvas id="revenueChart" height="220"></canvas></div>
+    </div>
+    <div class="adm-chart-card">
+      <div class="adm-chart-head"><h3>Apostas (volume)</h3></div>
+      <div class="adm-chart-body"><canvas id="betsChart" height="220"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const brl = n => new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(n);
+  let revenueChartInst, betsChartInst;
+
+  function setQuickDates(days) {
+    const to = new Date(); const from = new Date(); from.setDate(from.getDate() - days);
+    document.getElementById('reportFrom').value = from.toISOString().slice(0,10);
+    document.getElementById('reportTo').value = to.toISOString().slice(0,10);
+  }
+  document.getElementById('reportQuick').addEventListener('change', e => setQuickDates(parseInt(e.target.value)));
+  setQuickDates(30);
+
+  async function loadReport() {
+    const from = document.getElementById('reportFrom').value;
+    const to = document.getElementById('reportTo').value;
+    const r = await fetch(`/admin/api/reports?from=${from}&to=${to}`, {credentials:'same-origin'});
+    const d = await r.json();
+    if (!d.ok) return;
+
+    document.getElementById('rptDeposits').textContent = brl(d.deposits_total / 100);
+    document.getElementById('rptDepositsCount').textContent = d.deposits_count + ' transações';
+    document.getElementById('rptWithdrawals').textContent = brl(d.withdrawals_total / 100);
+    document.getElementById('rptWithdrawalsCount').textContent = d.withdrawals_count + ' transações';
+    document.getElementById('rptGgr').textContent = brl(d.ggr / 100);
+    document.getElementById('rptGgrPct').textContent = d.deposits_total > 0 ? ((d.ggr / d.deposits_total) * 100).toFixed(1) + '% margem' : '-';
+    document.getElementById('rptActiveUsers').textContent = d.active_users;
+    document.getElementById('rptNewUsers').textContent = d.new_users + ' novos';
+
+    // Revenue chart
+    if (revenueChartInst) revenueChartInst.destroy();
+    revenueChartInst = new Chart(document.getElementById('revenueChart'), {
+      type: 'line', data: {
+        labels: d.daily.map(x => new Date(x.d).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})),
+        datasets: [
+          { label: 'Depósitos', data: d.daily.map(x => parseInt(x.dep||0)/100), borderColor: '#2ee76b', backgroundColor:'rgba(46,231,107,.1)', fill:true, tension:.3 },
+          { label: 'Saques', data: d.daily.map(x => parseInt(x.wd||0)/100), borderColor: '#ff3a00', backgroundColor:'rgba(255,58,0,.1)', fill:true, tension:.3 }
+        ]
+      }, options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{color:'rgba(255,255,255,.6)'}}},
+        scales:{ y:{ticks:{color:'rgba(255,255,255,.5)',callback:v=>brl(v)},grid:{color:'rgba(255,255,255,.06)'}}, x:{ticks:{color:'rgba(255,255,255,.5)'},grid:{display:false}} }
+      }
+    });
+
+    // Bets chart
+    if (betsChartInst) betsChartInst.destroy();
+    betsChartInst = new Chart(document.getElementById('betsChart'), {
+      type: 'bar', data: {
+        labels: d.daily.map(x => new Date(x.d).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})),
+        datasets: [
+          { label: 'Apostado', data: d.daily.map(x => parseInt(x.bet||0)/100), backgroundColor:'rgba(43,140,255,.35)', borderColor:'#2b8cff', borderWidth:2, borderRadius:6 },
+          { label: 'Pago', data: d.daily.map(x => parseInt(x.win||0)/100), backgroundColor:'rgba(46,231,107,.25)', borderColor:'#2ee76b', borderWidth:2, borderRadius:6 }
+        ]
+      }, options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{color:'rgba(255,255,255,.6)'}}},
+        scales:{ y:{ticks:{color:'rgba(255,255,255,.5)',callback:v=>brl(v)},grid:{color:'rgba(255,255,255,.06)'}}, x:{ticks:{color:'rgba(255,255,255,.5)'},grid:{display:false}} }
+      }
+    });
+  }
+
+  document.getElementById('btnLoadReport').addEventListener('click', loadReport);
+  document.getElementById('btnExportCsv').addEventListener('click', () => {
+    const from = document.getElementById('reportFrom').value;
+    const to = document.getElementById('reportTo').value;
+    window.open(`/admin/api/reports/csv?from=${from}&to=${to}`, '_blank');
+  });
+  loadReport();
+});
+</script>
+
+<%- include('layout-foot') %>
