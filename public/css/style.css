@@ -323,7 +323,7 @@ ul{list-style:none}
   width:20px;height:20px;
   filter:none;opacity:1;
 }
-.sidebar.collapsed .menu-list .mi.grayscale{filter:grayscale(1);opacity:.6}
+.sidebar.collapsed .menu-list .mi.grayscale{filter:none;opacity:1}
 .sidebar.collapsed .menu-list li:hover .mi{opacity:1}
 
 /* Collapsed: tooltip (JS-based, appended to body) */
@@ -417,7 +417,7 @@ ul{list-style:none}
 .menu-list li:hover{background:rgba(255,255,255,.04)}
 .menu-list li.active{color:#ff6b3a;background:rgba(255,58,0,.08)}
 .mi{width:20px;height:20px;flex-shrink:0;opacity:.7}
-.mi.grayscale{filter:grayscale(1);opacity:.6}
+.mi.grayscale{filter:none;opacity:1}
 .menu-list li:hover .mi{opacity:1}
 .menu-list li.active .mi{opacity:1}
 .ml{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}

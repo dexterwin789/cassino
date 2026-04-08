@@ -73,35 +73,37 @@
 [data-theme="light"] .sq-card{background:#e8ecf1;border-color:rgba(0,0,0,.06)}
 [data-theme="light"] .sq-card:hover{background:#dde2e8;border-color:rgba(0,0,0,.1)}
 [data-theme="light"] .sq-label{color:#475569}
-[data-theme="light"] .sq-card img{filter:none;opacity:1}
+[data-theme="light"] .sq-card img{filter:brightness(0) saturate(100%);opacity:.5}
 /* Collapsed sidebar cards — light bg */
 [data-theme="light"] .sidebar.collapsed .sq-card{background:#e8ecf1;border-color:rgba(0,0,0,.06)}
 [data-theme="light"] .sidebar.collapsed .sq-card:hover{background:#dde2e8}
-[data-theme="light"] .sidebar.collapsed .sq-img{filter:none;opacity:1}
+[data-theme="light"] .sidebar.collapsed .sq-img{filter:brightness(0) saturate(100%);opacity:.5}
 [data-theme="light"] .menu-title{color:#1a1a2e}
 /* Menu items — light bg */
 [data-theme="light"] .menu-list li{color:#475569}
 [data-theme="light"] .menu-list li:hover{color:#ff3a00;background:rgba(255,58,0,.06)}
 [data-theme="light"] .menu-list li:hover .mi{opacity:1}
 [data-theme="light"] .menu-list li.active{color:#ff3a00}
-/* Sidebar icon filter — apply to .mi but NOT popular (.grayscale) */
-[data-theme="light"] .mi{filter:none;opacity:1}
-[data-theme="light"] .mi.grayscale{filter:none;opacity:1}
+/* Sidebar icon filter — gray for menu icons, colorful for popular leagues */
+[data-theme="light"] .mi{filter:brightness(0) saturate(100%);opacity:.55}
+[data-theme="light"] .mi.grayscale{filter:none!important;opacity:1!important}
+[data-theme="light"] .menu-list li:hover .mi{filter:brightness(0) saturate(100%) invert(28%) sepia(96%) saturate(3624%) hue-rotate(3deg) brightness(101%) contrast(106%);opacity:1}
+[data-theme="light"] .menu-list li.active .mi{filter:brightness(0) saturate(100%) invert(28%) sepia(96%) saturate(3624%) hue-rotate(3deg) brightness(101%) contrast(106%);opacity:1}
 /* Collapsed sidebar menu items — light bg */
 [data-theme="light"] .sidebar.collapsed .menu-list li{background:#e8ecf1}
 [data-theme="light"] .sidebar.collapsed .menu-list li:hover{background:rgba(255,58,0,.08)}
 [data-theme="light"] .sidebar.collapsed .menu-list li:hover .mi{opacity:1}
-[data-theme="light"] .sidebar.collapsed .menu-list .mi{filter:none;opacity:1}
-[data-theme="light"] .sidebar.collapsed .menu-list .mi.grayscale{filter:none;opacity:1}
+[data-theme="light"] .sidebar.collapsed .menu-list .mi{filter:brightness(0) saturate(100%);opacity:.55}
+[data-theme="light"] .sidebar.collapsed .menu-list .mi.grayscale{filter:none!important;opacity:1!important}
 /* Sidebar bottom links */
 [data-theme="light"] .sidebar-bottom a{color:#475569}
 [data-theme="light"] .sidebar-bottom a:hover{color:#ff3a00;background:rgba(255,58,0,.06)}
-[data-theme="light"] .sidebar-bottom a img{filter:none;opacity:1}
+[data-theme="light"] .sidebar-bottom a img{filter:brightness(0) saturate(100%);opacity:.55}
 [data-theme="light"] .sidebar-bottom a:hover img{opacity:1}
 /* Collapsed sidebar bottom links — light bg */
 [data-theme="light"] .sidebar.collapsed .sidebar-bottom a{background:#e8ecf1}
 [data-theme="light"] .sidebar.collapsed .sidebar-bottom a:hover{background:rgba(255,58,0,.08)}
-[data-theme="light"] .sidebar.collapsed .sidebar-bottom .mi{filter:none;opacity:1}
+[data-theme="light"] .sidebar.collapsed .sidebar-bottom .mi{filter:brightness(0) saturate(100%);opacity:.55}
 [data-theme="light"] .sidebar.collapsed .sidebar-bottom a:hover .mi{opacity:1}
 [data-theme="light"] .sidebar-lang{color:#475569;border-color:rgba(0,0,0,.06)}
 [data-theme="light"] .sidebar-section-border{border-color:rgba(0,0,0,.06)}

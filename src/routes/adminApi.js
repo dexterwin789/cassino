@@ -1291,6 +1291,35 @@ router.get('/stats/enhanced', async (req, res) => {
       query("SELECT COUNT(*) AS c, COALESCE(SUM(amount_cents),0) AS total FROM withdrawals WHERE status='pending'")
     ]);
 
+    // Additional premium data
+    const [todayDepR, todayRevR, revenueChartR, topDepositorsR, topGamesR, recentActivityR, convR] = await Promise.all([
+      query("SELECT COUNT(*) AS c FROM transactions WHERE type='deposit' AND status='paid' AND created_at >= CURRENT_DATE"),
+      query("SELECT COALESCE(SUM(amount_cents),0) AS total FROM transactions WHERE type='deposit' AND status='paid' AND created_at >= CURRENT_DATE"),
+      query(`SELECT DATE(created_at) AS d,
+        COALESCE(SUM(CASE WHEN type='deposit' AND status='paid' THEN amount_cents END),0) AS deposits,
+        COALESCE(SUM(CASE WHEN type='withdrawal' THEN amount_cents END),0) AS withdrawals
+        FROM transactions WHERE created_at >= CURRENT_DATE - INTERVAL '14 days'
+        GROUP BY DATE(created_at) ORDER BY d`),
+      query(`SELECT u.id, u.username, COALESCE(SUM(t.amount_cents),0) AS total_deposited, COUNT(t.id) AS dep_count
+        FROM users u JOIN transactions t ON t.user_id = u.id AND t.type='deposit' AND t.status='paid'
+        GROUP BY u.id, u.username ORDER BY total_deposited DESC LIMIT 5`),
+      query(`SELECT g.game_name, g.provider, COUNT(b.id) AS bet_count, COALESCE(SUM(b.amount_cents),0) AS total_bet
+        FROM games g JOIN bets b ON b.game_id = g.id
+        GROUP BY g.id, g.game_name, g.provider ORDER BY bet_count DESC LIMIT 5`),
+      query(`(SELECT 'deposit' AS type, t.user_id, u.username, t.amount_cents, t.status, t.created_at
+        FROM transactions t LEFT JOIN users u ON u.id = t.user_id
+        WHERE t.type='deposit' ORDER BY t.created_at DESC LIMIT 5)
+        UNION ALL
+        (SELECT 'withdrawal' AS type, w.user_id, u.username, w.amount_cents, w.status, w.created_at
+        FROM withdrawals w LEFT JOIN users u ON u.id = w.user_id
+        ORDER BY w.created_at DESC LIMIT 5)
+        UNION ALL
+        (SELECT 'register' AS type, u.id AS user_id, u.username, 0 AS amount_cents, 'ok' AS status, u.created_at
+        FROM users u ORDER BY u.created_at DESC LIMIT 5)
+        ORDER BY created_at DESC LIMIT 15`),
+      query("SELECT COUNT(DISTINCT user_id) AS c FROM transactions WHERE type='deposit' AND status='paid'")
+    ]);
+
     const recentR = await query(`
       SELECT t.id, t.user_id, u.username, t.amount_cents, t.status, t.created_at
       FROM transactions t LEFT JOIN users u ON u.id = t.user_id
@@ -1300,10 +1329,12 @@ router.get('/stats/enhanced', async (req, res) => {
 
     const totalBets = parseInt(betR.rows[0].total);
     const totalWins = parseInt(winR.rows[0].total);
+    const totalUsersN = parseInt(usersR.rows[0].c);
+    const depositingUsers = parseInt(convR.rows[0].c);
 
     res.json({
       ok: true,
-      totalUsers: parseInt(usersR.rows[0].c),
+      totalUsers: totalUsersN,
       totalDeposits: parseInt(depR.rows[0].c),
       totalRevenue: parseInt(revenueR.rows[0].total),
       todayUsers: parseInt(todayR.rows[0].c),
@@ -1314,7 +1345,17 @@ router.get('/stats/enhanced', async (req, res) => {
       pendingWithdrawalsAmount: parseInt(pendingWdR.rows[0].total),
       ggr: totalBets - totalWins,
       weekChart: weekR.rows,
-      recentDeposits: recentR.rows
+      recentDeposits: recentR.rows,
+      // Premium data
+      todayDeposits: parseInt(todayDepR.rows[0].c),
+      todayRevenue: parseInt(todayRevR.rows[0].total),
+      revenueChart: revenueChartR.rows,
+      topDepositors: topDepositorsR.rows,
+      topGames: topGamesR.rows,
+      recentActivity: recentActivityR.rows,
+      conversionRate: totalUsersN > 0 ? ((depositingUsers / totalUsersN) * 100).toFixed(1) : '0.0',
+      totalBets: totalBets,
+      totalPayouts: totalWins
     });
   } catch (err) {
     console.error('[ADMIN API STATS ENHANCED]', err);

@@ -100,5 +100,3 @@ Painel administrativo completo:
 - [x] Logs de atividade/auditoria
 - [x] Configuração de ligas/esportes (categorias + ligas CRUD)
 - [x] Gerenciamento de cupons (códigos, validade, limites de uso)
-- [ ] Configuração de ligas/esportes
-- [ ] Gerenciamento de cupons
