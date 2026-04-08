@@ -932,18 +932,20 @@ body.search-lock{overflow:hidden!important}
 }
 .wallet-nav-item{
   display:flex;align-items:center;gap:.75rem;
-  justify-content:space-between;position:relative;width:100%;
+  position:relative;width:100%;
   background-color:var(--wn-bg,#0e1117);color:rgba(253,255,255,.9);
   padding:.875rem 1rem;border-radius:.375rem;
   font-size:.75rem;font-weight:600;text-decoration:none;
   transition:.15s;letter-spacing:.5px;text-transform:uppercase;
   cursor:pointer;line-height:1rem;white-space:nowrap;
 }
-.wnav-icon{width:18px;height:18px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.wnav-icon{width:18px;height:18px;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:rgba(253,255,255,.5);transition:.15s}
 .wnav-icon svg{width:18px;height:18px}
 .wallet-nav-item img{width:18px;height:18px;flex-shrink:0}
-.wallet-nav-item:hover{color:#fff}
-.wallet-nav-item.active{color:#ff3901}
+.wallet-nav-item:hover{color:#fff;background-color:rgba(255,255,255,.06)}
+.wallet-nav-item:hover .wnav-icon{color:rgba(253,255,255,.8)}
+.wallet-nav-item.active{color:#ff3901;background-color:rgba(255,57,1,.08)}
+.wallet-nav-item.active .wnav-icon{color:#ff3901}
 .wallet-nav-item > svg.wallet-nav-arrow{width:10px;height:16px;margin-left:auto;opacity:.35;flex-shrink:0}
 .wallet-nav-item.active > svg.wallet-nav-arrow{opacity:.7}
 .wallet-nav-divider{display:none}

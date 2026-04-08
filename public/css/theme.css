@@ -191,23 +191,27 @@
 [data-theme="light"] .preloader-bar{background:rgba(0,0,0,.08)}
 
 /* Wallet section */
-[data-theme="light"] .wallet-sidebar-nav{background:#f8fafc;border-color:rgba(0,0,0,.06)}
+[data-theme="light"] .wallet-sidebar-nav{background:transparent;border-color:transparent}
 [data-theme="light"] .wallet-nav-item{--wn-bg:#fff;color:#475569}
+[data-theme="light"] .wallet-nav-item .wnav-icon{color:#94a3b8}
 [data-theme="light"] .wallet-nav-item img{filter:brightness(0) saturate(100%);opacity:.7}
-[data-theme="light"] .wallet-nav-item:hover{background:rgba(0,0,0,.03);color:#1a1a2e}
+[data-theme="light"] .wallet-nav-item:hover{background:rgba(0,0,0,.04);color:#1a1a2e}
+[data-theme="light"] .wallet-nav-item:hover .wnav-icon{color:#475569}
 [data-theme="light"] .wallet-nav-item.active{color:#ff3a00;background:rgba(255,58,0,.06)}
+[data-theme="light"] .wallet-nav-item.active .wnav-icon{color:#ff3a00}
+[data-theme="light"] .wallet-nav-logout{color:#ef4444!important}
+[data-theme="light"] .wallet-nav-logout .wnav-icon{color:#ef4444!important}
 [data-theme="light"] .wallet-content{color:#1a1a2e}
 [data-theme="light"] .wallet-panel-title{--wn-bg:#fff;color:#1a1a2e}
-[data-theme="light"] .wallet-sub-back{background-color:rgba(255,58,0,.06);color:#1a1a2e}
-[data-theme="light"] .wallet-balance-card{background:#f8fafc;border-color:rgba(0,0,0,.06)}
+[data-theme="light"] .wallet-sub-back{background-color:rgba(255,58,0,.06);color:#475569}
+[data-theme="light"] .wallet-sub-back:hover{color:#1a1a2e}
+[data-theme="light"] .wallet-balance-card{background:#fff;border-color:rgba(0,0,0,.08)}
 [data-theme="light"] .wallet-balance-amount{color:#1a1a2e}
 [data-theme="light"] .wallet-balance-header{color:#64748b}
-[data-theme="light"] .wallet-btn-withdraw{background:rgba(0,0,0,.04);color:#1a1a2e;border-color:rgba(0,0,0,.1)}
-[data-theme="light"] .wallet-btn-withdraw:hover{background:rgba(0,0,0,.08)}
+[data-theme="light"] .wallet-btn-withdraw{background:rgba(0,0,0,.06);color:#1a1a2e;border-color:rgba(0,0,0,.12)}
+[data-theme="light"] .wallet-btn-withdraw:hover{background:rgba(0,0,0,.1)}
 [data-theme="light"] .wallet-panel h3{color:#1a1a2e}
 [data-theme="light"] .wallet-panel p{color:#64748b}
-[data-theme="light"] .wallet-sub-back{color:#475569}
-[data-theme="light"] .wallet-sub-back:hover{color:#1a1a2e}
 
 /* Account sections (Dados da Conta) */
 [data-theme="light"] .acct-section{background:#fff;border-color:rgba(0,0,0,.08)}
@@ -232,8 +236,9 @@
 [data-theme="light"] .acct-photo-card-title{color:#475569}
 [data-theme="light"] .acct-photo-user-info strong{color:#1a1a2e}
 [data-theme="light"] .acct-photo-user-info span{color:#64748b}
-[data-theme="light"] .acct-photo-preview{border-color:rgba(0,0,0,.1)}
-[data-theme="light"] .acct-photo-img{filter:brightness(0) saturate(100%);opacity:.5}
+[data-theme="light"] .acct-photo-preview{border-color:rgba(0,0,0,.1);background:rgba(0,0,0,.04)}
+[data-theme="light"] .acct-photo-img[src$=".svg"]{filter:brightness(0) saturate(100%);opacity:.4}
+[data-theme="light"] .acct-photo-img:not([src$=".svg"]){filter:none;opacity:1}
 [data-theme="light"] .acct-photo-remove{color:#64748b;border-color:rgba(0,0,0,.1) !important}
 
 /* Login table */
@@ -258,6 +263,21 @@
 [data-theme="light"] .hist-tab:hover{border-color:rgba(255,57,1,.3);color:#1a1a2e}
 [data-theme="light"] .hist-tab.active{background:rgba(255,57,1,.06);border-color:#ff3901;color:#ff3901}
 
+/* Notifications panel — light theme */
+[data-theme="light"] .notif-item{background:#fff;border-color:rgba(0,0,0,.06)}
+[data-theme="light"] .notif-item:hover{background:rgba(0,0,0,.02);border-color:rgba(0,0,0,.08)}
+[data-theme="light"] .notif-item.unread{border-left-color:#ff3a00}
+[data-theme="light"] .notif-title{color:#1a1a2e}
+[data-theme="light"] .notif-msg{color:#64748b}
+[data-theme="light"] .notif-time{color:#94a3b8}
+[data-theme="light"] .notif-refresh-btn{border-color:rgba(0,0,0,.1);color:#64748b}
+[data-theme="light"] .notif-refresh-btn:hover{border-color:#ff3901;color:#ff3901}
+[data-theme="light"] .notif-mark-all{border-color:rgba(0,0,0,.1);color:#64748b}
+[data-theme="light"] .notif-mark-all:hover{border-color:#ff3901;color:#ff3901}
+[data-theme="light"] .notif-empty-banner{background:linear-gradient(135deg,rgba(34,197,94,.1),rgba(34,197,94,.04));border-color:rgba(34,197,94,.15);color:#1a1a2e}
+[data-theme="light"] .notif-show-read{border-color:rgba(0,0,0,.1);color:#64748b}
+[data-theme="light"] .notif-show-read:hover{border-color:rgba(0,0,0,.2);color:#1a1a2e}
+
 /* All wallet panel titles — MUST be dark in light theme */
 [data-theme="light"] .wallet-panel-title{color:#1a1a2e !important}
 [data-theme="light"] .acct-title{color:#1a1a2e !important}
@@ -265,6 +285,9 @@
 [data-theme="light"] .wallet-balance-amount{color:#1a1a2e !important}
 [data-theme="light"] .wallet-balance-label{color:#475569}
 [data-theme="light"] .acct-radio-row span{color:#1a1a2e}
+[data-theme="light"] .walletBalanceMirror{color:#1a1a2e}
+[data-theme="light"] .wallet-panel [style*="color:var(--text)"]{color:#1a1a2e !important}
+[data-theme="light"] .acct-select{background:#f8fafc;border-color:rgba(0,0,0,.1);color:#1a1a2e}
 
 /* Avatar default SVG filter in light theme */
 [data-theme="light"] #acctPhotoImg[src*=".svg"]{filter:brightness(0) saturate(100%);opacity:.4}
