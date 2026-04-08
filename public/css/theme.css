@@ -192,11 +192,13 @@
 
 /* Wallet section */
 [data-theme="light"] .wallet-sidebar-nav{background:#f8fafc;border-color:rgba(0,0,0,.06)}
-[data-theme="light"] .wallet-nav-item{color:#475569}
+[data-theme="light"] .wallet-nav-item{--wn-bg:#fff;color:#475569}
 [data-theme="light"] .wallet-nav-item img{filter:brightness(0) saturate(100%);opacity:.7}
 [data-theme="light"] .wallet-nav-item:hover{background:rgba(0,0,0,.03);color:#1a1a2e}
 [data-theme="light"] .wallet-nav-item.active{color:#ff3a00;background:rgba(255,58,0,.06)}
 [data-theme="light"] .wallet-content{color:#1a1a2e}
+[data-theme="light"] .wallet-panel-title{--wn-bg:#fff;color:#1a1a2e}
+[data-theme="light"] .wallet-sub-back{background-color:rgba(255,58,0,.06);color:#1a1a2e}
 [data-theme="light"] .wallet-balance-card{background:#f8fafc;border-color:rgba(0,0,0,.06)}
 [data-theme="light"] .wallet-balance-amount{color:#1a1a2e}
 [data-theme="light"] .wallet-balance-header{color:#64748b}

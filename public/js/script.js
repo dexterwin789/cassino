@@ -58,11 +58,11 @@ if (searchBox) {
       searchInput.readOnly = false;
       searchInput.value = '';
       searchInput.style.cursor = '';
-      searchInput.focus();
       openSearch();
+      setTimeout(function() { searchInput.focus(); }, 10);
     } else if (searchInput && !searchIsOpen) {
-      searchInput.focus();
       openSearch();
+      setTimeout(function() { searchInput.focus(); }, 10);
     }
   });
 }
