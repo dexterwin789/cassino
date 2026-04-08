@@ -108,6 +108,33 @@ async function autoMigrate() {
     await addCol('users', 'pix_type', "VARCHAR(16) DEFAULT 'cpf'");
     await addCol('users', 'pix_key', 'VARCHAR(255)');
 
+    // Jogo Responsável limits
+    await addCol('users', 'limit_deposit_type', "VARCHAR(16) DEFAULT 'unlimited'");
+    await addCol('users', 'limit_deposit_period', 'VARCHAR(16)');
+    await addCol('users', 'limit_deposit_amount', 'INTEGER DEFAULT 0');
+    await addCol('users', 'limit_bet_type', "VARCHAR(16) DEFAULT 'unlimited'");
+    await addCol('users', 'limit_bet_period', 'VARCHAR(16)');
+    await addCol('users', 'limit_bet_amount', 'INTEGER DEFAULT 0');
+    await addCol('users', 'limit_loss_type', "VARCHAR(16) DEFAULT 'unlimited'");
+    await addCol('users', 'limit_loss_period', 'VARCHAR(16)');
+    await addCol('users', 'limit_loss_amount', 'INTEGER DEFAULT 0');
+    await addCol('users', 'limit_time_type', "VARCHAR(16) DEFAULT 'unlimited'");
+    await addCol('users', 'limit_time_period', 'VARCHAR(16)');
+    await addCol('users', 'limit_time_value', 'VARCHAR(16)');
+
+    // Withdrawals table
+    await pool.query(`CREATE TABLE IF NOT EXISTS withdrawals (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      amount_cents INTEGER NOT NULL,
+      pix_type VARCHAR(16),
+      pix_key VARCHAR(255),
+      status VARCHAR(16) DEFAULT 'pending',
+      admin_note TEXT,
+      created_at TIMESTAMPTZ DEFAULT NOW(),
+      updated_at TIMESTAMPTZ DEFAULT NOW()
+    )`);
+
     // Login history table
     await pool.query(`CREATE TABLE IF NOT EXISTS login_history (
       id SERIAL PRIMARY KEY,

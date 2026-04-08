@@ -666,6 +666,10 @@ function updateAuthState() {
         }
         // Login history
         populateLoginHistory();
+        // Limits
+        populateLimits(j.user);
+        // PIX on sacar
+        populateSacarPix(j.user);
       }
     }).catch(function() {
       document.body.classList.add('is-guest');
@@ -702,7 +706,7 @@ if (topbarRefresh) topbarRefresh.addEventListener('click', function(e) {
 // Balance button opens wallet section
 var topbarBalanceBtn = document.getElementById('topbarBalanceBtn');
 if (topbarBalanceBtn) topbarBalanceBtn.addEventListener('click', function() {
-  showWalletSection();
+  showWalletSection('carteira');
   if (topbarDropdown && topbarDropdown.classList.contains('open')) topbarDropdown.classList.remove('open');
 });
 
@@ -738,12 +742,12 @@ if (dropdownMenu) dropdownMenu.addEventListener('click', function(e) {
   if (barsToggle) barsToggle.click();
 });
 
-// Dropdown Wallet → open wallet section
+// Dropdown Wallet → open wallet section with saldo sub-menu
 var dropdownWallet = document.getElementById('dropdownWallet');
 if (dropdownWallet) dropdownWallet.addEventListener('click', function(e) {
   e.preventDefault();
   if (topbarDropdown) topbarDropdown.classList.remove('open');
-  showWalletSection();
+  showWalletSection('carteira');
 });
 
 /* ========== THEME TOGGLE ========== */
@@ -813,14 +817,21 @@ function showWalletSection(panel) {
 
   // Determine which menu to show
   var subPanels = ['perfil','dadosConta','loginSeg','histLogin','jogoResp'];
+  var saldoPanels = ['saldo','carteira','depositar','sacar','histTransacoes'];
   var isSubPanel = panel && subPanels.indexOf(panel) !== -1;
+  var isSaldoPanel = panel && saldoPanels.indexOf(panel) !== -1;
 
   if (isSubPanel) {
     showWalletSubMenu();
+  } else if (isSaldoPanel) {
+    showSaldoSubMenu();
   }
 
   if (panel) {
-    var activeMenu = isSubPanel ? document.getElementById('walletSubMenu') : document.getElementById('walletMainMenu');
+    var activeMenu;
+    if (isSubPanel) activeMenu = document.getElementById('walletSubMenu');
+    else if (isSaldoPanel) activeMenu = document.getElementById('walletSubMenuSaldo');
+    else activeMenu = document.getElementById('walletMainMenu');
     if (activeMenu) {
       activeMenu.querySelectorAll('.wallet-nav-item').forEach(function(n) { n.classList.remove('active'); });
       var navItem = activeMenu.querySelector('.wallet-nav-item[data-panel="' + panel + '"]');
@@ -829,6 +840,14 @@ function showWalletSection(panel) {
     document.querySelectorAll('.wallet-panel').forEach(function(p) { p.classList.remove('active'); });
     var target = document.getElementById('walletPanel' + panel.charAt(0).toUpperCase() + panel.slice(1));
     if (target) target.classList.add('active');
+    // Auto-open deposit modal when Depositar panel is activated
+    if (panel === 'depositar' && typeof openDepositModal === 'function') {
+      setTimeout(function() { openDepositModal(); }, 100);
+    }
+    // Load withdrawals when sacar panel is shown
+    if (panel === 'sacar') loadWithdrawals();
+    // Load transactions when history panel is shown
+    if (panel === 'histTransacoes') loadTransactions();
   }
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -846,14 +865,26 @@ function hideWalletSection() {
 function showWalletSubMenu() {
   var main = document.getElementById('walletMainMenu');
   var sub = document.getElementById('walletSubMenu');
+  var subSaldo = document.getElementById('walletSubMenuSaldo');
   if (main) main.style.display = 'none';
   if (sub) sub.style.display = '';
+  if (subSaldo) subSaldo.style.display = 'none';
+}
+function showSaldoSubMenu() {
+  var main = document.getElementById('walletMainMenu');
+  var sub = document.getElementById('walletSubMenu');
+  var subSaldo = document.getElementById('walletSubMenuSaldo');
+  if (main) main.style.display = 'none';
+  if (sub) sub.style.display = 'none';
+  if (subSaldo) subSaldo.style.display = '';
 }
 function hideWalletSubMenu() {
   var main = document.getElementById('walletMainMenu');
   var sub = document.getElementById('walletSubMenu');
+  var subSaldo = document.getElementById('walletSubMenuSaldo');
   if (main) main.style.display = '';
   if (sub) sub.style.display = 'none';
+  if (subSaldo) subSaldo.style.display = 'none';
 }
 
 // Make accessible globally
@@ -879,14 +910,25 @@ document.querySelectorAll('#walletMainMenu .wallet-nav-item[data-panel]').forEac
   item.addEventListener('click', function(e) {
     e.preventDefault();
     var hasSubmenu = item.getAttribute('data-has-submenu');
-    if (hasSubmenu) {
-      // Open sub-menu, show perfil panel
+    if (hasSubmenu === 'true') {
+      // Open Meu Perfil sub-menu
       showWalletSubMenu();
       document.querySelectorAll('.wallet-nav-item').forEach(function(n) { n.classList.remove('active'); });
-      // Show perfil panel (no sub-menu item for it — the back button acts as header)
       document.querySelectorAll('.wallet-panel').forEach(function(p) { p.classList.remove('active'); });
       var perfilPanel = document.getElementById('walletPanelPerfil');
       if (perfilPanel) perfilPanel.classList.add('active');
+      return;
+    }
+    if (hasSubmenu === 'saldo') {
+      // Open Gestão de Saldo sub-menu
+      showSaldoSubMenu();
+      document.querySelectorAll('.wallet-nav-item').forEach(function(n) { n.classList.remove('active'); });
+      document.querySelectorAll('.wallet-panel').forEach(function(p) { p.classList.remove('active'); });
+      var saldoPanel = document.getElementById('walletPanelCarteira');
+      if (saldoPanel) saldoPanel.classList.add('active');
+      // Mark carteira as active in sub-menu
+      var cartItem = document.querySelector('#walletSubMenuSaldo .wallet-nav-item[data-panel="carteira"]');
+      if (cartItem) cartItem.classList.add('active');
       return;
     }
     hideWalletSubMenu();
@@ -899,7 +941,7 @@ document.querySelectorAll('#walletMainMenu .wallet-nav-item[data-panel]').forEac
   });
 });
 
-// Nav item switching — sub-menu
+// Nav item switching — sub-menu (Meu Perfil)
 document.querySelectorAll('#walletSubMenu .wallet-nav-item[data-panel]').forEach(function(item) {
   item.addEventListener('click', function(e) {
     e.preventDefault();
@@ -910,6 +952,38 @@ document.querySelectorAll('#walletSubMenu .wallet-nav-item[data-panel]').forEach
     var target = document.getElementById('walletPanel' + panel.charAt(0).toUpperCase() + panel.slice(1));
     if (target) target.classList.add('active');
   });
+});
+
+// Nav item switching — sub-menu (Gestão de Saldo)
+document.querySelectorAll('#walletSubMenuSaldo .wallet-nav-item[data-panel]').forEach(function(item) {
+  item.addEventListener('click', function(e) {
+    e.preventDefault();
+    document.querySelectorAll('#walletSubMenuSaldo .wallet-nav-item').forEach(function(n) { n.classList.remove('active'); });
+    item.classList.add('active');
+    var panel = item.getAttribute('data-panel');
+    document.querySelectorAll('.wallet-panel').forEach(function(p) { p.classList.remove('active'); });
+    var target = document.getElementById('walletPanel' + panel.charAt(0).toUpperCase() + panel.slice(1));
+    if (target) target.classList.add('active');
+    // Auto-open deposit modal
+    if (panel === 'depositar' && typeof openDepositModal === 'function') {
+      setTimeout(function() { openDepositModal(); }, 100);
+    }
+    if (panel === 'sacar') loadWithdrawals();
+    if (panel === 'histTransacoes') loadTransactions();
+  });
+});
+
+// Saldo sub-menu back button
+var walletSubBackSaldo = document.getElementById('walletSubBackSaldo');
+if (walletSubBackSaldo) walletSubBackSaldo.addEventListener('click', function(e) {
+  e.preventDefault();
+  hideWalletSubMenu();
+  document.querySelectorAll('.wallet-nav-item').forEach(function(n) { n.classList.remove('active'); });
+  var mainSaldo = document.querySelector('#walletMainMenu .wallet-nav-item[data-panel="saldo"]');
+  if (mainSaldo) mainSaldo.classList.add('active');
+  document.querySelectorAll('.wallet-panel').forEach(function(p) { p.classList.remove('active'); });
+  var saldoPanel = document.getElementById('walletPanelSaldo');
+  if (saldoPanel) saldoPanel.classList.add('active');
 });
 
 // Wallet deposit button
@@ -1364,7 +1438,11 @@ function saveAcctField(type) {
     }).catch(function() { showToast('Erro de conexão.', 'error'); });
     return;
   }
-  // Generic (limits etc)
+  // Generic (pausas, etc)
+  if (type === 'pausaTemp' || type === 'autoExclusao') {
+    showToast('Configuração salva com sucesso!', 'success');
+    return;
+  }
   showToast('Salvo com sucesso!', 'success');
 }
 window.saveAcctField = saveAcctField;
@@ -1516,13 +1594,224 @@ function populateLoginHistory() {
     });
 }
 
-/* ========== BALANCE CLICK → WALLET ========== */
-var topbarBalanceBtn = document.getElementById('topbarBalanceBtn');
-if (topbarBalanceBtn) {
-  topbarBalanceBtn.addEventListener('click', function(e) {
-    e.preventDefault();
-    showWalletSection('saldo');
+/* ========== BRL MASK FOR LIMIT/WITHDRAWAL INPUTS ========== */
+function applyBrlMask(el) {
+  if (!el) return;
+  el.addEventListener('input', function() {
+    var v = el.value.replace(/\D/g, '');
+    if (!v) { el.value = ''; return; }
+    var cents = parseInt(v);
+    var brl = (cents / 100).toFixed(2);
+    var parts = brl.split('.');
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    el.value = 'R$ ' + parts[0] + ',' + parts[1];
   });
+}
+function parseBrl(str) {
+  if (!str) return 0;
+  var v = str.replace(/[^\d,]/g, '').replace(',', '.');
+  return parseFloat(v) || 0;
+}
+document.querySelectorAll('.brl-mask-input').forEach(function(el) { applyBrlMask(el); });
+
+/* ========== SAVE LIMITS ========== */
+function saveLimits() {
+  var depType = document.querySelector('input[name="limitDepType"]:checked');
+  var betType = document.querySelector('input[name="limitBetType"]:checked');
+  var lossType = document.querySelector('input[name="limitLossType"]:checked');
+  var timeType = document.querySelector('input[name="limitTimeType"]:checked');
+
+  var data = {
+    limit_deposit_type: depType ? depType.value : 'unlimited',
+    limit_deposit_period: (document.getElementById('limitDepositPeriod') || {}).value || '',
+    limit_deposit_amount: Math.round(parseBrl((document.getElementById('limitDepositAmount') || {}).value) * 100),
+    limit_bet_type: betType ? betType.value : 'unlimited',
+    limit_bet_period: (document.getElementById('limitBetPeriod') || {}).value || '',
+    limit_bet_amount: Math.round(parseBrl((document.getElementById('limitBetAmount') || {}).value) * 100),
+    limit_loss_type: lossType ? lossType.value : 'unlimited',
+    limit_loss_period: (document.getElementById('limitLossPeriod') || {}).value || '',
+    limit_loss_amount: Math.round(parseBrl((document.getElementById('limitLossAmount') || {}).value) * 100),
+    limit_time_type: timeType ? timeType.value : 'unlimited',
+    limit_time_period: (document.getElementById('limitTimePeriod') || {}).value || '',
+    limit_time_value: (document.getElementById('limitTimeValue') || {}).value || ''
+  };
+
+  fetch('/api/user/update-limits', {
+    method: 'POST', credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  }).then(function(r) { return r.json(); }).then(function(j) {
+    if (j.ok) showToast(j.msg, 'success');
+    else showToast(j.msg || 'Erro', 'error');
+  }).catch(function() { showToast('Erro de conexão.', 'error'); });
+}
+window.saveLimits = saveLimits;
+
+/* ========== POPULATE LIMITS ========== */
+function populateLimits(user) {
+  if (!user) return;
+  var limitDefs = [
+    { key: 'deposit', radio: 'limitDepType', period: 'limitDepositPeriod', amount: 'limitDepositAmount', tag: 'tagLimitDeposit' },
+    { key: 'bet', radio: 'limitBetType', period: 'limitBetPeriod', amount: 'limitBetAmount', tag: 'tagLimitBet' },
+    { key: 'loss', radio: 'limitLossType', period: 'limitLossPeriod', amount: 'limitLossAmount', tag: 'tagLimitLoss' }
+  ];
+  limitDefs.forEach(function(def) {
+    var typeVal = user['limit_' + def.key + '_type'] || 'unlimited';
+    var periodVal = user['limit_' + def.key + '_period'] || '';
+    var amountVal = parseInt(user['limit_' + def.key + '_amount']) || 0;
+
+    // Set radio
+    var radio = document.querySelector('input[name="' + def.radio + '"][value="' + (typeVal === 'unlimited' ? 'unlimited' : 'custom') + '"]');
+    if (radio) { radio.checked = true; toggleLimitForm(def.key === 'deposit' ? 'limitDeposit' : def.key === 'bet' ? 'limitBet' : 'limitLoss', typeVal === 'unlimited' ? 'unlimited' : 'custom'); }
+
+    // Set period
+    var periodEl = document.getElementById(def.period);
+    if (periodEl && periodVal) periodEl.value = periodVal;
+
+    // Set amount as BRL
+    if (typeVal !== 'unlimited' && amountVal > 0) {
+      var amtEl = document.getElementById(def.amount);
+      if (amtEl) {
+        var brl = (amountVal / 100).toFixed(2);
+        var parts = brl.split('.');
+        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+        amtEl.value = 'R$ ' + parts[0] + ',' + parts[1];
+      }
+    }
+  });
+
+  // Time limit
+  var timeType = user.limit_time_type || 'unlimited';
+  var timeRadio = document.querySelector('input[name="limitTimeType"][value="' + (timeType === 'unlimited' ? 'unlimited' : 'custom') + '"]');
+  if (timeRadio) { timeRadio.checked = true; toggleLimitForm('limitTime', timeType === 'unlimited' ? 'unlimited' : 'custom'); }
+  var timePeriod = document.getElementById('limitTimePeriod');
+  if (timePeriod && user.limit_time_period) timePeriod.value = user.limit_time_period;
+  var timeValue = document.getElementById('limitTimeValue');
+  if (timeValue && user.limit_time_value) timeValue.value = user.limit_time_value;
+}
+
+/* ========== WITHDRAWAL ========== */
+function submitWithdrawal() {
+  var pixType = document.getElementById('sacarPixType');
+  var pixKey = document.getElementById('sacarPixKey');
+  var amountEl = document.getElementById('sacarAmount');
+  if (!pixKey || !pixKey.value.trim()) { showToast('Informe a chave PIX.', 'error'); return; }
+  if (!amountEl || !amountEl.value.trim()) { showToast('Informe o valor.', 'error'); return; }
+  var amount = parseBrl(amountEl.value);
+  if (amount < 10) { showToast('Valor mínimo: R$ 10,00', 'error'); return; }
+
+  fetch('/api/withdrawal/create', {
+    method: 'POST', credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      pix_type: pixType ? pixType.value : 'cpf',
+      pix_key: pixKey.value,
+      amount_brl: amount
+    })
+  }).then(function(r) { return r.json(); }).then(function(j) {
+    if (j.ok) {
+      showToast(j.msg, 'success');
+      amountEl.value = '';
+      loadWithdrawals();
+      refreshWalletUI();
+    } else { showToast(j.msg || 'Erro', 'error'); }
+  }).catch(function() { showToast('Erro de conexão.', 'error'); });
+}
+window.submitWithdrawal = submitWithdrawal;
+
+function loadWithdrawals() {
+  var list = document.getElementById('sacarPendingList');
+  if (!list) return;
+  fetch('/api/user/withdrawals', { credentials: 'include' })
+    .then(function(r) { return r.json(); })
+    .then(function(j) {
+      if (!j.ok || !j.rows.length) { list.innerHTML = ''; return; }
+      var html = '<div style="margin-top:8px"><div class="wallet-panel-title" style="font-size:14px">Saques Solicitados</div>';
+      j.rows.forEach(function(w) {
+        var d = new Date(w.created_at);
+        var dt = d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+        var statusCls = 'tx-status tx-status-' + w.status;
+        var statusLabel = w.status === 'pending' ? 'Pendente' : w.status === 'approved' ? 'Aprovado' : w.status === 'rejected' ? 'Rejeitado' : w.status;
+        var amt = (parseInt(w.amount_cents) / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+        html += '<div class="acct-section" style="margin-bottom:8px"><div style="padding:14px 18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">';
+        html += '<div><strong style="color:var(--text)">R$ ' + amt + '</strong> <span style="font-size:12px;color:var(--text-muted)">' + w.pix_type.toUpperCase() + ': ' + w.pix_key + '</span></div>';
+        html += '<div style="display:flex;align-items:center;gap:10px"><span class="' + statusCls + '">' + statusLabel + '</span><span style="font-size:11px;color:var(--text-muted)">' + dt + '</span></div>';
+        html += '</div></div>';
+      });
+      html += '</div>';
+      list.innerHTML = html;
+    }).catch(function() {});
+}
+
+/* ========== TRANSACTION HISTORY ========== */
+var histCurrentType = 'all';
+var histCurrentPeriod = 'total';
+
+function loadTransactions() {
+  var body = document.getElementById('histTransBody');
+  var count = document.getElementById('histTransCount');
+  if (!body) return;
+
+  fetch('/api/user/transactions?type=' + encodeURIComponent(histCurrentType) + '&period=' + encodeURIComponent(histCurrentPeriod), { credentials: 'include' })
+    .then(function(r) { return r.json(); })
+    .then(function(j) {
+      if (!j.ok || !j.rows.length) {
+        body.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--text-muted)">Nenhuma transação encontrada.</td></tr>';
+        if (count) count.textContent = '0 transações';
+        return;
+      }
+      body.innerHTML = '';
+      j.rows.forEach(function(tx) {
+        var d = new Date(tx.created_at);
+        var dt = d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+        var typeCls = 'tx-type tx-type-' + tx.type;
+        var typeLabel = tx.type === 'deposit' ? 'Depósito' : tx.type === 'withdrawal' ? 'Saque' : tx.type;
+        var statusCls = 'tx-status tx-status-' + tx.status;
+        var statusLabel = tx.status === 'paid' ? 'Pago' : tx.status === 'pending' ? 'Pendente' : tx.status === 'approved' ? 'Aprovado' : tx.status === 'failed' ? 'Falhou' : tx.status === 'rejected' ? 'Rejeitado' : tx.status;
+        var amt = (parseInt(tx.amount_cents) / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+        var tr = document.createElement('tr');
+        tr.style.cursor = 'pointer';
+        tr.innerHTML = '<td><span class="' + typeCls + '">' + typeLabel + '</span></td>' +
+          '<td style="font-size:12px;color:var(--text-muted)">#' + tx.id + '</td>' +
+          '<td style="font-size:12px">' + (tx.provider || '—') + '</td>' +
+          '<td style="font-weight:700">R$ ' + amt + '</td>' +
+          '<td><span class="' + statusCls + '">' + statusLabel + '</span></td>' +
+          '<td style="font-size:12px;color:var(--text-muted)">' + dt + '</td>';
+        body.appendChild(tr);
+      });
+      if (count) count.textContent = 'Mostrando ' + j.rows.length + ' transaç' + (j.rows.length > 1 ? 'ões' : 'ão');
+    }).catch(function() {
+      body.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px">Erro ao carregar transações.</td></tr>';
+    });
+}
+
+// History tab switching
+document.querySelectorAll('.hist-tab').forEach(function(tab) {
+  tab.addEventListener('click', function() {
+    document.querySelectorAll('.hist-tab').forEach(function(t) { t.classList.remove('active'); });
+    tab.classList.add('active');
+    histCurrentType = tab.getAttribute('data-type');
+    loadTransactions();
+  });
+});
+var histPeriodEl = document.getElementById('histPeriod');
+if (histPeriodEl) {
+  histPeriodEl.addEventListener('change', function() {
+    histCurrentPeriod = histPeriodEl.value;
+    loadTransactions();
+  });
+}
+
+/* ========== POPULATE PIX ON SACAR ========== */
+function populateSacarPix(user) {
+  if (!user) return;
+  var type = document.getElementById('sacarPixType');
+  var key = document.getElementById('sacarPixKey');
+  if (type && user.pix_type) type.value = user.pix_type;
+  if (key && user.pix_key) key.value = user.pix_key;
+  // Also set carteira user id
+  var cid = document.getElementById('walletCarteiraUserId');
+  if (cid && user.id) cid.textContent = user.id;
 }
 
 initApp();

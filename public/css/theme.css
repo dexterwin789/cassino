@@ -45,14 +45,14 @@
 [data-theme="light"] .topbar-balance-refresh img,
 [data-theme="light"] .topbar-notif img{filter:brightness(0) saturate(100%);opacity:.7}
 [data-theme="light"] .topbar-user-btn{border-color:rgba(0,0,0,.15)}
-[data-theme="light"] .topbar-user-avatar{filter:brightness(0) saturate(100%);opacity:.7}
+[data-theme="light"] .topbar-user-avatar[src*=".svg"]{filter:brightness(0) saturate(100%);opacity:.7}
 [data-theme="light"] .btn-login{border-color:rgba(0,0,0,.15);color:#1a1a2e}
 [data-theme="light"] .topbar-notif-badge{background:#ff3a00}
 
 /* Dropdown */
 [data-theme="light"] .topbar-dropdown{background:#fff;border-color:rgba(0,0,0,.1);box-shadow:0 8px 32px rgba(0,0,0,.15)}
 [data-theme="light"] .topbar-dropdown-header{border-color:rgba(0,0,0,.06)}
-[data-theme="light"] .topbar-dropdown-avatar{filter:brightness(0) saturate(100%);opacity:.7}
+[data-theme="light"] .topbar-dropdown-avatar[src*=".svg"]{filter:brightness(0) saturate(100%);opacity:.7}
 [data-theme="light"] .topbar-dropdown-info strong{color:#1a1a2e}
 [data-theme="light"] .topbar-dropdown-info span{color:#94a3b8}
 [data-theme="light"] .topbar-dropdown-date{color:#94a3b8;border-color:rgba(0,0,0,.06)}
@@ -189,7 +189,6 @@
 [data-theme="light"] .preloader-bar{background:rgba(0,0,0,.08)}
 
 /* Wallet section */
-[data-theme="light"] .wallet-grid{border-color:rgba(0,0,0,.08)}
 [data-theme="light"] .wallet-sidebar-nav{background:#f8fafc;border-color:rgba(0,0,0,.06)}
 [data-theme="light"] .wallet-nav-item{color:#475569}
 [data-theme="light"] .wallet-nav-item img{filter:brightness(0) saturate(100%);opacity:.7}
@@ -246,6 +245,11 @@
 [data-theme="light"] .acct-limit-desc{color:#64748b}
 [data-theme="light"] .acct-radio-row{color:#1a1a2e}
 [data-theme="light"] .acct-select{background-color:#f8fafc;border-color:rgba(0,0,0,.1);color:#1a1a2e}
+
+/* History tabs */
+[data-theme="light"] .hist-tab{border-color:rgba(0,0,0,.1);color:#475569}
+[data-theme="light"] .hist-tab:hover{border-color:rgba(255,57,1,.3);color:#1a1a2e}
+[data-theme="light"] .hist-tab.active{background:rgba(255,57,1,.06);border-color:#ff3901;color:#ff3901}
 
 /* All wallet panel titles — MUST be dark in light theme */
 [data-theme="light"] .wallet-panel-title{color:#1a1a2e !important}

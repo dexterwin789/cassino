@@ -134,7 +134,12 @@ router.get('/me', async (req, res) => {
   if (!req.session.user) return res.json({ ok: true, logged: false });
   try {
     const r = await query(
-      'SELECT id, username, name, phone, email, cpf, birth_date, address_cep, address_street, address_city, address_state, pix_type, pix_key FROM users WHERE id = $1',
+      `SELECT id, username, name, phone, email, cpf, birth_date, address_cep, address_street, address_city, address_state, pix_type, pix_key,
+              limit_deposit_type, limit_deposit_period, limit_deposit_amount,
+              limit_bet_type, limit_bet_period, limit_bet_amount,
+              limit_loss_type, limit_loss_period, limit_loss_amount,
+              limit_time_type, limit_time_period, limit_time_value
+       FROM users WHERE id = $1`,
       [req.session.user.id]
     );
     const u = r.rows[0] || req.session.user;
@@ -364,12 +369,145 @@ router.post('/user/change-password', requireUser, async (req, res) => {
     if (!valid) return res.status(401).json({ ok: false, msg: 'Senha atual incorreta.' });
 
     const hash = await bcrypt.hash(new_password, 10);
-    await query('UPDATE users SET password_hash = $1, updated_at = NOW() WHERE id = $2', [hash, req.session.user.id]);
+    const upd = await query('UPDATE users SET password_hash = $1, updated_at = NOW() WHERE id = $2 RETURNING id', [hash, req.session.user.id]);
+    if (!upd.rows.length) return res.status(500).json({ ok: false, msg: 'Erro ao salvar nova senha.' });
+    console.log('[CHANGE_PASSWORD] Updated user', req.session.user.id);
 
     res.json({ ok: true, msg: 'Senha alterada com sucesso!' });
   } catch (err) {
     console.error('[CHANGE_PASSWORD]', err);
     res.status(500).json({ ok: false, msg: 'Erro ao alterar senha.' });
+  }
+});
+
+// POST /api/user/update-limits
+router.post('/user/update-limits', requireUser, async (req, res) => {
+  try {
+    const { limit_deposit_type, limit_deposit_period, limit_deposit_amount,
+            limit_bet_type, limit_bet_period, limit_bet_amount,
+            limit_loss_type, limit_loss_period, limit_loss_amount,
+            limit_time_type, limit_time_period, limit_time_value } = req.body;
+    await query(`UPDATE users SET
+      limit_deposit_type=$1, limit_deposit_period=$2, limit_deposit_amount=$3,
+      limit_bet_type=$4, limit_bet_period=$5, limit_bet_amount=$6,
+      limit_loss_type=$7, limit_loss_period=$8, limit_loss_amount=$9,
+      limit_time_type=$10, limit_time_period=$11, limit_time_value=$12,
+      updated_at=NOW() WHERE id=$13`,
+      [limit_deposit_type||'unlimited', limit_deposit_period||null, parseInt(limit_deposit_amount)||0,
+       limit_bet_type||'unlimited', limit_bet_period||null, parseInt(limit_bet_amount)||0,
+       limit_loss_type||'unlimited', limit_loss_period||null, parseInt(limit_loss_amount)||0,
+       limit_time_type||'unlimited', limit_time_period||null, limit_time_value||null,
+       req.session.user.id]);
+    res.json({ ok: true, msg: 'Limites atualizados!' });
+  } catch (err) {
+    console.error('[UPDATE_LIMITS]', err);
+    res.status(500).json({ ok: false, msg: 'Erro ao salvar limites.' });
+  }
+});
+
+// GET /api/user/limits
+router.get('/user/limits', requireUser, async (req, res) => {
+  try {
+    const r = await query(
+      `SELECT limit_deposit_type, limit_deposit_period, limit_deposit_amount,
+              limit_bet_type, limit_bet_period, limit_bet_amount,
+              limit_loss_type, limit_loss_period, limit_loss_amount,
+              limit_time_type, limit_time_period, limit_time_value
+       FROM users WHERE id = $1`, [req.session.user.id]);
+    res.json({ ok: true, limits: r.rows[0] || {} });
+  } catch (err) {
+    console.error('[GET_LIMITS]', err);
+    res.json({ ok: true, limits: {} });
+  }
+});
+
+// POST /api/withdrawal/create
+router.post('/withdrawal/create', requireUser, async (req, res) => {
+  try {
+    const amountBrl = parseFloat(req.body.amount_brl);
+    if (isNaN(amountBrl) || amountBrl < 10) {
+      return res.status(400).json({ ok: false, msg: 'Valor mínimo para saque: R$ 10,00.' });
+    }
+    const amountCents = Math.round(amountBrl * 100);
+
+    // Check balance
+    const wR = await query('SELECT balance_cents FROM wallets WHERE user_id = $1', [req.session.user.id]);
+    const balance = parseInt(wR.rows[0]?.balance_cents || 0);
+    if (amountCents > balance) {
+      return res.status(400).json({ ok: false, msg: 'Saldo insuficiente.' });
+    }
+
+    const pixType = req.body.pix_type || 'cpf';
+    const pixKey = (req.body.pix_key || '').trim();
+    if (!pixKey) return res.status(400).json({ ok: false, msg: 'Informe a chave PIX.' });
+
+    // Check pending withdrawals
+    const pending = await query("SELECT id FROM withdrawals WHERE user_id=$1 AND status='pending'", [req.session.user.id]);
+    if (pending.rows.length >= 3) {
+      return res.status(400).json({ ok: false, msg: 'Você já tem 3 saques pendentes. Aguarde a aprovação.' });
+    }
+
+    const r = await query(
+      'INSERT INTO withdrawals (user_id, amount_cents, pix_type, pix_key) VALUES ($1,$2,$3,$4) RETURNING id',
+      [req.session.user.id, amountCents, pixType, pixKey]);
+
+    res.json({ ok: true, msg: 'Saque solicitado! Aguarde aprovação.', withdrawal_id: r.rows[0].id });
+  } catch (err) {
+    console.error('[WITHDRAWAL_CREATE]', err);
+    res.status(500).json({ ok: false, msg: 'Erro ao solicitar saque.' });
+  }
+});
+
+// GET /api/user/withdrawals
+router.get('/user/withdrawals', requireUser, async (req, res) => {
+  try {
+    const r = await query(
+      'SELECT id, amount_cents, pix_type, pix_key, status, created_at FROM withdrawals WHERE user_id=$1 ORDER BY created_at DESC LIMIT 50',
+      [req.session.user.id]);
+    res.json({ ok: true, rows: r.rows });
+  } catch (err) {
+    console.error('[GET_WITHDRAWALS]', err);
+    res.json({ ok: true, rows: [] });
+  }
+});
+
+// GET /api/user/transactions
+router.get('/user/transactions', requireUser, async (req, res) => {
+  try {
+    const type = req.query.type || 'all';
+    const period = req.query.period || 'total';
+    let dateFilter = '';
+    if (period === 'today') dateFilter = "AND t.created_at >= CURRENT_DATE";
+    else if (period === 'yesterday') dateFilter = "AND t.created_at >= CURRENT_DATE - INTERVAL '1 day' AND t.created_at < CURRENT_DATE";
+    else if (period === '7d') dateFilter = "AND t.created_at >= NOW() - INTERVAL '7 days'";
+    else if (period === '30d') dateFilter = "AND t.created_at >= NOW() - INTERVAL '30 days'";
+    else if (period === '90d') dateFilter = "AND t.created_at >= NOW() - INTERVAL '90 days'";
+
+    let typeFilter = '';
+    if (type === 'deposit') typeFilter = "AND t.type = 'deposit'";
+    else if (type === 'withdrawal') typeFilter = "AND t.type = 'withdrawal'";
+
+    const sql = `SELECT t.id, t.type, t.status, t.amount_cents, t.provider, t.provider_ref, t.created_at
+                 FROM transactions t
+                 WHERE t.user_id = $1 ${typeFilter} ${dateFilter}
+                 ORDER BY t.created_at DESC LIMIT 100`;
+    const r = await query(sql, [req.session.user.id]);
+
+    // Also get withdrawals mapped as transactions
+    let withdrawals = [];
+    if (type === 'all' || type === 'withdrawal') {
+      const wSql = `SELECT id, amount_cents, pix_type as provider, status, created_at
+                     FROM withdrawals WHERE user_id = $1 ${dateFilter.replace(/t\./g, '')}
+                     ORDER BY created_at DESC LIMIT 50`;
+      const wR = await query(wSql, [req.session.user.id]);
+      withdrawals = wR.rows.map(w => ({ ...w, type: 'withdrawal', provider_ref: 'W-' + w.id }));
+    }
+
+    const all = [...r.rows, ...withdrawals].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    res.json({ ok: true, rows: all });
+  } catch (err) {
+    console.error('[GET_TRANSACTIONS]', err);
+    res.json({ ok: true, rows: [] });
   }
 });
 
