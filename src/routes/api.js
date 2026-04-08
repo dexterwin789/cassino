@@ -562,4 +562,72 @@ router.get('/deposit/status', requireUser, async (req, res) => {
   }
 });
 
+// ─── Notifications ─────────────────────────────────
+
+// GET /api/notifications — list (user-specific + broadcasts)
+router.get('/notifications', requireUser, async (req, res) => {
+  try {
+    const uid = req.session.user.id;
+    const limit = Math.min(parseInt(req.query.limit) || 30, 100);
+    const offset = parseInt(req.query.offset) || 0;
+    const r = await query(
+      `SELECT * FROM notifications WHERE user_id = $1 OR user_id = 0
+       ORDER BY created_at DESC LIMIT $2 OFFSET $3`,
+      [uid, limit, offset]
+    );
+    const c = await query(
+      `SELECT COUNT(*) as total FROM notifications WHERE (user_id = $1 OR user_id = 0) AND lida = FALSE`,
+      [uid]
+    );
+    res.json({ ok: true, notifications: r.rows, unread: parseInt(c.rows[0].total) });
+  } catch (err) {
+    console.error('[NOTIF_LIST]', err);
+    res.status(500).json({ ok: false, msg: 'Erro interno.' });
+  }
+});
+
+// GET /api/notifications/count — unread count
+router.get('/notifications/count', requireUser, async (req, res) => {
+  try {
+    const uid = req.session.user.id;
+    const c = await query(
+      `SELECT COUNT(*) as total FROM notifications WHERE (user_id = $1 OR user_id = 0) AND lida = FALSE`,
+      [uid]
+    );
+    res.json({ ok: true, unread: parseInt(c.rows[0].total) });
+  } catch (err) {
+    res.status(500).json({ ok: false, msg: 'Erro interno.' });
+  }
+});
+
+// POST /api/notifications/read — mark single as read
+router.post('/notifications/read', requireUser, async (req, res) => {
+  try {
+    const uid = req.session.user.id;
+    const id = parseInt(req.body.id);
+    if (!id) return res.status(400).json({ ok: false, msg: 'ID obrigatório.' });
+    await query(
+      `UPDATE notifications SET lida = TRUE WHERE id = $1 AND (user_id = $2 OR user_id = 0)`,
+      [id, uid]
+    );
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ ok: false, msg: 'Erro interno.' });
+  }
+});
+
+// POST /api/notifications/read-all — mark all as read
+router.post('/notifications/read-all', requireUser, async (req, res) => {
+  try {
+    const uid = req.session.user.id;
+    await query(
+      `UPDATE notifications SET lida = TRUE WHERE (user_id = $1 OR user_id = 0) AND lida = FALSE`,
+      [uid]
+    );
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ ok: false, msg: 'Erro interno.' });
+  }
+});
+
 module.exports = router;

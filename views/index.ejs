@@ -761,13 +761,88 @@
           </div>
           <!-- NOTIFICAÇÕES -->
           <div class="wallet-panel" id="walletPanelNotif">
-            <div class="wallet-panel-title">Notificações</div>
-            <p class="wallet-empty-text">Nenhuma notificação no momento.</p>
+            <div class="wallet-panel-title" style="display:flex;align-items:center;justify-content:space-between">
+              Notificações
+              <button class="notif-mark-all" id="notifMarkAll" style="display:none" title="Marcar todas como lidas">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                Marcar todas como lidas
+              </button>
+            </div>
+            <div class="notif-list" id="notifList">
+              <p class="wallet-empty-text" id="notifEmpty">Nenhuma notificação no momento.</p>
+            </div>
           </div>
           <!-- INDIQUE E GANHE -->
           <div class="wallet-panel" id="walletPanelIndique">
             <div class="wallet-panel-title">Indique e Ganhe</div>
-            <p class="wallet-empty-text">Compartilhe seu link de indicação e ganhe bônus!</p>
+            <!-- Banner -->
+            <div class="indique-banner">
+              <img src="/public/img/novo/indique.avif" alt="Indique e Ganhe">
+            </div>
+            <!-- Description -->
+            <div class="indique-desc">
+              <div class="indique-desc-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ff3a00" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>
+              </div>
+              <div>
+                <h3 style="color:var(--text);margin:0 0 6px;font-size:15px">Indique amigos e ganhe R$ 50,00</h3>
+                <p style="color:var(--text-muted);margin:0;font-size:13px;line-height:1.5">Compartilhe seu link exclusivo de indicação. Quando seu amigo se cadastrar e realizar o primeiro depósito, você recebe <strong style="color:#ff3a00">R$ 50,00</strong> de bônus na sua carteira!</p>
+              </div>
+            </div>
+            <!-- Elegíveis button -->
+            <a href="#" class="indique-eligible-btn">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+              Ver jogos elegíveis
+            </a>
+            <!-- Referral link -->
+            <div class="indique-link-section">
+              <label style="color:var(--text-muted);font-size:12px;font-weight:600;letter-spacing:.5px;margin-bottom:6px;display:block">SEU LINK DE INDICAÇÃO</label>
+              <div class="indique-link-row">
+                <input type="text" class="indique-link-input" id="indiqueLinkInput" readonly value="">
+                <button class="indique-copy-btn" id="indiqueCopyBtn" title="Copiar link">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                  Copiar link
+                </button>
+                <button class="indique-share-btn" id="indiqueShareBtn" title="Compartilhar">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                </button>
+              </div>
+            </div>
+            <!-- Indicações -->
+            <div class="indique-history">
+              <div class="indique-history-header">
+                <h3 style="color:var(--text);margin:0;font-size:14px;font-weight:700">Minhas Indicações</h3>
+                <div class="indique-period-tabs">
+                  <button class="indique-period active" data-period="7d">7 dias</button>
+                  <button class="indique-period" data-period="30d">30 dias</button>
+                  <button class="indique-period" data-period="all">Tudo</button>
+                </div>
+              </div>
+              <div class="indique-stats">
+                <div class="indique-stat">
+                  <span class="indique-stat-val" id="indiqueStatTotal">0</span>
+                  <span class="indique-stat-label">Indicações</span>
+                </div>
+                <div class="indique-stat">
+                  <span class="indique-stat-val" id="indiqueStatPending">0</span>
+                  <span class="indique-stat-label">Pendentes</span>
+                </div>
+                <div class="indique-stat">
+                  <span class="indique-stat-val" id="indiqueStatEarned">R$ 0,00</span>
+                  <span class="indique-stat-label">Ganho total</span>
+                </div>
+              </div>
+              <div class="indique-table-wrap">
+                <table class="indique-table">
+                  <thead>
+                    <tr><th>Amigo</th><th>Status</th><th>Data</th><th>Bônus</th></tr>
+                  </thead>
+                  <tbody id="indiqueTableBody">
+                    <tr><td colspan="4" class="indique-table-empty">Nenhuma indicação ainda. Compartilhe seu link!</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
           <!-- PRÊMIOS E RECOMPENSAS -->
           <div class="wallet-panel" id="walletPanelPremios">

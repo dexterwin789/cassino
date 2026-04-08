@@ -148,6 +148,18 @@ async function autoMigrate() {
       created_at TIMESTAMPTZ DEFAULT NOW()
     )`);
 
+    // Notifications table
+    await pool.query(`CREATE TABLE IF NOT EXISTS notifications (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER NOT NULL DEFAULT 0,
+      tipo VARCHAR(30) DEFAULT 'info',
+      titulo VARCHAR(255) NOT NULL,
+      mensagem TEXT DEFAULT '',
+      link VARCHAR(500) DEFAULT '',
+      lida BOOLEAN DEFAULT FALSE,
+      created_at TIMESTAMPTZ DEFAULT NOW()
+    )`);
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_notif_user ON notifications(user_id, lida, created_at DESC)`);
     // Ensure admin has valid hash
     const hash = await bcrypt.hash('Admin@12345', 10);
     await pool.query(`UPDATE admin_users SET password_hash = $1 WHERE username = 'admin' AND password_hash LIKE '%placeholder%'`, [hash]);

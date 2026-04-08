@@ -45,16 +45,22 @@ var searchPageSize = 15;
 var searchActiveTag = 'Todos';
 var searchIsOpen = false;
 
-// Aggressive autofill prevention
+// Autofill prevention: input starts disabled, only enabled on user click
 if (searchInput) {
-  searchInput.setAttribute('readonly', '');
+  searchInput.disabled = true;
   searchInput.value = '';
-  setTimeout(function() { searchInput.removeAttribute('readonly'); searchInput.value = ''; }, 200);
-  setTimeout(function() { if (!searchIsOpen && searchInput.value) searchInput.value = ''; }, 600);
-  setTimeout(function() { if (!searchIsOpen && searchInput.value) searchInput.value = ''; }, 1500);
-  // Poll for password manager fills for first 3 seconds
-  var _sfPoll = setInterval(function() { if (!searchIsOpen && searchInput.value) searchInput.value = ''; }, 150);
-  setTimeout(function() { clearInterval(_sfPoll); }, 3000);
+  searchInput.style.cursor = 'pointer';
+}
+var searchBox = document.getElementById('searchBox');
+if (searchBox) {
+  searchBox.addEventListener('click', function(e) {
+    if (searchInput && searchInput.disabled) {
+      searchInput.disabled = false;
+      searchInput.value = '';
+      searchInput.style.cursor = '';
+      setTimeout(function() { searchInput.focus(); }, 50);
+    }
+  });
 }
 
 /* Animated placeholder */
@@ -729,6 +735,9 @@ function updateAuthState() {
         if (j.user.avatar_url && typeof setAvatarEverywhere === 'function') {
           setAvatarEverywhere(j.user.avatar_url);
         }
+        // Notifications + Indique
+        if (typeof startNotifPolling === 'function') startNotifPolling();
+        if (typeof setupIndiqueLink === 'function') setupIndiqueLink();
       }
     }).catch(function() {
       document.body.classList.add('is-guest');
@@ -914,6 +923,8 @@ function showWalletSection(panel) {
     if (panel === 'sacar') loadWithdrawals();
     // Load transactions when history panel is shown
     if (panel === 'histTransacoes') loadTransactions();
+    // Load notifications when panel shown
+    if (panel === 'notif' && typeof loadNotifications === 'function') loadNotifications();
   }
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -2026,5 +2037,182 @@ if (sacarPixTypeEl) {
     else { key.placeholder = 'Chave aleatória'; }
   });
 }
+
+/* ========== NOTIFICATIONS ========== */
+var _notifLoaded = false;
+var _notifPollId = null;
+
+function notifRelativeTime(dateStr) {
+  var now = Date.now();
+  var d = new Date(dateStr).getTime();
+  var diff = Math.floor((now - d) / 1000);
+  if (diff < 60) return 'agora';
+  if (diff < 3600) return Math.floor(diff / 60) + ' min atrás';
+  if (diff < 86400) return Math.floor(diff / 3600) + 'h atrás';
+  if (diff < 604800) return Math.floor(diff / 86400) + 'd atrás';
+  return new Date(dateStr).toLocaleDateString('pt-BR');
+}
+
+var notifTypeIcons = {
+  info: { emoji: 'ℹ️', cls: 'info' },
+  success: { emoji: '✅', cls: 'success' },
+  warning: { emoji: '⚠️', cls: 'warning' },
+  promo: { emoji: '🎁', cls: 'promo' },
+  deposit: { emoji: '💰', cls: 'success' },
+  bonus: { emoji: '🎉', cls: 'promo' }
+};
+
+function renderNotifications(notifications) {
+  var list = document.getElementById('notifList');
+  var empty = document.getElementById('notifEmpty');
+  var markAll = document.getElementById('notifMarkAll');
+  if (!list) return;
+  if (!notifications || !notifications.length) {
+    list.innerHTML = '';
+    if (empty) { list.appendChild(empty); empty.style.display = ''; }
+    if (markAll) markAll.style.display = 'none';
+    return;
+  }
+  if (empty) empty.style.display = 'none';
+  var hasUnread = notifications.some(function(n) { return !n.lida; });
+  if (markAll) markAll.style.display = hasUnread ? 'flex' : 'none';
+  var html = '';
+  notifications.forEach(function(n) {
+    var icon = notifTypeIcons[n.tipo] || notifTypeIcons.info;
+    html += '<div class="notif-item' + (n.lida ? '' : ' unread') + '" data-id="' + n.id + '">';
+    html += '<div class="notif-icon ' + icon.cls + '">' + icon.emoji + '</div>';
+    html += '<div class="notif-body">';
+    html += '<div class="notif-title">' + (n.titulo || '') + '</div>';
+    if (n.mensagem) html += '<div class="notif-msg">' + n.mensagem + '</div>';
+    html += '<div class="notif-time">' + notifRelativeTime(n.created_at) + '</div>';
+    html += '</div></div>';
+  });
+  list.innerHTML = html;
+  // Click to mark as read
+  list.querySelectorAll('.notif-item.unread').forEach(function(item) {
+    item.addEventListener('click', function() {
+      var id = item.getAttribute('data-id');
+      markNotifRead(id);
+      item.classList.remove('unread');
+    });
+  });
+}
+
+function loadNotifications() {
+  fetch('/api/notifications?limit=30', { credentials: 'include' })
+    .then(function(r) { return r.json(); })
+    .then(function(j) {
+      if (!j || !j.ok) return;
+      renderNotifications(j.notifications);
+      updateNotifBadge(j.unread || 0);
+    }).catch(function() {});
+}
+
+function updateNotifBadge(count) {
+  var badges = document.querySelectorAll('#topbarNotifBadge, .wallet-nav-badge');
+  badges.forEach(function(b) {
+    b.textContent = count > 99 ? '99+' : count;
+    b.style.display = count > 0 ? '' : 'none';
+  });
+}
+
+function pollNotifCount() {
+  fetch('/api/notifications/count', { credentials: 'include' })
+    .then(function(r) { return r.json(); })
+    .then(function(j) {
+      if (j && j.ok) updateNotifBadge(j.unread || 0);
+    }).catch(function() {});
+}
+
+function markNotifRead(id) {
+  fetch('/api/notifications/read', {
+    method: 'POST', credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id: parseInt(id) })
+  }).then(function() { pollNotifCount(); }).catch(function() {});
+}
+
+function markAllNotifsRead() {
+  fetch('/api/notifications/read-all', {
+    method: 'POST', credentials: 'include',
+    headers: { 'Content-Type': 'application/json' }
+  }).then(function() {
+    document.querySelectorAll('.notif-item.unread').forEach(function(i) { i.classList.remove('unread'); });
+    var markAll = document.getElementById('notifMarkAll');
+    if (markAll) markAll.style.display = 'none';
+    updateNotifBadge(0);
+  }).catch(function() {});
+}
+
+// Wire mark-all button
+var notifMarkAllBtn = document.getElementById('notifMarkAll');
+if (notifMarkAllBtn) notifMarkAllBtn.addEventListener('click', markAllNotifsRead);
+
+// Start polling when logged in
+function startNotifPolling() {
+  if (_notifPollId) return;
+  loadNotifications();
+  _notifPollId = setInterval(pollNotifCount, 30000);
+}
+function stopNotifPolling() {
+  if (_notifPollId) { clearInterval(_notifPollId); _notifPollId = null; }
+}
+
+// Topbar bell → open notif panel
+var topbarNotifBtn = document.getElementById('topbarNotif');
+if (topbarNotifBtn) topbarNotifBtn.addEventListener('click', function(e) {
+  e.preventDefault();
+  if (topbarDropdown) topbarDropdown.classList.remove('open');
+  showWalletSection('notif');
+  loadNotifications();
+});
+
+/* ========== INDIQUE E GANHE ========== */
+function setupIndiqueLink() {
+  var input = document.getElementById('indiqueLinkInput');
+  var copyBtn = document.getElementById('indiqueCopyBtn');
+  var shareBtn = document.getElementById('indiqueShareBtn');
+  if (!input) return;
+
+  // Generate referral link from user session
+  var userId = document.getElementById('walletUserId');
+  var uid = userId ? userId.textContent.trim() : '';
+  if (uid) {
+    input.value = window.location.origin + '/?ref=' + uid;
+  }
+
+  if (copyBtn) {
+    copyBtn.addEventListener('click', function() {
+      if (!input.value) return;
+      navigator.clipboard.writeText(input.value).then(function() {
+        showToast('Link copiado!', 'success');
+      }).catch(function() {
+        input.select();
+        document.execCommand('copy');
+        showToast('Link copiado!', 'success');
+      });
+    });
+  }
+
+  if (shareBtn) {
+    shareBtn.addEventListener('click', function() {
+      if (navigator.share && input.value) {
+        navigator.share({ title: 'CassinoBet', text: 'Venha jogar comigo!', url: input.value });
+      } else if (input.value) {
+        navigator.clipboard.writeText(input.value);
+        showToast('Link copiado!', 'success');
+      }
+    });
+  }
+}
+
+// Period tabs
+document.querySelectorAll('.indique-period').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.indique-period').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    // Future: reload referral data with period filter
+  });
+});
 
 initApp();
