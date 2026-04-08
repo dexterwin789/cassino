@@ -518,6 +518,8 @@ router.get('/user/transactions', requireUser, async (req, res) => {
     let typeFilter = '';
     if (type === 'deposit') typeFilter = "AND t.type = 'deposit'";
     else if (type === 'withdrawal') typeFilter = "AND t.type = 'withdrawal'";
+    else if (type === 'coupon') typeFilter = "AND t.type = 'coupon'";
+    else if (type === 'bonus') typeFilter = "AND t.type = 'bonus'";
 
     const sql = `SELECT t.id, t.type, t.status, t.amount_cents, t.provider, t.provider_ref, t.created_at
                  FROM transactions t

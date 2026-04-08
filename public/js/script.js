@@ -30,6 +30,7 @@ function renderGames(games, containerId, limit) {
 /* ========== SEARCH ========== */
 /* ========== SEARCH ========== */
 var searchInput = document.getElementById('searchGames');
+if (searchInput) searchInput.value = '';
 var searchOverlay = document.getElementById('searchOverlay');
 var searchResults = document.getElementById('searchResults');
 var searchGrid = document.getElementById('searchGrid');
@@ -615,6 +616,9 @@ function updateAuthState() {
         // Dropdown email
         var ddEmail = document.getElementById('dropdownUserEmail');
         if (ddEmail && j.user && j.user.email) ddEmail.textContent = j.user.email;
+        // Dropdown user ID
+        var ddUid = document.getElementById('dropdownUserId');
+        if (ddUid && j.user) ddUid.textContent = 'ID: ' + (j.user.id || '');
         // Phone
         var acctPhoneVal = document.getElementById('acctPhoneValue');
         var acctPhoneInp = document.getElementById('acctPhoneInput');
@@ -648,27 +652,33 @@ function updateAuthState() {
           if (cpfInp) cpfInp.value = fmtCpf;
         }
         // PIX
-        if (j.user.pix_type) {
-          var sel = document.getElementById('acctPixType');
-          if (sel) sel.value = j.user.pix_type;
-          var pInp = document.getElementById('acctPixKeyInput');
-          if (pInp && j.user.pix_key) pInp.value = j.user.pix_key;
-          var pSum = document.getElementById('acctPixSummary');
-          if (pSum) {
-            if (j.user.pix_key) {
-              pSum.textContent = '◆ ' + j.user.pix_type.toUpperCase() + ': ' + j.user.pix_key;
-            } else if (j.user.cpf && j.user.pix_type === 'cpf') {
-              var pc = j.user.cpf.replace(/\D/g,'');
-              pSum.textContent = '◆ CPF: ' + pc.slice(0,3) + '.' + pc.slice(3,6) + '.' + pc.slice(6,9) + '-' + pc.slice(9);
-            }
+        var pixType = j.user.pix_type || 'cpf';
+        var sel = document.getElementById('acctPixType');
+        if (sel) sel.value = pixType;
+        var pInp = document.getElementById('acctPixKeyInput');
+        if (pInp && j.user.pix_key) pInp.value = j.user.pix_key;
+        var pSum = document.getElementById('acctPixSummary');
+        if (pSum) {
+          if (j.user.pix_key) {
+            pSum.textContent = '◆ ' + pixType.toUpperCase() + ': ' + j.user.pix_key;
+          } else if (j.user.cpf) {
+            var pc = j.user.cpf.replace(/\D/g,'');
+            pSum.textContent = '◆ CPF: ' + pc.slice(0,3) + '.' + pc.slice(3,6) + '.' + pc.slice(6,9) + '-' + pc.slice(9);
           }
         }
         // Name
-        if (j.user.name || j.user.username) {
-          var dName = j.user.name || j.user.username;
+        if (j.user.name) {
           var nameInp = document.getElementById('acctNomeCompleto');
-          if (nameInp) nameInp.value = dName;
+          if (nameInp) nameInp.value = j.user.name;
         }
+        // Photo card user info
+        var photoUserName = document.getElementById('acctPhotoUserName');
+        if (photoUserName && j.user) {
+          var firstName = (j.user.name || '').split(' ')[0] || j.user.username || 'Usuário';
+          photoUserName.textContent = firstName;
+        }
+        var photoUserId = document.getElementById('acctPhotoUserId');
+        if (photoUserId && j.user) photoUserId.textContent = 'ID: ' + (j.user.id || '—');
         // Birth date
         if (j.user.birth_date) {
           var bd = new Date(j.user.birth_date);
@@ -1013,10 +1023,18 @@ if (walletSubBackSaldo) walletSubBackSaldo.addEventListener('click', function(e)
   if (saldoPanel) saldoPanel.classList.add('active');
 });
 
-// Wallet deposit button
+// Wallet deposit button — just opens modal over current page
 var walletDepositBtn = document.getElementById('walletDepositBtn');
-if (walletDepositBtn) walletDepositBtn.addEventListener('click', function() {
+if (walletDepositBtn) walletDepositBtn.addEventListener('click', function(e) {
+  e.preventDefault();
   if (typeof openDepositModal === 'function') openDepositModal();
+});
+
+// Wallet sacar button in Meu Perfil — go to sacar panel
+var walletWithdrawBtn = document.getElementById('walletWithdrawBtn');
+if (walletWithdrawBtn) walletWithdrawBtn.addEventListener('click', function(e) {
+  e.preventDefault();
+  showWalletSection('sacar');
 });
 
 /* ========== ACCOUNT SECTION EXPAND/COLLAPSE ========== */
@@ -1101,8 +1119,7 @@ var dropdownPanelMap = {
   'dropdownBets': 'apostas',
   'dropdownReferrals': 'indique',
   'dropdownPerfil': 'perfil',
-  'dropdownAccount': 'dadosConta',
-  'dropdownPassword': 'perfil',
+  'dropdownPassword': 'loginSeg',
   'dropdownSupport': null,
   'dropdownPromos': null
 };
@@ -1854,11 +1871,47 @@ function populateSacarPix(user) {
   if (!user) return;
   var type = document.getElementById('sacarPixType');
   var key = document.getElementById('sacarPixKey');
-  if (type && user.pix_type) type.value = user.pix_type;
-  if (key && user.pix_key) key.value = user.pix_key;
+  var pixType = user.pix_type || 'cpf';
+  if (type) type.value = pixType;
+  if (key) {
+    if (user.pix_key) {
+      key.value = user.pix_key;
+    } else if (user.cpf && pixType === 'cpf') {
+      var c = user.cpf.replace(/\D/g,'');
+      key.value = c.slice(0,3) + '.' + c.slice(3,6) + '.' + c.slice(6,9) + '-' + c.slice(9);
+    }
+    // Apply mask based on type
+    if (pixType === 'cpf') applySacarPixMask('000.000.000-00');
+    else if (pixType === 'phone') applySacarPixMask('(00) 00000-0000');
+  }
   // Also set carteira user id
   var cid = document.getElementById('walletCarteiraUserId');
   if (cid && user.id) cid.textContent = user.id;
+}
+
+// Sacar PIX key mask
+var sacarPixMaskHandler = null;
+function applySacarPixMask(mask) {
+  var key = document.getElementById('sacarPixKey');
+  if (!key) return;
+  if (sacarPixMaskHandler) key.removeEventListener('input', sacarPixMaskHandler);
+  sacarPixMaskHandler = function() { applyMaskValue(key, mask); };
+  key.addEventListener('input', sacarPixMaskHandler);
+}
+
+// Sacar PIX type change → update mask and pre-fill
+var sacarPixTypeEl = document.getElementById('sacarPixType');
+if (sacarPixTypeEl) {
+  sacarPixTypeEl.addEventListener('change', function() {
+    var t = sacarPixTypeEl.value;
+    var key = document.getElementById('sacarPixKey');
+    if (sacarPixMaskHandler && key) { key.removeEventListener('input', sacarPixMaskHandler); sacarPixMaskHandler = null; }
+    if (key) key.value = '';
+    if (t === 'cpf') { applySacarPixMask('000.000.000-00'); key.placeholder = '000.000.000-00'; }
+    else if (t === 'phone') { applySacarPixMask('(00) 00000-0000'); key.placeholder = '(00) 00000-0000'; }
+    else if (t === 'email') { key.placeholder = 'email@exemplo.com'; }
+    else { key.placeholder = 'Chave aleatória'; }
+  });
 }
 
 initApp();

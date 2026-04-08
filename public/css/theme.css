@@ -228,6 +228,8 @@
 /* Photo upload */
 [data-theme="light"] .acct-photo-card{background:#fff;border-color:rgba(0,0,0,.08)}
 [data-theme="light"] .acct-photo-card-title{color:#475569}
+[data-theme="light"] .acct-photo-user-info strong{color:#1a1a2e}
+[data-theme="light"] .acct-photo-user-info span{color:#64748b}
 [data-theme="light"] .acct-photo-preview{border-color:rgba(0,0,0,.1)}
 [data-theme="light"] .acct-photo-img{filter:brightness(0) saturate(100%);opacity:.5}
 [data-theme="light"] .acct-photo-remove{color:#64748b;border-color:rgba(0,0,0,.1) !important}
