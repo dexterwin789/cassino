@@ -50,6 +50,14 @@ if (searchInput) {
   searchInput.readOnly = true;
   searchInput.value = '';
   searchInput.style.cursor = 'pointer';
+  searchInput.addEventListener('focus', function() {
+    if (searchInput.readOnly) {
+      searchInput.readOnly = false;
+      searchInput.value = '';
+      searchInput.style.cursor = '';
+      openSearch();
+    }
+  });
 }
 var searchBox = document.getElementById('searchBox');
 if (searchBox) {
@@ -1227,7 +1235,7 @@ document.querySelectorAll('.wallet-theme-card[data-set-theme]').forEach(function
 var dropdownPanelMap = {
   'dropdownNotif': 'notif',
   'dropdownPrizes': 'premios',
-  'dropdownBets': 'apostas',
+  'dropdownBets': 'apostasCassino',
   'dropdownReferrals': 'indique',
   'dropdownPerfil': 'perfil',
   'dropdownPassword': 'loginSeg',
@@ -2232,6 +2240,13 @@ var topbarNotifBtn = document.getElementById('topbarNotif');
 if (topbarNotifBtn) topbarNotifBtn.addEventListener('click', function(e) {
   e.preventDefault();
   if (topbarDropdown) topbarDropdown.classList.remove('open');
+  showWalletSection('notif');
+  loadNotifications();
+});
+// Sidebar bell → open notif panel
+var sidebarNotifBtn = document.getElementById('sidebarNotifBtn');
+if (sidebarNotifBtn) sidebarNotifBtn.addEventListener('click', function(e) {
+  e.preventDefault();
   showWalletSection('notif');
   loadNotifications();
 });

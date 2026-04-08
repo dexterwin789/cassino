@@ -343,6 +343,25 @@ ul{list-style:none}
   border:5px solid transparent;border-right-color:#1b2838;
 }
 
+/* Sidebar Notification Row */
+.sidebar-notif-row{
+  display:flex;justify-content:flex-end;padding:0 0 8px;
+}
+.sidebar-notif-btn{
+  position:relative;background:transparent;border:none;cursor:pointer;
+  padding:6px;display:flex;align-items:center;
+}
+.sidebar-notif-btn:hover img{opacity:1}
+.sidebar-notif-badge{
+  position:absolute;top:0;right:0;
+  background:#ef4444;color:#fff;
+  font-size:9px;font-weight:700;
+  min-width:16px;height:16px;line-height:16px;
+  border-radius:50%;text-align:center;
+  padding:0 3px;
+}
+.sidebar.collapsed .sidebar-notif-row{justify-content:center}
+
 /* Quick Access Cards */
 .sidebar-cards{
   display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;
@@ -352,7 +371,7 @@ ul{list-style:none}
   position:relative;overflow:hidden;
   width:100%;height:68px;
   border-radius:.75rem;
-  background-color:#000000a6;
+  background-color:transparent;
   border:1px solid #ffffff1a;
   cursor:pointer;transition-duration:.2s;
   display:block;

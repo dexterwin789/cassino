@@ -55,6 +55,7 @@ body {
 
 .adm-sidebar.collapsed {
   width: 72px;
+  overflow: visible;
 }
 .adm-sidebar.collapsed .adm-nav-link span,
 .adm-sidebar.collapsed .adm-nav-section,
