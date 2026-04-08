@@ -1363,4 +1363,74 @@ router.get('/stats/enhanced', async (req, res) => {
   }
 });
 
+// ─── Top 10 Featured Games ────────────────────────
+
+router.get('/top10', async (req, res) => {
+  try {
+    const featured = await query(`
+      SELECT g.id, g.game_code, g.game_name, g.image_url, g.provider, g.category, g.is_featured, g.featured_order
+      FROM games g WHERE g.is_featured = TRUE AND g.is_active = TRUE
+      ORDER BY g.featured_order, g.id
+    `);
+    res.json({ ok: true, rows: featured.rows });
+  } catch (err) {
+    console.error('[ADMIN API TOP10]', err);
+    res.status(500).json({ ok: false, msg: 'Erro.' });
+  }
+});
+
+router.get('/top10/available', async (req, res) => {
+  try {
+    const q = (req.query.q || '').trim();
+    let sql = 'SELECT id, game_code, game_name, image_url, provider, category FROM games WHERE is_active = TRUE AND is_featured = FALSE';
+    const params = [];
+    if (q) {
+      sql += ' AND (game_code ILIKE $1 OR game_name ILIKE $1 OR provider ILIKE $1)';
+      params.push('%' + q + '%');
+    }
+    sql += ' ORDER BY game_name LIMIT 50';
+    const r = await query(sql, params);
+    res.json({ ok: true, rows: r.rows });
+  } catch (err) {
+    res.status(500).json({ ok: false, msg: 'Erro.' });
+  }
+});
+
+router.post('/top10/add', async (req, res) => {
+  try {
+    const { game_id } = req.body;
+    if (!game_id) return res.status(400).json({ ok: false, msg: 'game_id obrigatório.' });
+    const maxR = await query('SELECT COALESCE(MAX(featured_order), 0) + 1 AS next FROM games WHERE is_featured = TRUE');
+    const next = maxR.rows[0].next;
+    await query('UPDATE games SET is_featured = TRUE, featured_order = $1 WHERE id = $2', [next, game_id]);
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ ok: false, msg: 'Erro ao adicionar.' });
+  }
+});
+
+router.post('/top10/remove', async (req, res) => {
+  try {
+    const { game_id } = req.body;
+    if (!game_id) return res.status(400).json({ ok: false, msg: 'game_id obrigatório.' });
+    await query('UPDATE games SET is_featured = FALSE, featured_order = 0 WHERE id = $1', [game_id]);
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ ok: false, msg: 'Erro ao remover.' });
+  }
+});
+
+router.post('/top10/reorder', async (req, res) => {
+  try {
+    const { order } = req.body; // array of game ids in order
+    if (!Array.isArray(order)) return res.status(400).json({ ok: false, msg: 'Ordem inválida.' });
+    for (let i = 0; i < order.length; i++) {
+      await query('UPDATE games SET featured_order = $1 WHERE id = $2 AND is_featured = TRUE', [i + 1, order[i]]);
+    }
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ ok: false, msg: 'Erro ao reordenar.' });
+  }
+});
+
 module.exports = router;

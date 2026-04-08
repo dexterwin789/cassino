@@ -112,6 +112,10 @@ async function autoMigrate() {
     await addCol('users', 'kyc_notes', 'TEXT');
     await addCol('users', 'block_reason', 'TEXT');
 
+    // Top 10 featured games
+    await addCol('games', 'is_featured', 'BOOLEAN DEFAULT FALSE');
+    await addCol('games', 'featured_order', 'INT DEFAULT 0');
+
     // Jogo Responsável limits
     await addCol('users', 'limit_deposit_type', "VARCHAR(16) DEFAULT 'unlimited'");
     await addCol('users', 'limit_deposit_period', 'VARCHAR(16)');
@@ -231,6 +235,208 @@ async function autoMigrate() {
       `);
       console.log('[MIGRATE] Notifications seeded for user 24 ✓');
     }
+
+    // ─── Seed sample data for admin verification ─────────────
+    // Banners
+    const bannerCount = await pool.query('SELECT COUNT(*) FROM banners');
+    if (parseInt(bannerCount.rows[0].count) === 0) {
+      await pool.query(`INSERT INTO banners (image_url, link_url, sort_order, is_active) VALUES
+        ('/public/img/novo/22.webp', '/games?category=crash', 1, TRUE),
+        ('/public/img/novo/33.webp', '/games?category=slots', 2, TRUE),
+        ('/public/img/novo/44.webp', '/games?category=live', 3, TRUE)
+      `);
+      console.log('[SEED] Banners seeded ✓');
+    }
+
+    // Sports categories
+    const sportCount = await pool.query('SELECT COUNT(*) FROM sports_categories');
+    if (parseInt(sportCount.rows[0].count) === 0) {
+      await pool.query(`INSERT INTO sports_categories (name, slug, icon_url, sort_order, is_active) VALUES
+        ('Futebol', 'futebol', '/public/img/novo/top1.svg', 1, TRUE),
+        ('Tênis', 'tenis', '/public/img/novo/top2.svg', 2, TRUE),
+        ('Basquete', 'basquete', '/public/img/novo/top3.svg', 3, TRUE),
+        ('Vôlei', 'volei', '/public/img/novo/top4.svg', 4, TRUE),
+        ('Esportes Virtuais', 'esportes-virtuais', '/public/img/novo/top5.svg', 5, TRUE),
+        ('MMA / UFC', 'mma', NULL, 6, TRUE),
+        ('Futebol Americano', 'futebol-americano', NULL, 7, TRUE),
+        ('Baseball', 'baseball', NULL, 8, TRUE)
+      `);
+      console.log('[SEED] Sports categories seeded ✓');
+    }
+
+    // Leagues
+    const leagueCount = await pool.query('SELECT COUNT(*) FROM leagues');
+    if (parseInt(leagueCount.rows[0].count) === 0) {
+      const futId = await pool.query("SELECT id FROM sports_categories WHERE slug='futebol' LIMIT 1");
+      const basqId = await pool.query("SELECT id FROM sports_categories WHERE slug='basquete' LIMIT 1");
+      const fid = futId.rows[0]?.id || 1;
+      const bid = basqId.rows[0]?.id || 3;
+      await pool.query(`INSERT INTO leagues (sport_id, name, slug, country, icon_url, sort_order, is_active) VALUES
+        (${fid}, 'Brasileirão Série A', 'brasileirao-a', 'BR', '/public/img/novo/popular1.svg', 1, TRUE),
+        (${fid}, 'Copa Libertadores', 'libertadores', 'SA', '/public/img/novo/popular2.svg', 2, TRUE),
+        (${fid}, 'Premier League', 'premier-league', 'GB', '/public/img/novo/popular3.svg', 3, TRUE),
+        (${fid}, 'La Liga', 'la-liga', 'ES', '/public/img/novo/popular4.svg', 4, TRUE),
+        (${fid}, 'Serie A', 'serie-a-italia', 'IT', '/public/img/novo/popular5.svg', 5, TRUE),
+        (${fid}, 'Ligue 1', 'ligue-1', 'FR', '/public/img/novo/popular6.svg', 6, TRUE),
+        (${fid}, 'Bundesliga', 'bundesliga', 'DE', '/public/img/novo/popular7.svg', 7, TRUE),
+        (${fid}, 'UEFA Champions League', 'champions-league', 'EU', '/public/img/novo/popular8.svg', 8, TRUE),
+        (${bid}, 'NBA', 'nba', 'US', '/public/img/novo/popular9.svg', 9, TRUE),
+        (${fid}, 'Copa do Brasil', 'copa-do-brasil', 'BR', NULL, 10, TRUE),
+        (${fid}, 'Europa League', 'europa-league', 'EU', NULL, 11, TRUE),
+        (${fid}, 'Brasileirão Série B', 'brasileirao-b', 'BR', NULL, 12, TRUE)
+      `);
+      console.log('[SEED] Leagues seeded ✓');
+    }
+
+    // Coupons
+    const couponCount = await pool.query('SELECT COUNT(*) FROM coupons');
+    if (parseInt(couponCount.rows[0].count) === 0) {
+      await pool.query(`INSERT INTO coupons (code, description, type, value_cents, value_pct, min_deposit, max_uses, max_per_user, is_active, expires_at) VALUES
+        ('BEMVINDO50', 'Bônus de boas-vindas 50%', 'percentage', 0, 50.00, 2000, 1000, 1, TRUE, NOW() + INTERVAL '90 days'),
+        ('PIX20', 'R$ 20 de bônus no PIX', 'bonus', 2000, 0, 5000, 500, 1, TRUE, NOW() + INTERVAL '60 days'),
+        ('ESPORTIVA10', '10% cashback na primeira aposta', 'percentage', 0, 10.00, 1000, 2000, 1, TRUE, NOW() + INTERVAL '30 days'),
+        ('FREEBET25', 'Aposta grátis de R$ 25', 'bonus', 2500, 0, 0, 200, 1, TRUE, NOW() + INTERVAL '15 days'),
+        ('VIP100', 'Bônus exclusivo VIP R$ 100', 'bonus', 10000, 0, 10000, 50, 1, TRUE, NOW() + INTERVAL '365 days')
+      `);
+      console.log('[SEED] Coupons seeded ✓');
+    }
+
+    // Promotions
+    const promoCount = await pool.query('SELECT COUNT(*) FROM promotions');
+    if (parseInt(promoCount.rows[0].count) === 0) {
+      await pool.query(`INSERT INTO promotions (title, description, type, value_cents, value_pct, min_deposit, max_uses, code, is_active, starts_at, expires_at) VALUES
+        ('Bônus de Primeiro Depósito', 'Ganhe 100% de bônus no seu primeiro depósito até R$ 500', 'bonus', 50000, 100.00, 2000, 0, 'FIRST100', TRUE, NOW(), NOW() + INTERVAL '365 days'),
+        ('Cashback Semanal', 'Receba 10% de cashback sobre suas perdas da semana', 'cashback', 0, 10.00, 0, 0, 'CASHBACK10', TRUE, NOW(), NOW() + INTERVAL '365 days'),
+        ('Rodadas Grátis Fortune Tiger', '20 rodadas grátis no Fortune Tiger para novos jogadores', 'free_spins', 0, 0, 5000, 500, 'FTIG20', TRUE, NOW(), NOW() + INTERVAL '90 days'),
+        ('Indique e Ganhe', 'Ganhe R$ 50 por cada amigo indicado que depositar', 'referral', 5000, 0, 0, 0, NULL, TRUE, NOW(), NULL),
+        ('Happy Hour Dobrado', 'Depósitos entre 18h-22h ganham 50% extra', 'bonus', 0, 50.00, 2000, 0, 'HAPPY50', TRUE, NOW(), NOW() + INTERVAL '180 days')
+      `);
+      console.log('[SEED] Promotions seeded ✓');
+    }
+
+    // Sample users (for bets, transactions, etc.)
+    const userCount = await pool.query('SELECT COUNT(*) FROM users');
+    if (parseInt(userCount.rows[0].count) < 5) {
+      const sampleHash = await bcrypt.hash('Senha@123', 10);
+      const sampleUsers = [
+        ['jogador_pk', 'Pedro Kalil', '11999887766', 'pedro@teste.com', '123.456.789-00', sampleHash, 1500.00],
+        ['maria_slots', 'Maria Santos', '21988776655', 'maria@teste.com', '987.654.321-00', sampleHash, 2300.50],
+        ['carlos_bet', 'Carlos Oliveira', '31977665544', 'carlos@teste.com', '456.789.123-00', sampleHash, 800.00],
+        ['ana_vip', 'Ana Costa', '41966554433', 'ana@teste.com', '321.654.987-00', sampleHash, 5200.75],
+        ['lucas_pro', 'Lucas Fernandes', '51955443322', 'lucas@teste.com', '654.321.456-00', sampleHash, 350.00],
+        ['julia_lucky', 'Julia Mendes', '61944332211', 'julia@teste.com', '789.123.456-00', sampleHash, 4100.00],
+        ['rafael_high', 'Rafael Almeida', '71933221100', 'rafael@teste.com', '147.258.369-00', sampleHash, 8500.00],
+        ['camila_win', 'Camila Rodrigues', '81922110099', 'camila@teste.com', '258.369.147-00', sampleHash, 1200.00]
+      ];
+      for (const [username, name, phone, email, cpf, hash2, bal] of sampleUsers) {
+        await pool.query(`INSERT INTO users (username, name, phone, email, cpf, password_hash, balance) VALUES ($1,$2,$3,$4,$5,$6,$7) ON CONFLICT (username) DO NOTHING`, [username, name, phone, email, cpf, hash2, bal]);
+      }
+      console.log('[SEED] Sample users seeded ✓');
+    }
+
+    // Sample transactions (deposits + withdrawals)
+    const txCount = await pool.query("SELECT COUNT(*) FROM transactions WHERE type='deposit' AND status='paid'");
+    if (parseInt(txCount.rows[0].count) < 5) {
+      const userIds = (await pool.query('SELECT id FROM users ORDER BY id LIMIT 8')).rows.map(r => r.id);
+      if (userIds.length >= 5) {
+        const txData = [];
+        const amounts = [5000, 10000, 2000, 15000, 50000, 3000, 7500, 25000, 1000, 8000, 20000, 12000, 4000, 35000, 6000];
+        for (let i = 0; i < 15; i++) {
+          const uid = userIds[i % userIds.length];
+          const amt = amounts[i];
+          const daysAgo = Math.floor(Math.random() * 14);
+          txData.push(`(${uid}, 'deposit', 'paid', ${amt}, 'pix', 'PIX-${Date.now()}-${i}', NOW() - INTERVAL '${daysAgo} days')`);
+        }
+        await pool.query(`INSERT INTO transactions (user_id, type, status, amount_cents, provider, provider_ref, created_at) VALUES ${txData.join(',')}`);
+        // Some withdrawal transactions
+        for (let i = 0; i < 5; i++) {
+          const uid = userIds[i % userIds.length];
+          const amt = [3000, 5000, 2000, 10000, 1500][i];
+          const daysAgo = Math.floor(Math.random() * 10);
+          await pool.query(`INSERT INTO transactions (user_id, type, status, amount_cents, provider, created_at) VALUES ($1, 'withdrawal', 'paid', $2, 'pix', NOW() - INTERVAL '${daysAgo} days')`, [uid, amt]);
+        }
+        console.log('[SEED] Transactions seeded ✓');
+      }
+    }
+
+    // Sample bets
+    const betCount = await pool.query('SELECT COUNT(*) FROM bets');
+    if (parseInt(betCount.rows[0].count) < 5) {
+      const userIds = (await pool.query('SELECT id FROM users ORDER BY id LIMIT 8')).rows.map(r => r.id);
+      const gameIds = (await pool.query('SELECT id FROM games WHERE is_active = TRUE ORDER BY RANDOM() LIMIT 15')).rows.map(r => r.id);
+      if (userIds.length >= 3 && gameIds.length >= 5) {
+        const betValues = [];
+        for (let i = 0; i < 25; i++) {
+          const uid = userIds[i % userIds.length];
+          const gid = gameIds[i % gameIds.length];
+          const amt = [500, 1000, 2000, 5000, 10000, 250, 7500, 1500, 3000, 20000][i % 10];
+          const mult = (Math.random() * 5).toFixed(4);
+          const payout = Math.random() > 0.4 ? Math.floor(amt * parseFloat(mult)) : 0;
+          const status = payout > 0 ? 'won' : 'lost';
+          const daysAgo = Math.floor(Math.random() * 14);
+          betValues.push(`(${uid}, ${gid}, ${amt}, ${payout}, '${mult}', '${status}', NOW() - INTERVAL '${daysAgo} days')`);
+        }
+        await pool.query(`INSERT INTO bets (user_id, game_id, amount_cents, payout_cents, multiplier, status, created_at) VALUES ${betValues.join(',')}`);
+        console.log('[SEED] Bets seeded ✓');
+      }
+    }
+
+    // Sample withdrawals
+    const wdCount = await pool.query('SELECT COUNT(*) FROM withdrawals');
+    if (parseInt(wdCount.rows[0].count) < 3) {
+      const userIds = (await pool.query('SELECT id FROM users ORDER BY id LIMIT 8')).rows.map(r => r.id);
+      if (userIds.length >= 3) {
+        await pool.query(`INSERT INTO withdrawals (user_id, amount_cents, pix_type, pix_key, status, created_at) VALUES
+          (${userIds[0]}, 5000, 'cpf', '123.456.789-00', 'pending', NOW() - INTERVAL '1 day'),
+          (${userIds[1]}, 10000, 'email', 'maria@teste.com', 'pending', NOW() - INTERVAL '2 days'),
+          (${userIds[2]}, 3000, 'phone', '31977665544', 'approved', NOW() - INTERVAL '3 days'),
+          (${userIds[3] || userIds[0]}, 25000, 'cpf', '321.654.987-00', 'pending', NOW() - INTERVAL '6 hours'),
+          (${userIds[4] || userIds[1]}, 1500, 'random', 'abc-123-def', 'rejected', NOW() - INTERVAL '5 days')
+        `);
+        console.log('[SEED] Withdrawals seeded ✓');
+      }
+    }
+
+    // Sample support tickets
+    const ticketCount = await pool.query('SELECT COUNT(*) FROM support_tickets');
+    if (parseInt(ticketCount.rows[0].count) < 3) {
+      const userIds = (await pool.query('SELECT id FROM users ORDER BY id LIMIT 5')).rows.map(r => r.id);
+      if (userIds.length >= 3) {
+        const t1 = await pool.query(`INSERT INTO support_tickets (user_id, subject, status, priority) VALUES ($1, 'Depósito não creditado', 'open', 'high') RETURNING id`, [userIds[0]]);
+        await pool.query(`INSERT INTO support_messages (ticket_id, sender_type, sender_id, message) VALUES ($1, 'user', $2, 'Fiz um depósito de R$ 100 via PIX há 2 horas e o saldo não foi creditado. Segue comprovante.')`, [t1.rows[0].id, userIds[0]]);
+        const t2 = await pool.query(`INSERT INTO support_tickets (user_id, subject, status, priority) VALUES ($1, 'Como funciona o cashback?', 'open', 'normal') RETURNING id`, [userIds[1]]);
+        await pool.query(`INSERT INTO support_messages (ticket_id, sender_type, sender_id, message) VALUES ($1, 'user', $2, 'Gostaria de saber como funciona o programa de cashback semanal. Qual o percentual e quando é pago?')`, [t2.rows[0].id, userIds[1]]);
+        const t3 = await pool.query(`INSERT INTO support_tickets (user_id, subject, status, priority) VALUES ($1, 'Problema ao sacar', 'closed', 'high') RETURNING id`, [userIds[2]]);
+        await pool.query(`INSERT INTO support_messages (ticket_id, sender_type, sender_id, message) VALUES ($1, 'user', $2, 'Meu saque está pendente há 3 dias. Podem verificar?')`, [t3.rows[0].id, userIds[2]]);
+        await pool.query(`INSERT INTO support_messages (ticket_id, sender_type, sender_id, message) VALUES ($1, 'admin', 1, 'Olá! Verificamos e o saque foi processado. Deve cair em até 24h úteis.')`, [t3.rows[0].id]);
+        console.log('[SEED] Support tickets seeded ✓');
+      }
+    }
+
+    // Sample affiliates
+    const affCount = await pool.query('SELECT COUNT(*) FROM affiliates');
+    if (parseInt(affCount.rows[0].count) < 2) {
+      const userIds = (await pool.query('SELECT id FROM users ORDER BY id LIMIT 5')).rows.map(r => r.id);
+      if (userIds.length >= 2) {
+        await pool.query(`INSERT INTO affiliates (user_id, code, commission_pct, total_earned_cents, is_active) VALUES
+          (${userIds[0]}, 'REF-PEDRO', 5.00, 15000, TRUE),
+          (${userIds[3] || userIds[1]}, 'REF-ANA', 7.50, 32500, TRUE)
+        ON CONFLICT (user_id) DO NOTHING`);
+        console.log('[SEED] Affiliates seeded ✓');
+      }
+    }
+
+    // Set top 10 featured games
+    const featuredCount = await pool.query('SELECT COUNT(*) FROM games WHERE is_featured = TRUE');
+    if (parseInt(featuredCount.rows[0].count) === 0) {
+      await pool.query(`UPDATE games SET is_featured = TRUE, featured_order = sub.rn
+        FROM (SELECT id, ROW_NUMBER() OVER (ORDER BY sort_order, id) AS rn FROM games WHERE is_active = TRUE LIMIT 10) sub
+        WHERE games.id = sub.id`);
+      console.log('[SEED] Featured games set ✓');
+    }
+
+    // ─── End seed data ───────────────────────────────────────
+
     // Ensure admin has valid hash
     const hash = await bcrypt.hash('Admin@12345', 10);
     await pool.query(`UPDATE admin_users SET password_hash = $1 WHERE username = 'admin' AND password_hash LIKE '%placeholder%'`, [hash]);

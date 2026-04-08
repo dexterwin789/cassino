@@ -256,7 +256,7 @@ router.get('/deposit/status', requireUser, async (req, res) => {
 router.get('/games', async (req, res) => {
   try {
     const cat = req.query.category || '';
-    let sql = 'SELECT id, game_code, game_name, image_url, provider, category FROM games WHERE is_active = TRUE';
+    let sql = 'SELECT id, game_code, game_name, image_url, provider, category, is_featured, featured_order FROM games WHERE is_active = TRUE';
     const params = [];
 
     if (cat) {

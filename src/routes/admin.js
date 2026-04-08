@@ -126,6 +126,10 @@ router.get('/promotions', requireAdmin, (req, res) => {
   res.render('admin/promotions', { title: 'Promoções', admin: req.session.admin });
 });
 
+router.get('/top10', requireAdmin, (req, res) => {
+  res.render('admin/top10', { title: 'Top 10', admin: req.session.admin });
+});
+
 router.get('/audit', requireAdmin, (req, res) => {
   res.render('admin/audit', { title: 'Audit Log', admin: req.session.admin });
 });

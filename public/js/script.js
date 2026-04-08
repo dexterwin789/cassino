@@ -358,7 +358,9 @@ function renderProviderGrids(games) {
 }
 
 function renderAllSections() {
-  var hot = allGames.slice(0, 9);
+  var featured = allGames.filter(function(g) { return g.is_featured; })
+    .sort(function(a, b) { return (a.featured_order || 0) - (b.featured_order || 0); });
+  var hot = featured.length ? featured.slice(0, 10) : allGames.slice(0, 9);
   renderTop10(hot);
   renderProviderGrids(allGames);
 }
@@ -367,14 +369,15 @@ function renderAllSections() {
 function top10CardHTML(game, rank) {
   var img = game.image_url || '/public/img/games/1.avif';
   var name = game.game_name || 'Jogo';
-  var h = '<div class="top10-card">';
+  var code = game.game_code || '';
+  var h = '<a href="/game/' + code + '" class="top10-card" title="' + name + '" style="text-decoration:none">';
   h += '<span class="top10-rank">' + rank + '</span>';
   h += '<div class="top10-img-wrap">';
   h += '<span class="top10-badge">' + rank + '</span>';
   h += '<img src="' + img + '" alt="' + name + '" draggable="false" loading="lazy">';
   h += '<div class="top10-hover"><span class="top10-play">&#9654; JOGAR</span></div>';
   h += '</div>';
-  h += '</div>';
+  h += '</a>';
   return h;
 }
 
@@ -384,7 +387,7 @@ var top10Total = 0;
 function renderTop10(games) {
   var track = document.getElementById('top10Track');
   if (!track) return;
-  var list = games.slice(0, 9);
+  var list = games.slice(0, 10);
   top10Total = list.length;
   top10Offset = 0;
   if (!list.length) { track.innerHTML = ''; return; }

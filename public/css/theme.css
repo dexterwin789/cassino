@@ -73,11 +73,11 @@
 [data-theme="light"] .sq-card{background:#e8ecf1;border-color:rgba(0,0,0,.06)}
 [data-theme="light"] .sq-card:hover{background:#dde2e8;border-color:rgba(0,0,0,.1)}
 [data-theme="light"] .sq-label{color:#475569}
-[data-theme="light"] .sq-card img{filter:brightness(0) saturate(100%);opacity:.5}
+[data-theme="light"] .sq-card img{filter:none;opacity:1}
 /* Collapsed sidebar cards — light bg */
 [data-theme="light"] .sidebar.collapsed .sq-card{background:#e8ecf1;border-color:rgba(0,0,0,.06)}
 [data-theme="light"] .sidebar.collapsed .sq-card:hover{background:#dde2e8}
-[data-theme="light"] .sidebar.collapsed .sq-img{filter:brightness(0) saturate(100%);opacity:.5}
+[data-theme="light"] .sidebar.collapsed .sq-img{filter:none;opacity:1}
 [data-theme="light"] .menu-title{color:#1a1a2e}
 /* Menu items — light bg */
 [data-theme="light"] .menu-list li{color:#475569}
