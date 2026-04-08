@@ -1715,6 +1715,24 @@ body.search-lock{overflow:hidden!important}
 .gp-responsible-label{
   font-size:12px;color:var(--text-muted);font-weight:500;
 }
+.gp-coming-soon{
+  display:flex;flex-direction:column;align-items:center;gap:10px;
+  padding:18px 24px;
+  background:rgba(255,255,255,.07);
+  border:1px solid rgba(255,255,255,.13);
+  border-radius:14px;
+  backdrop-filter:blur(8px);
+  text-align:center;
+}
+.gp-cs-badge{
+  font-size:15px;font-weight:700;color:#fff;
+  background:linear-gradient(135deg,#ff6b35,#f7c35f);
+  padding:6px 18px;border-radius:20px;
+  letter-spacing:.5px;
+}
+.gp-cs-text{
+  font-size:13px;color:rgba(255,255,255,.7);margin:0;font-weight:500;
+}
 
 /* Fullscreen mode */
 .gp-hero.gp-fullscreen{

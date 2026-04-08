@@ -82,11 +82,15 @@
           <div class="gp-hero-image">
             <img src="<%= game.image_url %>" alt="<%= game.game_name %>" draggable="false">
           </div>
-          <p class="gp-hero-cta">Você precisa entrar para jogar</p>
-          <div class="gp-hero-actions">
+          <div class="gp-hero-actions is-guest-el">
+            <p class="gp-hero-cta">Você precisa entrar para jogar</p>
             <span class="gp-responsible-label">Jogo Responsável</span>
             <button class="btn-register" id="heroRegister">Registre-se</button>
             <button class="btn-login" id="heroLogin">Entrar</button>
+          </div>
+          <div class="gp-coming-soon is-logged-el">
+            <div class="gp-cs-badge">🎮 Em Breve</div>
+            <p class="gp-cs-text">Novas atualizações chegando em breve. Fique ligado!</p>
           </div>
         </div>
       </section>
@@ -456,6 +460,33 @@
   /* === Dismiss preloader === */
   var pl = document.getElementById('pagePreloader');
   if (pl) { pl.classList.add('fade-out'); setTimeout(function() { pl.remove(); }, 500); }
+
+  /* === Auth state === */
+  fetch('/api/me', { credentials: 'include', cache: 'no-store' })
+    .then(function(r) { return r.json().catch(function() { return null; }); })
+    .then(function(j) {
+      var logged = !!(j && j.ok && j.logged);
+      document.body.classList.toggle('is-logged', logged);
+      document.body.classList.toggle('is-guest', !logged);
+      if (logged && j.user) {
+        /* Topbar user name */
+        var nameEl = document.getElementById('dropdownUserName');
+        if (nameEl) nameEl.textContent = (j.user.name && j.user.name.indexOf('@') === -1) ? j.user.name : 'Usuário';
+        /* Topbar balance */
+        fetch('/api/balance', { credentials: 'include', cache: 'no-store' })
+          .then(function(r2) { return r2.json().catch(function() { return null; }); })
+          .then(function(b) {
+            if (b && b.ok) {
+              var val = (b.balance / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+              var el = document.getElementById('walletBalance');
+              if (el) el.textContent = 'R$ ' + val;
+            }
+          });
+      }
+    })
+    .catch(function() {
+      document.body.classList.add('is-guest');
+    });
 })();
 </script>
 </body>
