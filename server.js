@@ -160,6 +160,21 @@ async function autoMigrate() {
       created_at TIMESTAMPTZ DEFAULT NOW()
     )`);
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_notif_user ON notifications(user_id, lida, created_at DESC)`);
+
+    // Seed test notifications for user 24
+    const notifCount = await pool.query('SELECT COUNT(*) FROM notifications WHERE user_id = 24');
+    if (parseInt(notifCount.rows[0].count) === 0) {
+      await pool.query(`INSERT INTO notifications (user_id, tipo, titulo, mensagem) VALUES
+        (24, 'success', 'Bem-vindo à CassinoBet!', 'Sua conta foi criada com sucesso. Aproveite nossos jogos!'),
+        (24, 'deposit', 'Depósito confirmado', 'Seu depósito de R$ 100,00 foi creditado na sua carteira.'),
+        (24, 'promo', 'Bônus especial de boas-vindas', 'Você ganhou 20 rodadas grátis no Fortune Tiger! Jogue agora.'),
+        (24, 'info', 'Verificação de identidade', 'Complete seu cadastro com CPF e data de nascimento para liberar saques.'),
+        (24, 'warning', 'Sessão em novo dispositivo', 'Detectamos um novo acesso à sua conta. Se não foi você, altere sua senha.'),
+        (0, 'promo', 'Promoção de Páscoa!', 'Deposite R$ 50 e ganhe R$ 25 de bônus. Válido até domingo!'),
+        (0, 'info', 'Manutenção programada', 'O sistema ficará indisponível dia 10/04 das 03:00 às 05:00 para manutenção.')
+      `);
+      console.log('[MIGRATE] Notifications seeded for user 24 ✓');
+    }
     // Ensure admin has valid hash
     const hash = await bcrypt.hash('Admin@12345', 10);
     await pool.query(`UPDATE admin_users SET password_hash = $1 WHERE username = 'admin' AND password_hash LIKE '%placeholder%'`, [hash]);

@@ -58,7 +58,11 @@ if (searchBox) {
       searchInput.disabled = false;
       searchInput.value = '';
       searchInput.style.cursor = '';
-      setTimeout(function() { searchInput.focus(); }, 50);
+      searchInput.focus();
+      openSearch();
+    } else if (searchInput && !searchIsOpen) {
+      searchInput.focus();
+      openSearch();
     }
   });
 }
@@ -2064,22 +2068,29 @@ var notifTypeIcons = {
 
 function renderNotifications(notifications) {
   var list = document.getElementById('notifList');
-  var empty = document.getElementById('notifEmpty');
+  var emptyBanner = document.getElementById('notifEmptyBanner');
   var markAll = document.getElementById('notifMarkAll');
+  var showReadBtn = document.getElementById('notifShowRead');
   if (!list) return;
+  
+  var unreadNotifs = notifications ? notifications.filter(function(n) { return !n.lida; }) : [];
+  var readNotifs = notifications ? notifications.filter(function(n) { return n.lida; }) : [];
+  
+  // Show/hide empty banner
+  if (emptyBanner) emptyBanner.style.display = unreadNotifs.length === 0 ? '' : 'none';
+  if (markAll) markAll.style.display = unreadNotifs.length > 0 ? 'inline-block' : 'none';
+  if (showReadBtn) showReadBtn.style.display = readNotifs.length > 0 ? '' : 'none';
+  
   if (!notifications || !notifications.length) {
     list.innerHTML = '';
-    if (empty) { list.appendChild(empty); empty.style.display = ''; }
-    if (markAll) markAll.style.display = 'none';
     return;
   }
-  if (empty) empty.style.display = 'none';
-  var hasUnread = notifications.some(function(n) { return !n.lida; });
-  if (markAll) markAll.style.display = hasUnread ? 'flex' : 'none';
+  
+  // Render unread notifications
   var html = '';
-  notifications.forEach(function(n) {
+  unreadNotifs.forEach(function(n) {
     var icon = notifTypeIcons[n.tipo] || notifTypeIcons.info;
-    html += '<div class="notif-item' + (n.lida ? '' : ' unread') + '" data-id="' + n.id + '">';
+    html += '<div class="notif-item unread" data-id="' + n.id + '">';
     html += '<div class="notif-icon ' + icon.cls + '">' + icon.emoji + '</div>';
     html += '<div class="notif-body">';
     html += '<div class="notif-title">' + (n.titulo || '') + '</div>';
@@ -2087,6 +2098,23 @@ function renderNotifications(notifications) {
     html += '<div class="notif-time">' + notifRelativeTime(n.created_at) + '</div>';
     html += '</div></div>';
   });
+  
+  // Render read notifications (hidden by default)
+  if (readNotifs.length) {
+    html += '<div class="notif-read-section" id="notifReadSection" style="display:none">';
+    readNotifs.forEach(function(n) {
+      var icon = notifTypeIcons[n.tipo] || notifTypeIcons.info;
+      html += '<div class="notif-item" data-id="' + n.id + '">';
+      html += '<div class="notif-icon ' + icon.cls + '">' + icon.emoji + '</div>';
+      html += '<div class="notif-body">';
+      html += '<div class="notif-title">' + (n.titulo || '') + '</div>';
+      if (n.mensagem) html += '<div class="notif-msg">' + n.mensagem + '</div>';
+      html += '<div class="notif-time">' + notifRelativeTime(n.created_at) + '</div>';
+      html += '</div></div>';
+    });
+    html += '</div>';
+  }
+  
   list.innerHTML = html;
   // Click to mark as read
   list.querySelectorAll('.notif-item.unread').forEach(function(item) {
@@ -2109,7 +2137,7 @@ function loadNotifications() {
 }
 
 function updateNotifBadge(count) {
-  var badges = document.querySelectorAll('#topbarNotifBadge, .wallet-nav-badge');
+  var badges = document.querySelectorAll('#topbarNotifBadge, #sidebarNotifBadge');
   badges.forEach(function(b) {
     b.textContent = count > 99 ? '99+' : count;
     b.style.display = count > 0 ? '' : 'none';
@@ -2147,6 +2175,23 @@ function markAllNotifsRead() {
 // Wire mark-all button
 var notifMarkAllBtn = document.getElementById('notifMarkAll');
 if (notifMarkAllBtn) notifMarkAllBtn.addEventListener('click', markAllNotifsRead);
+
+// Wire show-read button
+var notifShowReadBtn = document.getElementById('notifShowRead');
+if (notifShowReadBtn) {
+  notifShowReadBtn.addEventListener('click', function() {
+    var section = document.getElementById('notifReadSection');
+    if (section) {
+      var visible = section.style.display !== 'none';
+      section.style.display = visible ? 'none' : '';
+      notifShowReadBtn.textContent = visible ? 'Mostrar notificações lidas' : 'Ocultar notificações lidas';
+    }
+  });
+}
+
+// Wire refresh button
+var notifRefreshBtn = document.getElementById('notifRefreshBtn');
+if (notifRefreshBtn) notifRefreshBtn.addEventListener('click', function() { loadNotifications(); });
 
 // Start polling when logged in
 function startNotifPolling() {
@@ -2211,7 +2256,22 @@ document.querySelectorAll('.indique-period').forEach(function(btn) {
   btn.addEventListener('click', function() {
     document.querySelectorAll('.indique-period').forEach(function(b) { b.classList.remove('active'); });
     btn.classList.add('active');
-    // Future: reload referral data with period filter
+  });
+});
+
+// Prêmios tabs
+document.querySelectorAll('.premios-tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.premios-tab').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+  });
+});
+
+// Prêmios filters
+document.querySelectorAll('.premios-filter').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.premios-filter').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
   });
 });
 
