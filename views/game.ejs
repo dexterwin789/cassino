@@ -362,28 +362,9 @@
 
 <div id="toastContainer" class="toast-container"></div>
 
+<script src="/public/js/script.js"></script>
 <script>
 (function(){
-  /* === Sidebar toggle === */
-  var sidebar = document.getElementById('sidebar');
-  var sidebarOverlay = document.getElementById('sidebarOverlay');
-  var barsToggle = document.getElementById('barsToggle');
-  var topbarTabs = document.getElementById('topbarTabs');
-  function isMobile() { return window.innerWidth <= 768; }
-  if (barsToggle) barsToggle.addEventListener('click', function() {
-    if (isMobile()) {
-      if (sidebar) sidebar.classList.toggle('mobile-open');
-      if (sidebarOverlay) sidebarOverlay.classList.toggle('active');
-    } else {
-      if (sidebar) sidebar.classList.toggle('collapsed');
-      if (topbarTabs) topbarTabs.classList.toggle('collapsed');
-    }
-  });
-  if (sidebarOverlay) sidebarOverlay.addEventListener('click', function() {
-    if (sidebar) sidebar.classList.remove('mobile-open');
-    if (sidebarOverlay) sidebarOverlay.classList.remove('active');
-  });
-
   /* === Slider helper === */
   function initSlider(trackId, prevSel, nextSel) {
     var track = document.getElementById(trackId);
@@ -446,47 +427,9 @@
     });
   }
 
-  /* Toast */
-  window.showToast = function(msg, type) {
-    var container = document.getElementById('toastContainer');
-    if (!container) { alert(msg); return; }
-    var toast = document.createElement('div');
-    toast.className = 'toast ' + (type || 'info');
-    toast.textContent = msg;
-    container.appendChild(toast);
-    setTimeout(function() { toast.style.opacity = '0'; toast.style.transform = 'translateX(20px)'; toast.style.transition = '.3s'; setTimeout(function() { toast.remove(); }, 300); }, 3000);
-  };
-
-  /* === Dismiss preloader === */
+  /* === Dismiss preloader — script.js initApp also calls this, belt-and-suspenders === */
   var pl = document.getElementById('pagePreloader');
   if (pl) { pl.classList.add('fade-out'); setTimeout(function() { pl.remove(); }, 500); }
-
-  /* === Auth state === */
-  fetch('/api/me', { credentials: 'include', cache: 'no-store' })
-    .then(function(r) { return r.json().catch(function() { return null; }); })
-    .then(function(j) {
-      var logged = !!(j && j.ok && j.logged);
-      document.body.classList.toggle('is-logged', logged);
-      document.body.classList.toggle('is-guest', !logged);
-      if (logged && j.user) {
-        /* Topbar user name */
-        var nameEl = document.getElementById('dropdownUserName');
-        if (nameEl) nameEl.textContent = (j.user.name && j.user.name.indexOf('@') === -1) ? j.user.name : 'Usuário';
-        /* Topbar balance */
-        fetch('/api/balance', { credentials: 'include', cache: 'no-store' })
-          .then(function(r2) { return r2.json().catch(function() { return null; }); })
-          .then(function(b) {
-            if (b && b.ok) {
-              var val = (b.balance / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-              var el = document.getElementById('walletBalance');
-              if (el) el.textContent = 'R$ ' + val;
-            }
-          });
-      }
-    })
-    .catch(function() {
-      document.body.classList.add('is-guest');
-    });
 })();
 </script>
 </body>

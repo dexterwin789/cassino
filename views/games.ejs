@@ -189,6 +189,7 @@
 
 <div id="toastContainer" class="toast-container"></div>
 
+<script src="/public/js/script.js"></script>
 <script>
 (function(){
   var allGames = <%- JSON.stringify(games) %>;
@@ -355,37 +356,6 @@
   initBannerDots();
   showBanner(0);
   startBannerAuto();
-
-  /* === Sidebar toggle === */
-  var sidebar = document.getElementById('sidebar');
-  var sidebarOverlay = document.getElementById('sidebarOverlay');
-  var barsToggle = document.getElementById('barsToggle');
-  var topbarTabs = document.getElementById('topbarTabs');
-  function isMobile() { return window.innerWidth <= 768; }
-  if (barsToggle) barsToggle.addEventListener('click', function() {
-    if (isMobile()) {
-      if (sidebar) sidebar.classList.toggle('mobile-open');
-      if (sidebarOverlay) sidebarOverlay.classList.toggle('active');
-    } else {
-      if (sidebar) sidebar.classList.toggle('collapsed');
-      if (topbarTabs) topbarTabs.classList.toggle('collapsed');
-    }
-  });
-  if (sidebarOverlay) sidebarOverlay.addEventListener('click', function() {
-    if (sidebar) sidebar.classList.remove('mobile-open');
-    if (sidebarOverlay) sidebarOverlay.classList.remove('active');
-  });
-
-  /* Toast */
-  window.showToast = function(msg, type) {
-    var container = document.getElementById('toastContainer');
-    if (!container) { alert(msg); return; }
-    var toast = document.createElement('div');
-    toast.className = 'toast ' + (type || 'info');
-    toast.textContent = msg;
-    container.appendChild(toast);
-    setTimeout(function() { toast.style.opacity = '0'; toast.style.transform = 'translateX(20px)'; toast.style.transition = '.3s'; setTimeout(function() { toast.remove(); }, 300); }, 3000);
-  };
 
   /* === Dismiss preloader === */
   var pl = document.getElementById('pagePreloader');
