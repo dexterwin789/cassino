@@ -85,23 +85,23 @@
 [data-theme="light"] .menu-list li:hover .mi{opacity:1}
 [data-theme="light"] .menu-list li.active{color:#ff3a00}
 /* Sidebar icon filter — apply to .mi but NOT popular (.grayscale) */
-[data-theme="light"] .mi{filter:brightness(0) saturate(100%);opacity:.7}
+[data-theme="light"] .mi{filter:none;opacity:1}
 [data-theme="light"] .mi.grayscale{filter:none;opacity:1}
 /* Collapsed sidebar menu items — light bg */
 [data-theme="light"] .sidebar.collapsed .menu-list li{background:#e8ecf1}
 [data-theme="light"] .sidebar.collapsed .menu-list li:hover{background:rgba(255,58,0,.08)}
 [data-theme="light"] .sidebar.collapsed .menu-list li:hover .mi{opacity:1}
-[data-theme="light"] .sidebar.collapsed .menu-list .mi{filter:brightness(0) saturate(100%);opacity:.7}
+[data-theme="light"] .sidebar.collapsed .menu-list .mi{filter:none;opacity:1}
 [data-theme="light"] .sidebar.collapsed .menu-list .mi.grayscale{filter:none;opacity:1}
 /* Sidebar bottom links */
 [data-theme="light"] .sidebar-bottom a{color:#475569}
 [data-theme="light"] .sidebar-bottom a:hover{color:#ff3a00;background:rgba(255,58,0,.06)}
-[data-theme="light"] .sidebar-bottom a img{filter:brightness(0) saturate(100%);opacity:.7}
+[data-theme="light"] .sidebar-bottom a img{filter:none;opacity:1}
 [data-theme="light"] .sidebar-bottom a:hover img{opacity:1}
 /* Collapsed sidebar bottom links — light bg */
 [data-theme="light"] .sidebar.collapsed .sidebar-bottom a{background:#e8ecf1}
 [data-theme="light"] .sidebar.collapsed .sidebar-bottom a:hover{background:rgba(255,58,0,.08)}
-[data-theme="light"] .sidebar.collapsed .sidebar-bottom .mi{filter:brightness(0) saturate(100%);opacity:.7}
+[data-theme="light"] .sidebar.collapsed .sidebar-bottom .mi{filter:none;opacity:1}
 [data-theme="light"] .sidebar.collapsed .sidebar-bottom a:hover .mi{opacity:1}
 [data-theme="light"] .sidebar-lang{color:#475569;border-color:rgba(0,0,0,.06)}
 [data-theme="light"] .sidebar-section-border{border-color:rgba(0,0,0,.06)}
@@ -359,3 +359,27 @@
 
 /* Toast */
 [data-theme="light"] .toast-container .toast{box-shadow:0 4px 16px rgba(0,0,0,.15)}
+
+/* ===== PRÊMIOS E RECOMPENSAS — Light Theme ===== */
+[data-theme="light"] .premios-card{background-color:#fff;color:#1a1a2e;border:1px solid rgba(0,0,0,.08)}
+[data-theme="light"] .premios-tabs-wrap{background:rgba(0,0,0,.04)}
+[data-theme="light"] .premios-tab{background:rgba(0,0,0,.03);border-color:rgba(0,0,0,.06);color:#64748b}
+[data-theme="light"] .premios-tab.active{background-color:rgba(255,57,1,.08);border-color:rgba(255,57,1,.15);color:#ff3901}
+[data-theme="light"] .premios-tab-count{background:rgba(0,0,0,.08);color:#475569}
+[data-theme="light"] .premios-tab-refresh{background:rgba(0,0,0,.03);color:#64748b}
+[data-theme="light"] .premios-tab-refresh:hover{color:#ff3901}
+[data-theme="light"] .premios-filter{border-color:rgba(0,0,0,.1);color:#64748b}
+[data-theme="light"] .premios-filter.active{border-color:#ff3901;color:#ff3901;background:rgba(255,57,1,.06)}
+[data-theme="light"] .premios-filter:hover{border-color:#94a3b8}
+[data-theme="light"] .premios-filter-label{color:#64748b}
+[data-theme="light"] .premios-empty{color:#475569}
+
+/* ===== INDIQUE E GANHE — Light Theme ===== */
+[data-theme="light"] .indique-desc{background:rgba(0,0,0,.02);border-color:rgba(0,0,0,.08)}
+[data-theme="light"] .indique-desc-icon{background:rgba(255,58,0,.08)}
+[data-theme="light"] .indique-link-input{background:#f8fafc;border-color:rgba(0,0,0,.1);color:#1a1a2e}
+[data-theme="light"] .indique-share-btn{background:#f8fafc;border-color:rgba(0,0,0,.1);color:#64748b}
+[data-theme="light"] .indique-share-btn:hover{border-color:#ff3901;color:#ff3901}
+[data-theme="light"] .indique-period{border-color:rgba(0,0,0,.1);color:#64748b}
+[data-theme="light"] .indique-period.active{border-color:#ff3901;color:#ff3901;background:rgba(255,57,1,.06)}
+[data-theme="light"] .indique-empty-msg{background:rgba(0,0,0,.02);color:#64748b}

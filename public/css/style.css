@@ -321,7 +321,7 @@ ul{list-style:none}
 .sidebar.collapsed .menu-list .ml{display:none}
 .sidebar.collapsed .menu-list .mi{
   width:20px;height:20px;
-  filter:none;opacity:.7;
+  filter:none;opacity:1;
 }
 .sidebar.collapsed .menu-list .mi.grayscale{filter:grayscale(1);opacity:.6}
 .sidebar.collapsed .menu-list li:hover .mi{opacity:1}
@@ -431,7 +431,7 @@ ul{list-style:none}
   color:var(--text);cursor:pointer;transition:.15s;
 }
 .sidebar-bottom a:hover{background:rgba(255,255,255,.04)}
-.sidebar-bottom .mi{width:20px;height:20px;flex-shrink:0;opacity:.7}
+.sidebar-bottom .mi{width:20px;height:20px;flex-shrink:0;opacity:1}
 .sidebar-bottom a:hover .mi{opacity:1}
 
 /* Sidebar language selector */
@@ -456,7 +456,7 @@ ul{list-style:none}
 }
 .sidebar.collapsed .sidebar-bottom a:hover{background:rgba(253,255,255,.1)}
 .sidebar.collapsed .sidebar-bottom .ml{display:none}
-.sidebar.collapsed .sidebar-bottom .mi{width:20px;height:20px;filter:none;opacity:.7}
+.sidebar.collapsed .sidebar-bottom .mi{width:20px;height:20px;filter:none;opacity:1}
 .sidebar.collapsed .sidebar-bottom a:hover .mi{opacity:1}
 .sidebar.collapsed .sidebar-lang{display:none}
 
@@ -854,10 +854,12 @@ body.search-lock{overflow:hidden!important}
 }
 .ganhos-strip{
   display:flex;gap:12px;
-  overflow-x:hidden;
+  overflow-x:auto;
   padding-bottom:4px;
   position:relative;
+  scrollbar-width:none;
 }
+.ganhos-strip::-webkit-scrollbar{display:none}
 .ganhos-trophy-card{
   flex:0 0 195px;height:105px;
   display:flex;align-items:center;gap:12px;
@@ -948,6 +950,8 @@ body.search-lock{overflow:hidden!important}
 .wallet-nav-item.active .wnav-icon{color:#ff3901}
 .wallet-nav-item > svg.wallet-nav-arrow{width:10px;height:16px;margin-left:auto;opacity:.35;flex-shrink:0}
 .wallet-nav-item.active > svg.wallet-nav-arrow{opacity:.7}
+/* Active items with sub-menu: rotate arrow to point left + orange */
+.wallet-nav-item.active[data-has-submenu] > svg.wallet-nav-arrow{transform:rotate(180deg);color:#ff3901;opacity:1}
 .wallet-nav-divider{display:none}
 /* Active parent header (sub-menu back) */
 .wallet-sub-back{background-color:rgba(255,57,1,.1);color:#fdffff;border-radius:.375rem}
@@ -2770,4 +2774,114 @@ body.search-lock{overflow:hidden!important}
   .indique-link-row{flex-wrap:wrap}
   .indique-copy-btn{flex:1;justify-content:center}
   .indique-stats{grid-template-columns:1fr}
+}
+
+/* ===== ENHANCED MOBILE RESPONSIVE ===== */
+
+/* Safe area for notched devices (iPhone X+, Android gesture bar) */
+@supports(padding-bottom:env(safe-area-inset-bottom)){
+  body{padding-bottom:env(safe-area-inset-bottom)}
+  .bottom-nav{padding-bottom:env(safe-area-inset-bottom);height:calc(64px + env(safe-area-inset-bottom))}
+  .dep-modal{padding-bottom:env(safe-area-inset-bottom)}
+  .login-modal{padding-bottom:env(safe-area-inset-bottom)}
+  .site-footer{padding-bottom:env(safe-area-inset-bottom)}
+}
+
+/* Tablet (960px) — smooth transition before 768px breakpoint */
+@media(max-width:960px){
+  .topbar-tabs{width:200px;padding:0 6px}
+  .tab-switch{font-size:12px;padding:6px 10px}
+  .ganhos-trophy-card{flex:0 0 160px}
+  .ganho-card{flex:0 0 240px}
+  .premios-filters{gap:6px}
+  .premios-filter{padding:4px 10px;font-size:10px}
+}
+
+/* Mobile — extra refinements beyond existing 768px rules */
+@media(max-width:768px){
+  /* Topbar polish */
+  .topbar{height:56px}
+  :root{--topbar-h:56px}
+  .topbar-container{padding:0 10px;gap:6px}
+  .bars-toggle{width:32px;height:32px}
+
+  /* Ganhos section — horizontal scroll */
+  .ganhos-trophy-card{flex:0 0 150px;height:90px;padding:0 12px}
+  .ganhos-trophy-img{width:46px;height:46px}
+  .ganhos-trophy-text{font-size:13px}
+  .ganho-card{flex:0 0 220px;height:90px;padding:10px}
+  .ganho-thumb{width:48px;height:48px}
+  .ganho-user{font-size:12px}
+  .ganho-amount{font-size:14px}
+  .ganhos-tabs{gap:6px;flex-wrap:wrap}
+  .ganhos-tab{padding:5px 12px;font-size:11px}
+
+  /* Apostas table */
+  .aposta-row{font-size:11px}
+
+  /* Wallet section — improve tap targets */
+  .wallet-nav-item{padding:12px 14px;font-size:12px;min-height:44px}
+  .wallet-content{padding:16px 12px;padding-top:0}
+
+  /* Prêmios mobile */
+  .premios-card{padding:.75rem}
+  .premios-tabs-wrap{padding:.375rem;gap:.375rem}
+  .premios-tab{padding:.375rem;font-size:.7rem}
+  .premios-filters{gap:4px;margin-bottom:16px}
+  .premios-filter{padding:4px 8px;font-size:10px}
+  .premios-empty{padding:24px 12px;font-size:14px}
+
+  /* Indique mobile */
+  .indique-banner{max-height:180px}
+  .indique-desc{flex-direction:column;gap:12px;padding:14px}
+  .indique-eligible-btn{align-self:flex-start}
+  .indique-period{padding:5px 10px;font-size:10px}
+
+  /* Section headers */
+  .section-header h2{font-size:14px}
+
+  /* Estúdios cards */
+  .estudio-card{min-width:100px}
+}
+
+/* Small phones (480px) */
+@media(max-width:480px){
+  .topbar-container{padding:0 8px;gap:4px}
+  .btn-deposit{padding:6px 14px;font-size:11px}
+  .topbar-balance-btn{padding:6px 8px;font-size:11px}
+  .topbar-balance-refresh{padding:6px 6px}
+
+  /* Wallet section — stacked experience */
+  .wallet-nav-item{font-size:11px;padding:10px 12px}
+  .wallet-panel-title{font-size:14px}
+  .wallet-content{padding:12px 8px;padding-top:0}
+
+  /* Ganhos — smaller cards */
+  .ganhos-trophy-card{flex:0 0 130px;height:80px}
+  .ganho-card{flex:0 0 200px;height:80px}
+
+  /* Indique mobile */
+  .indique-desc{padding:12px}
+  .indique-link-input{font-size:11px;padding:8px 10px}
+  .indique-copy-btn{font-size:11px;padding:8px 12px}
+
+  /* Prêmios — fit on small screens */
+  .premios-tabs-wrap{flex-wrap:wrap}
+  .premios-tab{flex:1 1 40%;min-width:0}
+  .premios-tab-refresh{flex-shrink:0}
+}
+
+/* Ultra-small (375px and below — iPhone SE, older devices) */
+@media(max-width:375px){
+  .topbar-balance{display:none}
+  .topbar-logged{gap:2px}
+  .btn-deposit{padding:5px 10px;font-size:10px}
+  .logo-img{height:20px;max-width:140px}
+  .games-grid{grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px}
+  .provider-grid{gap:6px}
+  .provider-grid .game-card img{height:120px}
+  .search-results-grid{grid-template-columns:repeat(2,1fr)}
+
+  /* Wallet table */
+  .acct-login-table th,.acct-login-table td{padding:8px 6px;font-size:10px}
 }
