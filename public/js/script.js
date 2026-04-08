@@ -30,7 +30,13 @@ function renderGames(games, containerId, limit) {
 /* ========== SEARCH ========== */
 /* ========== SEARCH ========== */
 var searchInput = document.getElementById('searchGames');
-if (searchInput) searchInput.value = '';
+if (searchInput) {
+  searchInput.setAttribute('readonly', '');
+  searchInput.value = '';
+  setTimeout(function() { searchInput.removeAttribute('readonly'); searchInput.value = ''; }, 100);
+  setTimeout(function() { searchInput.value = ''; }, 500);
+  setTimeout(function() { searchInput.value = ''; }, 1500);
+}
 var searchOverlay = document.getElementById('searchOverlay');
 var searchResults = document.getElementById('searchResults');
 var searchGrid = document.getElementById('searchGrid');
@@ -593,9 +599,19 @@ function updateAuthState() {
       document.body.classList.toggle('is-guest', !logged);
       if (logged) {
         refreshWalletUI();
-        // Set user name in dropdown
+        // Ensure login timer persists across deploys
+        if (!sessionStorage.getItem('acctLoginStart')) {
+          sessionStorage.setItem('acctLoginStart', String(Date.now()));
+          acctLoginStart = Date.now();
+        }
+        // Helper: detect email-like values (not a real name)
+        function isEmail(v) { return v && v.indexOf('@') !== -1; }
+        // Set user name in dropdown (skip if it looks like an email)
         var nameEl = document.getElementById('dropdownUserName');
-        if (nameEl && j.user) nameEl.textContent = j.user.name || j.user.username || 'Usuário';
+        if (nameEl && j.user) {
+          var safeName = (!isEmail(j.user.name)) ? j.user.name : null;
+          nameEl.textContent = safeName || 'Usuário';
+        }
         // Set date
         var dateEl = document.getElementById('dropdownDate');
         if (dateEl) dateEl.textContent = 'Atualizado em: ' + new Date().toLocaleString('pt-BR');
@@ -605,17 +621,19 @@ function updateAuthState() {
         if (wUid && j.user) wUid.textContent = j.user.id || '';
         // Account section data
         var acctName = document.getElementById('acctFooterName');
-        if (acctName && j.user) acctName.textContent = j.user.name || j.user.username || 'Usuário';
+        var safeFooterName = (j.user && !isEmail(j.user.name)) ? j.user.name : null;
+        if (acctName) acctName.textContent = safeFooterName || 'Usuário';
         // Mirror name to all footer bars
-        var uName = (j.user && (j.user.name || j.user.username)) || 'Usuário';
+        var uName = safeFooterName || 'Usuário';
         document.querySelectorAll('.acctFooterNameMirror').forEach(function(e) { e.textContent = uName; });
         var acctUid = document.getElementById('acctUserId');
         if (acctUid && j.user) acctUid.value = j.user.id || '—';
         var acctEmail = document.getElementById('acctEmailValue');
-        if (acctEmail && j.user && j.user.email) acctEmail.textContent = j.user.email;
+        var userEmail = (j.user && (j.user.email || j.user.username)) || '';
+        if (acctEmail && userEmail) acctEmail.textContent = userEmail;
         // Dropdown email
         var ddEmail = document.getElementById('dropdownUserEmail');
-        if (ddEmail && j.user && j.user.email) ddEmail.textContent = j.user.email;
+        if (ddEmail && userEmail) ddEmail.textContent = userEmail;
         // Dropdown user ID
         var ddUid = document.getElementById('dropdownUserId');
         if (ddUid && j.user) ddUid.textContent = 'ID: ' + (j.user.id || '');
@@ -666,15 +684,16 @@ function updateAuthState() {
             pSum.textContent = '◆ CPF: ' + pc.slice(0,3) + '.' + pc.slice(3,6) + '.' + pc.slice(6,9) + '-' + pc.slice(9);
           }
         }
-        // Name
-        if (j.user.name) {
-          var nameInp = document.getElementById('acctNomeCompleto');
-          if (nameInp) nameInp.value = j.user.name;
+        // Name (skip if it looks like an email)
+        var nameInp = document.getElementById('acctNomeCompleto');
+        if (nameInp && j.user.name && !isEmail(j.user.name)) {
+          nameInp.value = j.user.name;
         }
         // Photo card user info
         var photoUserName = document.getElementById('acctPhotoUserName');
         if (photoUserName && j.user) {
-          var firstName = (j.user.name || '').split(' ')[0] || j.user.username || 'Usuário';
+          var rawName = (!isEmail(j.user.name)) ? (j.user.name || '') : '';
+          var firstName = rawName.split(' ')[0] || 'Usuário';
           photoUserName.textContent = firstName;
         }
         var photoUserId = document.getElementById('acctPhotoUserId');
