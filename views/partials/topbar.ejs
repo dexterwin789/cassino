@@ -1,0 +1,79 @@
+<!-- TOP BAR -->
+<header class="topbar" id="topbar">
+  <div class="topbar-tabs" id="topbarTabs">
+    <button class="tab-switch active" data-tab="cassino">
+      <img src="/public/img/novo/carta1.svg" width="17" height="17" alt="Cassino">
+      CASSINO
+    </button>
+    <button class="tab-switch" data-tab="esportes">
+      <img src="/public/img/novo/bola1.svg" width="17" height="17" alt="Esportes">
+      ESPORTES
+    </button>
+  </div>
+  <div class="topbar-container">
+    <button class="bars-toggle" id="barsToggle" title="Toggle sidebar">
+      <img src="/public/img/novo/bars1.svg" width="16" height="16" alt="Menu">
+    </button>
+    <a href="/" class="topbar-logo">
+      <img src="/public/img/novo/logo.png" alt="CassinoBet" class="logo-img">
+    </a>
+    <div class="topbar-spacer"></div>
+    <!-- GUEST -->
+    <div class="topbar-auth is-guest-el">
+      <button class="btn-register" id="btnOpenRegister">Registre-se</button>
+      <button class="btn-login" id="btnOpenLogin">Entrar</button>
+    </div>
+    <!-- LOGGED IN -->
+    <div class="topbar-logged is-logged-el">
+      <button class="topbar-notif" id="topbarNotif" title="Notificações">
+        <img src="/public/img/novo/topo1.svg" width="16" height="16" alt="">
+        <span class="topbar-notif-badge" id="topbarNotifBadge">0</span>
+      </button>
+      <button class="btn-deposit" id="btnDeposit">Depositar</button>
+      <div class="topbar-balance" id="topbarBalance">
+        <button class="topbar-balance-btn" id="topbarBalanceBtn">
+          <span class="topbar-balance-val" id="walletBalance">R$ 0,00</span>
+        </button>
+        <button class="topbar-balance-refresh" id="topbarRefresh" title="Atualizar saldo">
+          <img src="/public/img/novo/topo2.svg" width="16" height="16" alt="">
+        </button>
+      </div>
+      <div class="topbar-user-wrap">
+        <button class="topbar-user-btn" id="topbarUserBtn">
+          <img src="/public/img/novo/topo3.svg" width="28" height="28" alt="" class="topbar-user-avatar" id="topbarAvatar">
+        </button>
+        <div class="topbar-dropdown" id="topbarDropdown">
+          <div class="topbar-dropdown-header">
+            <img src="/public/img/novo/topo3.svg" width="40" height="40" alt="" class="topbar-dropdown-avatar">
+            <div class="topbar-dropdown-info">
+              <strong id="dropdownUserName">Usuário</strong>
+              <span id="dropdownUserEmail" class="topbar-dropdown-email"></span>
+              <span id="dropdownUserId" class="topbar-dropdown-email" style="font-size:10px"></span>
+            </div>
+          </div>
+          <div class="topbar-dropdown-date" id="dropdownDate"></div>
+          <nav class="topbar-dropdown-nav">
+            <a href="#" id="dropdownMenu"><img src="/public/img/novo/drop1.svg" width="16" height="16"> Menu</a>
+            <div class="topbar-dropdown-theme">
+              <a href="#" class="dropdown-theme-row"><img src="/public/img/novo/drop2.svg" width="16" height="16"> Tema</a>
+              <div class="theme-toggle-btns">
+                <button class="theme-btn theme-btn-dark active" id="themeDark" title="Dark"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
+                <button class="theme-btn theme-btn-light" id="themeLight" title="Light"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3" stroke="currentColor" stroke-width="2"/><line x1="12" y1="21" x2="12" y2="23" stroke="currentColor" stroke-width="2"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64" stroke="currentColor" stroke-width="2"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" stroke="currentColor" stroke-width="2"/><line x1="1" y1="12" x2="3" y2="12" stroke="currentColor" stroke-width="2"/><line x1="21" y1="12" x2="23" y2="12" stroke="currentColor" stroke-width="2"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36" stroke="currentColor" stroke-width="2"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" stroke="currentColor" stroke-width="2"/></svg></button>
+              </div>
+            </div>
+            <a href="#" id="dropdownPerfil"><img src="/public/img/novo/topo3.svg" width="16" height="16"> Meu Perfil</a>
+            <a href="#" id="dropdownNotif"><img src="/public/img/novo/drop3.svg" width="16" height="16"> Notificações</a>
+            <a href="#" id="dropdownPrizes"><img src="/public/img/novo/drop4.svg" width="16" height="16"> Prêmios e Recompensas</a>
+            <a href="#" id="dropdownWallet"><img src="/public/img/novo/drop5.svg" width="16" height="16"> Carteira</a>
+            <a href="#" id="dropdownBets"><img src="/public/img/novo/drop6.svg" width="16" height="16"> Apostas</a>
+            <a href="#" id="dropdownReferrals"><img src="/public/img/novo/drop7.svg" width="16" height="16"> Indicações</a>
+            <a href="#" id="dropdownPassword"><img src="/public/img/novo/drop9.svg" width="16" height="16"> Alterar senha</a>
+            <a href="#" id="dropdownSupport"><img src="/public/img/novo/drop10.svg" width="16" height="16"> Suporte ao vivo</a>
+            <a href="#" id="dropdownPromos"><img src="/public/img/novo/drop11.svg" width="16" height="16"> Promoções</a>
+            <a href="#" id="dropdownLogout" class="topbar-dropdown-logout"><img src="/public/img/novo/drop12.svg" width="16" height="16"> Sair</a>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>

@@ -766,7 +766,11 @@ if (btnOpenLogin) btnOpenLogin.addEventListener('click', function() {
 // Deposit button
 var btnDeposit = document.getElementById('btnDeposit');
 if (btnDeposit) btnDeposit.addEventListener('click', function() {
-  if (typeof openDepositModal === 'function') openDepositModal();
+  if (typeof openDepositModal === 'function') {
+    openDepositModal();
+  } else {
+    window.location.href = '/?panel=depositar';
+  }
 });
 
 // Refresh balance
@@ -886,6 +890,11 @@ function startWatchPayment(txId) {
 
 /* ========== WALLET SECTION (show/hide home) ========== */
 function showWalletSection(panel) {
+  // If not on home page, redirect to home with panel param
+  if (!document.getElementById('homeContent')) {
+    window.location.href = '/?panel=' + encodeURIComponent(panel);
+    return;
+  }
   // Depositar — just open modal, don't navigate
   if (panel === 'depositar') {
     if (typeof openDepositModal === 'function') openDepositModal();
@@ -1500,6 +1509,18 @@ function initApp() {
         history.replaceState(null, '', window.location.pathname);
         setTimeout(function() {
           if (typeof openDepositModal === 'function') openDepositModal();
+        }, 300);
+      }
+      // Auto-open panel if redirected from game/games page
+      var panelParam = new URLSearchParams(window.location.search).get('panel');
+      if (panelParam) {
+        history.replaceState(null, '', window.location.pathname);
+        setTimeout(function() {
+          if (panelParam === 'depositar' && typeof openDepositModal === 'function') {
+            openDepositModal();
+          } else {
+            showWalletSection(panelParam);
+          }
         }, 300);
       }
     }).catch(dismissPreloader);
