@@ -221,6 +221,21 @@ async function autoMigrate() {
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_user_coupons_user ON user_coupons(user_id)`);
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_user_coupons_coupon ON user_coupons(coupon_id)`);
 
+    // User limits (Responsible Gaming)
+    await pool.query(`CREATE TABLE IF NOT EXISTS user_limits (
+      id SERIAL PRIMARY KEY,
+      user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      limit_type VARCHAR(32) NOT NULL DEFAULT 'deposit',
+      period VARCHAR(32) NOT NULL DEFAULT 'daily',
+      limit_value INT NOT NULL DEFAULT 0,
+      enforced_by VARCHAR(16) DEFAULT 'admin',
+      admin_notes TEXT,
+      is_active BOOLEAN DEFAULT TRUE,
+      created_at TIMESTAMPTZ DEFAULT NOW(),
+      updated_at TIMESTAMPTZ DEFAULT NOW()
+    )`);
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_user_limits_user ON user_limits(user_id)`);
+
     // Seed test notifications for user 24
     const notifCount = await pool.query('SELECT COUNT(*) FROM notifications WHERE user_id = 24');
     if (parseInt(notifCount.rows[0].count) === 0) {
@@ -423,6 +438,23 @@ async function autoMigrate() {
           (${userIds[3] || userIds[1]}, 'REF-ANA', 7.50, 32500, TRUE)
         ON CONFLICT (user_id) DO NOTHING`);
         console.log('[SEED] Affiliates seeded ✓');
+      }
+    }
+
+    // Seed user_limits (Jogo Responsável)
+    const limitsCount = await pool.query('SELECT COUNT(*) FROM user_limits');
+    if (parseInt(limitsCount.rows[0].count) === 0) {
+      const userIds = (await pool.query('SELECT id FROM users ORDER BY id LIMIT 5')).rows.map(r => r.id);
+      if (userIds.length >= 3) {
+        await pool.query(`INSERT INTO user_limits (user_id, limit_type, period, limit_value, enforced_by, admin_notes) VALUES
+          (${userIds[0]}, 'deposit', 'daily', 50000, 'user', 'Auto-configurado pelo usuário'),
+          (${userIds[0]}, 'bet', 'daily', 10000, 'user', 'Limite de aposta diária'),
+          (${userIds[1]}, 'deposit', 'monthly', 500000, 'admin', 'Limite imposto por suspeita de comportamento compulsivo'),
+          (${userIds[1]}, 'loss', 'weekly', 100000, 'admin', 'Limite de perda semanal imposto pelo admin'),
+          (${userIds[2]}, 'time', 'daily', 480, 'user', 'Limite de 8 horas por dia'),
+          (${userIds[2]}, 'deposit', 'weekly', 200000, 'user', 'Limite de depósito semanal R$ 2.000')
+        `);
+        console.log('[SEED] User limits seeded ✓');
       }
     }
 

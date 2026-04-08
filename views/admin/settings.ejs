@@ -17,11 +17,6 @@
         <option value="1" <%= settings.maintenance_mode === '1' ? 'selected' : '' %>>Ativado</option>
       </select>
     </div>
-    <div class="adm-setting-card">
-      <label>Tema Ativo</label>
-      <input type="text" value="<%= settings.active_theme || 'default' %>" disabled>
-      <a href="/admin/themes" class="adm-muted" style="font-size:12px;">Gerenciar temas →</a>
-    </div>
   </div>
 
   <button class="adm-btn primary" id="btnSaveSettings" style="margin-top:16px;">Salvar Configurações</button>

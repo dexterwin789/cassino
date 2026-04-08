@@ -452,6 +452,10 @@
     container.appendChild(toast);
     setTimeout(function() { toast.style.opacity = '0'; toast.style.transform = 'translateX(20px)'; toast.style.transition = '.3s'; setTimeout(function() { toast.remove(); }, 300); }, 3000);
   };
+
+  /* === Dismiss preloader === */
+  var pl = document.getElementById('pagePreloader');
+  if (pl) { pl.classList.add('fade-out'); setTimeout(function() { pl.remove(); }, 500); }
 })();
 </script>
 </body>

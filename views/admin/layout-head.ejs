@@ -24,83 +24,83 @@
 
       <nav class="adm-sidebar-nav">
         <div class="adm-nav-section">Principal</div>
-        <a href="/admin" class="adm-nav-link<%= page === 'dashboard' ? ' active' : '' %>">
+        <a href="/admin" class="adm-nav-link<%= page === 'dashboard' ? ' active' : '' %>" data-tip="Dashboard">
           <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
           <span>Dashboard</span>
         </a>
 
         <div class="adm-nav-section">Gerenciar</div>
-        <a href="/admin/users" class="adm-nav-link<%= page === 'users' ? ' active' : '' %>">
+        <a href="/admin/users" class="adm-nav-link<%= page === 'users' ? ' active' : '' %>" data-tip="Usuários">
           <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
           <span>Usuários</span>
         </a>
-        <a href="/admin/deposits" class="adm-nav-link<%= page === 'deposits' ? ' active' : '' %>">
+        <a href="/admin/deposits" class="adm-nav-link<%= page === 'deposits' ? ' active' : '' %>" data-tip="Depósitos">
           <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
           <span>Depósitos</span>
         </a>
-        <a href="/admin/games" class="adm-nav-link<%= page === 'games' ? ' active' : '' %>">
+        <a href="/admin/games" class="adm-nav-link<%= page === 'games' ? ' active' : '' %>" data-tip="Jogos">
           <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
           <span>Jogos</span>
         </a>
-        <a href="/admin/transactions" class="adm-nav-link<%= page === 'transactions' ? ' active' : '' %>">
+        <a href="/admin/transactions" class="adm-nav-link<%= page === 'transactions' ? ' active' : '' %>" data-tip="Transações">
           <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
           <span>Transações</span>
         </a>
-        <a href="/admin/banners" class="adm-nav-link<%= page === 'banners' ? ' active' : '' %>">
+        <a href="/admin/banners" class="adm-nav-link<%= page === 'banners' ? ' active' : '' %>" data-tip="Banners">
           <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
           <span>Banners</span>
         </a>
-        <a href="/admin/bets" class="adm-nav-link<%= page === 'bets' ? ' active' : '' %>">
+        <a href="/admin/bets" class="adm-nav-link<%= page === 'bets' ? ' active' : '' %>" data-tip="Apostas">
           <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/><path d="M9 9h1"/><path d="M14 9h1"/><path d="M9 14h1"/><path d="M14 14h1"/></svg>
           <span>Apostas</span>
         </a>
-        <a href="/admin/affiliates" class="adm-nav-link<%= page === 'affiliates' ? ' active' : '' %>">
+        <a href="/admin/affiliates" class="adm-nav-link<%= page === 'affiliates' ? ' active' : '' %>" data-tip="Afiliados">
           <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
           <span>Afiliados</span>
         </a>
-        <a href="/admin/promotions" class="adm-nav-link<%= page === 'promotions' ? ' active' : '' %>">
+        <a href="/admin/promotions" class="adm-nav-link<%= page === 'promotions' ? ' active' : '' %>" data-tip="Promoções">
           <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
           <span>Promoções</span>
         </a>
-        <a href="/admin/top10" class="adm-nav-link<%= page === 'top10' ? ' active' : '' %>">
+        <a href="/admin/top10" class="adm-nav-link<%= page === 'top10' ? ' active' : '' %>" data-tip="Top 10">
           <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
           <span>Top 10</span>
         </a>
-        <a href="/admin/support" class="adm-nav-link<%= page === 'support' ? ' active' : '' %>">
+        <a href="/admin/support" class="adm-nav-link<%= page === 'support' ? ' active' : '' %>" data-tip="Suporte">
           <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
           <span>Suporte</span>
         </a>
-        <a href="/admin/withdrawals" class="adm-nav-link<%= page === 'withdrawals' ? ' active' : '' %>">
+        <a href="/admin/withdrawals" class="adm-nav-link<%= page === 'withdrawals' ? ' active' : '' %>" data-tip="Saques">
           <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
           <span>Saques</span>
         </a>
-        <a href="/admin/coupons" class="adm-nav-link<%= page === 'coupons' ? ' active' : '' %>">
+        <a href="/admin/coupons" class="adm-nav-link<%= page === 'coupons' ? ' active' : '' %>" data-tip="Cupons">
           <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 12v-2a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v2"/><path d="M4 12a2 2 0 0 0 0 4h16a2 2 0 0 0 0-4"/><path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/><line x1="12" y1="8" x2="12" y2="20"/></svg>
           <span>Cupons</span>
         </a>
-        <a href="/admin/leagues" class="adm-nav-link<%= page === 'leagues' ? ' active' : '' %>">
+        <a href="/admin/leagues" class="adm-nav-link<%= page === 'leagues' ? ' active' : '' %>" data-tip="Ligas/Esportes">
           <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/><path d="M2 12h20"/></svg>
           <span>Ligas/Esportes</span>
         </a>
 
         <div class="adm-nav-section">Sistema</div>
-        <a href="/admin/notifications" class="adm-nav-link<%= page === 'notifications' ? ' active' : '' %>">
+        <a href="/admin/notifications" class="adm-nav-link<%= page === 'notifications' ? ' active' : '' %>" data-tip="Notificações">
           <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
           <span>Notificações</span>
         </a>
-        <a href="/admin/reports" class="adm-nav-link<%= page === 'reports' ? ' active' : '' %>">
+        <a href="/admin/reports" class="adm-nav-link<%= page === 'reports' ? ' active' : '' %>" data-tip="Relatórios">
           <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
           <span>Relatórios</span>
         </a>
-        <a href="/admin/limits" class="adm-nav-link<%= page === 'limits' ? ' active' : '' %>">
+        <a href="/admin/limits" class="adm-nav-link<%= page === 'limits' ? ' active' : '' %>" data-tip="Jogo Responsável">
           <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
           <span>Jogo Responsável</span>
         </a>
-        <a href="/admin/audit" class="adm-nav-link<%= page === 'audit' ? ' active' : '' %>">
+        <a href="/admin/audit" class="adm-nav-link<%= page === 'audit' ? ' active' : '' %>" data-tip="Audit Log">
           <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
           <span>Audit Log</span>
         </a>
-        <a href="/admin/settings" class="adm-nav-link<%= page === 'settings' ? ' active' : '' %>">
+        <a href="/admin/settings" class="adm-nav-link<%= page === 'settings' ? ' active' : '' %>" data-tip="Configurações">
           <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9z"/></svg>
           <span>Configurações</span>
         </a>

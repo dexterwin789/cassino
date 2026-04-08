@@ -100,18 +100,6 @@
         load();
       });
       card.addEventListener('click', async (e) => {
-        const btn = e.target.closest('.btn-kyc-user');
-        if (!btn) return;
-        const kyc_status = prompt('Status KYC (pending / verified / rejected):');
-        if (!kyc_status) return;
-        const kyc_notes = prompt('Observação KYC (opcional):') || '';
-        await fetch(`/admin/api/users/${btn.dataset.id}/kyc`, {
-          method: 'POST', headers: {'Content-Type':'application/json'},
-          body: JSON.stringify({ kyc_status, kyc_notes }), credentials: 'same-origin'
-        });
-        load();
-      });
-      card.addEventListener('click', async (e) => {
         const btn = e.target.closest('.btn-balance-user');
         if (!btn) return;
         const amount = prompt('Ajuste de saldo em centavos (positivo=crédito, negativo=débito):');
@@ -287,22 +275,17 @@
   function renderRow(page, r) {
     if (page === 'users') {
       const wallet = Number(r.wallet_balance_cents || 0) / 100;
-      const kycMap = { pending: 'warn', verified: 'ok', rejected: 'bad' };
-      const kycLabel = { pending: 'Pendente', verified: 'Verificado', rejected: 'Rejeitado' };
-      const kyc = r.kyc_status || 'pending';
       return `<tr>
         <td>${r.id}</td>
         <td><strong>${esc(r.username)}</strong></td>
         <td style="color:rgba(255,255,255,.55)">${esc(r.phone || '-')}</td>
         <td style="color:var(--adm-green2)">${brl(wallet)}</td>
         <td>${brl(Number(r.bonus || 0))}</td>
-        <td><span class="adm-tag ${kycMap[kyc] || ''}">${kycLabel[kyc] || kyc}</span></td>
         <td>${activeTag(r.is_active)}</td>
         <td style="color:rgba(255,255,255,.45)">${fdate(r.created_at)}</td>
         <td>
           <div style="display:flex;gap:4px;flex-wrap:wrap;">
             <button class="adm-btn btn-toggle-user" data-id="${r.id}" style="font-size:11px;height:30px;padding:0 8px;">${r.is_active ? 'Desativar' : 'Ativar'}</button>
-            <button class="adm-btn btn-kyc-user" data-id="${r.id}" style="font-size:11px;height:30px;padding:0 8px;border-color:rgba(43,140,255,.3);color:#2b8cff">KYC</button>
             <button class="adm-btn btn-balance-user" data-id="${r.id}" style="font-size:11px;height:30px;padding:0 8px;border-color:rgba(46,231,107,.3);color:#2ee76b">R$</button>
             <button class="adm-btn btn-block-user" data-id="${r.id}" style="font-size:11px;height:30px;padding:0 8px;border-color:rgba(255,77,77,.3);color:#ff4d4d">Block</button>
           </div>

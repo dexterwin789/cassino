@@ -63,6 +63,56 @@ body {
 .adm-sidebar.collapsed .adm-admin-card {
   display: none;
 }
+/* Collapsed: hide logo area, only show toggle */
+.adm-sidebar.collapsed .adm-sidebar-logo {
+  display: none;
+}
+.adm-sidebar.collapsed .adm-sidebar-head {
+  justify-content: center;
+  padding: 16px 0;
+}
+/* Collapsed: center nav links, bigger icons */
+.adm-sidebar.collapsed .adm-nav-link {
+  justify-content: center;
+  padding: 12px 0;
+  position: relative;
+}
+.adm-sidebar.collapsed .adm-nav-link svg {
+  width: 22px;
+  height: 22px;
+}
+/* Collapsed: tooltip on hover */
+.adm-sidebar.collapsed .adm-nav-link::after {
+  content: attr(data-tip);
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  margin-left: 10px;
+  background: #1a1a2e;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: 8px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .15s;
+  z-index: 200;
+  box-shadow: 0 4px 12px rgba(0,0,0,.4);
+  border: 1px solid rgba(255,255,255,.08);
+}
+.adm-sidebar.collapsed .adm-nav-link:hover::after {
+  opacity: 1;
+}
+
+/* Sidebar scroll: thin scrollbar like home sidebar */
+.adm-sidebar::-webkit-scrollbar { width: 4px; }
+.adm-sidebar::-webkit-scrollbar-track { background: transparent; }
+.adm-sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,.08); border-radius: 4px; }
+.adm-sidebar::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,.15); }
+.adm-sidebar { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.08) transparent; }
 
 .adm-sidebar-head {
   padding: 20px 16px;
@@ -479,7 +529,6 @@ body {
     linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.01));
   border: 1px solid var(--adm-line);
   border-radius: var(--adm-radius);
-  overflow: hidden;
 }
 .adm-list-head {
   padding: 16px 20px;
@@ -508,7 +557,13 @@ body {
 .adm-list-body {
   max-height: 340px;
   overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,.08) transparent;
 }
+.adm-list-body::-webkit-scrollbar { width: 4px; }
+.adm-list-body::-webkit-scrollbar-track { background: transparent; }
+.adm-list-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,.08); border-radius: 4px; }
+.adm-list-body::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,.15); }
 .adm-list-empty {
   padding: 40px 20px;
   text-align: center;
