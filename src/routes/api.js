@@ -134,7 +134,7 @@ router.get('/me', async (req, res) => {
   if (!req.session.user) return res.json({ ok: true, logged: false });
   try {
     const r = await query(
-      `SELECT id, username, name, phone, email, cpf, birth_date, address_cep, address_street, address_city, address_state, pix_type, pix_key,
+      `SELECT id, username, name, phone, email, cpf, birth_date, address_cep, address_street, address_city, address_state, pix_type, pix_key, avatar_url,
               limit_deposit_type, limit_deposit_period, limit_deposit_amount,
               limit_bet_type, limit_bet_period, limit_bet_amount,
               limit_loss_type, limit_loss_period, limit_loss_amount,
@@ -348,6 +348,38 @@ router.post('/user/update-pix', requireUser, async (req, res) => {
   } catch (err) {
     console.error('[UPDATE_PIX]', err);
     res.status(500).json({ ok: false, msg: 'Erro ao atualizar PIX.' });
+  }
+});
+
+// POST /api/user/upload-avatar
+router.post('/user/upload-avatar', requireUser, async (req, res) => {
+  try {
+    const { avatar_url } = req.body;
+    if (!avatar_url) return res.status(400).json({ ok: false, msg: 'Nenhuma imagem enviada.' });
+    // Validate it's a data URI (base64 image) and limit size (~2MB in base64)
+    if (!avatar_url.startsWith('data:image/') || avatar_url.length > 2800000) {
+      return res.status(400).json({ ok: false, msg: 'Imagem inválida ou muito grande.' });
+    }
+    await query('UPDATE users SET avatar_url = $1, updated_at = NOW() WHERE id = $2', [avatar_url, req.session.user.id]);
+    req.session.user.avatar_url = avatar_url;
+    req.session.save(() => {});
+    res.json({ ok: true, msg: 'Foto atualizada!' });
+  } catch (err) {
+    console.error('[UPLOAD_AVATAR]', err);
+    res.status(500).json({ ok: false, msg: 'Erro ao salvar foto.' });
+  }
+});
+
+// POST /api/user/remove-avatar
+router.post('/user/remove-avatar', requireUser, async (req, res) => {
+  try {
+    await query('UPDATE users SET avatar_url = NULL, updated_at = NOW() WHERE id = $1', [req.session.user.id]);
+    req.session.user.avatar_url = null;
+    req.session.save(() => {});
+    res.json({ ok: true, msg: 'Foto removida!' });
+  } catch (err) {
+    console.error('[REMOVE_AVATAR]', err);
+    res.status(500).json({ ok: false, msg: 'Erro ao remover foto.' });
   }
 });
 

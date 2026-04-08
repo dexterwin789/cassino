@@ -612,6 +612,9 @@ function updateAuthState() {
         if (acctUid && j.user) acctUid.value = j.user.id || '—';
         var acctEmail = document.getElementById('acctEmailValue');
         if (acctEmail && j.user && j.user.email) acctEmail.textContent = j.user.email;
+        // Dropdown email
+        var ddEmail = document.getElementById('dropdownUserEmail');
+        if (ddEmail && j.user && j.user.email) ddEmail.textContent = j.user.email;
         // Phone
         var acctPhoneVal = document.getElementById('acctPhoneValue');
         var acctPhoneInp = document.getElementById('acctPhoneInput');
@@ -637,10 +640,12 @@ function updateAuthState() {
         }
         // CPF/Doc
         if (j.user.cpf) {
-          var c = j.user.cpf;
-          var masked = '***.' + c.slice(3,6) + '.' + c.slice(6,9) + '-' + c.slice(9);
+          var c = j.user.cpf.replace(/\D/g,'');
+          var fmtCpf = c.slice(0,3) + '.' + c.slice(3,6) + '.' + c.slice(6,9) + '-' + c.slice(9);
           var docVal = document.getElementById('acctDocValue');
-          if (docVal) docVal.textContent = masked;
+          if (docVal) docVal.textContent = fmtCpf;
+          var cpfInp = document.getElementById('acctCpfInput');
+          if (cpfInp) cpfInp.value = fmtCpf;
         }
         // PIX
         if (j.user.pix_type) {
@@ -649,20 +654,37 @@ function updateAuthState() {
           var pInp = document.getElementById('acctPixKeyInput');
           if (pInp && j.user.pix_key) pInp.value = j.user.pix_key;
           var pSum = document.getElementById('acctPixSummary');
-          if (pSum && j.user.pix_key) pSum.textContent = '◆ ' + j.user.pix_type.toUpperCase() + ': ' + j.user.pix_key;
+          if (pSum) {
+            if (j.user.pix_key) {
+              pSum.textContent = '◆ ' + j.user.pix_type.toUpperCase() + ': ' + j.user.pix_key;
+            } else if (j.user.cpf && j.user.pix_type === 'cpf') {
+              var pc = j.user.cpf.replace(/\D/g,'');
+              pSum.textContent = '◆ CPF: ' + pc.slice(0,3) + '.' + pc.slice(3,6) + '.' + pc.slice(6,9) + '-' + pc.slice(9);
+            }
+          }
         }
         // Name
         if (j.user.name || j.user.username) {
           var dName = j.user.name || j.user.username;
-          var nameInp = document.querySelector('#acctDados .acct-expand input[readonly][value="Nome do Usuário"]');
+          var nameInp = document.getElementById('acctNomeCompleto');
           if (nameInp) nameInp.value = dName;
         }
         // Birth date
         if (j.user.birth_date) {
           var bd = new Date(j.user.birth_date);
           var bdStr = bd.toLocaleDateString('pt-BR');
-          var bdInp = document.querySelector('#acctDocumento .acct-expand input[value="01/01/1990"]');
+          var bdInp = document.getElementById('acctBirthInput');
           if (bdInp) bdInp.value = bdStr;
+        }
+        // Doc summary (CPF + birth)
+        if (j.user.cpf || j.user.birth_date) {
+          var docVal2 = document.getElementById('acctDocValue');
+          if (docVal2) {
+            var parts = [];
+            if (j.user.cpf) { var cc = j.user.cpf.replace(/\D/g,''); parts.push(cc.slice(0,3)+'.'+cc.slice(3,6)+'.'+cc.slice(6,9)+'-'+cc.slice(9)); }
+            if (j.user.birth_date) { parts.push(new Date(j.user.birth_date).toLocaleDateString('pt-BR')); }
+            docVal2.textContent = parts.join(' - ');
+          }
         }
         // Login history
         populateLoginHistory();
@@ -670,6 +692,10 @@ function updateAuthState() {
         populateLimits(j.user);
         // PIX on sacar
         populateSacarPix(j.user);
+        // Avatar
+        if (j.user.avatar_url && typeof setAvatarEverywhere === 'function') {
+          setAvatarEverywhere(j.user.avatar_url);
+        }
       }
     }).catch(function() {
       document.body.classList.add('is-guest');
@@ -729,6 +755,7 @@ if (topbarUserBtn && topbarDropdown) {
 var dropdownLogout = document.getElementById('dropdownLogout');
 if (dropdownLogout) dropdownLogout.addEventListener('click', function(e) {
   e.preventDefault();
+  sessionStorage.removeItem('acctLoginStart');
   fetch('/api/logout', { method: 'POST', credentials: 'include' })
     .then(function() { window.location.reload(); })
     .catch(function() { window.location.reload(); });
@@ -1013,7 +1040,7 @@ function toggleAcctSection(id) {
 window.toggleAcctSection = toggleAcctSection;
 
 /* ========== ACCOUNT LOGGED TIME TIMER ========== */
-var acctLoginStart = Date.now();
+var acctLoginStart = parseInt(sessionStorage.getItem('acctLoginStart')) || Date.now();
 var acctTimerInterval = null;
 
 function startAcctTimer() {
@@ -1073,7 +1100,8 @@ var dropdownPanelMap = {
   'dropdownPrizes': 'premios',
   'dropdownBets': 'apostas',
   'dropdownReferrals': 'indique',
-  'dropdownAccount': 'perfil',
+  'dropdownPerfil': 'perfil',
+  'dropdownAccount': 'dadosConta',
   'dropdownPassword': 'perfil',
   'dropdownSupport': null,
   'dropdownPromos': null
@@ -1531,6 +1559,13 @@ if (cepInput) {
 }
 
 /* ========== PHOTO UPLOAD ========== */
+function setAvatarEverywhere(src) {
+  var img = document.getElementById('acctPhotoImg');
+  if (img) img.src = src;
+  var topAvatar = document.getElementById('topbarAvatar');
+  if (topAvatar) topAvatar.src = src;
+  document.querySelectorAll('.topbar-dropdown-avatar').forEach(function(a) { a.src = src; });
+}
 var acctPhotoInput = document.getElementById('acctPhotoInput');
 var acctPhotoAlter = document.getElementById('acctPhotoAlter');
 if (acctPhotoAlter) acctPhotoAlter.addEventListener('click', function() {
@@ -1541,30 +1576,42 @@ if (acctPhotoInput) {
     var file = e.target.files[0];
     if (!file) return;
     if (!file.type.startsWith('image/')) { showToast('Selecione uma imagem válida.', 'error'); return; }
-    if (file.size > 5 * 1024 * 1024) { showToast('Imagem muito grande (máx 5MB).', 'error'); return; }
+    if (file.size > 2 * 1024 * 1024) { showToast('Imagem muito grande (máx 2MB).', 'error'); return; }
     var reader = new FileReader();
     reader.onload = function(ev) {
       var src = ev.target.result;
-      var img = document.getElementById('acctPhotoImg');
-      if (img) img.src = src;
-      var topAvatar = document.getElementById('topbarAvatar');
-      if (topAvatar) topAvatar.src = src;
-      document.querySelectorAll('.topbar-dropdown-avatar').forEach(function(a) { a.src = src; });
-      showToast('Foto atualizada!', 'success');
+      // Save to server
+      fetch('/api/user/upload-avatar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ avatar_url: src })
+      }).then(function(r) { return r.json(); }).then(function(j) {
+        if (j.ok) {
+          setAvatarEverywhere(src);
+          showToast('Foto atualizada!', 'success');
+        } else {
+          showToast(j.msg || 'Erro ao salvar foto.', 'error');
+        }
+      }).catch(function() { showToast('Erro ao salvar foto.', 'error'); });
     };
     reader.readAsDataURL(file);
   });
 }
 var acctPhotoRemove = document.getElementById('acctPhotoRemove');
 if (acctPhotoRemove) acctPhotoRemove.addEventListener('click', function() {
-  var defaultSvg = '/public/img/novo/topo3.svg';
-  var img = document.getElementById('acctPhotoImg');
-  if (img) img.src = defaultSvg;
-  var topAvatar = document.getElementById('topbarAvatar');
-  if (topAvatar) topAvatar.src = defaultSvg;
-  document.querySelectorAll('.topbar-dropdown-avatar').forEach(function(a) { a.src = defaultSvg; });
-  if (acctPhotoInput) acctPhotoInput.value = '';
-  showToast('Foto removida.', 'info');
+  fetch('/api/user/remove-avatar', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include'
+  }).then(function(r) { return r.json(); }).then(function(j) {
+    if (j.ok) {
+      var defaultSvg = '/public/img/novo/topo3.svg';
+      setAvatarEverywhere(defaultSvg);
+      if (acctPhotoInput) acctPhotoInput.value = '';
+      showToast('Foto removida.', 'info');
+    }
+  }).catch(function() {});
 });
 
 /* ========== LOGIN HISTORY TABLE ========== */

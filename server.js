@@ -107,6 +107,7 @@ async function autoMigrate() {
     await addCol('users', 'address_state', 'VARCHAR(4)');
     await addCol('users', 'pix_type', "VARCHAR(16) DEFAULT 'cpf'");
     await addCol('users', 'pix_key', 'VARCHAR(255)');
+    await addCol('users', 'avatar_url', 'TEXT');
 
     // Jogo Responsável limits
     await addCol('users', 'limit_deposit_type', "VARCHAR(16) DEFAULT 'unlimited'");

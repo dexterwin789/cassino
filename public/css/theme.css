@@ -59,6 +59,8 @@
 [data-theme="light"] .topbar-dropdown-nav a{color:#475569}
 [data-theme="light"] .topbar-dropdown-nav a:hover{background:rgba(0,0,0,.04);color:#1a1a2e}
 [data-theme="light"] .topbar-dropdown-nav a img{filter:brightness(0) saturate(100%);opacity:.7}
+[data-theme="light"] .topbar-dropdown-nav a img[src*=".svg"]{filter:brightness(0) saturate(100%);opacity:.7}
+[data-theme="light"] .topbar-dropdown-email{color:#94a3b8 !important}
 [data-theme="light"] .dropdown-theme-row{color:#475569}
 [data-theme="light"] .dropdown-theme-row img{filter:brightness(0) saturate(100%);opacity:.7}
 [data-theme="light"] .topbar-dropdown-logout{color:#ef4444!important;border-color:rgba(0,0,0,.06)}
@@ -245,6 +247,7 @@
 [data-theme="light"] .acct-limit-desc{color:#64748b}
 [data-theme="light"] .acct-radio-row{color:#1a1a2e}
 [data-theme="light"] .acct-select{background-color:#f8fafc;border-color:rgba(0,0,0,.1);color:#1a1a2e}
+[data-theme="light"] .acct-select option{background:#fff;color:#1a1a2e}
 
 /* History tabs */
 [data-theme="light"] .hist-tab{border-color:rgba(0,0,0,.1);color:#475569}

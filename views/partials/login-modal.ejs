@@ -326,7 +326,7 @@
       apiPost('/api/login', { login: login, password: password })
         .then(function(data) {
           var j = data.json || data;
-          if (j && j.ok) { closeLoginModal(); window.location.reload(); }
+          if (j && j.ok) { sessionStorage.setItem('acctLoginStart', Date.now()); closeLoginModal(); window.location.reload(); }
           else { if (typeof showToast === 'function') showToast(j.msg || 'Erro ao entrar', 'error'); }
         })
         .catch(function() { if (typeof showToast === 'function') showToast('Erro ao conectar', 'error'); })
@@ -469,6 +469,7 @@
         .then(function(data) {
           var j = data.json || data;
           if (j && j.ok) {
+            sessionStorage.setItem('acctLoginStart', Date.now());
             closeRegisterModal();
             if (typeof showToast === 'function') showToast('Conta criada com sucesso!', 'success');
             // Redirect to home logged in with deposit modal flag

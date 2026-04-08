@@ -50,6 +50,7 @@
             <img src="/public/img/novo/topo3.svg" width="40" height="40" alt="" class="topbar-dropdown-avatar">
             <div class="topbar-dropdown-info">
               <strong id="dropdownUserName">Usuário</strong>
+              <span id="dropdownUserEmail" class="topbar-dropdown-email"></span>
             </div>
           </div>
           <div class="topbar-dropdown-date" id="dropdownDate"></div>
@@ -67,6 +68,7 @@
             <a href="#" id="dropdownWallet"><img src="/public/img/novo/drop5.svg" width="16" height="16"> Carteira</a>
             <a href="#" id="dropdownBets"><img src="/public/img/novo/drop6.svg" width="16" height="16"> Apostas</a>
             <a href="#" id="dropdownReferrals"><img src="/public/img/novo/drop7.svg" width="16" height="16"> Indicações</a>
+            <a href="#" id="dropdownPerfil"><img src="/public/img/novo/topo3.svg" width="16" height="16"> Meu Perfil</a>
             <a href="#" id="dropdownAccount"><img src="/public/img/novo/drop8.svg" width="16" height="16"> Dados da conta</a>
             <a href="#" id="dropdownPassword"><img src="/public/img/novo/drop9.svg" width="16" height="16"> Alterar senha</a>
             <a href="#" id="dropdownSupport"><img src="/public/img/novo/drop10.svg" width="16" height="16"> Suporte ao vivo</a>
@@ -759,16 +761,16 @@
               <div class="acct-expand">
                 <div class="acct-field-group">
                   <label class="acct-label">CPF</label>
-                  <input type="text" class="acct-input" value="***.***.***-00" readonly>
+                  <input type="text" class="acct-input" id="acctCpfInput" value="***.***.***-00" readonly>
                 </div>
                 <div class="acct-field-row">
                   <div class="acct-field-group acct-field-half">
                     <label class="acct-label">Data de Nascimento</label>
-                    <input type="text" class="acct-input" value="01/01/1990" readonly>
+                    <input type="text" class="acct-input" id="acctBirthInput" value="01/01/1990" readonly>
                   </div>
                   <div class="acct-field-group acct-field-half">
                     <label class="acct-label">Nome Completo</label>
-                    <input type="text" class="acct-input" value="Nome do Usuário" readonly>
+                    <input type="text" class="acct-input" id="acctNomeCompleto" value="Nome do Usuário" readonly>
                   </div>
                 </div>
               </div>
