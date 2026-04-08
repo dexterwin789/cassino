@@ -926,25 +926,26 @@ body.search-lock{overflow:hidden!important}
   overflow:hidden;
 }
 .wallet-sidebar-nav{
-  border-right:1px solid var(--border);
-  padding:4px 0;
-  display:flex;flex-direction:column;
+  padding:0;
+  display:flex;flex-direction:column;gap:.5rem;
   align-self:start;
 }
 .wallet-nav-item{
-  display:flex;align-items:center;gap:10px;
-  padding:10px 16px;color:var(--text-muted);
-  font-size:12px;font-weight:600;text-decoration:none;
-  transition:.15s;letter-spacing:.5px;
-  cursor:pointer;
+  display:flex;align-items:center;gap:.75rem;
+  justify-content:space-between;position:relative;width:100%;
+  background-color:#0e1117;color:rgba(253,255,255,.9);
+  padding:.875rem 1rem;border-radius:.375rem;
+  font-size:.75rem;font-weight:600;text-decoration:none;
+  transition:.15s;letter-spacing:.5px;text-transform:uppercase;
+  cursor:pointer;line-height:1rem;
 }
 .wnav-icon{width:20px;height:20px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
 .wnav-icon svg{width:20px;height:20px}
-.wallet-nav-item:hover{color:var(--text)}
+.wallet-nav-item:hover{color:#fff}
 .wallet-nav-item.active{color:#ff3901}
 .wallet-nav-item > svg.wallet-nav-arrow{width:10px;height:16px;margin-left:auto;opacity:.35;flex-shrink:0}
 .wallet-nav-item.active > svg.wallet-nav-arrow{opacity:.7}
-.wallet-nav-divider{height:1px;background:var(--border);margin:4px 16px}
+.wallet-nav-divider{display:none}
 .wallet-nav-logout{color:#ef4444!important}
 .wallet-content{padding:24px;position:relative}
 .wallet-panel{display:none}
@@ -1213,7 +1214,7 @@ body.search-lock{overflow:hidden!important}
 
 @media(max-width:768px){
   .wallet-grid{grid-template-columns:1fr}
-  .wallet-sidebar-nav{flex-direction:row;overflow-x:auto;border-right:none;border-bottom:1px solid var(--border);padding:0}
+  .wallet-sidebar-nav{flex-direction:row;overflow-x:auto;gap:.25rem;padding:0}
   .wallet-nav-item{white-space:nowrap;padding:10px 14px;font-size:11px}
   .wallet-nav-divider{display:none}
   .wallet-nav-badge,.wallet-nav-value,.wallet-nav-arrow,.wnav-icon{display:none}
@@ -2610,7 +2611,7 @@ body.search-lock{overflow:hidden!important}
   border-radius:8px;cursor:pointer;transition:.2s;font-weight:500;
 }
 .notif-show-read:hover{border-color:var(--text-muted);color:var(--text)}
-.notif-list{display:flex;flex-direction:column;gap:2px}
+.notif-list{display:flex;flex-direction:column;gap:8px}
 .notif-item{
   display:flex;gap:12px;padding:14px 16px;
   border-radius:8px;background:rgba(255,255,255,.02);
@@ -2697,23 +2698,39 @@ body.search-lock{overflow:hidden!important}
 }
 
 /* ===== PRÊMIOS E RECOMPENSAS ===== */
-.premios-tabs{
-  display:grid;grid-template-columns:1fr 1fr;gap:0;
-  border-radius:10px;overflow:hidden;margin-bottom:16px;
-  border:1px solid var(--border);
+.premios-card{
+  background-color:#0e1117;border-radius:.375rem;padding:1rem;
+  color:rgba(253,255,255,1);
+}
+.premios-tabs-wrap{
+  display:flex;align-items:stretch;gap:.5rem;
+  background:rgba(253,255,255,.1);border-radius:.5rem;padding:.5rem;
+  width:100%;margin-bottom:16px;
 }
 .premios-tab{
-  padding:12px;text-align:center;font-size:13px;font-weight:700;
-  background:rgba(255,255,255,.03);border:none;color:var(--text-muted);
-  cursor:pointer;transition:.2s;display:flex;align-items:center;justify-content:center;gap:6px;
+  flex:1;display:flex;align-items:center;justify-content:center;gap:.5rem;
+  padding:.5rem;border-radius:.5rem;border:1px solid rgba(253,255,255,.05);
+  background:rgba(253,255,255,.05);color:var(--text-muted);
+  font-size:.75rem;font-weight:600;cursor:pointer;transition:.2s;
 }
-.premios-tab.active{background:linear-gradient(135deg,#ff3a00,#cc2e00);color:#fff}
+@media(min-width:768px){.premios-tab{font-size:.875rem;line-height:1.25rem}}
+.premios-tab.active{
+  background-color:rgba(255,57,1,.15);border-color:rgba(255,57,1,.1);
+  color:#ff3901;filter:brightness(1.1);
+}
 .premios-tab-count{
   display:inline-flex;align-items:center;justify-content:center;
   min-width:18px;height:18px;border-radius:50%;
   background:rgba(255,255,255,.2);font-size:10px;font-weight:700;
   padding:0 4px;
 }
+.premios-tab-refresh{
+  display:flex;align-items:center;justify-content:center;
+  padding:.5rem;border-radius:.5rem;border:none;
+  background:rgba(253,255,255,.05);color:var(--text-muted);
+  cursor:pointer;transition:.2s;
+}
+.premios-tab-refresh:hover{color:#ff3901}
 .premios-filters{
   display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:24px;
 }

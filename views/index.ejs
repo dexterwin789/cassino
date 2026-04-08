@@ -834,31 +834,31 @@
           </div>
           <!-- PRÊMIOS E RECOMPENSAS -->
           <div class="wallet-panel" id="walletPanelPremios">
-            <div class="wallet-panel-title" style="display:flex;align-items:center;justify-content:space-between">
-              PRÊMIOS E RECOMPENSAS
-              <button class="notif-refresh-btn" id="premiosRefreshBtn" title="Atualizar">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
-              </button>
-            </div>
-            <!-- Tabs -->
-            <div class="premios-tabs">
-              <button class="premios-tab active" data-tab="disponiveis">Disponíveis <span class="premios-tab-count">0</span></button>
-              <button class="premios-tab" data-tab="finalizados">Finalizados</button>
-            </div>
-            <!-- Filter tags -->
-            <div class="premios-filters">
-              <span class="premios-filter-label">Filtros</span>
-              <button class="premios-filter active">Todos</button>
-              <button class="premios-filter">Saldo Real</button>
-              <button class="premios-filter">Saldo Bônus</button>
-              <button class="premios-filter">Cashback</button>
-              <button class="premios-filter">Rodadas Grátis</button>
-              <button class="premios-filter">Apostas Grátis</button>
-            </div>
-            <!-- Empty state -->
-            <div class="premios-empty">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-              <span>Nenhum prêmio disponível</span>
+            <div class="wallet-panel-title">PRÊMIOS E RECOMPENSAS</div>
+            <div class="premios-card">
+              <!-- Tabs row -->
+              <div class="premios-tabs-wrap">
+                <button class="premios-tab active" data-tab="disponiveis"><span>Disponíveis</span><span class="premios-tab-count">0</span></button>
+                <button class="premios-tab" data-tab="finalizados"><span>Finalizados</span></button>
+                <button class="premios-tab-refresh" id="premiosRefreshBtn" title="Atualizar">
+                  <svg width="16" height="16" viewBox="0 0 512 512" fill="currentColor"><path d="M449.9 39.96l-48.5 48.53C362.5 53.19 311.4 32 256 32C161.5 32 78.59 92.34 49.58 182.2c-5.438 16.81 3.797 34.88 20.61 40.28c16.97 5.5 34.86-3.812 40.3-20.59C130.9 138.5 189.4 96 256 96c37.96 0 73 14.18 100.2 37.8L311.1 178C295.1 194.8 306.8 223.4 330.4 224h146.9C487.7 223.7 496 215.3 496 204.9V59.04C496 34.99 466.9 22.95 449.9 39.96z"/><path d="M462.4 329.8C433.4 419.7 350.4 480 255.1 480c-55.41 0-106.5-21.19-145.4-56.49l-48.5 48.53C45.07 489 16 477 16 452.1V307.1C16 296.7 24.32 288.3 34.66 288h146.9c23.57 .5781 35.26 29.15 18.43 46l-44.18 44.2C183 401.8 218 416 256 416c66.58 0 125.1-42.53 145.5-105.8c5.422-16.78 23.36-26.03 40.3-20.59C458.6 294.1 467.9 313 462.4 329.8z" opacity="0.4"/></svg>
+                </button>
+              </div>
+              <!-- Filter tags -->
+              <div class="premios-filters">
+                <span class="premios-filter-label">Filtros</span>
+                <button class="premios-filter active">Todos</button>
+                <button class="premios-filter">Saldo Real</button>
+                <button class="premios-filter">Saldo Bônus</button>
+                <button class="premios-filter">Cashback</button>
+                <button class="premios-filter">Rodadas Grátis</button>
+                <button class="premios-filter">Apostas Grátis</button>
+              </div>
+              <!-- Empty state -->
+              <div class="premios-empty">
+                <svg width="28" height="28" viewBox="0 0 512 512" fill="currentColor"><path d="M256 192c17.67 0 32-14.33 32-32c0-17.67-14.33-32-32-32S224 142.3 224 160C224 177.7 238.3 192 256 192zM296 336h-16V248C280 234.8 269.3 224 256 224H224C210.8 224 200 234.8 200 248S210.8 272 224 272h8v64h-16C202.8 336 192 346.8 192 360S202.8 384 216 384h80c13.25 0 24-10.75 24-24S309.3 336 296 336z"/><path d="M256 0C114.6 0 0 114.6 0 256s114.6 256 256 256s256-114.6 256-256S397.4 0 256 0zM256 128c17.67 0 32 14.33 32 32c0 17.67-14.33 32-32 32S224 177.7 224 160C224 142.3 238.3 128 256 128zM296 384h-80C202.8 384 192 373.3 192 360s10.75-24 24-24h16v-64H224c-13.25 0-24-10.75-24-24S210.8 224 224 224h32c13.25 0 24 10.75 24 24v88h16c13.25 0 24 10.75 24 24S309.3 384 296 384z" opacity="0.4"/></svg>
+                <span>Nenhum prêmio disponível</span>
+              </div>
             </div>
           </div>
 

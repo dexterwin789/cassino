@@ -45,17 +45,17 @@ var searchPageSize = 15;
 var searchActiveTag = 'Todos';
 var searchIsOpen = false;
 
-// Autofill prevention: input starts disabled, only enabled on user click
+// Autofill prevention: input starts readonly, only enabled on user click
 if (searchInput) {
-  searchInput.disabled = true;
+  searchInput.readOnly = true;
   searchInput.value = '';
   searchInput.style.cursor = 'pointer';
 }
 var searchBox = document.getElementById('searchBox');
 if (searchBox) {
   searchBox.addEventListener('click', function(e) {
-    if (searchInput && searchInput.disabled) {
-      searchInput.disabled = false;
+    if (searchInput && searchInput.readOnly) {
+      searchInput.readOnly = false;
       searchInput.value = '';
       searchInput.style.cursor = '';
       searchInput.focus();
@@ -137,7 +137,7 @@ function closeSearch() {
   if (searchOverlay) searchOverlay.classList.remove('active');
   if (searchResults) searchResults.classList.remove('active');
   if (searchCloseBtn) searchCloseBtn.classList.remove('active');
-  if (searchInput) { searchInput.value = ''; searchInput.blur(); }
+  if (searchInput) { searchInput.value = ''; searchInput.blur(); searchInput.readOnly = true; searchInput.style.cursor = 'pointer'; }
   document.body.classList.remove('search-lock');
   searchFiltered = [];
   searchShown = 0;
