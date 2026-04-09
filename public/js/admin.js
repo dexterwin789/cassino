@@ -521,6 +521,20 @@
     return '';
   }
 
+  document.getElementById('btnSyncPF')?.addEventListener('click', async () => {
+    const btn = document.getElementById('btnSyncPF');
+    btn.disabled = true; btn.textContent = '⏳ Sincronizando...';
+    try {
+      const r = await fetch('/admin/api/games/sync-playfivers', { method: 'POST', credentials: 'same-origin' });
+      const d = await r.json();
+      if (d.ok) {
+        alert(`Sync concluído!\nInseridos: ${d.inserted}\nAtualizados: ${d.updated}\nIgnorados: ${d.skipped}`);
+        location.reload();
+      } else { alert(d.msg || 'Erro no sync'); }
+    } catch (e) { alert('Erro: ' + e.message); }
+    finally { btn.disabled = false; btn.textContent = '🔄 Sync PlayFivers'; }
+  });
+
   document.getElementById('btnAddGame')?.addEventListener('click', async () => {
     const code = prompt('Game code:');
     if (!code) return;

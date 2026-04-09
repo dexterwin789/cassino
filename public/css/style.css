@@ -1753,6 +1753,41 @@ body.search-lock{overflow:hidden!important}
   font-size:13px;color:rgba(255,255,255,.7);margin:0;font-weight:500;
 }
 
+/* Play button */
+.gp-play-area{
+  display:flex;flex-direction:column;align-items:center;gap:12px;
+}
+.gp-play-btn{
+  display:flex;align-items:center;gap:10px;
+  padding:14px 36px;border:none;border-radius:12px;
+  background:linear-gradient(135deg,#22c55e,#16a34a);
+  color:#fff;font-size:16px;font-weight:800;
+  cursor:pointer;transition:.2s;
+  box-shadow:0 0 20px rgba(34,197,94,.4);
+  letter-spacing:.5px;
+}
+.gp-play-btn:hover{transform:scale(1.04);box-shadow:0 0 30px rgba(34,197,94,.5)}
+.gp-play-btn svg{fill:#fff}
+.gp-game-loading{
+  display:flex;align-items:center;gap:10px;color:#fff;font-size:14px;font-weight:600;
+}
+.gp-spinner{
+  width:24px;height:24px;border:3px solid rgba(255,255,255,.2);
+  border-top-color:#22c55e;border-radius:50%;animation:gpSpin .7s linear infinite;
+}
+@keyframes gpSpin{to{transform:rotate(360deg)}}
+
+/* Game iframe */
+.gp-game-iframe{
+  width:100%;height:100%;min-height:500px;
+  border:none;border-radius:12px;
+  background:#000;
+}
+.gp-hero.gp-playing{min-height:70vh}
+.gp-hero.gp-playing .gp-hero-content{width:100%;height:100%;padding:0}
+.gp-hero.gp-playing .gp-game-iframe{min-height:70vh;border-radius:0}
+.gp-hero.gp-fullscreen .gp-game-iframe{min-height:100vh;border-radius:0}
+
 /* Fullscreen mode */
 .gp-hero.gp-fullscreen{
   position:fixed;inset:0;z-index:9999;

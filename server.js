@@ -71,6 +71,7 @@ app.use(async (req, res, next) => {
 app.use('/', require('./src/routes/pages'));
 app.use('/api', require('./src/routes/api'));
 app.use('/api/webhook', require('./src/routes/webhook'));
+app.use('/api/webhook/playfivers', require('./src/routes/webhookPlayfivers'));
 app.use('/admin', require('./src/routes/admin'));
 app.use('/admin/api', require('./src/routes/adminApi'));
 app.use('/dashboard', require('./src/routes/userDashboard'));
@@ -115,6 +116,31 @@ async function autoMigrate() {
     // Top 10 featured games
     await addCol('games', 'is_featured', 'BOOLEAN DEFAULT FALSE');
     await addCol('games', 'featured_order', 'INT DEFAULT 0');
+
+    // PlayFivers integration columns
+    await addCol('games', 'pf_game_code', 'VARCHAR(128)');
+    await addCol('games', 'pf_provider', 'VARCHAR(128)');
+    await addCol('games', 'game_original', 'BOOLEAN DEFAULT FALSE');
+
+    // Game transactions table (PlayFivers webhooks)
+    await pool.query(`CREATE TABLE IF NOT EXISTS game_transactions (
+      id SERIAL PRIMARY KEY,
+      user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      game_id INT REFERENCES games(id) ON DELETE SET NULL,
+      txn_id VARCHAR(255) UNIQUE,
+      round_id VARCHAR(255),
+      txn_type VARCHAR(32),
+      bet_cents BIGINT DEFAULT 0,
+      win_cents BIGINT DEFAULT 0,
+      balance_before BIGINT DEFAULT 0,
+      balance_after BIGINT DEFAULT 0,
+      provider_code VARCHAR(64),
+      pf_game_code VARCHAR(128),
+      raw_payload JSONB,
+      created_at TIMESTAMPTZ DEFAULT NOW()
+    )`);
+    await pool.query('CREATE INDEX IF NOT EXISTS idx_gtx_user ON game_transactions(user_id)');
+    await pool.query('CREATE INDEX IF NOT EXISTS idx_gtx_txn ON game_transactions(txn_id)');
 
     // Jogo Responsável limits
     await addCol('users', 'limit_deposit_type', "VARCHAR(16) DEFAULT 'unlimited'");

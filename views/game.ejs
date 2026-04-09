@@ -16,7 +16,7 @@
         <a href="/" class="gp-fs-back" id="gpFsBack" style="display:none">&#8249;</a>
         <button class="gp-fs-close" id="gpFsClose" style="display:none">&times;</button>
         <div class="gp-hero-content">
-          <div class="gp-hero-image">
+          <div class="gp-hero-image" id="gpHeroImage">
             <img src="<%= game.image_url %>" alt="<%= game.game_name %>" draggable="false">
           </div>
           <div class="gp-hero-actions is-guest-el">
@@ -25,10 +25,17 @@
             <button class="btn-register" id="heroRegister">Registre-se</button>
             <button class="btn-login" id="heroLogin">Entrar</button>
           </div>
-          <div class="gp-coming-soon is-logged-el">
-            <div class="gp-cs-badge">🎮 Em Breve</div>
-            <p class="gp-cs-text">Novas atualizações chegando em breve. Fique ligado!</p>
+          <div class="gp-play-area is-logged-el" id="gpPlayArea">
+            <button class="gp-play-btn" id="gpPlayBtn">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+              JOGAR AGORA
+            </button>
+            <div class="gp-game-loading" id="gpGameLoading" style="display:none">
+              <div class="gp-spinner"></div>
+              <span>Carregando jogo...</span>
+            </div>
           </div>
+          <iframe id="gpGameIframe" class="gp-game-iframe" style="display:none" allowfullscreen allow="autoplay; fullscreen"></iframe>
         </div>
       </section>
 
@@ -361,6 +368,51 @@
       var open = seoMore.style.display !== 'none';
       seoMore.style.display = open ? 'none' : 'block';
       seoToggle.textContent = open ? 'Ver mais' : 'Ver menos';
+    });
+  }
+
+  /* === Game Launch via PlayFivers === */
+  var playBtn = document.getElementById('gpPlayBtn');
+  var gameLoading = document.getElementById('gpGameLoading');
+  var gameIframe = document.getElementById('gpGameIframe');
+  var heroImage = document.getElementById('gpHeroImage');
+  var playArea = document.getElementById('gpPlayArea');
+  var gameCode = '<%= game.game_code %>';
+
+  if (playBtn) {
+    playBtn.addEventListener('click', function() {
+      playBtn.style.display = 'none';
+      if (gameLoading) gameLoading.style.display = 'flex';
+
+      fetch('/api/game/launch', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ game_code: gameCode })
+      })
+      .then(function(r) { return r.json(); })
+      .then(function(j) {
+        if (gameLoading) gameLoading.style.display = 'none';
+        if (j.ok && j.launch_url) {
+          // Show iframe, hide hero image
+          if (heroImage) heroImage.style.display = 'none';
+          if (playArea) playArea.style.display = 'none';
+          if (gameIframe) {
+            gameIframe.src = j.launch_url;
+            gameIframe.style.display = 'block';
+          }
+          // Auto enter a wider view
+          if (hero) hero.classList.add('gp-playing');
+        } else {
+          if (typeof showToast === 'function') showToast(j.msg || 'Erro ao iniciar jogo', 'error');
+          playBtn.style.display = '';
+        }
+      })
+      .catch(function(err) {
+        if (gameLoading) gameLoading.style.display = 'none';
+        if (typeof showToast === 'function') showToast('Erro ao conectar', 'error');
+        playBtn.style.display = '';
+      });
     });
   }
 

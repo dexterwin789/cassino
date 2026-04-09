@@ -203,6 +203,57 @@ router.delete('/games/:id', async (req, res) => {
   }
 });
 
+// Sync games from PlayFivers API
+router.post('/games/sync-playfivers', async (req, res) => {
+  try {
+    const pf = require('../../services/playfivers');
+    const result = await pf.getGames();
+    if (!result.data || result.data.status !== 1 || !Array.isArray(result.data.data)) {
+      return res.status(502).json({ ok: false, msg: 'Erro ao buscar jogos da PlayFivers: ' + (result.data.msg || 'resposta inválida') });
+    }
+
+    const games = result.data.data;
+    let inserted = 0, updated = 0, skipped = 0;
+
+    for (const g of games) {
+      if (!g.game_code || !g.name) { skipped++; continue; }
+      const providerName = (g.provider && g.provider.name) ? g.provider.name : '';
+      const slug = (providerName + '-' + g.game_code).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+
+      // Check if already exists by pf_game_code + pf_provider
+      const existing = await query(
+        'SELECT id FROM games WHERE pf_game_code = $1 AND pf_provider = $2',
+        [g.game_code, providerName]
+      );
+
+      if (existing.rows.length) {
+        // Update image/name/status
+        await query(
+          `UPDATE games SET game_name = $1, image_url = $2, is_active = $3, game_original = $4 WHERE id = $5`,
+          [g.name, g.image_url || null, g.status !== false, g.original === true, existing.rows[0].id]
+        );
+        updated++;
+      } else {
+        // Check slug collision
+        const slugCheck = await query('SELECT id FROM games WHERE game_code = $1', [slug]);
+        const finalSlug = slugCheck.rows.length ? slug + '-' + Date.now() : slug;
+
+        await query(
+          `INSERT INTO games (game_code, game_name, image_url, provider, category, is_active, pf_game_code, pf_provider, game_original)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+          [finalSlug, g.name, g.image_url || null, providerName, 'slots', g.status !== false, g.game_code, providerName, g.original === true]
+        );
+        inserted++;
+      }
+    }
+
+    res.json({ ok: true, msg: `Sincronização concluída: ${inserted} novos, ${updated} atualizados, ${skipped} ignorados.`, total: games.length, inserted, updated, skipped });
+  } catch (err) {
+    console.error('[SYNC PLAYFIVERS]', err);
+    res.status(500).json({ ok: false, msg: 'Erro na sincronização: ' + err.message });
+  }
+});
+
 // ─── Themes ───────────────────────────────────────
 
 router.get('/themes', async (req, res) => {

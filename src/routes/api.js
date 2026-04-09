@@ -273,6 +273,55 @@ router.get('/games', async (req, res) => {
   }
 });
 
+// POST /api/game/launch — Launch a PlayFivers game
+router.post('/game/launch', requireUser, async (req, res) => {
+  try {
+    const userId = req.session.user.id;
+    const { game_code } = req.body;
+    if (!game_code) return res.status(400).json({ ok: false, msg: 'game_code obrigatório.' });
+
+    // Fetch game info
+    const gameR = await query(
+      'SELECT id, game_code, game_name, pf_game_code, pf_provider, game_original FROM games WHERE game_code = $1 AND is_active = TRUE',
+      [game_code]
+    );
+    if (!gameR.rows.length) return res.status(404).json({ ok: false, msg: 'Jogo não encontrado.' });
+    const game = gameR.rows[0];
+
+    if (!game.pf_game_code || !game.pf_provider) {
+      return res.status(400).json({ ok: false, msg: 'Jogo não integrado com provedor.' });
+    }
+
+    // Get user balance (cents → reais)
+    const walletR = await query('SELECT balance_cents FROM wallets WHERE user_id = $1', [userId]);
+    const balanceCents = walletR.rows[0] ? parseInt(walletR.rows[0].balance_cents) : 0;
+    const balanceReais = balanceCents / 100;
+
+    // User code for PlayFivers = unique identifier (email or id)
+    const userCode = req.session.user.email || req.session.user.username || String(userId);
+
+    const pf = require('../services/playfivers');
+    const result = await pf.launchGame({
+      userCode,
+      gameCode: game.pf_game_code,
+      provider: game.pf_provider,
+      gameOriginal: game.game_original,
+      userBalance: balanceReais,
+      lang: 'pt'
+    });
+
+    if (result.status !== 200 || !result.data.status || !result.data.launch_url) {
+      console.error('[GAME LAUNCH] PlayFivers error:', result.data);
+      return res.status(502).json({ ok: false, msg: result.data.msg || 'Erro ao iniciar jogo.' });
+    }
+
+    res.json({ ok: true, launch_url: result.data.launch_url, game_name: game.game_name });
+  } catch (err) {
+    console.error('[GAME LAUNCH]', err);
+    res.status(500).json({ ok: false, msg: 'Erro ao iniciar jogo.' });
+  }
+});
+
 // GET /api/banners
 router.get('/banners', async (req, res) => {
   try {
