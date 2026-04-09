@@ -9,6 +9,23 @@
       <button class="adm-btn primary" id="btnAddGame">+ Novo Jogo</button>
     </div>
   </div>
+
+  <!-- Sync Provider Selection Modal -->
+  <div id="syncModal" style="display:none;background:rgba(0,0,0,.6);position:fixed;inset:0;z-index:9999;align-items:center;justify-content:center">
+    <div style="background:var(--adm-card,#1e2330);border-radius:12px;padding:24px;max-width:480px;width:90%;max-height:70vh;overflow-y:auto">
+      <h4 style="margin:0 0 12px">Sincronizar PlayFivers</h4>
+      <p style="font-size:13px;opacity:.7;margin:0 0 16px">Selecione os provedores para importar ou clique "Todos" para sincronizar tudo.</p>
+      <div id="syncProviderList" style="display:grid;gap:6px;margin-bottom:16px">
+        <div style="text-align:center;opacity:.5">Carregando provedores...</div>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end">
+        <button class="adm-btn" id="syncCancel">Cancelar</button>
+        <button class="adm-btn" id="syncAll">🔄 Todos</button>
+        <button class="adm-btn primary" id="syncSelected">Sincronizar Selecionados</button>
+      </div>
+      <div id="syncStatus" style="margin-top:12px;font-size:13px;display:none"></div>
+    </div>
+  </div>
   <div class="adm-toolbar">
     <div class="adm-field"><label>Buscar</label><input type="text" placeholder="code / nome / provider" data-filter="q" /></div>
     <div class="adm-field"><label>Ativo</label><select data-filter="active"><option value="">Todos</option><option value="1" selected>Ativo</option><option value="0">Inativo</option></select></div>

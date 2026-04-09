@@ -522,17 +522,61 @@
   }
 
   document.getElementById('btnSyncPF')?.addEventListener('click', async () => {
-    const btn = document.getElementById('btnSyncPF');
-    btn.disabled = true; btn.textContent = '⏳ Sincronizando...';
+    const modal = document.getElementById('syncModal');
+    if (!modal) return;
+    modal.style.display = 'flex';
+    const list = document.getElementById('syncProviderList');
+    list.innerHTML = '<div style="text-align:center;opacity:.5">Carregando provedores...</div>';
     try {
-      const r = await fetch('/admin/api/games/sync-playfivers', { method: 'POST', credentials: 'same-origin' });
+      const r = await fetch('/admin/api/playfivers/providers', { credentials: 'same-origin' });
+      const d = await r.json();
+      if (d.ok && d.providers) {
+        list.innerHTML = d.providers.map(p =>
+          `<label style="display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:6px;cursor:pointer;background:rgba(255,255,255,.04)">
+            <input type="checkbox" class="sync-prov-check" value="${p.id}" data-name="${p.name || p.id}">
+            <span>${p.name || p.id}</span>
+          </label>`
+        ).join('');
+      } else { list.innerHTML = '<div style="color:#f66">Erro ao carregar provedores</div>'; }
+    } catch (e) { list.innerHTML = '<div style="color:#f66">Erro: ' + e.message + '</div>'; }
+  });
+
+  async function doSync(providerIds) {
+    const status = document.getElementById('syncStatus');
+    status.style.display = 'block';
+    status.textContent = '⏳ Sincronizando...';
+    status.style.color = '';
+    try {
+      const body = providerIds ? { providers: providerIds } : {};
+      const r = await fetch('/admin/api/games/sync-playfivers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+        credentials: 'same-origin'
+      });
       const d = await r.json();
       if (d.ok) {
-        alert(`Sync concluído!\nInseridos: ${d.inserted}\nAtualizados: ${d.updated}\nIgnorados: ${d.skipped}`);
-        location.reload();
-      } else { alert(d.msg || 'Erro no sync'); }
-    } catch (e) { alert('Erro: ' + e.message); }
-    finally { btn.disabled = false; btn.textContent = '🔄 Sync PlayFivers'; }
+        status.style.color = '#4f4';
+        status.textContent = `✅ ${d.msg}`;
+        setTimeout(() => location.reload(), 2000);
+      } else {
+        status.style.color = '#f66';
+        status.textContent = '❌ ' + (d.msg || 'Erro no sync');
+      }
+    } catch (e) {
+      status.style.color = '#f66';
+      status.textContent = '❌ Erro: ' + e.message;
+    }
+  }
+
+  document.getElementById('syncAll')?.addEventListener('click', () => doSync(null));
+  document.getElementById('syncSelected')?.addEventListener('click', () => {
+    const checks = document.querySelectorAll('.sync-prov-check:checked');
+    if (!checks.length) return alert('Selecione pelo menos um provedor.');
+    doSync(Array.from(checks).map(c => c.value));
+  });
+  document.getElementById('syncCancel')?.addEventListener('click', () => {
+    document.getElementById('syncModal').style.display = 'none';
   });
 
   document.getElementById('btnAddGame')?.addEventListener('click', async () => {

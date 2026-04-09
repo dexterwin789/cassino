@@ -58,10 +58,14 @@ app.use(async (req, res, next) => {
     if (typeof res.locals.layoutConfig === 'string') {
       try { res.locals.layoutConfig = JSON.parse(res.locals.layoutConfig); } catch { res.locals.layoutConfig = {}; }
     }
+    // Sports enabled setting
+    const sportsR = await pool.query("SELECT value FROM platform_settings WHERE key = 'sports_enabled' LIMIT 1");
+    res.locals.sportsEnabled = sportsR.rows[0]?.value === '1';
   } catch {
     res.locals.activeTheme = 'default';
     res.locals.theme = null;
     res.locals.layoutConfig = {};
+    res.locals.sportsEnabled = false;
   }
   res.locals.user = req.session.user || null;
   next();
@@ -292,6 +296,14 @@ async function autoMigrate() {
       WHERE id IN (SELECT id FROM ranked WHERE rn > 1)
     `);
     if (dedupResult.rowCount > 0) console.log('[MIGRATE] Deduped ' + dedupResult.rowCount + ' duplicate games');
+
+    // ─── Deactivate all games that are NOT PG Soft or Pragmatic ─────
+    const cleanupResult = await pool.query(`
+      UPDATE games SET is_active = FALSE
+      WHERE is_active = TRUE
+        AND LOWER(COALESCE(pf_provider, provider, '')) NOT SIMILAR TO '%(pg soft|pg|pragmatic|pragmatic play)%'
+    `);
+    if (cleanupResult.rowCount > 0) console.log('[MIGRATE] Deactivated ' + cleanupResult.rowCount + ' non-PG/Pragmatic games');
 
     // ─── Seed sample data for admin verification ─────────────
     // Banners

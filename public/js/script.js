@@ -1376,9 +1376,10 @@ function randomName() {
   return fakeNames[Math.floor(Math.random() * fakeNames.length)] + ' ***';
 }
 function randomGame() {
-  if (allGames.length > 0) {
-    var g = allGames[Math.floor(Math.random() * allGames.length)];
-    return { name: g.game_name || 'Jogo', img: g.image_url || gameImages[Math.floor(Math.random() * gameImages.length)] };
+  var gamesWithImg = allGames.filter(function(g) { return g.image_url; });
+  if (gamesWithImg.length > 0) {
+    var g = gamesWithImg[Math.floor(Math.random() * gamesWithImg.length)];
+    return { name: g.game_name || 'Jogo', img: g.image_url };
   }
   var gameNames = ['Fortune Tiger','Aviator','Mines','Sweet Bonanza','Roleta Brasileira','Gates of Olympus','Spaceman','Penalty Shootout','Sugar Rush','Bikini Paradise','Fortune Ox','Dragon Tiger'];
   var idx = Math.floor(Math.random() * gameNames.length);

@@ -5,10 +5,12 @@
       <img src="/public/img/novo/carta1.svg" width="17" height="17" alt="Cassino">
       CASSINO
     </button>
+    <% if (locals.sportsEnabled) { %>
     <button class="tab-switch" data-tab="esportes">
       <img src="/public/img/novo/bola1.svg" width="17" height="17" alt="Esportes">
       ESPORTES
     </button>
+    <% } %>
   </div>
   <div class="topbar-container">
     <button class="bars-toggle" id="barsToggle" title="Toggle sidebar">

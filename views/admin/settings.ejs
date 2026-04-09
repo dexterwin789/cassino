@@ -17,6 +17,13 @@
         <option value="1" <%= settings.maintenance_mode === '1' ? 'selected' : '' %>>Ativado</option>
       </select>
     </div>
+    <div class="adm-setting-card">
+      <label>Esportes (Sidebar, Ligas, Ícones)</label>
+      <select id="setSports">
+        <option value="0" <%= settings.sports_enabled !== '1' ? 'selected' : '' %>>Desativado</option>
+        <option value="1" <%= settings.sports_enabled === '1' ? 'selected' : '' %>>Ativado</option>
+      </select>
+    </div>
   </div>
 
   <button class="adm-btn primary" id="btnSaveSettings" style="margin-top:16px;">Salvar Configurações</button>
@@ -26,7 +33,8 @@
 document.getElementById('btnSaveSettings')?.addEventListener('click', async () => {
   const settings = [
     { key: 'site_name', value: document.getElementById('setSiteName').value },
-    { key: 'maintenance_mode', value: document.getElementById('setMaintenance').value }
+    { key: 'maintenance_mode', value: document.getElementById('setMaintenance').value },
+    { key: 'sports_enabled', value: document.getElementById('setSports').value }
   ];
   for (const s of settings) {
     await fetch('/admin/api/settings', {

@@ -2953,12 +2953,14 @@ html[data-theme="light"] {
   --text-muted: #5a6478;
   --border: rgba(0,0,0,.1);
 }
-/* Icons: remove invert filter on light bg */
-html[data-theme="light"] .bars-toggle img{filter:none;opacity:.7}
-html[data-theme="light"] .topbar-notif img{filter:none;opacity:.7}
-html[data-theme="light"] .topbar-balance-refresh img{filter:none;opacity:.6}
-html[data-theme="light"] .topbar-dropdown-nav a img{filter:none;opacity:.5}
-html[data-theme="light"] .dropdown-theme-row img{filter:none}
+/* Icons: dark filter on light bg */
+html[data-theme="light"] .bars-toggle img{filter:brightness(0) saturate(100%);opacity:.7}
+html[data-theme="light"] .topbar-notif img{filter:brightness(0) saturate(100%);opacity:.7}
+html[data-theme="light"] .topbar-balance-refresh img{filter:brightness(0) saturate(100%);opacity:.6}
+html[data-theme="light"] .topbar-dropdown-nav a img{filter:brightness(0) saturate(100%);opacity:.5}
+html[data-theme="light"] .dropdown-theme-row img{filter:brightness(0) saturate(100%)}
+/* sidebar-cards transparent on light */
+html[data-theme="light"] .sidebar-cards{background:#48484800}
 /* Topbar hover/active (hardcoded rgba white) */
 html[data-theme="light"] .tab-switch:hover{background:rgba(0,0,0,.04)}
 html[data-theme="light"] .tab-switch.active{background:rgba(0,0,0,.06)}

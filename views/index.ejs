@@ -66,6 +66,7 @@
     </div>
 
     <!-- ESPORTES (group: Esportes + Popular + Top5) -->
+    <% if (locals.sportsEnabled) { %>
     <div class="sidebar-menu sidebar-section-border" id="esportesGroup">
       <div class="menu-title sb-full" id="menuEsportesToggle">
         ESPORTES
@@ -100,6 +101,7 @@
         <li data-tooltip="Esportes Virtuais"><img src="/public/img/novo/top5.svg" class="mi" width="20" height="20" alt=""> <span class="ml">Esportes Virtuais</span></li>
       </ul>
     </div>
+    <% } %>
 
     <!-- BOTTOM LINKS -->
     <div class="sidebar-bottom">
@@ -124,10 +126,12 @@
     <div id="homeContent">
 
     <section class="category-icons">
+      <% if (locals.sportsEnabled) { %>
       <div class="cat-icon-item">
         <div class="cat-icon-circle"><img src="/public/img/esportes_svg.svg" width="60" height="60" alt="Esportes"></div>
         <span>Esportes</span>
       </div>
+      <% } %>
       <div class="cat-icon-item">
         <div class="cat-icon-circle"><img src="/public/img/promocoes_svg.svg" width="60" height="60" alt="Promoções"></div>
         <span>Promoções</span>
@@ -144,10 +148,12 @@
         <div class="cat-icon-circle"><img src="/public/img/cartas_svg.svg" width="60" height="60" alt="Cassino"></div>
         <span>Cassino</span>
       </div>
+      <% if (locals.sportsEnabled) { %>
       <div class="cat-icon-item">
         <div class="cat-icon-circle"><img src="/public/img/novo/controle_svg.svg" width="60" height="60" alt="E-Sports"></div>
         <span>E-Sports</span>
       </div>
+      <% } %>
       <div class="cat-icon-item">
         <div class="cat-icon-circle"><img src="/public/img/calendar.png" width="60" height="60" alt="Calendário"></div>
         <span>Calendário</span>
@@ -235,6 +241,7 @@
     </section>
 
     <!-- Principais Ligas -->
+    <% if (locals.sportsEnabled) { %>
     <section class="principais-ligas">
       <div class="ligas-bar"><span>🏆 Principais Ligas</span></div>
       <div class="ligas-row">
@@ -281,6 +288,7 @@
         </a>
       </div>
     </section>
+    <% } %>
 
     <!-- Provider Filter + Dynamic Games Grid -->
     <section class="game-section">

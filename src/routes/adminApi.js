@@ -207,12 +207,27 @@ router.delete('/games/:id', async (req, res) => {
 router.post('/games/sync-playfivers', async (req, res) => {
   try {
     const pf = require('../services/playfivers');
-    const result = await pf.getGames();
-    if (!result.data || result.data.status !== 1 || !Array.isArray(result.data.data)) {
-      return res.status(502).json({ ok: false, msg: 'Erro ao buscar jogos da PlayFivers: ' + (result.data.msg || 'resposta inválida') });
+    const { providers } = req.body; // optional array of provider IDs
+    let allImported = [];
+
+    if (Array.isArray(providers) && providers.length > 0) {
+      // Sync only selected providers
+      for (const pid of providers) {
+        const result = await pf.getGames(pid);
+        if (result.data && result.data.status === 1 && Array.isArray(result.data.data)) {
+          allImported = allImported.concat(result.data.data);
+        }
+      }
+    } else {
+      // Sync all
+      const result = await pf.getGames();
+      if (!result.data || result.data.status !== 1 || !Array.isArray(result.data.data)) {
+        return res.status(502).json({ ok: false, msg: 'Erro ao buscar jogos da PlayFivers: ' + (result.data.msg || 'resposta inválida') });
+      }
+      allImported = result.data.data;
     }
 
-    const games = result.data.data;
+    const games = allImported;
     let inserted = 0, updated = 0, skipped = 0;
 
     for (const g of games) {
@@ -279,6 +294,20 @@ router.post('/games/sync-playfivers', async (req, res) => {
   } catch (err) {
     console.error('[SYNC PLAYFIVERS]', err);
     res.status(500).json({ ok: false, msg: 'Erro na sincronização: ' + err.message });
+  }
+});
+
+// List PlayFivers providers (for sync UI)
+router.get('/playfivers/providers', async (req, res) => {
+  try {
+    const pf = require('../services/playfivers');
+    const result = await pf.getProviders();
+    if (!result.data || !Array.isArray(result.data.data)) {
+      return res.status(502).json({ ok: false, msg: 'Erro ao buscar provedores.' });
+    }
+    res.json({ ok: true, providers: result.data.data });
+  } catch (err) {
+    res.status(500).json({ ok: false, msg: 'Erro: ' + err.message });
   }
 });
 
