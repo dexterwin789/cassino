@@ -282,23 +282,30 @@
       </div>
     </section>
 
-    <!-- Provider Sections (16 grids) -->
-    <section class="game-section"><div class="section-header"><h2>Jogos da Amusnet</h2><a href="/games?provider=amusnet" class="see-all">Ver todos</a></div><div class="provider-grid" id="gridAmusnet"></div></section>
-    <section class="game-section"><div class="section-header"><h2>Jogos da Hacksaw</h2><a href="/games?provider=hacksaw" class="see-all">Ver todos</a></div><div class="provider-grid" id="gridHacksaw"></div></section>
-    <section class="game-section"><div class="section-header"><h2>Jogos da PG</h2><a href="/games?provider=pg" class="see-all">Ver todos</a></div><div class="provider-grid" id="gridPG"></div></section>
-    <section class="game-section"><div class="section-header"><h2>Jogos CP Games</h2><a href="/games?provider=cp" class="see-all">Ver todos</a></div><div class="provider-grid" id="gridCPGames"></div></section>
-    <section class="game-section"><div class="section-header"><h2>Jogos da Popok Games</h2><a href="/games?provider=popok" class="see-all">Ver todos</a></div><div class="provider-grid" id="gridPopokGames"></div></section>
-    <section class="game-section"><div class="section-header"><h2>Jogos da Pragmatic Play</h2><a href="/games?provider=pp" class="see-all">Ver todos</a></div><div class="provider-grid" id="gridPP"></div></section>
-    <section class="game-section"><div class="section-header"><h2>Jogos da Evolution</h2><a href="/games?provider=evolution" class="see-all">Ver todos</a></div><div class="provider-grid" id="gridEvolution"></div></section>
-    <section class="game-section"><div class="section-header"><h2>Jogos da Spribe</h2><a href="/games?provider=spribe" class="see-all">Ver todos</a></div><div class="provider-grid" id="gridSpribe"></div></section>
-    <section class="game-section"><div class="section-header"><h2>Jogos da JILI</h2><a href="/games?provider=jili" class="see-all">Ver todos</a></div><div class="provider-grid" id="gridJILI"></div></section>
-    <section class="game-section"><div class="section-header"><h2>Jogos da CQ9</h2><a href="/games?provider=cq9" class="see-all">Ver todos</a></div><div class="provider-grid" id="gridCQ9"></div></section>
-    <section class="game-section"><div class="section-header"><h2>Jogos da Betsoft</h2><a href="/games?provider=betsoft" class="see-all">Ver todos</a></div><div class="provider-grid" id="gridBetsoft"></div></section>
-    <section class="game-section"><div class="section-header"><h2>Jogos da Play'n GO</h2><a href="/games?provider=playngo" class="see-all">Ver todos</a></div><div class="provider-grid" id="gridPlaynGO"></div></section>
-    <section class="game-section"><div class="section-header"><h2>Jogos da NetEnt</h2><a href="/games?provider=netent" class="see-all">Ver todos</a></div><div class="provider-grid" id="gridNetEnt"></div></section>
-    <section class="game-section"><div class="section-header"><h2>Jogos da Evoplay</h2><a href="/games?provider=evor" class="see-all">Ver todos</a></div><div class="provider-grid" id="gridEvoplay"></div></section>
-    <section class="game-section"><div class="section-header"><h2>Jogos da Wazdan</h2><a href="/games?provider=wazdan" class="see-all">Ver todos</a></div><div class="provider-grid" id="gridWazdan"></div></section>
-    <section class="game-section"><div class="section-header"><h2>Jogos da BGaming</h2><a href="/games?provider=bgaming" class="see-all">Ver todos</a></div><div class="provider-grid" id="gridBGaming"></div></section>
+    <!-- Provider Filter + Dynamic Games Grid -->
+    <section class="game-section">
+      <div class="section-header" style="flex-wrap:wrap;gap:10px">
+        <h2 id="providerSectionTitle">Todos os Jogos</h2>
+        <div style="display:flex;gap:8px;align-items:center;margin-left:auto">
+          <div class="home-provider-wrap">
+            <button class="archive-provider-btn" id="homeProviderBtn">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0"><path d="M4 6h16M4 12h16M4 18h7"/></svg>
+              Provedor: <span id="homeProviderLabel">Todos</span>
+            </button>
+            <div class="archive-provider-dropdown" id="homeProviderDropdown">
+              <label class="archive-provider-item" style="font-weight:600;border-bottom:1px solid rgba(255,255,255,.08);padding-bottom:6px;margin-bottom:4px">
+                <input type="radio" name="homeProv" value="" class="home-prov-radio" checked> Todos os Provedores
+              </label>
+            </div>
+          </div>
+          <a href="/games" class="see-all">Ver todos</a>
+        </div>
+      </div>
+      <div class="provider-grid" id="homeFilteredGrid"></div>
+      <div style="text-align:center;margin-top:16px">
+        <button class="archive-load-more" id="homeLoadMore" style="display:none">Carregar mais</button>
+      </div>
+    </section>
 
     <!-- Estúdios -->
     <section class="game-section estudios-section">

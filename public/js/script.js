@@ -328,49 +328,101 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape' && sea
 // Start placeholder animation on load
 startPlaceholderAnim();
 
-/* Provider grid IDs */
-var providerGrids = [
-  { id: 'gridAmusnet', match: 'amusnet' },
-  { id: 'gridHacksaw', match: 'hacksaw' },
-  { id: 'gridPG', match: 'pg' },
-  { id: 'gridCPGames', match: 'cp' },
-  { id: 'gridPopokGames', match: 'popok' },
-  { id: 'gridPP', match: 'pp' },
-  { id: 'gridEvolution', match: 'evolution' },
-  { id: 'gridSpribe', match: 'spribe' },
-  { id: 'gridJILI', match: 'jili' },
-  { id: 'gridCQ9', match: 'cq9' },
-  { id: 'gridBetsoft', match: 'betsoft' },
-  { id: 'gridPlaynGO', match: 'playngo' },
-  { id: 'gridNetEnt', match: 'netent' },
-  { id: 'gridEvoplay', match: 'evor' },
-  { id: 'gridWazdan', match: 'wazdan' },
-  { id: 'gridBGaming', match: 'bgaming' }
-];
+/* Provider grid IDs — REPLACED by dynamic filter */
+var homeFilteredGames = [];
+var homeShown = 0;
+var homePageSize = 24;
+var homeActiveProvider = '';
 
-function renderProviderGrids(games) {
-  var used = 0;
-  providerGrids.forEach(function(pg) {
-    var matched = games.filter(function(g) {
-      return (g.provider || '').toLowerCase() === pg.match ||
-             (g.provider || '').toLowerCase().includes(pg.match);
-    }).slice(0, 6);
-    if (matched.length < 6) {
-      var fill = games.slice(used, used + 6);
-      matched = fill.length >= 6 ? fill : games.slice(0, 6);
-    }
-    used += 6;
-    if (used >= games.length) used = 0;
-    renderGames(matched, pg.id);
+function renderHomeFiltered() {
+  var grid = document.getElementById('homeFilteredGrid');
+  var loadMore = document.getElementById('homeLoadMore');
+  var title = document.getElementById('providerSectionTitle');
+  if (!grid) return;
+
+  // Sort: featured first, then rest
+  var sorted = allGames.slice().sort(function(a, b) {
+    if (a.is_featured && !b.is_featured) return -1;
+    if (!a.is_featured && b.is_featured) return 1;
+    if (a.is_featured && b.is_featured) return (a.featured_order || 999) - (b.featured_order || 999);
+    return 0;
+  });
+
+  // Filter by provider
+  if (homeActiveProvider) {
+    homeFilteredGames = sorted.filter(function(g) {
+      return (g.provider || '').toUpperCase() === homeActiveProvider.toUpperCase();
+    });
+    if (title) title.textContent = 'Jogos da ' + homeActiveProvider;
+  } else {
+    homeFilteredGames = sorted;
+    if (title) title.textContent = 'Todos os Jogos';
+  }
+
+  homeShown = 0;
+  grid.innerHTML = '';
+  showMoreHome();
+}
+
+function showMoreHome() {
+  var grid = document.getElementById('homeFilteredGrid');
+  var loadMore = document.getElementById('homeLoadMore');
+  if (!grid) return;
+  var next = homeFilteredGames.slice(homeShown, homeShown + homePageSize);
+  grid.insertAdjacentHTML('beforeend', next.map(gameCardHTML).join(''));
+  homeShown += next.length;
+  if (loadMore) loadMore.style.display = homeShown >= homeFilteredGames.length ? 'none' : 'inline-block';
+}
+
+function buildHomeProviderDropdown() {
+  var dd = document.getElementById('homeProviderDropdown');
+  if (!dd) return;
+  // Extract unique providers
+  var provs = {};
+  allGames.forEach(function(g) { if (g.provider) provs[g.provider.toUpperCase()] = g.provider; });
+  var sorted = Object.keys(provs).sort();
+
+  // Keep the "Todos" radio that's already in the HTML
+  var html = '<label class="archive-provider-item" style="font-weight:600;border-bottom:1px solid rgba(255,255,255,.08);padding-bottom:6px;margin-bottom:4px"><input type="radio" name="homeProv" value="" class="home-prov-radio" checked> Todos os Provedores</label>';
+  sorted.forEach(function(k) {
+    html += '<label class="archive-provider-item"><input type="radio" name="homeProv" value="' + provs[k] + '" class="home-prov-radio"> ' + provs[k] + '</label>';
+  });
+  dd.innerHTML = html;
+
+  // Listen for changes
+  dd.addEventListener('change', function() {
+    var checked = dd.querySelector('.home-prov-radio:checked');
+    homeActiveProvider = checked ? checked.value : '';
+    var label = document.getElementById('homeProviderLabel');
+    if (label) label.textContent = homeActiveProvider || 'Todos';
+    renderHomeFiltered();
   });
 }
+
+// Toggle dropdown
+(function() {
+  var btn = document.getElementById('homeProviderBtn');
+  var dd = document.getElementById('homeProviderDropdown');
+  if (btn && dd) {
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      dd.classList.toggle('open');
+    });
+    document.addEventListener('click', function(e) {
+      if (!dd.contains(e.target) && e.target !== btn) dd.classList.remove('open');
+    });
+  }
+  var loadMore = document.getElementById('homeLoadMore');
+  if (loadMore) loadMore.addEventListener('click', showMoreHome);
+})();
 
 function renderAllSections() {
   var featured = allGames.filter(function(g) { return g.is_featured; })
     .sort(function(a, b) { return (a.featured_order || 0) - (b.featured_order || 0); });
   var hot = featured.length ? featured.slice(0, 10) : allGames.slice(0, 9);
   renderTop10(hot);
-  renderProviderGrids(allGames);
+  buildHomeProviderDropdown();
+  renderHomeFiltered();
 }
 
 /* ========== TOP 10 SLIDER ========== */

@@ -10,13 +10,29 @@ async function findUser(userCode) {
   return r.rows[0] || null;
 }
 
-// POST /api/webhook/playfivers/balance
-// PlayFivers sends: { type: "BALANCE", user_code: "..." }
-// We respond: { balance: 150.75, msg: "" }
-router.post('/balance', async (req, res) => {
+// POST /api/webhook/playfivers — Single callback URL
+// PlayFivers sends BALANCE or TRANSACTION events here
+// Also handle sub-paths /balance and /transaction for backwards compat
+router.post('/', handleWebhook);
+router.post('/balance', handleWebhook);
+router.post('/transaction', handleWebhook);
+
+async function handleWebhook(req, res) {
+  const body = req.body || {};
+  const type = (body.type || '').toUpperCase();
+
+  // If it's a BALANCE check (no slot/game_type data)
+  if (type === 'BALANCE' || (!body.game_type && !body.slot)) {
+    return handleBalance(req, res);
+  }
+  // Otherwise it's a transaction
+  return handleTransaction(req, res);
+}
+
+async function handleBalance(req, res) {
   try {
-    const { type, user_code } = req.body;
-    console.log('[PF WEBHOOK BALANCE]', { type, user_code });
+    const { user_code } = req.body;
+    console.log('[PF WEBHOOK BALANCE]', { user_code });
 
     if (!user_code) {
       return res.status(400).json({ balance: 0, msg: 'MISSING_USER_CODE' });
@@ -33,12 +49,9 @@ router.post('/balance', async (req, res) => {
     console.error('[PF WEBHOOK BALANCE]', err);
     res.status(500).json({ balance: 0, msg: 'ERROR_INTERNAL' });
   }
-});
+}
 
-// POST /api/webhook/playfivers/transaction
-// PlayFivers sends: { type, agent_code, agent_secret, user_code, user_balance, game_original, game_type, slot: {...} }
-// We respond: { balance: 150.75, msg: "" }
-router.post('/transaction', async (req, res) => {
+async function handleTransaction(req, res) {
   const client = await pool.connect();
   try {
     const { type, user_code, user_balance, game_type } = req.body;
@@ -138,6 +151,6 @@ router.post('/transaction', async (req, res) => {
   } finally {
     client.release();
   }
-});
+}
 
 module.exports = router;

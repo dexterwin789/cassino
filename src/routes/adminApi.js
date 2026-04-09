@@ -247,10 +247,42 @@ router.post('/games/sync-playfivers', async (req, res) => {
       }
     }
 
-    res.json({ ok: true, msg: `Sincronização concluída: ${inserted} novos, ${updated} atualizados, ${skipped} ignorados.`, total: games.length, inserted, updated, skipped });
+    // After sync, mark popular/hot games as featured
+    const hotGameNames = [
+      'fortune tiger', 'fortune rabbit', 'fortune ox', 'fortune mouse', 'fortune dragon',
+      'gates of olympus', 'sweet bonanza', 'big bass bonanza', 'big bass splash',
+      'sugar rush', 'starlight princess', 'dog house', 'wolf gold',
+      'aviator', 'spaceman', 'mines', 'plinko', 'dice',
+      'crazy time', 'lightning roulette', 'gonzo\'s treasure hunt',
+      'the dog house megaways', 'fruit party', 'madame destiny megaways',
+      'wild west gold', 'book of dead', 'reactoonz',
+      'tigre sortudo', 'dragon tiger', 'cash bonanza'
+    ];
+    let featuredCount = 0;
+    for (let i = 0; i < hotGameNames.length; i++) {
+      const r = await query(
+        `UPDATE games SET is_featured = TRUE, featured_order = $1 WHERE LOWER(game_name) LIKE $2 AND pf_game_code IS NOT NULL AND is_featured = FALSE`,
+        [i + 1, '%' + hotGameNames[i] + '%']
+      );
+      if (r.rowCount > 0) featuredCount += r.rowCount;
+    }
+
+    res.json({ ok: true, msg: `Sincronização concluída: ${inserted} novos, ${updated} atualizados, ${skipped} ignorados. ${featuredCount} jogos marcados como destaque.`, total: games.length, inserted, updated, skipped, featured: featuredCount });
   } catch (err) {
     console.error('[SYNC PLAYFIVERS]', err);
     res.status(500).json({ ok: false, msg: 'Erro na sincronização: ' + err.message });
+  }
+});
+
+// Get server outbound IP (for PlayFivers IP whitelist)
+router.get('/server-ip', async (req, res) => {
+  try {
+    const fetch = require('node-fetch');
+    const r = await fetch('https://api.ipify.org?format=json');
+    const data = await r.json();
+    res.json({ ok: true, ip: data.ip });
+  } catch (err) {
+    res.status(500).json({ ok: false, msg: 'Erro ao obter IP: ' + err.message });
   }
 });
 

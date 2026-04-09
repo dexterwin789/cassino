@@ -630,6 +630,10 @@ ul{list-style:none}
 }
 .archive-provider-item:hover{background:rgba(255,255,255,.04)}
 .archive-provider-item input[type="checkbox"]{accent-color:rgb(255,57,1)}
+.archive-provider-item input[type="radio"]{accent-color:rgb(255,57,1)}
+.home-provider-wrap{position:relative}
+.home-provider-wrap .archive-provider-btn{width:auto;display:flex;align-items:center;gap:6px}
+.home-provider-wrap .archive-provider-dropdown{width:220px;max-height:320px}
 
 .archive-footer{
   text-align:center;padding:20px 0 30px;
