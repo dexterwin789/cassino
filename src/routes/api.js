@@ -264,7 +264,7 @@ router.get('/games', async (req, res) => {
       params.push(cat);
     }
 
-    sql += ' ORDER BY sort_order, id DESC';
+    sql += ' ORDER BY is_featured DESC NULLS LAST, featured_order ASC NULLS LAST, sort_order, id DESC';
 
     const r = await query(sql, params);
     res.json({ ok: true, games: r.rows });

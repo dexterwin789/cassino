@@ -247,6 +247,14 @@ router.post('/games/sync-playfivers', async (req, res) => {
       }
     }
 
+    // After sync, deactivate old manual games that have synced equivalents
+    const dedup = await query(
+      `UPDATE games SET is_active = FALSE
+       WHERE pf_game_code IS NULL AND is_active = TRUE
+         AND LOWER(game_name) IN (SELECT LOWER(game_name) FROM games WHERE pf_game_code IS NOT NULL AND is_active = TRUE)`
+    );
+    const deduped = dedup.rowCount || 0;
+
     // After sync, mark popular/hot games as featured
     const hotGameNames = [
       'fortune tiger', 'fortune rabbit', 'fortune ox', 'fortune mouse', 'fortune dragon',
@@ -267,7 +275,7 @@ router.post('/games/sync-playfivers', async (req, res) => {
       if (r.rowCount > 0) featuredCount += r.rowCount;
     }
 
-    res.json({ ok: true, msg: `Sincronização concluída: ${inserted} novos, ${updated} atualizados, ${skipped} ignorados. ${featuredCount} jogos marcados como destaque.`, total: games.length, inserted, updated, skipped, featured: featuredCount });
+    res.json({ ok: true, msg: `Sincronização concluída: ${inserted} novos, ${updated} atualizados, ${skipped} ignorados, ${deduped} duplicados desativados. ${featuredCount} jogos marcados como destaque.`, total: games.length, inserted, updated, skipped, deduped, featured: featuredCount });
   } catch (err) {
     console.error('[SYNC PLAYFIVERS]', err);
     res.status(500).json({ ok: false, msg: 'Erro na sincronização: ' + err.message });

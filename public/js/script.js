@@ -8,7 +8,7 @@ function gameCardHTML(game) {
   var name = game.game_name || 'Jogo';
   var code = game.game_code || '';
   var h = '<a href="/game/' + code + '" class="game-card" title="' + name + '" style="text-decoration:none">';
-  h += '<img src="' + img + '" alt="' + name + '" draggable="false" loading="lazy">';
+  h += '<img src="' + img + '" alt="' + name + '" draggable="false" loading="lazy" onerror="this.onerror=null;this.src=\'/public/img/games/1.avif\'">';
   h += '<div class="game-overlay">';
   h += '<span class="game-name">' + name + '</span>';
   h += '<span class="play-btn">&#9654; JOGAR</span>';
@@ -293,7 +293,7 @@ function searchCardHTML(game) {
   var name = game.game_name || 'Jogo';
   var code = game.game_code || '';
   return '<a href="/game/' + code + '" class="game-card" title="' + name + '" style="text-decoration:none">' +
-    '<img src="' + img + '" alt="' + name + '" draggable="false" loading="lazy">' +
+    '<img src="' + img + '" alt="' + name + '" draggable="false" loading="lazy" onerror="this.onerror=null;this.src=\'/public/img/games/1.avif\'">' +
     '<div class="game-overlay">' +
       '<span class="play-btn">&#9654; JOGAR</span>' +
     '</div></a>';
@@ -434,7 +434,7 @@ function top10CardHTML(game, rank) {
   h += '<span class="top10-rank">' + rank + '</span>';
   h += '<div class="top10-img-wrap">';
   h += '<span class="top10-badge">' + rank + '</span>';
-  h += '<img src="' + img + '" alt="' + name + '" draggable="false" loading="lazy">';
+  h += '<img src="' + img + '" alt="' + name + '" draggable="false" loading="lazy" onerror="this.onerror=null;this.src=\'/public/img/games/1.avif\'">';
   h += '<div class="top10-hover"><span class="top10-play">&#9654; JOGAR</span></div>';
   h += '</div>';
   h += '</a>';

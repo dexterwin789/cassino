@@ -153,7 +153,7 @@
     var name = g.game_name || 'Jogo';
     var code = g.game_code || '';
     return '<a href="/game/' + code + '" class="game-card" title="' + name + '" style="text-decoration:none">' +
-      '<img src="' + img + '" alt="' + name + '" draggable="false" loading="lazy">' +
+      '<img src="' + img + '" alt="' + name + '" draggable="false" loading="lazy" onerror="this.onerror=null;this.src=\'/public/img/games/1.avif\'">' +
       '<div class="game-overlay">' +
         '<span class="play-btn">&#9654; JOGAR</span>' +
       '</div></a>';

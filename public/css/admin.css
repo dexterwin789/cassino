@@ -51,11 +51,13 @@ body {
   transition: transform .3s ease, width .3s ease;
   overflow-y: auto;
   overflow-x: hidden;
+  overscroll-behavior: contain;
 }
-
 .adm-sidebar.collapsed {
   width: 72px;
-  overflow: visible;
+  overflow-y: auto;
+  overflow-x: clip;
+  overscroll-behavior: contain;
 }
 .adm-sidebar.collapsed .adm-nav-link span,
 .adm-sidebar.collapsed .adm-nav-section,
@@ -85,11 +87,11 @@ body {
 /* Collapsed: tooltip on hover */
 .adm-sidebar.collapsed .adm-nav-link::after {
   content: attr(data-tip);
-  position: absolute;
-  left: 100%;
-  top: 50%;
+  position: fixed;
+  left: 82px;
+  top: auto;
   transform: translateY(-50%);
-  margin-left: 10px;
+  margin-top: -0.5em;
   background: #1a1a2e;
   color: #fff;
   font-size: 12px;

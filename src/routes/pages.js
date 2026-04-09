@@ -4,7 +4,7 @@ const { query } = require('../config/database');
 // Main page
 router.get('/', async (req, res) => {
   try {
-    const gamesR = await query('SELECT id, game_code, game_name, image_url, provider, category FROM games WHERE is_active = TRUE ORDER BY sort_order, id DESC');
+    const gamesR = await query('SELECT id, game_code, game_name, image_url, provider, category, is_featured, featured_order FROM games WHERE is_active = TRUE ORDER BY is_featured DESC NULLS LAST, featured_order ASC NULLS LAST, sort_order, id DESC');
     const bannersR = await query('SELECT id, image_url, link_url FROM banners WHERE is_active = TRUE ORDER BY sort_order, id');
 
     res.render('index', {
@@ -23,7 +23,7 @@ router.get('/games', async (req, res) => {
   try {
     const provider = req.query.provider || '';
     const category = req.query.category || '';
-    let sql = 'SELECT id, game_code, game_name, image_url, provider, category FROM games WHERE is_active = TRUE';
+    let sql = 'SELECT id, game_code, game_name, image_url, provider, category, is_featured, featured_order FROM games WHERE is_active = TRUE';
     const params = [];
     if (provider) {
       params.push(provider);
@@ -33,7 +33,7 @@ router.get('/games', async (req, res) => {
       params.push(category);
       sql += ' AND LOWER(category) = LOWER($' + params.length + ')';
     }
-    sql += ' ORDER BY sort_order, id DESC';
+    sql += ' ORDER BY is_featured DESC NULLS LAST, featured_order ASC NULLS LAST, sort_order, id DESC';
     const gamesR = await query(sql, params);
     const bannersR = await query('SELECT id, image_url, link_url FROM banners WHERE is_active = TRUE ORDER BY sort_order, id');
     const providersR = await query('SELECT DISTINCT provider FROM games WHERE is_active = TRUE AND provider IS NOT NULL ORDER BY provider');
