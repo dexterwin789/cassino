@@ -107,8 +107,8 @@ router.get('/game/:code', async (req, res) => {
       [game.provider, code]
     );
 
-    // All providers for the studios slider
-    const providersR = await query('SELECT DISTINCT provider FROM games WHERE is_active = TRUE AND provider IS NOT NULL ORDER BY provider');
+    // Provider images for the studios slider (from admin-managed table)
+    const provImgR = await query('SELECT provider_name, image_url FROM provider_images WHERE is_active = TRUE ORDER BY sort_order, id');
 
     // Random stats
     const rtp = (92 + Math.random() * 6).toFixed(2);
@@ -119,7 +119,7 @@ router.get('/game/:code', async (req, res) => {
       title: game.game_name + ' — CassinoBet',
       game,
       relatedGames: relatedR.rows,
-      providers: providersR.rows.map(r => r.provider),
+      providerImages: provImgR.rows,
       stats: { rtp, players24h, ganhos24h }
     });
   } catch (err) {

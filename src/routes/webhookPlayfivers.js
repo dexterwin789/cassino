@@ -43,7 +43,7 @@ async function handleBalance(req, res) {
       return res.status(404).json({ balance: 0, msg: 'INVALID_USER' });
     }
 
-    const balance = parseInt(user.balance_cents) / 100;
+    const balance = parseFloat((parseInt(user.balance_cents) / 100).toFixed(2));
     res.json({ balance, msg: '' });
   } catch (err) {
     console.error('[PF WEBHOOK BALANCE]', err);
@@ -73,7 +73,7 @@ async function handleTransaction(req, res) {
     if (txn_id) {
       const dupCheck = await query('SELECT id FROM game_transactions WHERE txn_id = $1', [txn_id]);
       if (dupCheck.rows.length) {
-        const balance = parseInt(user.balance_cents) / 100;
+        const balance = parseFloat((parseInt(user.balance_cents) / 100).toFixed(2));
         return res.json({ balance, msg: '' });
       }
     }
@@ -107,7 +107,7 @@ async function handleTransaction(req, res) {
     // Check sufficient funds for debit
     if (netChange < 0 && (currentBalance + netChange) < 0) {
       await client.query('ROLLBACK');
-      return res.status(400).json({ balance: currentBalance / 100, msg: 'INSUFFICIENT_USER_FUNDS' });
+      return res.status(400).json({ balance: parseFloat((currentBalance / 100).toFixed(2)), msg: 'INSUFFICIENT_USER_FUNDS' });
     }
 
     // Update wallet
@@ -143,7 +143,7 @@ async function handleTransaction(req, res) {
 
     await client.query('COMMIT');
 
-    res.json({ balance: newBalance / 100, msg: '' });
+    res.json({ balance: parseFloat((newBalance / 100).toFixed(2)), msg: '' });
   } catch (err) {
     await client.query('ROLLBACK').catch(() => {});
     console.error('[PF WEBHOOK TXN]', err);

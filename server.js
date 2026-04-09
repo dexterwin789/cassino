@@ -76,6 +76,7 @@ app.use('/', require('./src/routes/pages'));
 app.use('/api', require('./src/routes/api'));
 app.use('/api/webhook', require('./src/routes/webhook'));
 app.use('/api/webhook/playfivers', require('./src/routes/webhookPlayfivers'));
+app.use('/webhook', require('./src/routes/webhookPlayfivers')); // PlayFivers BALANCE calls /webhook
 app.use('/admin', require('./src/routes/admin'));
 app.use('/admin/api', require('./src/routes/adminApi'));
 app.use('/dashboard', require('./src/routes/userDashboard'));

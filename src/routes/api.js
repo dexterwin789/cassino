@@ -295,7 +295,7 @@ router.post('/game/launch', requireUser, async (req, res) => {
     // Get user balance (cents → reais)
     const walletR = await query('SELECT balance_cents FROM wallets WHERE user_id = $1', [userId]);
     const balanceCents = walletR.rows[0] ? parseInt(walletR.rows[0].balance_cents) : 0;
-    const balanceReais = balanceCents / 100;
+    const balanceReais = parseFloat((balanceCents / 100).toFixed(2));
 
     // User code for PlayFivers = unique identifier (email or id)
     const userCode = req.session.user.email || req.session.user.username || String(userId);

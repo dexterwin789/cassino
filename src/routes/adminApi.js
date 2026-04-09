@@ -1598,7 +1598,7 @@ router.get('/games/bad-images', async (req, res) => {
 
     // 2) Find the most duplicated image_url (the default/placeholder)
     const dupR = await query(
-      `SELECT image_url, COUNT(*) AS cnt FROM games WHERE is_active = TRUE AND image_url IS NOT NULL AND image_url != '' GROUP BY image_url HAVING COUNT(*) > 5 ORDER BY cnt DESC LIMIT 10`
+      `SELECT image_url, COUNT(*) AS cnt FROM games WHERE is_active = TRUE AND image_url IS NOT NULL AND image_url != '' GROUP BY image_url HAVING COUNT(*) > 2 ORDER BY cnt DESC LIMIT 20`
     );
 
     // 3) Games using those duplicated images
@@ -1634,9 +1634,9 @@ router.post('/games/deactivate-bad-images', async (req, res) => {
       "UPDATE games SET is_active = FALSE WHERE is_active = TRUE AND (image_url IS NULL OR image_url = '')"
     );
 
-    // 2) Find duplicated images (>5 games with same image = default/placeholder)
+    // 2) Find duplicated images (>2 games with same image = default/placeholder)
     const dupR = await query(
-      `SELECT image_url FROM games WHERE is_active = TRUE AND image_url IS NOT NULL AND image_url != '' GROUP BY image_url HAVING COUNT(*) > 5`
+      `SELECT image_url FROM games WHERE is_active = TRUE AND image_url IS NOT NULL AND image_url != '' GROUP BY image_url HAVING COUNT(*) > 2`
     );
     const defaultImages = dupR.rows.map(r => r.image_url);
     let r2count = 0;
