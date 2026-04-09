@@ -4,6 +4,7 @@
   <div class="adm-page-head">
     <div><h3>Jogos</h3><p class="adm-muted">Catálogo de jogos</p></div>
     <div style="display:flex;gap:8px;">
+      <button class="adm-btn" id="btnBadImages" title="Desativar jogos sem imagem ou com imagem default" style="border-color:rgba(255,77,77,.3);color:#ff4d4d">🖼️ Limpar Imagens</button>
       <button class="adm-btn" id="btnDedupGames" title="Identificar e desativar jogos duplicados">🔍 Dedup</button>
       <button class="adm-btn" id="btnSyncPF" title="Importar/atualizar jogos do PlayFivers">🔄 Sync PlayFivers</button>
       <button class="adm-btn" data-action="refresh">Atualizar</button>
@@ -125,6 +126,33 @@
       renderList('');
     });
 })();
+
+// Bad images button
+document.getElementById('btnBadImages')?.addEventListener('click', async function() {
+  var btn = this;
+  btn.disabled = true;
+  btn.textContent = '⏳ Analisando...';
+  try {
+    var r = await fetch('/admin/api/games/bad-images', { credentials: 'same-origin' });
+    var d = await r.json();
+    if (!d.ok) { alert('Erro: ' + (d.msg || 'Falha')); btn.disabled = false; btn.textContent = '🖼️ Limpar Imagens'; return; }
+    if (!d.totalToDeactivate) { alert('Nenhum jogo com imagem ruim encontrado!'); btn.disabled = false; btn.textContent = '🖼️ Limpar Imagens'; return; }
+    var msg = 'Jogos sem imagem: ' + d.nullImageGames.length + '\n';
+    msg += 'Imagens duplicadas (default): ' + d.duplicatedImages.length + ' URLs\n';
+    d.duplicatedImages.forEach(function(di) { msg += '  → ' + di.cnt + 'x: ' + di.image_url.substring(0, 60) + '...\n'; });
+    msg += 'Jogos com imagem default: ' + d.defaultImageGames.length + '\n';
+    msg += '\nTotal a desativar: ' + d.totalToDeactivate + '\n\nDesativar todos?';
+    if (!confirm(msg)) { btn.disabled = false; btn.textContent = '🖼️ Limpar Imagens'; return; }
+    var r2 = await fetch('/admin/api/games/deactivate-bad-images', { method: 'POST', credentials: 'same-origin' });
+    var d2 = await r2.json();
+    alert(d2.ok ? '✅ ' + d2.msg : '❌ ' + (d2.msg || 'Erro'));
+    if (d2.ok) location.reload();
+  } catch (e) {
+    alert('Erro: ' + e.message);
+  }
+  btn.disabled = false;
+  btn.textContent = '🖼️ Limpar Imagens';
+});
 
 // Dedup button
 document.getElementById('btnDedupGames')?.addEventListener('click', async function() {

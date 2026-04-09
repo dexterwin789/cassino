@@ -1586,6 +1586,81 @@ router.post('/top10/reorder', async (req, res) => {
   }
 });
 
+// ─── Deactivate games with missing/default images ─
+
+// GET: Preview games with bad images
+router.get('/games/bad-images', async (req, res) => {
+  try {
+    // 1) Games with NULL or empty image_url
+    const nullR = await query(
+      "SELECT id, game_code, game_name, image_url, provider FROM games WHERE is_active = TRUE AND (image_url IS NULL OR image_url = '')"
+    );
+
+    // 2) Find the most duplicated image_url (the default/placeholder)
+    const dupR = await query(
+      `SELECT image_url, COUNT(*) AS cnt FROM games WHERE is_active = TRUE AND image_url IS NOT NULL AND image_url != '' GROUP BY image_url HAVING COUNT(*) > 5 ORDER BY cnt DESC LIMIT 10`
+    );
+
+    // 3) Games using those duplicated images
+    const defaultImages = dupR.rows.map(r => r.image_url);
+    let defaultGames = [];
+    if (defaultImages.length) {
+      const placeholders = defaultImages.map((_, i) => `$${i + 1}`).join(',');
+      const defR = await query(
+        `SELECT id, game_code, game_name, image_url, provider FROM games WHERE is_active = TRUE AND image_url IN (${placeholders})`,
+        defaultImages
+      );
+      defaultGames = defR.rows;
+    }
+
+    res.json({
+      ok: true,
+      nullImageGames: nullR.rows,
+      duplicatedImages: dupR.rows,
+      defaultImageGames: defaultGames,
+      totalToDeactivate: nullR.rows.length + defaultGames.length
+    });
+  } catch (err) {
+    console.error('[BAD IMAGES]', err);
+    res.status(500).json({ ok: false, msg: 'Erro: ' + err.message });
+  }
+});
+
+// POST: Deactivate games with bad images
+router.post('/games/deactivate-bad-images', async (req, res) => {
+  try {
+    // 1) Deactivate games with NULL/empty image
+    const r1 = await query(
+      "UPDATE games SET is_active = FALSE WHERE is_active = TRUE AND (image_url IS NULL OR image_url = '')"
+    );
+
+    // 2) Find duplicated images (>5 games with same image = default/placeholder)
+    const dupR = await query(
+      `SELECT image_url FROM games WHERE is_active = TRUE AND image_url IS NOT NULL AND image_url != '' GROUP BY image_url HAVING COUNT(*) > 5`
+    );
+    const defaultImages = dupR.rows.map(r => r.image_url);
+    let r2count = 0;
+    if (defaultImages.length) {
+      const placeholders = defaultImages.map((_, i) => `$${i + 1}`).join(',');
+      const r2 = await query(
+        `UPDATE games SET is_active = FALSE WHERE is_active = TRUE AND image_url IN (${placeholders})`,
+        defaultImages
+      );
+      r2count = r2.rowCount;
+    }
+
+    res.json({
+      ok: true,
+      msg: `Desativados: ${r1.rowCount} sem imagem + ${r2count} com imagem default. Total: ${r1.rowCount + r2count}`,
+      nullDeactivated: r1.rowCount,
+      defaultDeactivated: r2count
+    });
+  } catch (err) {
+    console.error('[DEACTIVATE BAD IMAGES]', err);
+    res.status(500).json({ ok: false, msg: 'Erro: ' + err.message });
+  }
+});
+
 // ─── Provider Images ──────────────────────────────
 
 router.get('/provider-images', async (req, res) => {
