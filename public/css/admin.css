@@ -52,12 +52,11 @@ body {
   overflow-y: auto;
   overflow-x: hidden;
   overscroll-behavior: contain;
+  scrollbar-width: none;
 }
 .adm-sidebar.collapsed {
   width: 72px;
-  overflow-y: auto;
-  overflow-x: clip;
-  overscroll-behavior: contain;
+  overflow: visible;
 }
 .adm-sidebar.collapsed .adm-nav-link span,
 .adm-sidebar.collapsed .adm-nav-section,
@@ -87,11 +86,11 @@ body {
 /* Collapsed: tooltip on hover */
 .adm-sidebar.collapsed .adm-nav-link::after {
   content: attr(data-tip);
-  position: fixed;
-  left: 82px;
-  top: auto;
+  position: absolute;
+  left: 100%;
+  top: 50%;
   transform: translateY(-50%);
-  margin-top: -0.5em;
+  margin-left: 10px;
   background: #1a1a2e;
   color: #fff;
   font-size: 12px;
@@ -110,12 +109,9 @@ body {
   opacity: 1;
 }
 
-/* Sidebar scroll: thin scrollbar like home sidebar */
-.adm-sidebar::-webkit-scrollbar { width: 4px; }
-.adm-sidebar::-webkit-scrollbar-track { background: transparent; }
-.adm-sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,.08); border-radius: 4px; }
-.adm-sidebar::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,.15); }
-.adm-sidebar { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.08) transparent; }
+/* Sidebar scroll: hidden scrollbar like home sidebar */
+.adm-sidebar::-webkit-scrollbar { display: none; }
+.adm-sidebar { scrollbar-width: none; }
 
 .adm-sidebar-head {
   padding: 20px 16px;

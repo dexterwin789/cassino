@@ -277,6 +277,22 @@ async function autoMigrate() {
       console.log('[MIGRATE] Notifications seeded for user 24 ✓');
     }
 
+    // ─── Dedup: deactivate duplicate games (keep synced version) ─────
+    const dedupResult = await pool.query(`
+      WITH ranked AS (
+        SELECT id,
+          ROW_NUMBER() OVER (
+            PARTITION BY LOWER(game_name), LOWER(COALESCE(provider,''))
+            ORDER BY (pf_game_code IS NOT NULL) DESC, id DESC
+          ) as rn
+        FROM games
+        WHERE is_active = TRUE
+      )
+      UPDATE games SET is_active = FALSE
+      WHERE id IN (SELECT id FROM ranked WHERE rn > 1)
+    `);
+    if (dedupResult.rowCount > 0) console.log('[MIGRATE] Deduped ' + dedupResult.rowCount + ' duplicate games');
+
     // ─── Seed sample data for admin verification ─────────────
     // Banners
     const bannerCount = await pool.query('SELECT COUNT(*) FROM banners');
