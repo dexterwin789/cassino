@@ -17,6 +17,49 @@
       sidebar.classList.remove('mobile-open');
     }
   });
+
+  // Collapsed sidebar: JS-based fixed tooltip
+  (function() {
+    var tip = document.createElement('div');
+    tip.className = 'adm-sidebar-tooltip';
+    document.body.appendChild(tip);
+
+    sidebar.addEventListener('mouseenter', function(e) {
+      var link = e.target.closest && e.target.closest('.adm-nav-link[data-tip]');
+      if (!link || !sidebar.classList.contains('collapsed')) return;
+      var rect = link.getBoundingClientRect();
+      tip.textContent = link.getAttribute('data-tip');
+      tip.style.top = (rect.top + rect.height / 2) + 'px';
+      tip.style.left = (rect.right + 10) + 'px';
+      tip.style.transform = 'translateY(-50%)';
+      tip.style.opacity = '1';
+    }, true);
+
+    sidebar.addEventListener('mouseleave', function(e) {
+      var link = e.target.closest && e.target.closest('.adm-nav-link[data-tip]');
+      if (link) tip.style.opacity = '0';
+    }, true);
+
+    sidebar.addEventListener('mouseover', function(e) {
+      var link = e.target.closest && e.target.closest('.adm-nav-link[data-tip]');
+      if (!link || !sidebar.classList.contains('collapsed')) { tip.style.opacity = '0'; return; }
+      var rect = link.getBoundingClientRect();
+      tip.textContent = link.getAttribute('data-tip');
+      tip.style.top = (rect.top + rect.height / 2) + 'px';
+      tip.style.left = (rect.right + 10) + 'px';
+      tip.style.transform = 'translateY(-50%)';
+      tip.style.opacity = '1';
+    });
+
+    sidebar.addEventListener('mouseout', function(e) {
+      var related = e.relatedTarget;
+      if (!related || !related.closest || !related.closest('.adm-nav-link[data-tip]')) {
+        tip.style.opacity = '0';
+      }
+    });
+
+    sidebar.addEventListener('scroll', function() { tip.style.opacity = '0'; });
+  })();
   </script>
 </body>
 </html>

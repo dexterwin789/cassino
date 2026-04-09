@@ -63,6 +63,26 @@ router.get('/ranking', (req, res) => {
   res.render('ranking', { title: 'Ranking' });
 });
 
+// Providers page
+router.get('/providers', async (req, res) => {
+  try {
+    const providersR = await query(
+      'SELECT provider, COUNT(*) AS count FROM games WHERE is_active = TRUE AND provider IS NOT NULL AND provider != \'\' GROUP BY provider ORDER BY provider'
+    );
+    const providers = providersR.rows.map(r => r.provider);
+    const gameCounts = {};
+    providersR.rows.forEach(r => { gameCounts[r.provider] = parseInt(r.count); });
+    res.render('providers', {
+      title: 'Provedores — CassinoBet',
+      providers,
+      gameCounts
+    });
+  } catch (err) {
+    console.error('[PROVIDERS]', err);
+    res.status(500).send('Erro');
+  }
+});
+
 // Game single page
 router.get('/game/:code', async (req, res) => {
   try {

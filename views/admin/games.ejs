@@ -4,6 +4,7 @@
   <div class="adm-page-head">
     <div><h3>Jogos</h3><p class="adm-muted">Catálogo de jogos</p></div>
     <div style="display:flex;gap:8px;">
+      <button class="adm-btn" id="btnDedupGames" title="Identificar e desativar jogos duplicados">🔍 Dedup</button>
       <button class="adm-btn" id="btnSyncPF" title="Importar/atualizar jogos do PlayFivers">🔄 Sync PlayFivers</button>
       <button class="adm-btn" data-action="refresh">Atualizar</button>
       <button class="adm-btn primary" id="btnAddGame">+ Novo Jogo</button>
@@ -29,6 +30,18 @@
   <div class="adm-toolbar">
     <div class="adm-field"><label>Buscar</label><input type="text" placeholder="code / nome / provider" data-filter="q" /></div>
     <div class="adm-field"><label>Ativo</label><select data-filter="active"><option value="">Todos</option><option value="1" selected>Ativo</option><option value="0">Inativo</option></select></div>
+    <div class="adm-field"><label>Provedores</label>
+      <div style="position:relative">
+        <button class="adm-btn" id="admProviderBtn" type="button" style="min-width:140px;text-align:left;display:flex;align-items:center;gap:6px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0"><path d="M4 6h16M4 12h16M4 18h7"/></svg>
+          <span id="admProviderLabel">Todos</span>
+        </button>
+        <div id="admProviderDropdown" style="display:none;position:absolute;top:100%;left:0;min-width:220px;max-height:320px;overflow-y:auto;background:var(--adm-card,#0f1722);border:1px solid var(--adm-line);border-radius:10px;padding:8px;z-index:200;box-shadow:0 8px 32px rgba(0,0,0,.5);margin-top:4px">
+          <div style="text-align:center;opacity:.5;padding:8px">Carregando...</div>
+        </div>
+      </div>
+      <input type="hidden" data-filter="providers" id="admProviderFilterInput" />
+    </div>
     <div class="adm-field"><label>Por página</label><select data-filter="limit"><option value="10">10</option><option value="25" selected>25</option><option value="50">50</option><option value="100">100</option></select></div>
     <div class="adm-field"><label>&nbsp;</label><button class="adm-btn primary" data-action="apply">Aplicar</button></div>
   </div>
@@ -49,4 +62,96 @@
 </div>
 
 <script src="/public/js/admin.js" defer></script>
+<script>
+// Provider checkbox filter (admin games page)
+(function() {
+  var btn = document.getElementById('admProviderBtn');
+  var dd = document.getElementById('admProviderDropdown');
+  var label = document.getElementById('admProviderLabel');
+  var hidden = document.getElementById('admProviderFilterInput');
+  if (!btn || !dd) return;
+
+  var loaded = false;
+  btn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    var isOpen = dd.style.display !== 'none';
+    dd.style.display = isOpen ? 'none' : 'block';
+    if (!loaded) {
+      loaded = true;
+      fetch('/admin/api/games/providers', { credentials: 'same-origin' })
+        .then(function(r) { return r.json(); })
+        .then(function(d) {
+          if (!d.ok || !d.providers.length) { dd.innerHTML = '<div style="padding:8px;opacity:.5">Nenhum provedor</div>'; return; }
+          dd.innerHTML = '<label style="display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:6px;cursor:pointer;font-weight:600;border-bottom:1px solid rgba(255,255,255,.08);margin-bottom:4px"><input type="checkbox" id="admProvAll" checked> Todos os Provedores</label>' +
+            d.providers.map(function(p) {
+              return '<label style="display:flex;align-items:center;gap:8px;padding:4px 8px;border-radius:6px;cursor:pointer;font-size:13px;background:rgba(255,255,255,.03)"><input type="checkbox" class="adm-prov-chk" value="' + p + '"> ' + p + '</label>';
+            }).join('');
+          bindProvChecks();
+        })
+        .catch(function() { dd.innerHTML = '<div style="padding:8px;color:#f66">Erro</div>'; });
+    }
+  });
+
+  document.addEventListener('click', function(e) {
+    if (!dd.contains(e.target) && e.target !== btn) dd.style.display = 'none';
+  });
+
+  function bindProvChecks() {
+    var allChk = document.getElementById('admProvAll');
+    var checks = dd.querySelectorAll('.adm-prov-chk');
+    allChk.addEventListener('change', function() {
+      if (allChk.checked) {
+        checks.forEach(function(c) { c.checked = false; });
+        updateLabel();
+      }
+    });
+    checks.forEach(function(c) {
+      c.addEventListener('change', function() {
+        var anyChecked = Array.from(checks).some(function(x) { return x.checked; });
+        allChk.checked = !anyChecked;
+        updateLabel();
+      });
+    });
+  }
+
+  function updateLabel() {
+    var checks = dd.querySelectorAll('.adm-prov-chk:checked');
+    if (!checks.length) { label.textContent = 'Todos'; hidden.value = ''; return; }
+    var vals = Array.from(checks).map(function(c) { return c.value; });
+    label.textContent = vals.length <= 2 ? vals.join(', ') : vals.length + ' selecionados';
+    hidden.value = vals.join(',');
+  }
+})();
+
+// Dedup button
+document.getElementById('btnDedupGames')?.addEventListener('click', async function() {
+  var btn = this;
+  btn.disabled = true;
+  btn.textContent = '⏳ Analisando...';
+  try {
+    var r = await fetch('/admin/api/games/duplicates', { credentials: 'same-origin' });
+    var d = await r.json();
+    if (!d.ok) { alert('Erro: ' + (d.msg || 'Falha')); btn.disabled = false; btn.textContent = '🔍 Dedup'; return; }
+    if (!d.totalDuplicates) { alert('Nenhum jogo duplicado encontrado!'); btn.disabled = false; btn.textContent = '🔍 Dedup'; return; }
+    var summary = d.totalDuplicates + ' duplicatas em ' + d.groups.length + ' grupos.\n\n';
+    d.groups.slice(0, 10).forEach(function(g) {
+      summary += '✅ Manter: ' + g.keep.game_name + ' (ID ' + g.keep.id + ', ' + (g.keep.provider || '?') + ')\n';
+      g.duplicates.forEach(function(dup) {
+        summary += '   ❌ Desativar: ID ' + dup.id + ' (' + (dup.provider || '?') + ')' + (dup.is_active ? ' [ativo]' : '') + '\n';
+      });
+    });
+    if (d.groups.length > 10) summary += '\n... e mais ' + (d.groups.length - 10) + ' grupos.';
+    summary += '\n\nDesativar todos os ' + d.totalDuplicates + ' duplicados?';
+    if (!confirm(summary)) { btn.disabled = false; btn.textContent = '🔍 Dedup'; return; }
+    var r2 = await fetch('/admin/api/games/deduplicate', { method: 'POST', credentials: 'same-origin' });
+    var d2 = await r2.json();
+    alert(d2.ok ? '✅ ' + d2.msg : '❌ ' + (d2.msg || 'Erro'));
+    if (d2.ok) location.reload();
+  } catch (e) {
+    alert('Erro: ' + e.message);
+  }
+  btn.disabled = false;
+  btn.textContent = '🔍 Dedup';
+});
+</script>
 <%- include('layout-foot') %>

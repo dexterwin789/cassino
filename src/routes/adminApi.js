@@ -129,6 +129,7 @@ router.get('/games', async (req, res) => {
   try {
     const q = (req.query.q || '').trim();
     const active = req.query.active || '';
+    const providerFilter = req.query.providers || '';
     const limit = Math.min(Math.max(parseInt(req.query.limit) || 25, 1), 200);
     const page = Math.max(parseInt(req.query.page) || 1, 1);
     const offset = (page - 1) * limit;
@@ -149,6 +150,16 @@ router.get('/games', async (req, res) => {
       idx++;
     }
 
+    if (providerFilter) {
+      const provs = providerFilter.split(',').map(p => p.trim()).filter(Boolean);
+      if (provs.length) {
+        const placeholders = provs.map((_, i) => `$${idx + i}`).join(',');
+        where.push(`LOWER(g.provider) IN (${placeholders})`);
+        provs.forEach(p => params.push(p.toLowerCase()));
+        idx += provs.length;
+      }
+    }
+
     const whereSql = where.length ? 'WHERE ' + where.join(' AND ') : '';
 
     const countR = await query(`SELECT COUNT(*) AS c FROM games g ${whereSql}`, params);
@@ -166,6 +177,16 @@ router.get('/games', async (req, res) => {
   } catch (err) {
     console.error('[ADMIN API GAMES]', err);
     res.status(500).json({ ok: false, msg: 'Erro ao listar jogos.' });
+  }
+});
+
+// List distinct providers for filter
+router.get('/games/providers', async (req, res) => {
+  try {
+    const r = await query('SELECT DISTINCT provider FROM games WHERE provider IS NOT NULL AND provider != \'\' ORDER BY provider');
+    res.json({ ok: true, providers: r.rows.map(row => row.provider) });
+  } catch (err) {
+    res.status(500).json({ ok: false, msg: 'Erro ao listar provedores.' });
   }
 });
 
@@ -1550,6 +1571,96 @@ router.post('/top10/reorder', async (req, res) => {
     res.json({ ok: true });
   } catch (err) {
     res.status(500).json({ ok: false, msg: 'Erro ao reordenar.' });
+  }
+});
+
+// ─── Dedup Games ──────────────────────────────────
+
+// GET: Preview duplicates
+router.get('/games/duplicates', async (req, res) => {
+  try {
+    // Find games with identical LOWER(game_name), keeping the best one per group
+    const r = await query(`
+      WITH ranked AS (
+        SELECT id, game_code, game_name, provider, is_active, is_featured,
+               pf_game_code, created_at,
+               ROW_NUMBER() OVER (
+                 PARTITION BY LOWER(TRIM(game_name))
+                 ORDER BY
+                   (pf_game_code IS NOT NULL) DESC,
+                   is_featured DESC,
+                   is_active DESC,
+                   id DESC
+               ) AS rn,
+               COUNT(*) OVER (PARTITION BY LOWER(TRIM(game_name))) AS cnt
+        FROM games
+      )
+      SELECT id, game_code, game_name, provider, is_active, is_featured, pf_game_code, rn, cnt
+      FROM ranked
+      WHERE cnt > 1
+      ORDER BY LOWER(TRIM(game_name)), rn
+    `);
+    const groups = {};
+    for (const row of r.rows) {
+      const key = row.game_name.trim().toLowerCase();
+      if (!groups[key]) groups[key] = { keep: null, duplicates: [] };
+      if (row.rn === 1) groups[key].keep = row;
+      else groups[key].duplicates.push(row);
+    }
+    const totalDuplicates = Object.values(groups).reduce((sum, g) => sum + g.duplicates.length, 0);
+    res.json({ ok: true, groups: Object.values(groups), totalDuplicates });
+  } catch (err) {
+    console.error('[ADMIN DEDUP PREVIEW]', err);
+    res.status(500).json({ ok: false, msg: 'Erro ao buscar duplicatas.' });
+  }
+});
+
+// POST: Execute dedup — deactivate all but the best per group
+router.post('/games/deduplicate', async (req, res) => {
+  try {
+    // Deactivate duplicates (keep highest priority per LOWER(game_name))
+    const r = await query(`
+      WITH ranked AS (
+        SELECT id,
+               ROW_NUMBER() OVER (
+                 PARTITION BY LOWER(TRIM(game_name))
+                 ORDER BY
+                   (pf_game_code IS NOT NULL) DESC,
+                   is_featured DESC,
+                   is_active DESC,
+                   id DESC
+               ) AS rn,
+               COUNT(*) OVER (PARTITION BY LOWER(TRIM(game_name))) AS cnt
+        FROM games
+      )
+      UPDATE games SET is_active = FALSE
+      WHERE id IN (SELECT id FROM ranked WHERE cnt > 1 AND rn > 1 AND id IN (SELECT id FROM games WHERE is_active = TRUE))
+    `);
+    const deactivated = r.rowCount || 0;
+
+    // Also un-feature duplicates
+    await query(`
+      WITH ranked AS (
+        SELECT id,
+               ROW_NUMBER() OVER (
+                 PARTITION BY LOWER(TRIM(game_name))
+                 ORDER BY
+                   (pf_game_code IS NOT NULL) DESC,
+                   is_featured DESC,
+                   is_active DESC,
+                   id DESC
+               ) AS rn,
+               COUNT(*) OVER (PARTITION BY LOWER(TRIM(game_name))) AS cnt
+        FROM games
+      )
+      UPDATE games SET is_featured = FALSE, featured_order = 0
+      WHERE id IN (SELECT id FROM ranked WHERE cnt > 1 AND rn > 1)
+    `);
+
+    res.json({ ok: true, msg: deactivated + ' jogos duplicados desativados.', deactivated });
+  } catch (err) {
+    console.error('[ADMIN DEDUP]', err);
+    res.status(500).json({ ok: false, msg: 'Erro ao deduplicar.' });
   }
 });
 
