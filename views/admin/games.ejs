@@ -30,10 +30,16 @@
   <div class="adm-toolbar">
     <div class="adm-field"><label>Buscar</label><input type="text" placeholder="code / nome / provider" data-filter="q" /></div>
     <div class="adm-field"><label>Ativo</label><select data-filter="active"><option value="">Todos</option><option value="1" selected>Ativo</option><option value="0">Inativo</option></select></div>
-    <div class="adm-field"><label>Provedor</label>
-      <select id="admProviderSelect" data-filter="providers">
-        <option value="">Todos</option>
-      </select>
+    <div class="adm-field" style="position:relative"><label>Provedor</label>
+      <input type="hidden" id="admProviderHidden" data-filter="providers" value="">
+      <div id="admProviderMulti" class="adm-multiselect">
+        <div class="adm-ms-chips" id="admProvChips"><span class="adm-ms-placeholder">Todos</span></div>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;opacity:.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div id="admProvDropdown" class="adm-ms-dropdown" style="display:none">
+        <input type="text" class="adm-ms-search" id="admProvSearch" placeholder="Buscar...">
+        <div class="adm-ms-list" id="admProvList"></div>
+      </div>
     </div>
     <div class="adm-field"><label>Por página</label><select data-filter="limit"><option value="10">10</option><option value="25" selected>25</option><option value="50">50</option><option value="100">100</option></select></div>
     <div class="adm-field"><label>&nbsp;</label><button class="adm-btn primary" data-action="apply">Aplicar</button></div>
@@ -56,20 +62,67 @@
 
 <script src="/public/js/admin.js" defer></script>
 <script>
-// Provider checkbox filter (admin games page)
-// Populate provider select
+// Multi-select provider filter
 (function() {
-  var sel = document.getElementById('admProviderSelect');
-  if (!sel) return;
+  var hidden = document.getElementById('admProviderHidden');
+  var toggle = document.getElementById('admProviderMulti');
+  var dropdown = document.getElementById('admProvDropdown');
+  var chipsEl = document.getElementById('admProvChips');
+  var listEl = document.getElementById('admProvList');
+  var searchEl = document.getElementById('admProvSearch');
+  var selected = [];
+  var allProviders = [];
+
+  function updateHidden() {
+    hidden.value = selected.join(',');
+  }
+  function renderChips() {
+    if (!selected.length) { chipsEl.innerHTML = '<span class="adm-ms-placeholder">Todos</span>'; updateHidden(); return; }
+    chipsEl.innerHTML = selected.map(function(p) {
+      return '<span class="adm-ms-chip">' + p + '<span class="adm-ms-chip-x" data-prov="' + p + '">&times;</span></span>';
+    }).join('');
+    updateHidden();
+  }
+  function renderList(q) {
+    var fq = (q || '').toLowerCase();
+    var filtered = allProviders.filter(function(p) { return !fq || p.toLowerCase().includes(fq); });
+    listEl.innerHTML = filtered.map(function(p) {
+      var checked = selected.indexOf(p) >= 0;
+      return '<label class="adm-ms-item' + (checked ? ' checked' : '') + '"><input type="checkbox"' + (checked ? ' checked' : '') + ' value="' + p + '"> ' + p + '</label>';
+    }).join('');
+  }
+
+  toggle.addEventListener('click', function(e) {
+    if (e.target.closest('.adm-ms-chip-x')) {
+      var prov = e.target.closest('.adm-ms-chip-x').dataset.prov;
+      selected = selected.filter(function(s) { return s !== prov; });
+      renderChips(); renderList(searchEl.value);
+      return;
+    }
+    dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+    if (dropdown.style.display === 'block') searchEl.focus();
+  });
+
+  listEl.addEventListener('change', function(e) {
+    var cb = e.target;
+    if (!cb.matches('input[type=checkbox]')) return;
+    if (cb.checked) { if (selected.indexOf(cb.value) < 0) selected.push(cb.value); }
+    else { selected = selected.filter(function(s) { return s !== cb.value; }); }
+    renderChips(); renderList(searchEl.value);
+  });
+
+  searchEl.addEventListener('input', function() { renderList(this.value); });
+
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('#admProviderMulti') && !e.target.closest('#admProvDropdown')) dropdown.style.display = 'none';
+  });
+
   fetch('/admin/api/games/providers', { credentials: 'same-origin' })
     .then(function(r) { return r.json(); })
     .then(function(d) {
       if (!d.ok || !d.providers.length) return;
-      d.providers.forEach(function(p) {
-        var opt = document.createElement('option');
-        opt.value = p; opt.textContent = p;
-        sel.appendChild(opt);
-      });
+      allProviders = d.providers;
+      renderList('');
     });
 })();
 

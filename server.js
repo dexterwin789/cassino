@@ -620,5 +620,27 @@ async function autoMigrate() {
 autoMigrate().then(() => {
   app.listen(PORT, () => {
     console.log(`Esportiva rodando em http://localhost:${PORT}`);
+    // Detect and store outbound IP on startup
+    detectOutboundIp();
   });
 });
+
+async function detectOutboundIp() {
+  try {
+    const fetch = require('node-fetch');
+    const r = await fetch('https://api.ipify.org?format=json', { timeout: 10000 });
+    const data = await r.json();
+    const ip = data.ip;
+    console.log(`[IP] Outbound IP: ${ip}`);
+    await pool.query(
+      "INSERT INTO platform_settings (key, value) VALUES ('server_outbound_ip', $1) ON CONFLICT (key) DO UPDATE SET value = $1",
+      [ip]
+    );
+    await pool.query(
+      "INSERT INTO platform_settings (key, value) VALUES ('server_ip_updated_at', $1) ON CONFLICT (key) DO UPDATE SET value = $1",
+      [new Date().toISOString()]
+    );
+  } catch (err) {
+    console.warn('[IP] Failed to detect outbound IP:', err.message);
+  }
+}

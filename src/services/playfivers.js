@@ -4,13 +4,28 @@ const API_BASE = 'https://api.playfivers.com';
 const AGENT_TOKEN = () => process.env.PLAYFIVERS_AGENT_TOKEN || '';
 const SECRET_KEY = () => process.env.PLAYFIVERS_SECRET_KEY || '';
 
+// Optional: set OUTBOUND_PROXY=http://ip:port to route PlayFivers calls through a fixed proxy
+function getProxyAgent() {
+  const proxy = process.env.OUTBOUND_PROXY;
+  if (!proxy) return undefined;
+  try {
+    const { HttpsProxyAgent } = require('https-proxy-agent');
+    return new HttpsProxyAgent(proxy);
+  } catch (e) {
+    console.warn('[PLAYFIVERS] https-proxy-agent not installed, ignoring OUTBOUND_PROXY');
+    return undefined;
+  }
+}
+
 async function pfRequest(method, path, body = null) {
   const url = `${API_BASE}${path}`;
+  const agent = getProxyAgent();
   const opts = {
     method: method.toUpperCase(),
     headers: { 'Content-Type': 'application/json' },
     timeout: 30000
   };
+  if (agent) opts.agent = agent;
   if (body) opts.body = JSON.stringify(body);
   const resp = await fetch(url, opts);
   const data = await resp.json();

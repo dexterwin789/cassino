@@ -71,12 +71,18 @@ router.get('/providers', async (req, res) => {
     const providersR = await query(
       'SELECT provider, COUNT(*) AS count FROM games WHERE is_active = TRUE AND provider IS NOT NULL AND provider != \'\' GROUP BY provider ORDER BY provider'
     );
-    const providers = providersR.rows.map(r => r.provider);
     const gameCounts = {};
     providersR.rows.forEach(r => { gameCounts[r.provider] = parseInt(r.count); });
+
     const provImgR = await query('SELECT provider_name, image_url FROM provider_images WHERE is_active = TRUE ORDER BY sort_order, id');
     const providerImageMap = {};
     provImgR.rows.forEach(r => { providerImageMap[r.provider_name.toUpperCase()] = r.image_url; });
+
+    // Merge: all providers from games + all from provider_images (even with 0 games)
+    const provSet = new Set(providersR.rows.map(r => r.provider));
+    provImgR.rows.forEach(r => provSet.add(r.provider_name));
+    const providers = Array.from(provSet).sort();
+
     res.render('providers', {
       title: 'Provedores — CassinoBet',
       providers,

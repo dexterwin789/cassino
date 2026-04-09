@@ -1,6 +1,16 @@
 <%- include('layout-head', { title: 'Dashboard', page: 'dashboard' }) %>
 
 <div class="adm-dashboard">
+  <!-- Server IP Banner -->
+  <div id="ipBanner" style="display:none;background:rgba(255,58,0,.1);border:1px solid rgba(255,58,0,.3);border-radius:12px;padding:14px 20px;margin-bottom:16px;display:flex;align-items:center;gap:12px">
+    <svg width="20" height="20" fill="none" stroke="#ff3a00" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    <div style="flex:1">
+      <div style="color:#ff3a00;font-weight:800;font-size:13px">IP do Servidor Railway</div>
+      <div style="color:rgba(255,255,255,.6);font-size:12px;margin-top:2px">Adicione este IP na whitelist da PlayFivers: <strong id="ipValue" style="color:#fff;cursor:pointer;user-select:all">carregando...</strong> <span id="ipCopied" style="color:#10b981;font-size:11px;display:none">✓ copiado</span></div>
+    </div>
+    <button class="adm-btn" id="ipCopyBtn" style="font-size:11px;height:30px;padding:0 12px">Copiar IP</button>
+  </div>
+
   <!-- Row 1: Stats -->
   <div class="adm-stats-grid" style="grid-template-columns:repeat(6,1fr);">
     <div class="adm-stat-card">
@@ -377,6 +387,32 @@ document.addEventListener('DOMContentLoaded', async () => {
     console.error('Dashboard stats error:', e);
   }
 });
+
+// Server IP banner
+(async function() {
+  try {
+    var r = await fetch('/admin/api/server-ip', { credentials: 'same-origin' });
+    var d = await r.json();
+    if (d.ok && d.ip) {
+      var banner = document.getElementById('ipBanner');
+      var ipEl = document.getElementById('ipValue');
+      banner.style.display = 'flex';
+      ipEl.textContent = d.ip;
+      document.getElementById('ipCopyBtn').addEventListener('click', function() {
+        navigator.clipboard.writeText(d.ip);
+        var c = document.getElementById('ipCopied');
+        c.style.display = 'inline';
+        setTimeout(function() { c.style.display = 'none'; }, 2000);
+      });
+      ipEl.addEventListener('click', function() {
+        navigator.clipboard.writeText(d.ip);
+        var c = document.getElementById('ipCopied');
+        c.style.display = 'inline';
+        setTimeout(function() { c.style.display = 'none'; }, 2000);
+      });
+    }
+  } catch(e) {}
+})();
 </script>
 
 <%- include('layout-foot') %>
