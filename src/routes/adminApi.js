@@ -1,8 +1,20 @@
 const router = require('express').Router();
 const { query } = require('../config/database');
 const { requireAdmin } = require('../middleware/auth');
+const fetch = require('node-fetch');
 
 router.use(requireAdmin);
+
+// ─── Server IP Check (for PlayFivers whitelist) ───
+router.get('/server-ip', async (req, res) => {
+  try {
+    const r = await fetch('https://api.ipify.org?format=json', { timeout: 10000 });
+    const data = await r.json();
+    res.json({ ok: true, ip: data.ip });
+  } catch (err) {
+    res.json({ ok: false, msg: 'Não foi possível obter o IP.', error: err.message });
+  }
+});
 
 // ─── Users ────────────────────────────────────────
 
@@ -1602,9 +1614,11 @@ router.get('/games/duplicates', async (req, res) => {
     `);
     const groups = {};
     for (const row of r.rows) {
+      if (!row.game_name) continue;
       const key = row.game_name.trim().toLowerCase();
+      if (!key) continue;
       if (!groups[key]) groups[key] = { keep: null, duplicates: [] };
-      if (row.rn === 1) groups[key].keep = row;
+      if (parseInt(row.rn) === 1) groups[key].keep = row;
       else groups[key].duplicates.push(row);
     }
     const totalDuplicates = Object.values(groups).reduce((sum, g) => sum + g.duplicates.length, 0);
@@ -1661,6 +1675,24 @@ router.post('/games/deduplicate', async (req, res) => {
   } catch (err) {
     console.error('[ADMIN DEDUP]', err);
     res.status(500).json({ ok: false, msg: 'Erro ao deduplicar.' });
+  }
+});
+
+// ─── PlayFivers Diagnostics ───────────────────────
+router.get('/playfivers/test', async (req, res) => {
+  try {
+    const pf = require('../services/playfivers');
+    const [ipRes, agentRes] = await Promise.allSettled([
+      fetch('https://api.ipify.org?format=json', { timeout: 10000 }).then(r => r.json()),
+      pf.getAgent()
+    ]);
+    res.json({
+      ok: true,
+      serverIp: ipRes.status === 'fulfilled' ? ipRes.value.ip : ipRes.reason?.message,
+      agent: agentRes.status === 'fulfilled' ? agentRes.value : { error: agentRes.reason?.message }
+    });
+  } catch (err) {
+    res.json({ ok: false, msg: err.message });
   }
 });
 

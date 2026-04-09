@@ -844,37 +844,36 @@ body.search-lock{overflow:hidden!important}
 .estudio-card img{width:100%;height:100%;object-fit:contain;padding:12px 18px}
 
 /* ===== PROVIDERS PAGE ===== */
-.providers-page-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
-  gap:12px;
-}
-.provider-page-card{
-  display:flex;align-items:center;gap:14px;
-  padding:16px 18px;
-  background:var(--card-bg,rgba(255,255,255,.04));
-  border:1px solid var(--border,rgba(255,255,255,.08));
-  border-radius:12px;
-  text-decoration:none;color:var(--text,#fff);
-  transition:all .2s;
-}
-.provider-page-card:hover{
-  background:rgba(252,56,1,.08);
-  border-color:rgba(252,56,1,.25);
-  transform:translateY(-2px);
-  box-shadow:0 4px 16px rgba(252,56,1,.15);
-}
-.provider-page-icon{
-  width:48px;height:48px;
+.prov-grid-card{
   display:flex;align-items:center;justify-content:center;
-  border-radius:12px;
   background:radial-gradient(ellipse at center,#fc3801 0%,#992201 100%);
-  font-weight:900;font-size:20px;color:#fff;
-  flex-shrink:0;
+  border-radius:12px;overflow:hidden;
+  text-decoration:none;position:relative;
+  aspect-ratio:16/10;
+  transition:transform .2s,box-shadow .2s;
 }
-.provider-page-info{flex:1;min-width:0}
-.provider-page-name{font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.provider-page-count{font-size:12px;color:var(--text-muted,rgba(255,255,255,.5));margin-top:2px}
+.prov-grid-card:hover{transform:translateY(-3px);box-shadow:0 6px 20px rgba(252,56,1,.35)}
+.prov-grid-bg{
+  width:100%;height:100%;
+  display:flex;align-items:center;justify-content:center;
+}
+.prov-grid-bg img{
+  width:100%;height:100%;object-fit:contain;padding:16px 22px;
+}
+.prov-grid-fallback{
+  font-weight:900;font-size:16px;color:#fff;
+  text-transform:uppercase;letter-spacing:1px;
+  text-align:center;padding:8px;
+  display:flex;align-items:center;justify-content:center;
+  width:100%;height:100%;
+}
+.prov-grid-badge{
+  position:absolute;top:6px;right:6px;
+  background:rgba(0,0,0,.55);
+  color:#fff;font-size:11px;font-weight:800;
+  padding:2px 8px;border-radius:999px;
+  backdrop-filter:blur(4px);
+}
 
 /* ===== MAIORES GANHOS ===== */
 .ganhos-tabs{

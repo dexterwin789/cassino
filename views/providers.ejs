@@ -26,7 +26,7 @@
 
       <!-- Providers grid -->
       <section class="game-section">
-        <div class="providers-page-grid" id="providersGrid"></div>
+        <div class="provider-grid" id="providersGrid"></div>
       </section>
 
     </div>
@@ -84,14 +84,13 @@
     }
     grid.innerHTML = filtered.map(function(p) {
       var count = gameCounts[p] || 0;
-      var initial = p.charAt(0).toUpperCase();
-      return '<a href="/games?provider=' + encodeURIComponent(p) + '" class="provider-page-card">' +
-        '<div class="provider-page-icon">' + initial + '</div>' +
-        '<div class="provider-page-info">' +
-          '<div class="provider-page-name">' + p + '</div>' +
-          '<div class="provider-page-count">' + count + ' jogo' + (count !== 1 ? 's' : '') + '</div>' +
+      var imgUrl = 'https://imagensfivers.com/Provedores/' + encodeURIComponent(p) + '.webp';
+      return '<a href="/games?provider=' + encodeURIComponent(p) + '" class="prov-grid-card">' +
+        '<div class="prov-grid-bg">' +
+          '<img src="' + imgUrl + '" alt="' + p + '" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'">' +
+          '<span class="prov-grid-fallback" style="display:none">' + p + '</span>' +
         '</div>' +
-        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity:.4;flex-shrink:0"><polyline points="9 18 15 12 9 6"/></svg>' +
+        '<span class="prov-grid-badge">' + count + '</span>' +
       '</a>';
     }).join('');
   }

@@ -32,11 +32,11 @@
     <div class="adm-field"><label>Ativo</label><select data-filter="active"><option value="">Todos</option><option value="1" selected>Ativo</option><option value="0">Inativo</option></select></div>
     <div class="adm-field"><label>Provedores</label>
       <div style="position:relative">
-        <button class="adm-btn" id="admProviderBtn" type="button" style="min-width:140px;text-align:left;display:flex;align-items:center;gap:6px;">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0"><path d="M4 6h16M4 12h16M4 18h7"/></svg>
-          <span id="admProviderLabel">Todos</span>
+        <button class="adm-btn" id="admProviderBtn" type="button" style="height:40px;min-width:140px;max-width:200px;text-align:left;display:flex;align-items:center;gap:6px;font-size:13px;padding:0 12px;">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0"><path d="M4 6h16M4 12h16M4 18h7"/></svg>
+          <span id="admProviderLabel" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Todos</span>
         </button>
-        <div id="admProviderDropdown" style="display:none;position:absolute;top:100%;left:0;min-width:220px;max-height:320px;overflow-y:auto;background:var(--adm-card,#0f1722);border:1px solid var(--adm-line);border-radius:10px;padding:8px;z-index:200;box-shadow:0 8px 32px rgba(0,0,0,.5);margin-top:4px">
+        <div id="admProviderDropdown" style="display:none;position:absolute;top:100%;left:0;width:200px;max-height:260px;overflow-y:auto;background:var(--adm-card,#0f1722);border:1px solid var(--adm-line);border-radius:10px;padding:6px;z-index:200;box-shadow:0 8px 32px rgba(0,0,0,.5);margin-top:4px">
           <div style="text-align:center;opacity:.5;padding:8px">Carregando...</div>
         </div>
       </div>
@@ -82,9 +82,9 @@
         .then(function(r) { return r.json(); })
         .then(function(d) {
           if (!d.ok || !d.providers.length) { dd.innerHTML = '<div style="padding:8px;opacity:.5">Nenhum provedor</div>'; return; }
-          dd.innerHTML = '<label style="display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:6px;cursor:pointer;font-weight:600;border-bottom:1px solid rgba(255,255,255,.08);margin-bottom:4px"><input type="checkbox" id="admProvAll" checked> Todos os Provedores</label>' +
+          dd.innerHTML = '<label style="display:flex;align-items:center;gap:6px;padding:5px 8px;border-radius:6px;cursor:pointer;font-weight:600;font-size:12px;border-bottom:1px solid rgba(255,255,255,.08);margin-bottom:2px"><input type="checkbox" id="admProvAll" checked> Todos</label>' +
             d.providers.map(function(p) {
-              return '<label style="display:flex;align-items:center;gap:8px;padding:4px 8px;border-radius:6px;cursor:pointer;font-size:13px;background:rgba(255,255,255,.03)"><input type="checkbox" class="adm-prov-chk" value="' + p + '"> ' + p + '</label>';
+              return '<label style="display:flex;align-items:center;gap:6px;padding:3px 8px;border-radius:6px;cursor:pointer;font-size:12px;background:rgba(255,255,255,.03)"><input type="checkbox" class="adm-prov-chk" value="' + p + '"> ' + p + '</label>';
             }).join('');
           bindProvChecks();
         })
@@ -135,6 +135,7 @@ document.getElementById('btnDedupGames')?.addEventListener('click', async functi
     if (!d.totalDuplicates) { alert('Nenhum jogo duplicado encontrado!'); btn.disabled = false; btn.textContent = '🔍 Dedup'; return; }
     var summary = d.totalDuplicates + ' duplicatas em ' + d.groups.length + ' grupos.\n\n';
     d.groups.slice(0, 10).forEach(function(g) {
+      if (!g.keep) return;
       summary += '✅ Manter: ' + g.keep.game_name + ' (ID ' + g.keep.id + ', ' + (g.keep.provider || '?') + ')\n';
       g.duplicates.forEach(function(dup) {
         summary += '   ❌ Desativar: ID ' + dup.id + ' (' + (dup.provider || '?') + ')' + (dup.is_active ? ' [ativo]' : '') + '\n';
