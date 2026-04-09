@@ -25,9 +25,20 @@
       </section>
 
       <!-- Providers grid -->
-      <section class="game-section">
-        <div class="provider-grid" id="providersGrid"></div>
+      <section class="game-section estudios-section">
+        <div class="estudios-grid estudios-grid-wrap" id="providersGrid">
+          <% providers.forEach(function(p) { %>
+          <a href="/games?provider=<%= encodeURIComponent(p) %>" class="estudio-card" data-provider="<%= p.toLowerCase() %>">
+            <% var imgUrl = providerImageMap[p.toUpperCase()] || ('https://imagensfivers.com/Provedores/' + encodeURIComponent(p) + '.webp'); %>
+            <img src="<%= imgUrl %>" alt="<%= p %>" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+            <span class="estudio-fallback" style="display:none;align-items:center;justify-content:center;width:100%;height:100%;font-weight:700;font-size:13px;color:#fff;text-transform:uppercase"><%= p %></span>
+            <span class="estudio-badge"><%= gameCounts[p] || 0 %></span>
+          </a>
+          <% }); %>
+        </div>
       </section>
+
+      <%- include('partials/footer') %>
 
     </div>
   </main>
@@ -68,38 +79,16 @@
 <script src="/public/js/script.js"></script>
 <script>
 (function(){
-  var providers = <%- JSON.stringify(providers) %>;
-  var gameCounts = <%- JSON.stringify(gameCounts) %>;
-  var grid = document.getElementById('providersGrid');
   var searchInput = document.getElementById('providerSearch');
-
-  function renderProviders(filter) {
-    var q = (filter || '').trim().toLowerCase();
-    var filtered = providers.filter(function(p) {
-      return !q || p.toLowerCase().includes(q);
-    });
-    if (!filtered.length) {
-      grid.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-muted);font-size:14px">Nenhum provedor encontrado.</div>';
-      return;
-    }
-    grid.innerHTML = filtered.map(function(p) {
-      var count = gameCounts[p] || 0;
-      var imgUrl = 'https://imagensfivers.com/Provedores/' + encodeURIComponent(p) + '.webp';
-      return '<a href="/games?provider=' + encodeURIComponent(p) + '" class="prov-grid-card">' +
-        '<div class="prov-grid-bg">' +
-          '<img src="' + imgUrl + '" alt="' + p + '" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'">' +
-          '<span class="prov-grid-fallback" style="display:none">' + p + '</span>' +
-        '</div>' +
-        '<span class="prov-grid-badge">' + count + '</span>' +
-      '</a>';
-    }).join('');
-  }
-
-  renderProviders('');
+  var cards = document.querySelectorAll('#providersGrid .estudio-card');
 
   if (searchInput) {
     searchInput.addEventListener('input', function() {
-      renderProviders(this.value);
+      var q = this.value.trim().toLowerCase();
+      cards.forEach(function(card) {
+        var name = card.getAttribute('data-provider') || '';
+        card.style.display = (!q || name.includes(q)) ? '' : 'none';
+      });
     });
   }
 })();

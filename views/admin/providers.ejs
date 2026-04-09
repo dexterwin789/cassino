@@ -1,0 +1,149 @@
+<%- include('layout-head', { title: 'Provedores', page: 'providers' }) %>
+
+<div class="adm-page-card">
+  <div class="adm-page-head">
+    <div><h3>Provedores</h3><p class="adm-muted">Imagens dos estúdios exibidas na home e página de provedores</p></div>
+    <div style="display:flex;gap:8px">
+      <button class="adm-btn primary" id="btnAddProvider">+ Adicionar</button>
+      <button class="adm-btn" id="btnRefresh">Atualizar</button>
+    </div>
+  </div>
+  <div class="adm-table-wrap">
+    <table class="adm-table">
+      <thead><tr><th>ID</th><th>Preview</th><th>Nome</th><th>URL da Imagem</th><th>Ordem</th><th>Ativo</th><th>Ações</th></tr></thead>
+      <tbody id="provTbody"></tbody>
+    </table>
+  </div>
+  <div class="adm-pager"><div class="adm-muted"><span id="provCount">0</span> provedores</div></div>
+</div>
+
+<!-- Modal Add/Edit -->
+<div id="provModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);align-items:center;justify-content:center">
+  <div style="background:var(--adm-card);border:1px solid var(--adm-border);border-radius:12px;padding:24px;width:420px;max-width:92vw">
+    <h4 style="margin:0 0 16px;color:#fff" id="provModalTitle">Adicionar Provedor</h4>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <input class="adm-field" id="provName" placeholder="Nome do provedor (ex: PGSOFT)" style="text-transform:uppercase">
+      <input class="adm-field" id="provImageUrl" placeholder="URL da imagem (ex: /public/img/novo/estudio1.png)">
+      <input class="adm-field" id="provSortOrder" type="number" placeholder="Ordem de exibição" value="0">
+    </div>
+    <div style="display:flex;gap:8px;margin-top:16px;justify-content:flex-end">
+      <button class="adm-btn" id="provModalCancel">Cancelar</button>
+      <button class="adm-btn primary" id="provModalSave">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var tb = document.getElementById('provTbody');
+  var countEl = document.getElementById('provCount');
+  var modal = document.getElementById('provModal');
+  var editingId = null;
+
+  function esc(s) { var d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
+
+  async function load() {
+    tb.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:32px;color:rgba(255,255,255,.4)">Carregando...</td></tr>';
+    try {
+      var r = await fetch('/admin/api/provider-images', { credentials: 'same-origin' });
+      var d = await r.json();
+      if (!d.ok) throw new Error(d.msg);
+      var items = d.items || [];
+      countEl.textContent = items.length;
+      if (!items.length) {
+        tb.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:32px;color:rgba(255,255,255,.35)">Nenhum provedor cadastrado</td></tr>';
+        return;
+      }
+      tb.innerHTML = items.map(function(r) {
+        return '<tr>' +
+          '<td>' + r.id + '</td>' +
+          '<td>' + (r.image_url ? '<img src="' + esc(r.image_url) + '" alt="" style="width:80px;height:50px;object-fit:contain;background:radial-gradient(ellipse at center,#fc3801,#992201);border-radius:8px;padding:4px">' : '—') + '</td>' +
+          '<td><strong>' + esc(r.provider_name) + '</strong></td>' +
+          '<td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:rgba(255,255,255,.55)">' + esc(r.image_url) + '</td>' +
+          '<td>' + r.sort_order + '</td>' +
+          '<td>' + (r.is_active ? '<span class="adm-tag ok">Ativo</span>' : '<span class="adm-tag bad">Inativo</span>') + '</td>' +
+          '<td>' +
+            '<div style="display:flex;gap:4px">' +
+              '<button class="adm-btn btn-edit-prov" data-id="' + r.id + '" data-name="' + esc(r.provider_name) + '" data-img="' + esc(r.image_url) + '" data-sort="' + r.sort_order + '" style="font-size:11px;height:30px;padding:0 8px">Editar</button>' +
+              '<button class="adm-btn btn-toggle-prov" data-id="' + r.id + '" data-active="' + r.is_active + '" style="font-size:11px;height:30px;padding:0 8px">' + (r.is_active ? 'Off' : 'On') + '</button>' +
+              '<button class="adm-btn btn-delete-prov" data-id="' + r.id + '" style="font-size:11px;height:30px;padding:0 8px;border-color:rgba(255,77,77,.3);color:#ff4d4d">&times;</button>' +
+            '</div>' +
+          '</td>' +
+        '</tr>';
+      }).join('');
+    } catch(e) {
+      tb.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:32px;color:#ff4d4d">' + esc(e.message) + '</td></tr>';
+    }
+  }
+
+  function openModal(id, name, img, sort) {
+    editingId = id || null;
+    document.getElementById('provModalTitle').textContent = id ? 'Editar Provedor' : 'Adicionar Provedor';
+    document.getElementById('provName').value = name || '';
+    document.getElementById('provImageUrl').value = img || '';
+    document.getElementById('provSortOrder').value = sort || 0;
+    modal.style.display = 'flex';
+  }
+
+  function closeModal() { modal.style.display = 'none'; editingId = null; }
+
+  document.getElementById('btnAddProvider').onclick = function() { openModal(); };
+  document.getElementById('btnRefresh').onclick = load;
+  document.getElementById('provModalCancel').onclick = closeModal;
+  modal.onclick = function(e) { if (e.target === modal) closeModal(); };
+
+  document.getElementById('provModalSave').onclick = async function() {
+    var name = document.getElementById('provName').value.trim();
+    var img = document.getElementById('provImageUrl').value.trim();
+    var sort = parseInt(document.getElementById('provSortOrder').value) || 0;
+    if (!name || !img) return alert('Nome e URL são obrigatórios.');
+
+    try {
+      if (editingId) {
+        await fetch('/admin/api/provider-images/' + editingId, {
+          method: 'PUT', credentials: 'same-origin',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ provider_name: name, image_url: img, sort_order: sort })
+        });
+      } else {
+        await fetch('/admin/api/provider-images', {
+          method: 'POST', credentials: 'same-origin',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ provider_name: name, image_url: img, sort_order: sort })
+        });
+      }
+      closeModal();
+      load();
+    } catch(e) { alert('Erro: ' + e.message); }
+  };
+
+  tb.addEventListener('click', async function(e) {
+    var btn = e.target.closest('.btn-edit-prov');
+    if (btn) {
+      openModal(btn.dataset.id, btn.dataset.name, btn.dataset.img, btn.dataset.sort);
+      return;
+    }
+    btn = e.target.closest('.btn-toggle-prov');
+    if (btn) {
+      var active = btn.dataset.active === 'true';
+      await fetch('/admin/api/provider-images/' + btn.dataset.id, {
+        method: 'PUT', credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ is_active: !active })
+      });
+      load();
+      return;
+    }
+    btn = e.target.closest('.btn-delete-prov');
+    if (btn) {
+      if (!confirm('Remover este provedor?')) return;
+      await fetch('/admin/api/provider-images/' + btn.dataset.id, { method: 'DELETE', credentials: 'same-origin' });
+      load();
+    }
+  });
+
+  load();
+})();
+</script>
+
+<%- include('layout-foot') %>

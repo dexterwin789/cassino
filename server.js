@@ -266,6 +266,30 @@ async function autoMigrate() {
     )`);
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_user_limits_user ON user_limits(user_id)`);
 
+    // Provider images
+    await pool.query(`CREATE TABLE IF NOT EXISTS provider_images (
+      id SERIAL PRIMARY KEY,
+      provider_name VARCHAR(128) NOT NULL UNIQUE,
+      image_url TEXT NOT NULL,
+      sort_order INT NOT NULL DEFAULT 0,
+      is_active BOOLEAN NOT NULL DEFAULT TRUE,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )`);
+
+    // Seed default provider images
+    const piCount = await pool.query('SELECT COUNT(*) FROM provider_images');
+    if (parseInt(piCount.rows[0].count) === 0) {
+      await pool.query(`INSERT INTO provider_images (provider_name, image_url, sort_order) VALUES
+        ('PGSOFT', '/public/img/novo/estudio1.png', 1),
+        ('EVOLUTION', '/public/img/novo/estudio2.png', 2),
+        ('SPRIBE', '/public/img/novo/estudio3.png', 3),
+        ('PRAGMATIC', '/public/img/novo/estudio4.png', 4),
+        ('1XGAMING', '/public/img/novo/estudio5.png', 5),
+        ('NETENT', '/public/img/novo/estudio6.png', 6)
+      ON CONFLICT (provider_name) DO NOTHING`);
+      console.log('[SEED] Provider images seeded ✓');
+    }
+
     // Seed test notifications for user 24
     const notifCount = await pool.query('SELECT COUNT(*) FROM notifications WHERE user_id = 24');
     if (parseInt(notifCount.rows[0].count) === 0) {

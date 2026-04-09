@@ -1586,6 +1586,54 @@ router.post('/top10/reorder', async (req, res) => {
   }
 });
 
+// ─── Provider Images ──────────────────────────────
+
+router.get('/provider-images', async (req, res) => {
+  try {
+    const r = await query('SELECT * FROM provider_images ORDER BY sort_order, id');
+    res.json({ ok: true, items: r.rows });
+  } catch (err) {
+    res.status(500).json({ ok: false, msg: 'Erro ao buscar.' });
+  }
+});
+
+router.post('/provider-images', async (req, res) => {
+  try {
+    const { provider_name, image_url, sort_order } = req.body;
+    if (!provider_name || !image_url) return res.status(400).json({ ok: false, msg: 'provider_name e image_url obrigatórios.' });
+    const r = await query(
+      'INSERT INTO provider_images (provider_name, image_url, sort_order) VALUES ($1, $2, $3) ON CONFLICT (provider_name) DO UPDATE SET image_url = $2, sort_order = $3 RETURNING *',
+      [provider_name.trim().toUpperCase(), image_url.trim(), parseInt(sort_order) || 0]
+    );
+    res.json({ ok: true, item: r.rows[0] });
+  } catch (err) {
+    res.status(500).json({ ok: false, msg: 'Erro ao salvar.' });
+  }
+});
+
+router.put('/provider-images/:id', async (req, res) => {
+  try {
+    const { provider_name, image_url, sort_order, is_active } = req.body;
+    const r = await query(
+      'UPDATE provider_images SET provider_name = COALESCE($1, provider_name), image_url = COALESCE($2, image_url), sort_order = COALESCE($3, sort_order), is_active = COALESCE($4, is_active) WHERE id = $5 RETURNING *',
+      [provider_name ? provider_name.trim().toUpperCase() : null, image_url || null, sort_order !== undefined ? parseInt(sort_order) : null, is_active !== undefined ? is_active : null, req.params.id]
+    );
+    if (!r.rows.length) return res.status(404).json({ ok: false, msg: 'Não encontrado.' });
+    res.json({ ok: true, item: r.rows[0] });
+  } catch (err) {
+    res.status(500).json({ ok: false, msg: 'Erro ao atualizar.' });
+  }
+});
+
+router.delete('/provider-images/:id', async (req, res) => {
+  try {
+    await query('DELETE FROM provider_images WHERE id = $1', [req.params.id]);
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ ok: false, msg: 'Erro ao excluir.' });
+  }
+});
+
 // ─── Dedup Games ──────────────────────────────────
 
 // GET: Preview duplicates

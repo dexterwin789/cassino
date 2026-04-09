@@ -274,6 +274,16 @@ CREATE TABLE IF NOT EXISTS sessions (
 );
 CREATE INDEX IF NOT EXISTS idx_sessions_expire ON sessions(expire);
 
+-- Provider images for studios section
+CREATE TABLE IF NOT EXISTS provider_images (
+  id           SERIAL PRIMARY KEY,
+  provider_name VARCHAR(128) NOT NULL UNIQUE,
+  image_url    TEXT NOT NULL,
+  sort_order   INT NOT NULL DEFAULT 0,
+  is_active    BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
 -- Default inserts
 INSERT INTO platform_settings (key, value) VALUES
   ('active_theme', 'default'),

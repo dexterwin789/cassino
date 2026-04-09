@@ -134,6 +134,10 @@ router.get('/audit', requireAdmin, (req, res) => {
   res.render('admin/audit', { title: 'Audit Log', admin: req.session.admin });
 });
 
+router.get('/providers', requireAdmin, (req, res) => {
+  res.render('admin/providers', { title: 'Provedores', admin: req.session.admin });
+});
+
 router.get('/themes', requireAdmin, async (req, res) => {
   try {
     const r = await query('SELECT * FROM themes ORDER BY is_active DESC, name');

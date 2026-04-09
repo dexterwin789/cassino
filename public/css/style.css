@@ -842,6 +842,19 @@ body.search-lock{overflow:hidden!important}
 }
 .estudio-card:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(252,56,1,.35)}
 .estudio-card img{width:100%;height:100%;object-fit:contain;padding:12px 18px}
+.estudio-card{position:relative}
+.estudio-badge{
+  position:absolute;top:6px;right:6px;
+  background:rgba(0,0,0,.55);
+  color:#fff;font-size:11px;font-weight:800;
+  padding:2px 8px;border-radius:999px;
+  backdrop-filter:blur(4px);
+}
+.estudios-grid-wrap{
+  flex-wrap:wrap;
+  overflow-x:visible;
+  justify-content:flex-start;
+}
 
 /* ===== PROVIDERS PAGE ===== */
 .prov-grid-card{

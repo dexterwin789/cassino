@@ -1,4 +1,4 @@
-<%- include('partials/head') %>
+﻿<%- include('partials/head') %>
 
 <%- include('partials/topbar') %>
 
@@ -20,8 +20,8 @@
             <img src="<%= game.image_url %>" alt="<%= game.game_name %>" draggable="false">
           </div>
           <div class="gp-hero-actions is-guest-el">
-            <p class="gp-hero-cta">Você precisa entrar para jogar</p>
-            <span class="gp-responsible-label">Jogo Responsável</span>
+            <p class="gp-hero-cta">VocÃª precisa entrar para jogar</p>
+            <span class="gp-responsible-label">Jogo ResponsÃ¡vel</span>
             <button class="btn-register" id="heroRegister">Registre-se</button>
             <button class="btn-login" id="heroLogin">Entrar</button>
           </div>
@@ -50,7 +50,7 @@
             <svg width="18" height="18" viewBox="0 0 512 512" fill="currentColor"><path d="M512 224.112C512 197.608 490.516 176.133 464 176.133H317.482C340.25 138.226 352.005 95.257 352.005 80.11C352.005 56.523 333.495 32 302.54 32C239.411 32 276.176 108.148 194.312 173.618L178.016 186.644C166.23 196.06 160.285 209.903 160.215 223.897C160.191 223.921 160 224.112 160 224.112V384.042C160 399.146 167.113 413.368 179.198 422.427L213.336 448.02C241.027 468.779 274.702 480 309.309 480H368C394.516 480 416 458.525 416 432.021C416 428.386 415.52 424.878 414.754 421.475C434 415.228 448 397.37 448 376.045C448 366.897 445.303 358.438 440.861 351.164C463.131 347.002 480 327.547 480 304.077C480 291.577 475.107 280.298 467.275 271.761C492.234 270.051 512 249.495 512 224.112Z"/><path d="M128 448V224C128 206.328 113.674 192 96 192H32C14.326 192 0 206.328 0 224V448C0 465.674 14.326 480 32 480H96C113.674 480 128 465.674 128 448Z" opacity="0.4"/></svg>
             <span><%= Math.floor(100 + Math.random() * 900) %></span>
           </button>
-          <button class="gp-action-btn" title="Não gostei">
+          <button class="gp-action-btn" title="NÃ£o gostei">
             <svg width="18" height="18" viewBox="0 0 512 512" fill="currentColor"><path d="M467.275 240.239C475.107 231.702 480 220.423 480 207.923C480 184.453 463.131 164.998 440.861 160.836C445.303 153.562 448 145.103 448 135.955C448 114.63 434 96.772 414.754 90.525C415.52 87.122 416 83.614 416 79.979C416 53.475 394.516 32 368 32H309.309C274.702 32 241.027 43.221 213.336 63.98L179.198 89.573C167.113 98.632 160 112.854 160 127.958V287.888C160 287.888 160.191 288.079 160.215 288.103C160.285 302.097 166.23 315.94 178.016 325.356L194.312 338.382C276.176 403.852 239.411 480 302.54 480C333.495 480 352.005 455.477 352.005 431.89C352.005 416.743 340.25 373.774 317.482 335.867H464C490.516 335.867 512 314.392 512 287.888C512 262.505 492.234 241.949 467.275 240.239Z"/><path d="M96 32H32C14.326 32 0 46.326 0 64V288C0 305.672 14.326 320 32 320H96C113.674 320 128 305.672 128 288V64C128 46.326 113.674 32 96 32Z" opacity="0.4"/></svg>
           </button>
           <button class="gp-action-btn gp-fullscreen-btn" id="gpFullscreenBtn" title="Tela cheia">
@@ -66,7 +66,7 @@
             <svg width="20" height="20" viewBox="0 0 384 512" fill="currentColor"><path d="M214.6 41.4c-12.5-12.5-32.8-12.5-45.3 0l-160 160c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L160 141.2V448c0 17.7 14.3 32 32 32s32-14.3 32-32V141.2L329.4 246.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3l-160-160z"/></svg>
           </div>
           <div class="gp-stat-text">
-            <span class="gp-stat-label">Ganhos nas últimas 24 horas</span>
+            <span class="gp-stat-label">Ganhos nas Ãºltimas 24 horas</span>
             <span class="gp-stat-value gp-stat-money">R$&nbsp;<%= Number(stats.ganhos24h).toLocaleString('pt-BR', { minimumFractionDigits: 2 }) %></span>
           </div>
         </div>
@@ -75,7 +75,7 @@
             <svg width="20" height="20" viewBox="0 0 512 512" fill="currentColor"><path d="M256 272c39.77 0 72-32.24 72-72S295.8 128 256 128C216.2 128 184 160.2 184 200S216.2 272 256 272zM288 320H224c-47.54 0-87.54 29.88-103.7 71.71C155.1 426.5 203.1 448 256 448s100.9-21.53 135.7-56.29C375.5 349.9 335.5 320 288 320z"/><path d="M256 0C114.6 0 0 114.6 0 256s114.6 256 256 256s256-114.6 256-256S397.4 0 256 0zM256 128c39.77 0 72 32.24 72 72S295.8 272 256 272c-39.76 0-72-32.24-72-72S216.2 128 256 128zM256 448c-52.93 0-100.9-21.53-135.7-56.29C136.5 349.9 176.5 320 224 320h64c47.54 0 87.54 29.88 103.7 71.71C356.9 426.5 308.9 448 256 448z" opacity="0.4"/></svg>
           </div>
           <div class="gp-stat-text">
-            <span class="gp-stat-label">Jogadores nas últimas 24 horas</span>
+            <span class="gp-stat-label">Jogadores nas Ãºltimas 24 horas</span>
             <span class="gp-stat-value"><%= stats.players24h.toLocaleString('pt-BR') %></span>
           </div>
         </div>
@@ -84,7 +84,7 @@
             <svg width="20" height="20" viewBox="0 0 640 512" fill="currentColor"><path d="M554.9 154.5c-17.62-35.25-68.12-35.38-85.87 0c-86.1 174.3-84.1 165.9-84.1 181.5c0 44.13 57.25 80 128 80s127.1-35.88 127.1-80C639.1 319.9 641.4 327.3 554.9 154.5zM439.1 320l71.96-144l72.17 144H439.1zM85 154.5C-1.998 328.8 .0019 320.4 .0019 336c0 44.13 57.25 80 127.1 80s128-35.88 128-80c0-16.12 1.375-8.75-85.12-181.5C153.3 119.3 102.8 119.1 85 154.5zM55.96 320l71.96-144L200.1 320H55.96z"/><path d="M495.1 448h-143.1V153.3C375.5 143 393.1 121.8 398.4 96h113.6c17.67 0 31.1-14.33 31.1-32s-14.33-32-31.1-32h-128.4c-14.62-19.38-37.5-32-63.62-32S270.1 12.62 256.4 32H128C110.3 32 96 46.33 96 64S110.3 96 127.1 96h113.6C246.9 121.8 264.5 143 287.1 153.3V448H144c-26.51 0-48.01 21.49-48.01 48c0 8.836 7.165 16 16 16h416c8.836 0 16-7.164 16-16C544 469.5 522.5 448 495.1 448z" opacity="0.4"/></svg>
           </div>
           <div class="gp-stat-text">
-            <span class="gp-stat-label">RTP nas últimas 24 horas</span>
+            <span class="gp-stat-label">RTP nas Ãºltimas 24 horas</span>
             <span class="gp-stat-value gp-stat-rtp"><%= stats.rtp %>%</span>
           </div>
         </div>
@@ -97,7 +97,7 @@
           <h2>Jogos Relacionados</h2>
           <div class="gp-slider-nav">
             <button class="gp-slider-arrow gp-related-prev" aria-label="Anterior">&#8249;</button>
-            <button class="gp-slider-arrow gp-related-next" aria-label="Próximo">&#8250;</button>
+            <button class="gp-slider-arrow gp-related-next" aria-label="PrÃ³ximo">&#8250;</button>
           </div>
         </div>
         <div class="gp-slider-viewport">
@@ -118,10 +118,10 @@
       <!-- Providers / Estudios Slider -->
       <section class="game-section gp-providers-section">
         <div class="section-header">
-          <h2>Estúdios</h2>
+          <h2>EstÃºdios</h2>
           <div class="gp-slider-nav">
             <button class="gp-slider-arrow gp-studios-prev" aria-label="Anterior">&#8249;</button>
-            <button class="gp-slider-arrow gp-studios-next" aria-label="Próximo">&#8250;</button>
+            <button class="gp-slider-arrow gp-studios-next" aria-label="PrÃ³ximo">&#8250;</button>
           </div>
           <a href="/games" class="see-all">Ver todos</a>
         </div>
@@ -146,129 +146,7 @@
         </div>
       </section>
 
-      <!-- Footer -->
-      <footer class="site-footer">
-        <div class="footer-top">
-          <div class="footer-col footer-brand">
-            <img src="/public/img/novo/logo.png" alt="CassinoBet" class="footer-logo-img">
-            <div class="footer-social">
-              <a href="#" aria-label="Instagram"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>
-              <a href="#" aria-label="Facebook"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></a>
-              <a href="#" aria-label="X"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
-              <a href="#" aria-label="YouTube"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></a>
-              <a href="#" aria-label="Telegram"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 000 12a12 12 0 0012 12 12 12 0 0012-12A12 12 0 0012 0h-.056zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 01.171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.479.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg></a>
-            </div>
-          </div>
-          <div class="footer-col">
-            <h4>Aposte</h4>
-            <ul>
-              <li><a href="#">Apostas Esportivas</a></li>
-              <li><a href="#">Esportes ao Vivo</a></li>
-              <li><a href="#">Jogos Slots</a></li>
-              <li><a href="#">Jogos ao Vivo</a></li>
-            </ul>
-          </div>
-          <div class="footer-col">
-            <h4>Comunidade</h4>
-            <ul>
-              <li><a href="#">Promoções</a></li>
-              <li><a href="#">Blog</a></li>
-              <li><a href="#">Central de Ajuda</a></li>
-              <li><a href="#">Canais de Atendimento</a></li>
-              <li><a href="#">Aplicativo móvel</a></li>
-            </ul>
-          </div>
-          <div class="footer-col">
-            <h4>Regras</h4>
-            <ul>
-              <li><a href="#">Termos de Apostas</a></li>
-              <li><a href="#">Jogo Responsável</a></li>
-              <li><a href="#">Política de Privacidade</a></li>
-              <li><a href="#">Ouvidoria</a></li>
-              <li><a href="#">Política KYC</a></li>
-              <li><a href="#">Política de Publicidade e Marketing</a></li>
-              <li><a href="#">Política de Integridade das Apostas</a></li>
-              <li><a href="#">Termos &amp; Condições</a></li>
-            </ul>
-          </div>
-          <div class="footer-col">
-            <h4>Links Úteis</h4>
-            <ul>
-              <li><a href="#" class="footer-contact-btn"><img src="/public/img/novo/footer1.svg" alt="" class="footer-btn-icon"> Contate-nos</a></li>
-            </ul>
-          </div>
-          <div class="footer-col">
-            <h4>Pagamento</h4>
-            <div class="footer-pix"><img src="/public/img/novo/footer2.svg" alt="PIX" style="height:32px"></div>
-          </div>
-        </div>
-
-        <!-- Patrocinador -->
-        <div class="footer-sponsor">
-          <span class="sponsor-label">PATROCINADOR OFICIAL</span>
-          <span class="sponsor-sub">APOIAMOS O ESPORTE E O FAIR-PLAY.</span>
-          <div class="sponsor-logos">
-            <img src="/public/img/novo/suporte1.svg" alt="Sponsor">
-            <img src="/public/img/novo/suporte2.svg" alt="Sponsor">
-            <img src="/public/img/novo/suporte3.svg" alt="Sponsor">
-            <img src="/public/img/novo/suporte4.svg" alt="Sponsor">
-          </div>
-        </div>
-
-        <!-- Texto SEO -->
-        <div class="footer-seo">
-          <p class="footer-seo-visible">Esportiva é o melhor site de cassino 🎰 e apostas esportivas ⚽ com diversas opções de esportes para apostar, jogos de cassino para jogar e promoções exclusivas 🎁. Com uma plataforma intuitiva e segura, oferecemos milhares de jogos de cassino, jogos de esportes e suporte ao cliente 24/7.</p>
-          <div class="footer-seo-hidden" id="footerSeoMore" style="display:none">
-            <p>Não é permitido apostar com recursos de programas e benefícios assistenciais do Governo Federal.</p>
-            <p><strong>CassinoBet: Uma Experiência Emocionante e Segura</strong><br>Descubra a emoção das apostas online na CassinoBet! Nossa plataforma é regulamentada, confiável e segura, permitindo que você explore suas habilidades de forma responsável. Com uma ampla variedade de opções, desde apostas esportivas até jogos de cassino, oferecemos tudo o que você precisa em um só lugar. Nossa equipe está pronta para auxiliá-lo desde o registro até o saque dos seus ganhos, sempre respeitando os limites e regras da regulamentação.</p>
-            <p><strong>CassinoBet: A Casa das Melhores Odds</strong><br>Se você busca as melhores odds de apostas em um ambiente seguro e regulado, encontrou o lugar certo! A CassinoBet oferece cotações competitivas em uma ampla gama de eventos esportivos e jogos de cassino, sempre em conformidade com as práticas de jogo responsável. Nossa equipe trabalha para garantir que sua experiência seja segura e emocionante.</p>
-            <p><strong>Jogos de Aposta Online: Diversão com Responsabilidade</strong><br>Na CassinoBet, você encontra uma seleção de jogos de aposta online que respeitam as práticas de jogo responsável. Seja nos clássicos jogos de cassino ou nas apostas esportivas, a regulamentação é parte essencial da nossa operação. Garantimos transparência, segurança e suporte para que sua diversão seja saudável e controlada.</p>
-            <p><strong>Apostas em Esportes: Torça com Consciência</strong><br>Torcer pelo seu time favorito fica ainda mais emocionante na CassinoBet. Oferecemos uma variedade de esportes para apostas, mas sempre destacamos a importância de apostar com consciência. Nossa plataforma permite que você acompanhe os jogos e faça escolhas responsáveis, com ferramentas para controlar suas atividades.</p>
-            <p><strong>Cassino Online: Confiança e Diversão Regulamentada</strong><br>Buscando um cassino online confiável? Na CassinoBet, oferecemos jogos regulamentados com total transparência. Jogue com tranquilidade, sabendo que seguimos rigorosamente as diretrizes de proteção ao consumidor para garantir uma experiência segura.</p>
-            <p><strong>Jogo Responsável: Nosso Compromisso</strong><br>Promovemos o jogo responsável como parte central da nossa missão. Oferecemos ferramentas para estabelecer limites de depósito, apostar de forma consciente e até solicitar autoexclusão, caso necessário. Apostar deve ser divertido, e estamos aqui para garantir que você jogue com segurança e responsabilidade.</p>
-            <p><strong>Atendimento ao Cliente: Suporte de Qualidade</strong><br>Nossa equipe de suporte está disponível 24 horas por dia, 7 dias por semana, para garantir uma experiência tranquila e sem complicações. Estamos prontos para auxiliá-lo em todas as suas necessidades.</p>
-            <p><strong>Apostas em eSports: O Futuro do Entretenimento</strong><br>Na CassinoBet, você pode apostar em competições de eSports de maneira segura e regulamentada. Com opções que vão desde MOBAs até jogos de tiro, oferecemos uma experiência emocionante, sempre respeitando as diretrizes de jogo responsável.</p>
-            <p><strong>Métodos de Pagamento: Simples e Confiáveis</strong><br>Garantimos que todas as transações na CassinoBet sejam realizadas com segurança e transparência. Utilizamos métodos de pagamento regulamentados e protegidos, como PIX, para proporcionar conveniência e proteção aos nossos usuários.</p>
-            <p><strong>Apostas Regulamentadas no Brasil</strong><br>Apostar na CassinoBet significa escolher uma plataforma que segue as leis e regulamentações brasileiras, incluindo as regras previstas na Lei nº 14.790/2023 e portarias complementares. Priorizamos o bem-estar dos nossos apostadores, fornecendo um ambiente confiável, seguro e transparente.</p>
-          </div>
-          <button class="footer-seo-toggle" id="footerSeoToggle">Ver mais</button>
-        </div>
-
-        <!-- Feito com amor -->
-        <div class="footer-brasil">
-          <img src="/public/img/novo/BRA.png" alt="Brasil" style="width:28px;height:20px"> Feito com 💚 para brasileiros!
-        </div>
-
-        <!-- Legal -->
-        <div class="footer-legal">
-          <div class="footer-legal-text">
-            <p><strong>CASSINOBET.COM.BR</strong> é um site de entretenimento online que oferece aos seus usuários uma experiência única em apostas esportivas e jogos online. <strong>CASSINOBET.COM.BR</strong> é operado pela <strong>EA Entretenimento e Esportes LTDA</strong>, empresa registrada sob o CNPJ no <u>53.570.592/0001-43</u>, devidamente licenciada pela Secretaria de Prêmios e Apostas do Ministério da Fazenda (SPA/MF) para a exploração de apostas de quota fixa em âmbito nacional, conforme autorização no 2.104-27, emitida em 30 de dezembro de 2024 e publicada no Diário Oficial da União em 31 de dezembro de 2024.</p>
-            <p>Ao acessar, continuar a usar ou navegar neste site, você concorda que podemos usar determinados cookies do navegador para melhorar sua experiência ao usar nosso site. Utilizamos cookies apenas para melhorar a sua experiência e isso não interfere na sua privacidade.</p>
-          </div>
-          <div class="footer-legal-badge">
-            <img src="/public/img/novo/autorizado.png" alt="Autorizado pelo Ministério da Fazenda" style="width:256px;height:72px">
-          </div>
-        </div>
-
-        <!-- Badges -->
-        <div class="footer-badges">
-          <img src="/public/img/novo/suporte1.svg" alt="BeGambleAware">
-          <img src="/public/img/novo/suporte2.svg" alt="GT">
-          <img src="/public/img/novo/suporte3.svg" alt="Baixe nosso app">
-          <img src="/public/img/novo/suporte4.svg" alt="18+">
-          <img src="/public/img/novo/suporte5.svg" alt="Jogue com Responsabilidade">
-          <img src="/public/img/novo/suporte11.svg" alt="EBAC">
-        </div>
-
-        <!-- Contacts -->
-        <div class="footer-contacts">
-          <span>Suporte suporte@cassinobet.com</span>
-          <span class="footer-contacts-sep">|</span>
-          <span>Jurídico juridico@cassinobet.com</span>
-          <span class="footer-contacts-sep">|</span>
-          <span>Parceiros parceiros@cassinobet.com</span>
-        </div>
-      </footer>
+      <%- include('partials/footer') %>
 
     </div>
   </main>
@@ -278,7 +156,7 @@
 <nav class="bottom-nav">
   <a href="/" class="bnav-item active">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
-    <span>Início</span>
+    <span>InÃ­cio</span>
   </a>
   <a href="#" class="bnav-item" id="bnav-search">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -292,7 +170,7 @@
   </button>
   <a href="#" class="bnav-item" id="bnav-promos">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12v10H4V12M2 7h20v5H2zM12 22V7M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
-    <span>Promoções</span>
+    <span>PromoÃ§Ãµes</span>
   </a>
   <a href="#" class="bnav-item" id="bnav-menu">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
@@ -418,5 +296,4 @@
 
 })();
 </script>
-</body>
-</html>
+<%- include('partials/foot') %>

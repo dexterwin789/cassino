@@ -6,11 +6,13 @@ router.get('/', async (req, res) => {
   try {
     const gamesR = await query('SELECT id, game_code, game_name, image_url, provider, category, is_featured, featured_order FROM games WHERE is_active = TRUE ORDER BY is_featured DESC NULLS LAST, featured_order ASC NULLS LAST, sort_order, id DESC');
     const bannersR = await query('SELECT id, image_url, link_url FROM banners WHERE is_active = TRUE ORDER BY sort_order, id');
+    const provImgR = await query('SELECT provider_name, image_url FROM provider_images WHERE is_active = TRUE ORDER BY sort_order, id');
 
     res.render('index', {
       title: 'Cassino',
       games: gamesR.rows,
-      banners: bannersR.rows
+      banners: bannersR.rows,
+      providerImages: provImgR.rows
     });
   } catch (err) {
     console.error('[INDEX]', err);
@@ -72,10 +74,14 @@ router.get('/providers', async (req, res) => {
     const providers = providersR.rows.map(r => r.provider);
     const gameCounts = {};
     providersR.rows.forEach(r => { gameCounts[r.provider] = parseInt(r.count); });
+    const provImgR = await query('SELECT provider_name, image_url FROM provider_images WHERE is_active = TRUE ORDER BY sort_order, id');
+    const providerImageMap = {};
+    provImgR.rows.forEach(r => { providerImageMap[r.provider_name.toUpperCase()] = r.image_url; });
     res.render('providers', {
       title: 'Provedores — CassinoBet',
       providers,
-      gameCounts
+      gameCounts,
+      providerImageMap
     });
   } catch (err) {
     console.error('[PROVIDERS]', err);
