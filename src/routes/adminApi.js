@@ -206,7 +206,7 @@ router.delete('/games/:id', async (req, res) => {
 // Sync games from PlayFivers API
 router.post('/games/sync-playfivers', async (req, res) => {
   try {
-    const pf = require('../../services/playfivers');
+    const pf = require('../services/playfivers');
     const result = await pf.getGames();
     if (!result.data || result.data.status !== 1 || !Array.isArray(result.data.data)) {
       return res.status(502).json({ ok: false, msg: 'Erro ao buscar jogos da PlayFivers: ' + (result.data.msg || 'resposta inválida') });
