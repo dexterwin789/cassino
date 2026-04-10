@@ -2989,6 +2989,12 @@ body.search-lock{overflow:hidden!important}
 }
 
 /* ===== LIGHT THEME ===== */
+/* Logo dark/light switching */
+.logo-light-only{display:none}
+.logo-dark-only{display:inline}
+html[data-theme="light"] .logo-dark-only{display:none}
+html[data-theme="light"] .logo-light-only{display:inline}
+
 html[data-theme="light"] {
   --bg-body: #f0f2f5;
   --bg-header: #ffffff;

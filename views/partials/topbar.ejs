@@ -17,7 +17,16 @@
       <img src="/public/img/novo/bars1.svg" width="16" height="16" alt="Menu">
     </button>
     <a href="/" class="topbar-logo">
-      <img src="/public/img/novo/logo.png" alt="CassinoBet" class="logo-img">
+      <% if (locals.logoDark && locals.logoLight) { %>
+        <img src="<%= logoDark %>" alt="Logo" class="logo-img logo-dark-only">
+        <img src="<%= logoLight %>" alt="Logo" class="logo-img logo-light-only">
+      <% } else if (locals.logoDark) { %>
+        <img src="<%= logoDark %>" alt="Logo" class="logo-img">
+      <% } else if (locals.logoLight) { %>
+        <img src="<%= logoLight %>" alt="Logo" class="logo-img">
+      <% } else { %>
+        <img src="/public/img/novo/logo.png" alt="Logo" class="logo-img">
+      <% } %>
     </a>
     <div class="topbar-spacer"></div>
     <!-- GUEST -->

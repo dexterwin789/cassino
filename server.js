@@ -61,11 +61,20 @@ app.use(async (req, res, next) => {
     // Sports enabled setting
     const sportsR = await pool.query("SELECT value FROM platform_settings WHERE key = 'sports_enabled' LIMIT 1");
     res.locals.sportsEnabled = sportsR.rows[0]?.value === '1';
+
+    // Logo settings
+    const logoR = await pool.query("SELECT key, value FROM platform_settings WHERE key IN ('logo_dark', 'logo_light')");
+    const logos = {};
+    logoR.rows.forEach(r => { logos[r.key] = r.value; });
+    res.locals.logoDark = logos.logo_dark || '';
+    res.locals.logoLight = logos.logo_light || '';
   } catch {
     res.locals.activeTheme = 'default';
     res.locals.theme = null;
     res.locals.layoutConfig = {};
     res.locals.sportsEnabled = false;
+    res.locals.logoDark = '';
+    res.locals.logoLight = '';
   }
   res.locals.user = req.session.user || null;
   next();

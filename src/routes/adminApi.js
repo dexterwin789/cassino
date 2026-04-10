@@ -2,6 +2,8 @@ const router = require('express').Router();
 const { query } = require('../config/database');
 const { requireAdmin } = require('../middleware/auth');
 const fetch = require('node-fetch');
+const multer = require('multer');
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 2 * 1024 * 1024 } });
 
 router.use(requireAdmin);
 
@@ -556,6 +558,45 @@ router.post('/settings', async (req, res) => {
       'INSERT INTO platform_settings (key, value) VALUES ($1, $2) ON CONFLICT (key) DO UPDATE SET value = $2',
       [key, value || '']
     );
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ ok: false, msg: 'Erro.' });
+  }
+});
+
+// ─── Logo Upload ──────────────────────────────────
+
+router.post('/settings/logo', upload.fields([
+  { name: 'logo_dark', maxCount: 1 },
+  { name: 'logo_light', maxCount: 1 }
+]), async (req, res) => {
+  try {
+    const saved = [];
+    for (const field of ['logo_dark', 'logo_light']) {
+      const file = req.files?.[field]?.[0];
+      if (!file) continue;
+      const allowed = ['image/png', 'image/jpeg', 'image/webp', 'image/svg+xml', 'image/gif'];
+      if (!allowed.includes(file.mimetype)) {
+        return res.status(400).json({ ok: false, msg: `Tipo inválido: ${file.mimetype}` });
+      }
+      const b64 = `data:${file.mimetype};base64,${file.buffer.toString('base64')}`;
+      await query(
+        'INSERT INTO platform_settings (key, value) VALUES ($1, $2) ON CONFLICT (key) DO UPDATE SET value = $2',
+        [field, b64]
+      );
+      saved.push(field);
+    }
+    if (!saved.length) return res.status(400).json({ ok: false, msg: 'Nenhum arquivo enviado.' });
+    res.json({ ok: true, msg: `Logo(s) salva(s): ${saved.join(', ')}` });
+  } catch (err) {
+    res.status(500).json({ ok: false, msg: 'Erro ao salvar logo.' });
+  }
+});
+
+router.delete('/settings/logo/:type', async (req, res) => {
+  try {
+    const key = req.params.type === 'light' ? 'logo_light' : 'logo_dark';
+    await query('DELETE FROM platform_settings WHERE key = $1', [key]);
     res.json({ ok: true });
   } catch (err) {
     res.status(500).json({ ok: false, msg: 'Erro.' });

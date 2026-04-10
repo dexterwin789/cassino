@@ -27,9 +27,58 @@
   </div>
 
   <button class="adm-btn primary" id="btnSaveSettings" style="margin-top:16px;">Salvar Configurações</button>
+
+  <!-- ── Logo do Site ── -->
+  <div style="margin-top:32px;">
+    <h4 style="margin-bottom:4px;">Logo do Site</h4>
+    <p class="adm-muted" style="margin-bottom:16px;">Envie logos separadas para tema escuro e claro. Se enviar apenas uma, será usada em ambos os temas.</p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;max-width:700px;">
+      <!-- Dark Logo -->
+      <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:20px;text-align:center;">
+        <label style="font-weight:600;display:block;margin-bottom:12px;">🌙 Tema Escuro</label>
+        <div id="previewDark" style="min-height:60px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;background:rgba(0,0,0,.3);border-radius:8px;padding:12px;">
+          <% if (settings.logo_dark) { %>
+            <img src="<%= settings.logo_dark %>" style="max-height:50px;max-width:100%;">
+          <% } else { %>
+            <span class="adm-muted" style="font-size:13px;">Nenhuma logo</span>
+          <% } %>
+        </div>
+        <label class="adm-btn" style="cursor:pointer;display:inline-block;margin-right:6px;">
+          Escolher
+          <input type="file" id="fileDark" accept="image/*" style="display:none;">
+        </label>
+        <% if (settings.logo_dark) { %>
+          <button class="adm-btn" id="btnRemoveDark" style="color:#ef4444;">Remover</button>
+        <% } %>
+      </div>
+
+      <!-- Light Logo -->
+      <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:20px;text-align:center;">
+        <label style="font-weight:600;display:block;margin-bottom:12px;">☀️ Tema Claro</label>
+        <div id="previewLight" style="min-height:60px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;background:rgba(255,255,255,.85);border-radius:8px;padding:12px;">
+          <% if (settings.logo_light) { %>
+            <img src="<%= settings.logo_light %>" style="max-height:50px;max-width:100%;">
+          <% } else { %>
+            <span style="color:#888;font-size:13px;">Nenhuma logo</span>
+          <% } %>
+        </div>
+        <label class="adm-btn" style="cursor:pointer;display:inline-block;margin-right:6px;">
+          Escolher
+          <input type="file" id="fileLight" accept="image/*" style="display:none;">
+        </label>
+        <% if (settings.logo_light) { %>
+          <button class="adm-btn" id="btnRemoveLight" style="color:#ef4444;">Remover</button>
+        <% } %>
+      </div>
+    </div>
+
+    <button class="adm-btn primary" id="btnSaveLogo" style="margin-top:16px;">Salvar Logo(s)</button>
+  </div>
 </div>
 
 <script>
+// Settings save
 document.getElementById('btnSaveSettings')?.addEventListener('click', async () => {
   const settings = [
     { key: 'site_name', value: document.getElementById('setSiteName').value },
@@ -45,6 +94,55 @@ document.getElementById('btnSaveSettings')?.addEventListener('click', async () =
     });
   }
   alert('Configurações salvas!');
+});
+
+// Logo preview on file select
+document.getElementById('fileDark')?.addEventListener('change', function() {
+  if (this.files[0]) {
+    const url = URL.createObjectURL(this.files[0]);
+    document.getElementById('previewDark').innerHTML = '<img src="' + url + '" style="max-height:50px;max-width:100%;">';
+  }
+});
+document.getElementById('fileLight')?.addEventListener('change', function() {
+  if (this.files[0]) {
+    const url = URL.createObjectURL(this.files[0]);
+    document.getElementById('previewLight').innerHTML = '<img src="' + url + '" style="max-height:50px;max-width:100%;">';
+  }
+});
+
+// Logo upload
+document.getElementById('btnSaveLogo')?.addEventListener('click', async () => {
+  const darkFile = document.getElementById('fileDark').files[0];
+  const lightFile = document.getElementById('fileLight').files[0];
+  if (!darkFile && !lightFile) return alert('Selecione ao menos uma imagem.');
+  const fd = new FormData();
+  if (darkFile) fd.append('logo_dark', darkFile);
+  if (lightFile) fd.append('logo_light', lightFile);
+  const btn = document.getElementById('btnSaveLogo');
+  btn.disabled = true;
+  btn.textContent = 'Salvando...';
+  try {
+    const r = await fetch('/admin/api/settings/logo', { method: 'POST', body: fd, credentials: 'same-origin' });
+    const j = await r.json();
+    if (j.ok) { alert('Logo(s) salva(s)!'); location.reload(); }
+    else alert(j.msg || 'Erro ao salvar.');
+  } catch { alert('Erro de rede.'); }
+  btn.disabled = false;
+  btn.textContent = 'Salvar Logo(s)';
+});
+
+// Logo remove
+document.getElementById('btnRemoveDark')?.addEventListener('click', async () => {
+  if (!confirm('Remover logo do tema escuro?')) return;
+  const r = await fetch('/admin/api/settings/logo/dark', { method: 'DELETE', credentials: 'same-origin' });
+  const j = await r.json();
+  if (j.ok) location.reload();
+});
+document.getElementById('btnRemoveLight')?.addEventListener('click', async () => {
+  if (!confirm('Remover logo do tema claro?')) return;
+  const r = await fetch('/admin/api/settings/logo/light', { method: 'DELETE', credentials: 'same-origin' });
+  const j = await r.json();
+  if (j.ok) location.reload();
 });
 </script>
 
