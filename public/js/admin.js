@@ -340,8 +340,7 @@
     if (page === 'banners') {
       return `<tr>
         <td>${r.id}</td>
-        <td>${r.image_url ? `<img class="adm-thumb" src="${esc(r.image_url)}" alt="" style="width:80px;height:40px;object-fit:cover;border-radius:6px">` : '—'}</td>
-        <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:rgba(255,255,255,.55)">${esc(r.image_url)}</td>
+        <td>${r.image_url ? `<img class="adm-thumb" src="${esc(r.image_url)}" alt="" style="width:100px;height:45px;object-fit:cover;border-radius:6px">` : '—'}</td>
         <td style="color:rgba(255,255,255,.45)">${esc(r.link_url || '-')}</td>
         <td>${r.sort_order}</td>
         <td>${activeTag(r.is_active)}</td>
@@ -599,6 +598,10 @@
   });
 
   document.getElementById('btnAddBanner')?.addEventListener('click', async () => {
+    // Banner modal is now in banners.ejs — this is a fallback
+    const modal = document.getElementById('bannerModal');
+    if (modal) { modal.style.display = 'flex'; return; }
+    // Legacy fallback
     const image_url = prompt('Image URL do banner:');
     if (!image_url) return;
     const link_url = prompt('Link URL (opcional):') || '';

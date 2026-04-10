@@ -82,16 +82,22 @@ router.get('/transactions', requireAdmin, (req, res) => {
   res.render('admin/transactions', { title: 'Transações', admin: req.session.admin });
 });
 
-router.get('/banners', requireAdmin, (req, res) => {
-  res.render('admin/banners', { title: 'Banners', admin: req.session.admin });
+router.get('/banners', requireAdmin, async (req, res) => {
+  const r = await query('SELECT key, value FROM platform_settings ORDER BY key');
+  const settings = {};
+  r.rows.forEach(row => { settings[row.key] = row.value; });
+  res.render('admin/banners', { title: 'Banners', admin: req.session.admin, settings });
 });
 
 router.get('/bets', requireAdmin, (req, res) => {
   res.render('admin/bets', { title: 'Apostas', admin: req.session.admin });
 });
 
-router.get('/affiliates', requireAdmin, (req, res) => {
-  res.render('admin/affiliates', { title: 'Afiliados', admin: req.session.admin });
+router.get('/affiliates', requireAdmin, async (req, res) => {
+  const r = await query('SELECT key, value FROM platform_settings WHERE key LIKE $1 ORDER BY key', ['aff_%']);
+  const affSettings = {};
+  r.rows.forEach(row => { affSettings[row.key] = row.value; });
+  res.render('admin/affiliates', { title: 'Afiliados', admin: req.session.admin, affSettings });
 });
 
 router.get('/support', requireAdmin, (req, res) => {

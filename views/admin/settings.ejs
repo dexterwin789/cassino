@@ -31,45 +31,57 @@
   <!-- ── Logo do Site ── -->
   <div style="margin-top:32px;">
     <h4 style="margin-bottom:4px;">Logo do Site</h4>
-    <p class="adm-muted" style="margin-bottom:16px;">Envie logos separadas para tema escuro e claro. Se enviar apenas uma, será usada em ambos os temas.</p>
+    <p class="adm-muted" style="margin-bottom:20px;">Envie logos separadas para tema escuro e claro. Se enviar apenas uma, será usada em ambos.</p>
 
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;max-width:700px;">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:700px;">
       <!-- Dark Logo -->
-      <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:20px;text-align:center;">
-        <label style="font-weight:600;display:block;margin-bottom:12px;">🌙 Tema Escuro</label>
-        <div id="previewDark" style="min-height:60px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;background:rgba(0,0,0,.3);border-radius:8px;padding:12px;">
+      <div style="background:linear-gradient(145deg,rgba(255,255,255,.03),rgba(255,255,255,.01));border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:24px;display:flex;flex-direction:column;align-items:center;gap:14px;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.5)" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          <span style="font-weight:600;font-size:14px;color:var(--adm-text);">Tema Escuro</span>
+        </div>
+        <div id="previewDark" style="width:100%;min-height:70px;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.35);border-radius:10px;padding:14px;border:1px dashed rgba(255,255,255,.08);">
           <% if (settings.logo_dark) { %>
             <img src="<%= settings.logo_dark %>" style="max-height:50px;max-width:100%;">
           <% } else { %>
-            <span class="adm-muted" style="font-size:13px;">Nenhuma logo</span>
+            <span class="adm-muted" style="font-size:12px;">Nenhuma logo enviada</span>
           <% } %>
         </div>
-        <label class="adm-btn" style="cursor:pointer;display:inline-block;margin-right:6px;">
-          Escolher
-          <input type="file" id="fileDark" accept="image/*" style="display:none;">
-        </label>
-        <% if (settings.logo_dark) { %>
-          <button class="adm-btn" id="btnRemoveDark" style="color:#ef4444;">Remover</button>
-        <% } %>
+        <div style="display:flex;gap:8px;width:100%;">
+          <label style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:8px 0;background:linear-gradient(135deg,var(--adm-green1),var(--adm-green2));color:#fff;font-size:12px;font-weight:600;border-radius:8px;cursor:pointer;transition:opacity .2s;" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+            Escolher
+            <input type="file" id="fileDark" accept="image/*" style="display:none;">
+          </label>
+          <% if (settings.logo_dark) { %>
+            <button id="btnRemoveDark" style="padding:8px 12px;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.25);color:#ef4444;font-size:12px;font-weight:600;border-radius:8px;cursor:pointer;transition:background .2s;" onmouseover="this.style.background='rgba(239,68,68,.22)'" onmouseout="this.style.background='rgba(239,68,68,.12)'">Remover</button>
+          <% } %>
+        </div>
       </div>
 
       <!-- Light Logo -->
-      <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:20px;text-align:center;">
-        <label style="font-weight:600;display:block;margin-bottom:12px;">☀️ Tema Claro</label>
-        <div id="previewLight" style="min-height:60px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;background:rgba(255,255,255,.85);border-radius:8px;padding:12px;">
+      <div style="background:linear-gradient(145deg,rgba(255,255,255,.03),rgba(255,255,255,.01));border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:24px;display:flex;flex-direction:column;align-items:center;gap:14px;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,200,50,.6)" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+          <span style="font-weight:600;font-size:14px;color:var(--adm-text);">Tema Claro</span>
+        </div>
+        <div id="previewLight" style="width:100%;min-height:70px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.88);border-radius:10px;padding:14px;border:1px dashed rgba(0,0,0,.1);">
           <% if (settings.logo_light) { %>
             <img src="<%= settings.logo_light %>" style="max-height:50px;max-width:100%;">
           <% } else { %>
-            <span style="color:#888;font-size:13px;">Nenhuma logo</span>
+            <span style="color:#999;font-size:12px;">Nenhuma logo enviada</span>
           <% } %>
         </div>
-        <label class="adm-btn" style="cursor:pointer;display:inline-block;margin-right:6px;">
-          Escolher
-          <input type="file" id="fileLight" accept="image/*" style="display:none;">
-        </label>
-        <% if (settings.logo_light) { %>
-          <button class="adm-btn" id="btnRemoveLight" style="color:#ef4444;">Remover</button>
-        <% } %>
+        <div style="display:flex;gap:8px;width:100%;">
+          <label style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:8px 0;background:linear-gradient(135deg,var(--adm-green1),var(--adm-green2));color:#fff;font-size:12px;font-weight:600;border-radius:8px;cursor:pointer;transition:opacity .2s;" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+            Escolher
+            <input type="file" id="fileLight" accept="image/*" style="display:none;">
+          </label>
+          <% if (settings.logo_light) { %>
+            <button id="btnRemoveLight" style="padding:8px 12px;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.25);color:#ef4444;font-size:12px;font-weight:600;border-radius:8px;cursor:pointer;transition:background .2s;" onmouseover="this.style.background='rgba(239,68,68,.22)'" onmouseout="this.style.background='rgba(239,68,68,.12)'">Remover</button>
+          <% } %>
+        </div>
       </div>
     </div>
 

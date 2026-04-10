@@ -539,6 +539,29 @@ router.delete('/banners/:id', async (req, res) => {
   }
 });
 
+// ─── Banner Upload (file) ─────────────────────────
+
+router.post('/banners/upload', upload.single('image'), async (req, res) => {
+  try {
+    const file = req.file;
+    if (!file) return res.status(400).json({ ok: false, msg: 'Nenhuma imagem enviada.' });
+    const allowed = ['image/png', 'image/jpeg', 'image/webp', 'image/gif'];
+    if (!allowed.includes(file.mimetype)) {
+      return res.status(400).json({ ok: false, msg: `Tipo inválido: ${file.mimetype}` });
+    }
+    const b64 = `data:${file.mimetype};base64,${file.buffer.toString('base64')}`;
+    const link_url = req.body.link_url || null;
+    const sort_order = parseInt(req.body.sort_order) || 0;
+    const r = await query(
+      'INSERT INTO banners (image_url, link_url, sort_order) VALUES ($1, $2, $3) RETURNING *',
+      [b64, link_url, sort_order]
+    );
+    res.json({ ok: true, banner: r.rows[0] });
+  } catch (err) {
+    res.status(500).json({ ok: false, msg: 'Erro ao salvar banner.' });
+  }
+});
+
 // ─── Settings ─────────────────────────────────────
 
 router.get('/settings', async (req, res) => {
@@ -600,6 +623,61 @@ router.delete('/settings/logo/:type', async (req, res) => {
     res.json({ ok: true });
   } catch (err) {
     res.status(500).json({ ok: false, msg: 'Erro.' });
+  }
+});
+
+// ─── Banner Upload to Settings (side/promo) ───────
+
+router.post('/settings/banner-upload', upload.single('image'), async (req, res) => {
+  try {
+    const file = req.file;
+    const key = req.body.key;
+    const allowedKeys = ['side_banner_1', 'side_banner_2', 'promo_banner_1', 'promo_banner_2', 'promo_banner_3'];
+    if (!file) return res.status(400).json({ ok: false, msg: 'Nenhuma imagem enviada.' });
+    if (!key || !allowedKeys.includes(key)) return res.status(400).json({ ok: false, msg: 'Key inválida.' });
+    const allowed = ['image/png', 'image/jpeg', 'image/webp', 'image/gif'];
+    if (!allowed.includes(file.mimetype)) {
+      return res.status(400).json({ ok: false, msg: `Tipo inválido: ${file.mimetype}` });
+    }
+    const b64 = `data:${file.mimetype};base64,${file.buffer.toString('base64')}`;
+    await query(
+      'INSERT INTO platform_settings (key, value) VALUES ($1, $2) ON CONFLICT (key) DO UPDATE SET value = $2',
+      [key, b64]
+    );
+    res.json({ ok: true, msg: `${key} salvo.` });
+  } catch (err) {
+    res.status(500).json({ ok: false, msg: 'Erro ao salvar banner.' });
+  }
+});
+
+// ─── Affiliate Settings ───────────────────────────
+
+router.get('/affiliate-settings', async (req, res) => {
+  try {
+    const r = await query("SELECT key, value FROM platform_settings WHERE key LIKE 'aff_%' ORDER BY key");
+    const settings = {};
+    r.rows.forEach(row => { settings[row.key] = row.value; });
+    res.json({ ok: true, settings });
+  } catch (err) {
+    res.status(500).json({ ok: false, msg: 'Erro.' });
+  }
+});
+
+router.post('/affiliate-settings', async (req, res) => {
+  try {
+    const allowedKeys = ['aff_default_commission', 'aff_min_deposit', 'aff_cookie_days', 'aff_auto_approve', 'aff_referral_bonus', 'aff_max_affiliates', 'aff_min_withdrawal'];
+    const { settings } = req.body;
+    if (!settings || typeof settings !== 'object') return res.status(400).json({ ok: false, msg: 'Dados inválidos.' });
+    for (const [key, value] of Object.entries(settings)) {
+      if (!allowedKeys.includes(key)) continue;
+      await query(
+        'INSERT INTO platform_settings (key, value) VALUES ($1, $2) ON CONFLICT (key) DO UPDATE SET value = $2',
+        [key, String(value)]
+      );
+    }
+    res.json({ ok: true, msg: 'Configurações de afiliados salvas.' });
+  } catch (err) {
+    res.status(500).json({ ok: false, msg: 'Erro ao salvar configurações.' });
   }
 });
 
@@ -1750,6 +1828,47 @@ router.delete('/provider-images/:id', async (req, res) => {
     res.json({ ok: true });
   } catch (err) {
     res.status(500).json({ ok: false, msg: 'Erro ao excluir.' });
+  }
+});
+
+// Provider image upload (file)
+router.post('/provider-images/upload', upload.single('image'), async (req, res) => {
+  try {
+    const file = req.file;
+    if (!file) return res.status(400).json({ ok: false, msg: 'Nenhuma imagem enviada.' });
+    const allowed = ['image/png', 'image/jpeg', 'image/webp', 'image/gif'];
+    if (!allowed.includes(file.mimetype)) return res.status(400).json({ ok: false, msg: `Tipo inválido: ${file.mimetype}` });
+    const b64 = `data:${file.mimetype};base64,${file.buffer.toString('base64')}`;
+    const { provider_name, sort_order } = req.body;
+    if (!provider_name) return res.status(400).json({ ok: false, msg: 'Nome obrigatório.' });
+    const r = await query(
+      'INSERT INTO provider_images (provider_name, image_url, sort_order) VALUES ($1, $2, $3) RETURNING *',
+      [provider_name, b64, parseInt(sort_order) || 0]
+    );
+    res.json({ ok: true, item: r.rows[0] });
+  } catch (err) {
+    res.status(500).json({ ok: false, msg: 'Erro ao salvar provedor.' });
+  }
+});
+
+router.post('/provider-images/:id/upload', upload.single('image'), async (req, res) => {
+  try {
+    const file = req.file;
+    if (!file) return res.status(400).json({ ok: false, msg: 'Nenhuma imagem enviada.' });
+    const allowed = ['image/png', 'image/jpeg', 'image/webp', 'image/gif'];
+    if (!allowed.includes(file.mimetype)) return res.status(400).json({ ok: false, msg: `Tipo inválido: ${file.mimetype}` });
+    const b64 = `data:${file.mimetype};base64,${file.buffer.toString('base64')}`;
+    const { provider_name, sort_order } = req.body;
+    const updates = ['image_url = $1'];
+    const params = [b64];
+    let idx = 2;
+    if (provider_name) { updates.push(`provider_name = $${idx}`); params.push(provider_name); idx++; }
+    if (sort_order !== undefined) { updates.push(`sort_order = $${idx}`); params.push(parseInt(sort_order) || 0); idx++; }
+    params.push(req.params.id);
+    await query(`UPDATE provider_images SET ${updates.join(', ')} WHERE id = $${idx}`, params);
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ ok: false, msg: 'Erro ao atualizar provedor.' });
   }
 });
 

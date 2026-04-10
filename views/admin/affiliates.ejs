@@ -1,5 +1,47 @@
 <%- include('layout-head', { title: 'Afiliados', page: 'affiliates' }) %>
 
+<!-- ── Configurações de Afiliados ── -->
+<div class="adm-page-card" style="margin-bottom:24px;">
+  <div class="adm-page-head">
+    <div><h3>Configurações de Afiliados</h3><p class="adm-muted">Regras globais do programa de afiliados</p></div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-top:16px;">
+    <div class="adm-setting-card">
+      <label>Comissão Padrão (%)</label>
+      <input type="number" id="affDefaultCommission" value="<%= (typeof affSettings !== 'undefined' && affSettings.aff_default_commission) || '10' %>" min="0" max="100" step="0.5">
+    </div>
+    <div class="adm-setting-card">
+      <label>Depósito Mín. p/ Comissão (R$)</label>
+      <input type="number" id="affMinDeposit" value="<%= (typeof affSettings !== 'undefined' && affSettings.aff_min_deposit) || '20' %>" min="0" step="1">
+    </div>
+    <div class="adm-setting-card">
+      <label>Cookie (dias)</label>
+      <input type="number" id="affCookieDays" value="<%= (typeof affSettings !== 'undefined' && affSettings.aff_cookie_days) || '30' %>" min="1" max="365">
+    </div>
+    <div class="adm-setting-card">
+      <label>Aprovação Automática</label>
+      <select id="affAutoApprove">
+        <option value="1" <%= (typeof affSettings !== 'undefined' && affSettings.aff_auto_approve === '1') ? 'selected' : '' %>>Sim</option>
+        <option value="0" <%= (typeof affSettings === 'undefined' || !affSettings.aff_auto_approve || affSettings.aff_auto_approve === '0') ? 'selected' : '' %>>Não</option>
+      </select>
+    </div>
+    <div class="adm-setting-card">
+      <label>Bônus por Indicação (R$)</label>
+      <input type="number" id="affReferralBonus" value="<%= (typeof affSettings !== 'undefined' && affSettings.aff_referral_bonus) || '50' %>" min="0" step="1">
+    </div>
+    <div class="adm-setting-card">
+      <label>Máx. Afiliados</label>
+      <input type="number" id="affMaxAffiliates" value="<%= (typeof affSettings !== 'undefined' && affSettings.aff_max_affiliates) || '0' %>" min="0" placeholder="0 = ilimitado">
+    </div>
+    <div class="adm-setting-card">
+      <label>Saque Mínimo (R$)</label>
+      <input type="number" id="affMinWithdrawal" value="<%= (typeof affSettings !== 'undefined' && affSettings.aff_min_withdrawal) || '50' %>" min="0" step="1">
+    </div>
+  </div>
+  <button class="adm-btn primary" id="btnSaveAffSettings" style="margin-top:16px;">Salvar Configurações</button>
+</div>
+
+<!-- ── Lista de Afiliados ── -->
 <div class="adm-page-card" data-page="affiliates">
   <div class="adm-page-head">
     <div><h3>Afiliados</h3><p class="adm-muted">Programa de afiliados</p></div>
@@ -27,4 +69,31 @@
 </div>
 
 <script src="/public/js/admin.js" defer></script>
+<script>
+document.getElementById('btnSaveAffSettings')?.addEventListener('click', async function() {
+  var btn = this; btn.disabled = true; btn.textContent = 'Salvando...';
+  try {
+    var r = await fetch('/admin/api/affiliate-settings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        settings: {
+          aff_default_commission: document.getElementById('affDefaultCommission').value,
+          aff_min_deposit: document.getElementById('affMinDeposit').value,
+          aff_cookie_days: document.getElementById('affCookieDays').value,
+          aff_auto_approve: document.getElementById('affAutoApprove').value,
+          aff_referral_bonus: document.getElementById('affReferralBonus').value,
+          aff_max_affiliates: document.getElementById('affMaxAffiliates').value,
+          aff_min_withdrawal: document.getElementById('affMinWithdrawal').value
+        }
+      }),
+      credentials: 'same-origin'
+    });
+    var d = await r.json();
+    if (d.ok) alert('Configurações salvas!');
+    else alert(d.msg || 'Erro');
+  } catch { alert('Erro de rede.'); }
+  btn.disabled = false; btn.textContent = 'Salvar Configurações';
+});
+</script>
 <%- include('layout-foot') %>
