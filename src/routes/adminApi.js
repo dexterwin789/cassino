@@ -275,21 +275,24 @@ router.post('/games/sync-playfivers', async (req, res) => {
       );
 
       if (existing.rows.length) {
-        // Update image/name/status
+        // Update image/name/status — but don't reactivate clone games (unfunded wallet)
+        const isOriginal = g.original === true;
+        const shouldBeActive = g.status !== false && isOriginal; // clones stay inactive
         await query(
           `UPDATE games SET game_name = $1, image_url = $2, is_active = $3, game_original = $4 WHERE id = $5`,
-          [g.name, g.image_url || null, g.status !== false, g.original === true, existing.rows[0].id]
+          [g.name, g.image_url || null, shouldBeActive, isOriginal, existing.rows[0].id]
         );
         updated++;
       } else {
         // Check slug collision
         const slugCheck = await query('SELECT id FROM games WHERE game_code = $1', [slug]);
         const finalSlug = slugCheck.rows.length ? slug + '-' + Date.now() : slug;
+        const isOriginal = g.original === true;
 
         await query(
           `INSERT INTO games (game_code, game_name, image_url, provider, category, is_active, pf_game_code, pf_provider, game_original)
            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
-          [finalSlug, g.name, g.image_url || null, providerName, 'slots', g.status !== false, g.game_code, providerName, g.original === true]
+          [finalSlug, g.name, g.image_url || null, providerName, 'slots', g.status !== false && isOriginal, g.game_code, providerName, isOriginal]
         );
         inserted++;
       }
