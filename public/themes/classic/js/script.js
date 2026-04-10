@@ -4,10 +4,11 @@ var allGames = [];
 
 /* ========== GAME CARDS ========== */
 function gameCardHTML(game) {
-  var img = game.image_url || '/public/img/games/1.avif';
+  if (!game.image_url) return '';
+  var img = game.image_url;
   var name = game.game_name || 'Jogo';
   var h = '<div class="game-card" title="' + name + '">';
-  h += '<img src="' + img + '" alt="' + name + '" draggable="false" loading="lazy">';
+  h += '<img src="' + img + '" alt="' + name + '" draggable="false" loading="lazy" onerror="this.onerror=null;this.closest(\'.game-card\').style.display=\'none\'">';
   h += '<div class="game-overlay">';
   h += '<span class="game-name">' + name + '</span>';
   h += '<span class="play-btn">&#9654; JOGAR</span>';

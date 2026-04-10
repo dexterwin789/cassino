@@ -4,11 +4,12 @@ var allGames = [];
 
 /* ========== GAME CARDS ========== */
 function gameCardHTML(game) {
-  var img = game.image_url || '/public/img/games/1.avif';
+  if (!game.image_url) return '';
+  var img = game.image_url;
   var name = game.game_name || 'Jogo';
   var code = game.game_code || '';
   var h = '<a href="/game/' + code + '" class="game-card" title="' + name + '" style="text-decoration:none">';
-  h += '<img src="' + img + '" alt="' + name + '" draggable="false" loading="lazy" onerror="this.onerror=null;this.src=\'/public/img/games/1.avif\'">';
+  h += '<img src="' + img + '" alt="' + name + '" draggable="false" loading="lazy" onerror="this.onerror=null;this.closest(\'a\').style.display=\'none\'">';
   h += '<div class="game-overlay">';
   h += '<span class="game-name">' + name + '</span>';
   h += '<span class="play-btn">&#9654; JOGAR</span>';
@@ -289,11 +290,12 @@ function applyTagFilter() {
 }
 
 function searchCardHTML(game) {
-  var img = game.image_url || '/public/img/games/1.avif';
+  if (!game.image_url) return '';
+  var img = game.image_url;
   var name = game.game_name || 'Jogo';
   var code = game.game_code || '';
   return '<a href="/game/' + code + '" class="game-card" title="' + name + '" style="text-decoration:none">' +
-    '<img src="' + img + '" alt="' + name + '" draggable="false" loading="lazy" onerror="this.onerror=null;this.src=\'/public/img/games/1.avif\'">' +
+    '<img src="' + img + '" alt="' + name + '" draggable="false" loading="lazy" onerror="this.onerror=null;this.closest(\'a\').style.display=\'none\'">' +
     '<div class="game-overlay">' +
       '<span class="play-btn">&#9654; JOGAR</span>' +
     '</div></a>';
@@ -427,14 +429,15 @@ function renderAllSections() {
 
 /* ========== TOP 10 SLIDER ========== */
 function top10CardHTML(game, rank) {
-  var img = game.image_url || '/public/img/games/1.avif';
+  if (!game.image_url) return '';
+  var img = game.image_url;
   var name = game.game_name || 'Jogo';
   var code = game.game_code || '';
   var h = '<a href="/game/' + code + '" class="top10-card" title="' + name + '" style="text-decoration:none">';
   h += '<span class="top10-rank">' + rank + '</span>';
   h += '<div class="top10-img-wrap">';
   h += '<span class="top10-badge">' + rank + '</span>';
-  h += '<img src="' + img + '" alt="' + name + '" draggable="false" loading="lazy" onerror="this.onerror=null;this.src=\'/public/img/games/1.avif\'">';
+  h += '<img src="' + img + '" alt="' + name + '" draggable="false" loading="lazy" onerror="this.onerror=null;this.closest(\'a\').style.display=\'none\'">';
   h += '<div class="top10-hover"><span class="top10-play">&#9654; JOGAR</span></div>';
   h += '</div>';
   h += '</a>';
@@ -1366,7 +1369,7 @@ var fakeNames = [
   'Leonardo','Natália','Henrique','Débora','Alex','Cristiane','Paulo','Sabrina','Roberto','Luciana'
 ];
 var gameImages = [
-  '/public/img/games/1.avif','/public/img/games/2.webp','/public/img/games/3.webp',
+  '/public/img/games/2.webp','/public/img/games/3.webp',
   '/public/img/games/4.webp','/public/img/games/5.webp','/public/img/games/6.webp',
   '/public/img/games/7.webp','/public/img/games/8.webp','/public/img/games/9.webp',
   '/public/img/games/10.webp','/public/img/games/11.webp','/public/img/games/12.webp'
