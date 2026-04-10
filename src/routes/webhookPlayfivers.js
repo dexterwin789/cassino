@@ -21,6 +21,15 @@ async function handleWebhook(req, res) {
   const body = req.body || {};
   const type = (body.type || '').toUpperCase();
 
+  console.log('[PF WEBHOOK] Incoming:', JSON.stringify({
+    path: req.originalUrl,
+    type: body.type,
+    user_code: body.user_code,
+    game_type: body.game_type,
+    hasSlotField: !!body.slot,
+    bodyKeys: Object.keys(body)
+  }));
+
   // If it's a BALANCE check (no slot/game_type data)
   if (type === 'BALANCE' || (!body.game_type && !body.slot)) {
     return handleBalance(req, res);
@@ -58,7 +67,13 @@ async function handleTransaction(req, res) {
     const gameData = req.body[game_type] || req.body.slot || {};
     const { provider_code, game_code, round_id, bet, win, txn_id, txn_type, user_before_balance, user_after_balance } = gameData;
 
-    console.log('[PF WEBHOOK TXN]', { type, user_code, txn_id, txn_type, bet, win });
+    console.log('[PF WEBHOOK TXN] Full detail:', JSON.stringify({
+      type, user_code, game_type, txn_id, txn_type, bet, win, provider_code, game_code,
+      gameDataKeys: Object.keys(gameData),
+      gameDataResolved: game_type ? `body[${game_type}]` : 'body.slot',
+      rawGameTypeField: !!req.body[game_type],
+      rawSlotField: !!req.body.slot
+    }));
 
     if (!user_code) {
       return res.status(400).json({ balance: 0, msg: 'MISSING_USER_CODE' });
@@ -104,9 +119,15 @@ async function handleTransaction(req, res) {
       netChange = winCents - betCents;
     }
 
+    console.log('[PF WEBHOOK TXN] Balance check:', {
+      user_code, currentBalance, betCents, winCents, netChange, txn_type,
+      willFail: netChange < 0 && (currentBalance + netChange) < 0
+    });
+
     // Check sufficient funds for debit
     if (netChange < 0 && (currentBalance + netChange) < 0) {
       await client.query('ROLLBACK');
+      console.error('[PF WEBHOOK TXN] INSUFFICIENT FUNDS:', { user_code, currentBalance, netChange, needed: Math.abs(netChange) });
       return res.status(400).json({ balance: parseFloat((currentBalance / 100).toFixed(2)), msg: 'INSUFFICIENT_USER_FUNDS' });
     }
 

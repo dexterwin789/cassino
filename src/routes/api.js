@@ -679,4 +679,42 @@ router.post('/notifications/read-all', requireUser, async (req, res) => {
   }
 });
 
+// GET /api/diag/playfivers — Debug PlayFivers config (admin only, temporary)
+router.get('/diag/playfivers', async (req, res) => {
+  try {
+    const pf = require('../services/playfivers');
+    const agentR = await pf.getAgent();
+    const balR = await pf.getBalances();
+
+    // Also check user wallet
+    const userCode = req.query.user;
+    let userWallet = null;
+    if (userCode) {
+      const uR = await query(
+        'SELECT u.id, u.username, u.email, w.balance_cents FROM users u JOIN wallets w ON w.user_id = u.id WHERE u.email = $1 OR u.username = $1 LIMIT 1',
+        [userCode]
+      );
+      if (uR.rows[0]) {
+        userWallet = {
+          id: uR.rows[0].id,
+          username: uR.rows[0].username,
+          email: uR.rows[0].email,
+          balance_cents: parseInt(uR.rows[0].balance_cents),
+          balance_reais: parseFloat((parseInt(uR.rows[0].balance_cents) / 100).toFixed(2))
+        };
+      }
+    }
+
+    res.json({
+      ok: true,
+      agent: agentR.data,
+      balances: balR.data,
+      userWallet
+    });
+  } catch (err) {
+    console.error('[DIAG]', err);
+    res.status(500).json({ ok: false, msg: err.message });
+  }
+});
+
 module.exports = router;
