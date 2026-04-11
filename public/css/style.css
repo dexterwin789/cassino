@@ -2632,7 +2632,7 @@ body.search-lock{overflow:hidden!important}
   .search-results-grid{grid-template-columns:repeat(3,1fr)}
 }
 @media(max-width:480px){
-  .provider-grid{grid-template-columns:repeat(2,1fr)}
+  .provider-grid{grid-template-columns:repeat(3,1fr)}
   .footer-top{grid-template-columns:1fr}
   .search-results-grid{grid-template-columns:repeat(2,1fr)}
 }
@@ -2672,13 +2672,28 @@ body.search-lock{overflow:hidden!important}
 
 @media(max-width:768px){
   .topbar-tabs{display:none}
-  .topbar-container{padding:0 12px}
+  .topbar-container{padding:0 10px;gap:6px}
   .responsible-label{display:none}
   .tab-switch{font-size:12px;padding:6px 10px}
   .tab-switch img{width:14px;height:14px}
-  .logo-img{height:24px;width:auto;max-width:200px}
-  .promo-strip{grid-template-columns:1fr;gap:10px}
+  .logo-img{height:22px;width:auto;max-width:180px}
 
+  /* --- Topbar: everything in ONE line --- */
+  .topbar-auth{gap:6px;flex-shrink:0;flex-wrap:nowrap}
+  .btn-register,.btn-login{padding:6px 12px;font-size:11px;white-space:nowrap}
+  .topbar-logged{gap:5px;flex-shrink:0;flex-wrap:nowrap}
+  .topbar-notif{padding:4px}
+  .topbar-notif img{width:14px;height:14px}
+  .btn-deposit{padding:6px 12px;font-size:11px;white-space:nowrap}
+  .topbar-balance-btn{padding:5px 8px;font-size:11px}
+  .topbar-balance-refresh{padding:5px 6px}
+  .topbar-user-btn{width:28px;height:28px}
+  .topbar-user-avatar{width:24px;height:24px}
+
+  /* --- Promo strip: keep 3 in a row --- */
+  .promo-strip{grid-template-columns:repeat(3,1fr);gap:6px}
+
+  /* --- Sidebar mobile --- */
   .sidebar{
     position:fixed;left:0;top:var(--topbar-h);
     width:var(--sidebar-w);
@@ -2689,21 +2704,88 @@ body.search-lock{overflow:hidden!important}
   .sidebar.mobile-open{transform:translateX(0)}
   .sidebar.collapsed{transform:translateX(-100%)}
 
-  .main-content{padding:16px 14px}
+  /* --- Reduce side margins globally --- */
+  .main-content{padding:10px 8px}
+  .main-container{padding:0 4px}
+
   .bottom-nav{display:flex}
   body{padding-bottom:70px}
   .site-footer{margin-bottom:64px}
-  .games-grid{grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
-  .category-icons{gap:10px;justify-content:flex-start}
-  .cat-icon-circle{width:48px;height:48px}
-  .cat-icon-circle img{width:48px;height:48px}
-  .cat-icon-item span{font-size:11px}
+
+  /* --- Category icons: 5 visible per row --- */
+  .category-icons{gap:6px;justify-content:flex-start;padding:4px 0 14px}
+  .cat-icon-item{min-width:0;flex:0 0 calc(20% - 5px)}
+  .cat-icon-circle{width:44px;height:44px}
+  .cat-icon-circle img{width:44px;height:44px}
+  .cat-icon-item span{font-size:10px}
+
+  /* --- Banner: full width, hide side banners --- */
+  .banner-area{grid-template-columns:1fr;gap:0;margin-bottom:10px}
+  .banner-main{height:180px}
+  .banner-side{display:none}
+
+  /* --- Remove gap between banner and search --- */
+  .search-section{margin-bottom:14px}
+
+  /* --- Games grid: 3 per row --- */
+  .games-grid{grid-template-columns:repeat(3,1fr);gap:8px}
+
+  /* --- Estúdios: 3 per row --- */
+  .estudio-card{flex:0 0 calc(33.33% - 8px);min-width:0;height:80px}
+
+  /* --- Ganhos section compact --- */
+  .ganhos-trophy-card{flex:0 0 130px;height:80px;padding:0 10px}
+  .ganhos-trophy-img{width:40px;height:40px}
+  .ganhos-trophy-text{font-size:12px}
+  .ganho-card{flex:0 0 200px;height:80px;padding:10px}
+  .ganho-thumb{width:44px;height:44px}
+  .ganho-user{font-size:11px}
+  .ganho-amount{font-size:13px}
+  .ganhos-tabs{gap:4px;flex-wrap:wrap}
+  .ganhos-tab{padding:4px 10px;font-size:10px}
+
+  /* --- Apostas compact --- */
+  .apostas-wrapper{height:140px}
+  .aposta-row{padding:8px 10px;height:46px;gap:8px;font-size:11px}
+  .aposta-icon{width:30px;height:30px}
+  .aposta-user{font-size:11px}
+  .aposta-game{font-size:10px}
+  .aposta-bet{font-size:11px}
+  .aposta-win{font-size:12px}
+
+  /* --- Hide hamburger on mobile (menu via avatar dropdown only) --- */
+  .bars-toggle{display:none}
+
+  /* Wallet section */
+  .wallet-nav-item{padding:12px 14px;font-size:12px;min-height:44px}
+  .wallet-content{padding:16px 12px;padding-top:0}
+
+  /* Prêmios mobile */
+  .premios-card{padding:.75rem}
+  .premios-tabs-wrap{padding:.375rem;gap:.375rem}
+  .premios-tab{padding:.375rem;font-size:.7rem}
+  .premios-filters{gap:4px;margin-bottom:16px}
+  .premios-filter{padding:4px 8px;font-size:10px}
+  .premios-empty{padding:24px 12px;font-size:14px}
+
+  /* Indique mobile */
+  .indique-banner{max-height:180px}
+  .indique-desc{flex-direction:column;gap:12px;padding:14px}
+  .indique-eligible-btn{align-self:flex-start}
+  .indique-period{padding:5px 10px;font-size:10px}
+
+  /* Section headers */
+  .section-header h2{font-size:14px}
 }
 
 @media(max-width:480px){
   .tab-switch{padding:6px 8px;font-size:11px;gap:4px}
-  .btn-register,.btn-login{padding:6px 12px;font-size:12px}
-  .games-grid{grid-template-columns:repeat(auto-fill,minmax(110px,1fr))}
+  .btn-register,.btn-login{padding:5px 10px;font-size:10px}
+  .btn-deposit{padding:5px 10px;font-size:10px}
+  .topbar-balance-btn{padding:4px 6px;font-size:10px}
+  .topbar-balance-refresh{padding:4px 5px}
+  .games-grid{grid-template-columns:repeat(3,1fr);gap:6px}
+  .estudio-card{height:70px}
 }
 
 /* ===== NOTIFICATIONS ===== */
@@ -2904,54 +2986,15 @@ body.search-lock{overflow:hidden!important}
   /* Topbar polish */
   .topbar{height:56px}
   :root{--topbar-h:56px}
-  .topbar-container{padding:0 10px;gap:6px}
-  .bars-toggle{width:32px;height:32px}
-
-  /* Ganhos section — horizontal scroll */
-  .ganhos-trophy-card{flex:0 0 150px;height:90px;padding:0 12px}
-  .ganhos-trophy-img{width:46px;height:46px}
-  .ganhos-trophy-text{font-size:13px}
-  .ganho-card{flex:0 0 220px;height:90px;padding:10px}
-  .ganho-thumb{width:48px;height:48px}
-  .ganho-user{font-size:12px}
-  .ganho-amount{font-size:14px}
-  .ganhos-tabs{gap:6px;flex-wrap:wrap}
-  .ganhos-tab{padding:5px 12px;font-size:11px}
+  .topbar-container{padding:0 8px;gap:4px}
 
   /* Apostas table */
   .aposta-row{font-size:11px}
-
-  /* Wallet section — improve tap targets */
-  .wallet-nav-item{padding:12px 14px;font-size:12px;min-height:44px}
-  .wallet-content{padding:16px 12px;padding-top:0}
-
-  /* Prêmios mobile */
-  .premios-card{padding:.75rem}
-  .premios-tabs-wrap{padding:.375rem;gap:.375rem}
-  .premios-tab{padding:.375rem;font-size:.7rem}
-  .premios-filters{gap:4px;margin-bottom:16px}
-  .premios-filter{padding:4px 8px;font-size:10px}
-  .premios-empty{padding:24px 12px;font-size:14px}
-
-  /* Indique mobile */
-  .indique-banner{max-height:180px}
-  .indique-desc{flex-direction:column;gap:12px;padding:14px}
-  .indique-eligible-btn{align-self:flex-start}
-  .indique-period{padding:5px 10px;font-size:10px}
-
-  /* Section headers */
-  .section-header h2{font-size:14px}
-
-  /* Estúdios cards */
-  .estudio-card{min-width:100px}
 }
 
 /* Small phones (480px) */
 @media(max-width:480px){
-  .topbar-container{padding:0 8px;gap:4px}
-  .btn-deposit{padding:6px 14px;font-size:11px}
-  .topbar-balance-btn{padding:6px 8px;font-size:11px}
-  .topbar-balance-refresh{padding:6px 6px}
+  .topbar-container{padding:0 6px;gap:3px}
 
   /* Wallet section — stacked experience */
   .wallet-nav-item{font-size:11px;padding:10px 12px}
@@ -2959,8 +3002,8 @@ body.search-lock{overflow:hidden!important}
   .wallet-content{padding:12px 8px;padding-top:0}
 
   /* Ganhos — smaller cards */
-  .ganhos-trophy-card{flex:0 0 130px;height:80px}
-  .ganho-card{flex:0 0 200px;height:80px}
+  .ganhos-trophy-card{flex:0 0 110px;height:70px}
+  .ganho-card{flex:0 0 180px;height:70px}
 
   /* Indique mobile */
   .indique-desc{padding:12px}
@@ -2977,9 +3020,10 @@ body.search-lock{overflow:hidden!important}
 @media(max-width:375px){
   .topbar-balance{display:none}
   .topbar-logged{gap:2px}
-  .btn-deposit{padding:5px 10px;font-size:10px}
-  .logo-img{height:20px;max-width:140px}
-  .games-grid{grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px}
+  .btn-deposit{padding:4px 8px;font-size:9px}
+  .btn-register,.btn-login{padding:4px 8px;font-size:9px}
+  .logo-img{height:18px;max-width:120px}
+  .games-grid{gap:5px}
   .provider-grid{gap:6px}
   .provider-grid .game-card img{height:120px}
   .search-results-grid{grid-template-columns:repeat(2,1fr)}

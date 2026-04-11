@@ -582,6 +582,16 @@ if (sidebarOverlay) sidebarOverlay.addEventListener('click', function() {
   if (sidebarOverlay) sidebarOverlay.classList.remove('active');
 });
 
+/* Bottom nav Menu button → opens sidebar on mobile */
+var bnavMenu = document.getElementById('bnav-menu');
+if (bnavMenu) bnavMenu.addEventListener('click', function(e) {
+  e.preventDefault();
+  if (isMobile()) {
+    if (sidebar) sidebar.classList.toggle('mobile-open');
+    if (sidebarOverlay) sidebarOverlay.classList.toggle('active');
+  }
+});
+
 /* CASSINO accordion */
 if (menuToggle) menuToggle.addEventListener('click', function() {
   menuToggle.classList.toggle('collapsed');
@@ -882,7 +892,12 @@ var dropdownMenu = document.getElementById('dropdownMenu');
 if (dropdownMenu) dropdownMenu.addEventListener('click', function(e) {
   e.preventDefault();
   if (topbarDropdown) topbarDropdown.classList.remove('open');
-  if (barsToggle) barsToggle.click();
+  if (isMobile()) {
+    if (sidebar) sidebar.classList.toggle('mobile-open');
+    if (sidebarOverlay) sidebarOverlay.classList.toggle('active');
+  } else {
+    if (barsToggle) barsToggle.click();
+  }
 });
 
 // Dropdown Wallet → open wallet section with saldo sub-menu
