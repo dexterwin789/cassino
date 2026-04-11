@@ -65,7 +65,7 @@
 
 <!-- ── Modal: Novo Jogo ── -->
 <div id="gameModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);align-items:center;justify-content:center">
-  <div style="background:linear-gradient(160deg,#111827,#0d1321);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:32px;width:520px;max-width:92vw;box-shadow:0 24px 80px rgba(0,0,0,.6)">
+  <div style="background:linear-gradient(160deg,#111827,#0d1321);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:32px;width:560px;max-width:92vw;box-shadow:0 24px 80px rgba(0,0,0,.6);max-height:90vh;overflow-y:auto">
     <h4 style="margin:0 0 24px;color:#fff;font-size:18px;font-weight:700;display:flex;align-items:center;gap:10px">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--adm-green1,#10b981)" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
       Novo Jogo
@@ -84,7 +84,9 @@
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
         <div style="display:flex;flex-direction:column;gap:6px">
           <label style="font-size:11px;color:rgba(255,255,255,.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Provider</label>
-          <input id="gmProvider" placeholder="ex: PG Soft" style="height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3);color:#fff;padding:0 14px;outline:none;font-size:13px;font-weight:500;transition:border-color .2s" onfocus="this.style.borderColor='var(--adm-green1)'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
+          <select id="gmProvider" style="height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3);color:#fff;padding:0 14px;outline:none;font-size:13px;font-weight:500;transition:border-color .2s;cursor:pointer" onfocus="this.style.borderColor='var(--adm-green1)'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
+            <option value="" style="background:#1a1f2e">Carregando...</option>
+          </select>
         </div>
         <div style="display:flex;flex-direction:column;gap:6px">
           <label style="font-size:11px;color:rgba(255,255,255,.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Categoria</label>
@@ -98,9 +100,31 @@
           </select>
         </div>
       </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <label style="font-size:11px;color:rgba(255,255,255,.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Destaque</label>
+          <select id="gmFeatured" style="height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3);color:#fff;padding:0 14px;outline:none;font-size:13px;font-weight:500;transition:border-color .2s;cursor:pointer" onfocus="this.style.borderColor='var(--adm-green1)'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
+            <option value="0" style="background:#1a1f2e">Não</option>
+            <option value="1" style="background:#1a1f2e">Sim</option>
+          </select>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <label style="font-size:11px;color:rgba(255,255,255,.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Ordem</label>
+          <input id="gmSortOrder" type="number" value="0" style="height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3);color:#fff;padding:0 14px;outline:none;font-size:13px;font-weight:500;transition:border-color .2s" onfocus="this.style.borderColor='var(--adm-green1)'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
+        </div>
+      </div>
+      <!-- Drag & Drop Image Upload -->
       <div style="display:flex;flex-direction:column;gap:6px">
-        <label style="font-size:11px;color:rgba(255,255,255,.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px">URL da Imagem</label>
-        <input id="gmImageUrl" placeholder="https://..." style="height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3);color:#fff;padding:0 14px;outline:none;font-size:13px;font-weight:500;transition:border-color .2s" onfocus="this.style.borderColor='var(--adm-green1)'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
+        <label style="font-size:11px;color:rgba(255,255,255,.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Imagem do Jogo</label>
+        <div id="gmDropZone" style="border:2px dashed rgba(255,255,255,.12);border-radius:14px;padding:28px 16px;text-align:center;cursor:pointer;transition:all .25s;background:rgba(0,0,0,.2)">
+          <div id="gmPreviewArea">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="1.5" style="display:block;margin:0 auto 8px"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+            <p style="margin:0;color:rgba(255,255,255,.45);font-size:13px;font-weight:500">Clique ou arraste uma imagem</p>
+            <p style="margin:5px 0 0;color:rgba(255,255,255,.2);font-size:11px">PNG, JPG, WebP — máx. 2MB</p>
+          </div>
+          <input type="file" id="gmFileInput" accept="image/*" style="display:none;">
+        </div>
+        <input id="gmImageUrl" placeholder="ou cole uma URL de imagem..." style="height:36px;border-radius:10px;border:1px solid rgba(255,255,255,.07);background:rgba(0,0,0,.2);color:rgba(255,255,255,.6);padding:0 12px;outline:none;font-size:11px;font-weight:500;transition:border-color .2s;margin-top:4px" onfocus="this.style.borderColor='var(--adm-green1)'" onblur="this.style.borderColor='rgba(255,255,255,.07)'">
       </div>
     </div>
     <div style="display:flex;gap:10px;margin-top:24px;justify-content:flex-end">
@@ -112,24 +136,91 @@
 <script>
 (function(){
   var modal = document.getElementById('gameModal');
+  var dropZone = document.getElementById('gmDropZone');
+  var fileInput = document.getElementById('gmFileInput');
+  var previewArea = document.getElementById('gmPreviewArea');
+  var selectedFile = null;
+  var providerSelect = document.getElementById('gmProvider');
+  var defaultPreview = previewArea.innerHTML;
+
+  function esc(s) { var d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
+
+  // Load providers from PlayFivers API + DB
+  (async function loadProviders() {
+    var opts = '<option value="" style="background:#1a1f2e">-- Selecione --</option>';
+    try {
+      var [pfRes, dbRes] = await Promise.all([
+        fetch('/admin/api/playfivers/providers', { credentials: 'same-origin' }).then(r => r.json()).catch(() => ({ ok: false })),
+        fetch('/admin/api/games/providers', { credentials: 'same-origin' }).then(r => r.json()).catch(() => ({ ok: false }))
+      ]);
+      var seen = {};
+      if (pfRes.ok && pfRes.providers) {
+        pfRes.providers.forEach(function(p) {
+          var name = p.name || p;
+          var id = p.id || name;
+          if (!seen[name]) { opts += '<option value="' + esc(name) + '" style="background:#1a1f2e">' + esc(name) + '</option>'; seen[name] = true; }
+        });
+      }
+      if (dbRes.ok && dbRes.providers) {
+        dbRes.providers.forEach(function(p) {
+          if (!seen[p]) { opts += '<option value="' + esc(p) + '" style="background:#1a1f2e">' + esc(p) + '</option>'; seen[p] = true; }
+        });
+      }
+    } catch(e) {}
+    if (Object.keys(providerSelect).length === 0 || opts.indexOf('Selecione') >= 0) {
+      opts += '<option value="" style="background:#1a1f2e;color:rgba(255,255,255,.3)">Digite manualmente abaixo</option>';
+    }
+    providerSelect.innerHTML = opts;
+  })();
+
+  // Drag & drop
+  dropZone.addEventListener('click', function() { fileInput.click(); });
+  dropZone.addEventListener('dragover', function(e) { e.preventDefault(); dropZone.style.borderColor = 'var(--adm-green1)'; dropZone.style.background = 'rgba(16,185,129,.06)'; });
+  dropZone.addEventListener('dragleave', function() { dropZone.style.borderColor = 'rgba(255,255,255,.12)'; dropZone.style.background = 'rgba(0,0,0,.2)'; });
+  dropZone.addEventListener('drop', function(e) {
+    e.preventDefault(); dropZone.style.borderColor = 'rgba(255,255,255,.12)'; dropZone.style.background = 'rgba(0,0,0,.2)';
+    if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+  });
+  fileInput.addEventListener('change', function() { if (this.files[0]) handleFile(this.files[0]); });
+
+  function handleFile(f) {
+    if (f.size > 2 * 1024 * 1024) return alert('Arquivo muito grande. Máx. 2MB.');
+    selectedFile = f;
+    var url = URL.createObjectURL(f);
+    previewArea.innerHTML = '<img src="' + url + '" style="max-height:120px;max-width:100%;border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,.3)"><p style="margin:6px 0 0;color:rgba(255,255,255,.4);font-size:10px;font-weight:500">' + esc(f.name) + '</p>';
+    document.getElementById('gmImageUrl').value = '';
+  }
+
   document.getElementById('btnAddGame').addEventListener('click', function() {
-    ['gmCode','gmName','gmProvider','gmImageUrl'].forEach(function(id){ document.getElementById(id).value=''; });
+    ['gmCode','gmName','gmImageUrl'].forEach(function(id){ document.getElementById(id).value=''; });
     document.getElementById('gmCategory').value = 'slots';
+    document.getElementById('gmFeatured').value = '0';
+    document.getElementById('gmSortOrder').value = '0';
+    providerSelect.selectedIndex = 0;
+    selectedFile = null; fileInput.value = '';
+    previewArea.innerHTML = defaultPreview;
     modal.style.display = 'flex';
   });
   document.getElementById('gmCancel').addEventListener('click', function() { modal.style.display='none'; });
   modal.addEventListener('click', function(e) { if(e.target===modal) modal.style.display='none'; });
+
   document.getElementById('gmSave').addEventListener('click', async function() {
     var code = document.getElementById('gmCode').value.trim();
     var name = document.getElementById('gmName').value.trim();
     if(!code || !name) return alert('Código e nome são obrigatórios.');
     var btn = this; btn.disabled=true; btn.textContent='Salvando...';
     try {
-      var r = await fetch('/admin/api/games', {
-        method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ game_code:code, game_name:name, provider:document.getElementById('gmProvider').value.trim(), image_url:document.getElementById('gmImageUrl').value.trim(), category:document.getElementById('gmCategory').value }),
-        credentials:'same-origin'
-      });
+      var fd = new FormData();
+      fd.append('game_code', code);
+      fd.append('game_name', name);
+      fd.append('provider', providerSelect.value);
+      fd.append('category', document.getElementById('gmCategory').value);
+      if (selectedFile) {
+        fd.append('image', selectedFile);
+      } else if (document.getElementById('gmImageUrl').value.trim()) {
+        fd.append('image_url', document.getElementById('gmImageUrl').value.trim());
+      }
+      var r = await fetch('/admin/api/games', { method:'POST', body: fd, credentials:'same-origin' });
       var d = await r.json();
       if(d.ok){ modal.style.display='none'; location.reload(); }
       else alert(d.msg||'Erro');

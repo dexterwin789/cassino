@@ -204,10 +204,16 @@ router.get('/games/providers', async (req, res) => {
   }
 });
 
-router.post('/games', async (req, res) => {
+router.post('/games', upload.single('image'), async (req, res) => {
   try {
-    const { game_code, game_name, image_url, provider, category } = req.body;
+    const { game_code, game_name, provider, category } = req.body;
+    let { image_url } = req.body;
     if (!game_code || !game_name) return res.status(400).json({ ok: false, msg: 'Código e nome obrigatórios.' });
+
+    if (req.file) {
+      const b64 = req.file.buffer.toString('base64');
+      image_url = `data:${req.file.mimetype};base64,${b64}`;
+    }
 
     const r = await query(
       'INSERT INTO games (game_code, game_name, image_url, provider, category) VALUES ($1, $2, $3, $4, $5) RETURNING *',

@@ -12,7 +12,7 @@
     </div>
     <div class="adm-setting-card">
       <label>Depósito Mín. p/ Comissão (R$)</label>
-      <input type="number" id="affMinDeposit" value="<%= (typeof affSettings !== 'undefined' && affSettings.aff_min_deposit) || '20' %>" min="0" step="1">
+      <input type="text" id="affMinDeposit" class="brl-mask-reais" value="" data-initial="<%= (typeof affSettings !== 'undefined' && affSettings.aff_min_deposit) || '20' %>" min="0">
     </div>
     <div class="adm-setting-card">
       <label>Cookie (dias)</label>
@@ -27,7 +27,7 @@
     </div>
     <div class="adm-setting-card">
       <label>Bônus por Indicação (R$)</label>
-      <input type="number" id="affReferralBonus" value="<%= (typeof affSettings !== 'undefined' && affSettings.aff_referral_bonus) || '50' %>" min="0" step="1">
+      <input type="text" id="affReferralBonus" class="brl-mask-reais" value="" data-initial="<%= (typeof affSettings !== 'undefined' && affSettings.aff_referral_bonus) || '50' %>" min="0">
     </div>
     <div class="adm-setting-card">
       <label>Máx. Afiliados</label>
@@ -35,7 +35,7 @@
     </div>
     <div class="adm-setting-card">
       <label>Saque Mínimo (R$)</label>
-      <input type="number" id="affMinWithdrawal" value="<%= (typeof affSettings !== 'undefined' && affSettings.aff_min_withdrawal) || '50' %>" min="0" step="1">
+      <input type="text" id="affMinWithdrawal" class="brl-mask-reais" value="" data-initial="<%= (typeof affSettings !== 'undefined' && affSettings.aff_min_withdrawal) || '50' %>" min="0">
     </div>
   </div>
   <button class="adm-btn primary" id="btnSaveAffSettings" style="margin-top:16px;">Salvar Configurações</button>
@@ -70,6 +70,30 @@
 
 <script src="/public/js/admin.js" defer></script>
 <script>
+// BRL mask for fields that store in REAIS (not centavos)
+function brlMaskReais(input) {
+  input.addEventListener('input', function() {
+    var v = this.value.replace(/\D/g, '');
+    if (!v) { this.value = ''; return; }
+    v = (parseInt(v, 10) / 100).toFixed(2);
+    this.value = 'R$ ' + v.replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  });
+}
+function parseReais(str) {
+  if (!str) return 0;
+  var n = str.replace(/[R$\s.]/g, '').replace(',', '.');
+  return parseFloat(n || 0);
+}
+function formatReais(val) {
+  var n = parseFloat(val || 0);
+  return 'R$ ' + n.toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+}
+// Init masks and set initial values
+document.querySelectorAll('.brl-mask-reais').forEach(function(el) {
+  brlMaskReais(el);
+  if (el.dataset.initial) el.value = formatReais(el.dataset.initial);
+});
+
 document.getElementById('btnSaveAffSettings')?.addEventListener('click', async function() {
   var btn = this; btn.disabled = true; btn.textContent = 'Salvando...';
   try {
@@ -79,12 +103,12 @@ document.getElementById('btnSaveAffSettings')?.addEventListener('click', async f
       body: JSON.stringify({
         settings: {
           aff_default_commission: document.getElementById('affDefaultCommission').value,
-          aff_min_deposit: document.getElementById('affMinDeposit').value,
+          aff_min_deposit: parseReais(document.getElementById('affMinDeposit').value),
           aff_cookie_days: document.getElementById('affCookieDays').value,
           aff_auto_approve: document.getElementById('affAutoApprove').value,
-          aff_referral_bonus: document.getElementById('affReferralBonus').value,
+          aff_referral_bonus: parseReais(document.getElementById('affReferralBonus').value),
           aff_max_affiliates: document.getElementById('affMaxAffiliates').value,
-          aff_min_withdrawal: document.getElementById('affMinWithdrawal').value
+          aff_min_withdrawal: parseReais(document.getElementById('affMinWithdrawal').value)
         }
       }),
       credentials: 'same-origin'

@@ -57,19 +57,19 @@
           <input id="prCode" placeholder="ex: WELCOME50" style="height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3);color:#fff;padding:0 14px;outline:none;font-size:13px;font-weight:500;transition:border-color .2s;text-transform:uppercase" onfocus="this.style.borderColor='var(--adm-green1)'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
         </div>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
         <div style="display:flex;flex-direction:column;gap:6px">
-          <label style="font-size:11px;color:rgba(255,255,255,.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Valor (centavos)</label>
-          <input id="prValueCents" type="number" placeholder="1000 = R$10" value="0" style="height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3);color:#fff;padding:0 14px;outline:none;font-size:13px;font-weight:500;transition:border-color .2s" onfocus="this.style.borderColor='var(--adm-green1)'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
+          <label style="font-size:11px;color:rgba(255,255,255,.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Valor (R$)</label>
+          <input id="prValue" class="brl-mask" placeholder="R$ 0,00" style="height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3);color:#fff;padding:0 14px;outline:none;font-size:13px;font-weight:500;transition:border-color .2s" onfocus="this.style.borderColor='var(--adm-green1)'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
         </div>
         <div style="display:flex;flex-direction:column;gap:6px">
           <label style="font-size:11px;color:rgba(255,255,255,.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Percentual (%)</label>
           <input id="prValuePct" type="number" placeholder="50 = 50%" value="0" style="height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3);color:#fff;padding:0 14px;outline:none;font-size:13px;font-weight:500;transition:border-color .2s" onfocus="this.style.borderColor='var(--adm-green1)'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
         </div>
-        <div style="display:flex;flex-direction:column;gap:6px">
-          <label style="font-size:11px;color:rgba(255,255,255,.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Máx. Usos</label>
-          <input id="prMaxUses" type="number" placeholder="0 = ilimitado" value="0" style="height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3);color:#fff;padding:0 14px;outline:none;font-size:13px;font-weight:500;transition:border-color .2s" onfocus="this.style.borderColor='var(--adm-green1)'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
-        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;max-width:200px">
+        <label style="font-size:11px;color:rgba(255,255,255,.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Máx. Usos</label>
+        <input id="prMaxUses" type="number" placeholder="0 = ilimitado" value="0" style="height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3);color:#fff;padding:0 14px;outline:none;font-size:13px;font-weight:500;transition:border-color .2s" onfocus="this.style.borderColor='var(--adm-green1)'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
       </div>
     </div>
     <div style="display:flex;gap:10px;margin-top:24px;justify-content:flex-end">
@@ -79,12 +79,27 @@
   </div>
 </div>
 <script>
+function brlMask(input) {
+  input.addEventListener('input', function() {
+    var v = this.value.replace(/\D/g, '');
+    if (!v) { this.value = ''; return; }
+    v = (parseInt(v, 10) / 100).toFixed(2);
+    this.value = 'R$ ' + v.replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  });
+}
+function parseBRL(str) {
+  if (!str) return 0;
+  var n = str.replace(/[R$\s.]/g, '').replace(',', '.');
+  return Math.round(parseFloat(n || 0) * 100);
+}
+document.querySelectorAll('.brl-mask').forEach(brlMask);
+
 (function(){
   var modal = document.getElementById('promoModal');
   document.getElementById('btnAddPromo').addEventListener('click', function() {
     ['prTitle','prCode'].forEach(function(id){ document.getElementById(id).value=''; });
     document.getElementById('prType').value='bonus';
-    document.getElementById('prValueCents').value='0';
+    document.getElementById('prValue').value='';
     document.getElementById('prValuePct').value='0';
     document.getElementById('prMaxUses').value='0';
     modal.style.display='flex';
@@ -99,7 +114,7 @@
       var code = document.getElementById('prCode').value.trim();
       var r = await fetch('/admin/api/promotions', {
         method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ title:title, type:document.getElementById('prType').value, code:code||undefined, value_cents:document.getElementById('prValueCents').value, value_pct:document.getElementById('prValuePct').value, max_uses:document.getElementById('prMaxUses').value }),
+        body: JSON.stringify({ title:title, type:document.getElementById('prType').value, code:code||undefined, value_cents:parseBRL(document.getElementById('prValue').value), value_pct:document.getElementById('prValuePct').value, max_uses:document.getElementById('prMaxUses').value }),
         credentials:'same-origin'
       });
       var d = await r.json();

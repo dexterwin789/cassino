@@ -102,14 +102,72 @@
       card.addEventListener('click', async (e) => {
         const btn = e.target.closest('.btn-balance-user');
         if (!btn) return;
-        const amount = prompt('Ajuste de saldo em centavos (positivo=crédito, negativo=débito):');
-        if (!amount) return;
-        const reason = prompt('Motivo do ajuste:') || '';
-        await fetch(`/admin/api/users/${btn.dataset.id}/balance`, {
-          method: 'POST', headers: {'Content-Type':'application/json'},
-          body: JSON.stringify({ amount_cents: parseInt(amount), reason }), credentials: 'same-origin'
+        const userId = btn.dataset.id;
+        // Create modal if not exists
+        let bm = document.getElementById('balanceModal');
+        if (!bm) {
+          bm = document.createElement('div');
+          bm.id = 'balanceModal';
+          bm.style.cssText = 'display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);align-items:center;justify-content:center';
+          bm.innerHTML = '<div style="background:linear-gradient(160deg,#111827,#0d1321);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:32px;width:440px;max-width:92vw;box-shadow:0 24px 80px rgba(0,0,0,.6)">'
+            + '<h4 style="margin:0 0 24px;color:#fff;font-size:18px;font-weight:700;display:flex;align-items:center;gap:10px">'
+            + '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>'
+            + 'Ajuste de Saldo</h4>'
+            + '<div style="display:flex;flex-direction:column;gap:16px">'
+            + '<div style="display:flex;flex-direction:column;gap:6px">'
+            + '<label style="font-size:11px;color:rgba(255,255,255,.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Valor (R$) — negativo = débito</label>'
+            + '<div style="display:flex;align-items:center;gap:8px">'
+            + '<select id="balSign" style="height:42px;width:70px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3);color:#fff;padding:0 8px;outline:none;font-size:15px;font-weight:700;cursor:pointer"><option value="+" style="background:#1a1f2e">+</option><option value="-" style="background:#1a1f2e">−</option></select>'
+            + '<input id="balAmount" class="brl-mask" placeholder="R$ 0,00" style="height:42px;flex:1;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3);color:#fff;padding:0 14px;outline:none;font-size:13px;font-weight:500;transition:border-color .2s">'
+            + '</div></div>'
+            + '<div style="display:flex;flex-direction:column;gap:6px">'
+            + '<label style="font-size:11px;color:rgba(255,255,255,.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Motivo</label>'
+            + '<input id="balReason" placeholder="Motivo do ajuste..." style="height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3);color:#fff;padding:0 14px;outline:none;font-size:13px;font-weight:500;transition:border-color .2s">'
+            + '</div></div>'
+            + '<div style="display:flex;gap:10px;margin-top:24px;justify-content:flex-end">'
+            + '<button class="adm-btn" id="balCancel" style="padding:10px 20px;border-radius:10px">Cancelar</button>'
+            + '<button class="adm-btn primary" id="balSave" style="padding:10px 24px;border-radius:10px;font-weight:700">Aplicar Ajuste</button>'
+            + '</div></div>';
+          document.body.appendChild(bm);
+          // BRL mask on the amount input
+          var balInput = document.getElementById('balAmount');
+          balInput.addEventListener('input', function() {
+            var v = this.value.replace(/\D/g, '');
+            if (!v) { this.value = ''; return; }
+            v = (parseInt(v, 10) / 100).toFixed(2);
+            this.value = 'R$ ' + v.replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+          });
+          document.getElementById('balCancel').addEventListener('click', () => bm.style.display = 'none');
+          bm.addEventListener('click', ev => { if (ev.target === bm) bm.style.display = 'none'; });
+        }
+        // Reset and show
+        document.getElementById('balAmount').value = '';
+        document.getElementById('balReason').value = '';
+        document.getElementById('balSign').value = '+';
+        bm.style.display = 'flex';
+        bm.dataset.userId = userId;
+        // Save handler (replace each time to capture correct userId)
+        var saveBtn = document.getElementById('balSave');
+        var newSave = saveBtn.cloneNode(true);
+        saveBtn.parentNode.replaceChild(newSave, saveBtn);
+        newSave.addEventListener('click', async () => {
+          var raw = document.getElementById('balAmount').value;
+          if (!raw) return;
+          var cents = 0;
+          var n = raw.replace(/[R$\s.]/g, '').replace(',', '.');
+          cents = Math.round(parseFloat(n || 0) * 100);
+          if (document.getElementById('balSign').value === '-') cents = -cents;
+          if (!cents) return alert('Valor inválido.');
+          var reason = document.getElementById('balReason').value || '';
+          newSave.disabled = true; newSave.textContent = 'Aplicando...';
+          await fetch(`/admin/api/users/${bm.dataset.userId}/balance`, {
+            method: 'POST', headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({ amount_cents: cents, reason }), credentials: 'same-origin'
+          });
+          bm.style.display = 'none';
+          newSave.disabled = false; newSave.textContent = 'Aplicar Ajuste';
+          load();
         });
-        load();
       });
       card.addEventListener('click', async (e) => {
         const btn = e.target.closest('.btn-block-user');

@@ -34,25 +34,102 @@
 </div>
 
 <!-- Override limit modal -->
-<div id="limitModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:999;background:rgba(0,0,0,.7);place-items:center;">
-  <div style="background:var(--adm-card);border:1px solid var(--adm-line);border-radius:var(--adm-radius);padding:24px;max-width:440px;width:90%;">
-    <h3 style="margin:0 0 16px;font-weight:900;">Impor Limite ao Usuário</h3>
-    <div class="adm-field" style="margin-bottom:12px"><label>User ID</label><input type="number" id="limUserId" /></div>
-    <div class="adm-field" style="margin-bottom:12px"><label>Tipo</label><select id="limType"><option value="deposit">Depósito</option><option value="bet">Aposta</option><option value="loss">Perda</option><option value="time">Tempo de sessão</option></select></div>
-    <div class="adm-field" style="margin-bottom:12px"><label>Período</label><select id="limPeriod"><option value="daily">Diário</option><option value="weekly">Semanal</option><option value="monthly">Mensal</option></select></div>
-    <div class="adm-field" style="margin-bottom:12px"><label>Valor (centavos ou minutos)</label><input type="number" id="limValue" /></div>
-    <div class="adm-field" style="margin-bottom:16px"><label>Observação</label><input type="text" id="limNotes" placeholder="Motivo da imposição..." /></div>
-    <div style="display:flex;gap:8px;justify-content:flex-end;">
-      <button class="adm-btn" id="limCancel">Cancelar</button>
-      <button class="adm-btn primary" id="limSave">Salvar Limite</button>
+<div id="limitModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);align-items:center;justify-content:center">
+  <div style="background:linear-gradient(160deg,#111827,#0d1321);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:32px;width:480px;max-width:92vw;box-shadow:0 24px 80px rgba(0,0,0,.6)">
+    <h4 style="margin:0 0 24px;color:#fff;font-size:18px;font-weight:700;display:flex;align-items:center;gap:10px">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--adm-green1,#10b981)" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      Impor Limite ao Usuário
+    </h4>
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <label style="font-size:11px;color:rgba(255,255,255,.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px">User ID *</label>
+        <input type="number" id="limUserId" placeholder="ID do usuário" style="height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3);color:#fff;padding:0 14px;outline:none;font-size:13px;font-weight:500;transition:border-color .2s" onfocus="this.style.borderColor='var(--adm-green1)'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <label style="font-size:11px;color:rgba(255,255,255,.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Tipo</label>
+          <select id="limType" style="height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3);color:#fff;padding:0 14px;outline:none;font-size:13px;font-weight:500;transition:border-color .2s;cursor:pointer" onfocus="this.style.borderColor='var(--adm-green1)'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
+            <option value="deposit" style="background:#1a1f2e">Depósito</option>
+            <option value="bet" style="background:#1a1f2e">Aposta</option>
+            <option value="loss" style="background:#1a1f2e">Perda</option>
+            <option value="time" style="background:#1a1f2e">Tempo de sessão</option>
+          </select>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <label style="font-size:11px;color:rgba(255,255,255,.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Período</label>
+          <select id="limPeriod" style="height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3);color:#fff;padding:0 14px;outline:none;font-size:13px;font-weight:500;transition:border-color .2s;cursor:pointer" onfocus="this.style.borderColor='var(--adm-green1)'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
+            <option value="daily" style="background:#1a1f2e">Diário</option>
+            <option value="weekly" style="background:#1a1f2e">Semanal</option>
+            <option value="monthly" style="background:#1a1f2e">Mensal</option>
+          </select>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <label id="limValueLabel" style="font-size:11px;color:rgba(255,255,255,.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Valor (R$)</label>
+        <input id="limValue" class="brl-mask" placeholder="R$ 0,00" style="height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3);color:#fff;padding:0 14px;outline:none;font-size:13px;font-weight:500;transition:border-color .2s" onfocus="this.style.borderColor='var(--adm-green1)'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <label style="font-size:11px;color:rgba(255,255,255,.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Observação</label>
+        <input type="text" id="limNotes" placeholder="Motivo da imposição..." style="height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3);color:#fff;padding:0 14px;outline:none;font-size:13px;font-weight:500;transition:border-color .2s" onfocus="this.style.borderColor='var(--adm-green1)'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:24px;justify-content:flex-end">
+      <button class="adm-btn" id="limCancel" style="padding:10px 20px;border-radius:10px">Cancelar</button>
+      <button class="adm-btn primary" id="limSave" style="padding:10px 24px;border-radius:10px;font-weight:700">Salvar Limite</button>
     </div>
   </div>
 </div>
 
 <script src="/public/js/admin.js" defer></script>
 <script>
+function brlMask(input) {
+  input.addEventListener('input', function() {
+    var v = this.value.replace(/\D/g, '');
+    if (!v) { this.value = ''; return; }
+    v = (parseInt(v, 10) / 100).toFixed(2);
+    this.value = 'R$ ' + v.replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  });
+}
+function parseBRL(str) {
+  if (!str) return 0;
+  var n = str.replace(/[R$\s.]/g, '').replace(',', '.');
+  return Math.round(parseFloat(n || 0) * 100);
+}
+document.querySelectorAll('.brl-mask').forEach(brlMask);
+
 document.addEventListener('DOMContentLoaded', () => {
   const modal = document.getElementById('limitModal');
+  const limType = document.getElementById('limType');
+  const limValue = document.getElementById('limValue');
+  const limValueLabel = document.getElementById('limValueLabel');
+  var isBrl = true;
+
+  function toggleValueMode() {
+    var isTime = limType.value === 'time';
+    limValue.value = '';
+    if (isTime) {
+      limValueLabel.textContent = 'VALOR (MINUTOS)';
+      limValue.placeholder = 'ex: 60';
+      limValue.classList.remove('brl-mask');
+      limValue.type = 'number';
+      limValue.removeEventListener('input', limValue._brlHandler);
+      isBrl = false;
+    } else {
+      limValueLabel.textContent = 'VALOR (R$)';
+      limValue.placeholder = 'R$ 0,00';
+      limValue.classList.add('brl-mask');
+      limValue.type = 'text';
+      limValue._brlHandler = function() {
+        var v = limValue.value.replace(/\D/g, '');
+        if (!v) { limValue.value = ''; return; }
+        v = (parseInt(v, 10) / 100).toFixed(2);
+        limValue.value = 'R$ ' + v.replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+      };
+      limValue.addEventListener('input', limValue._brlHandler);
+      isBrl = true;
+    }
+  }
+  limType.addEventListener('change', toggleValueMode);
 
   document.querySelector('.adm-page-head')?.insertAdjacentHTML('beforeend',
     '<button class="adm-btn primary" id="btnAddLimit" style="margin-left:auto"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Impor Limite</button>'
@@ -60,19 +137,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.addEventListener('click', e => {
     if (e.target.closest('#btnAddLimit')) {
-      modal.style.display = 'grid';
+      ['limUserId','limValue','limNotes'].forEach(id => document.getElementById(id).value = '');
+      limType.value = 'deposit';
+      document.getElementById('limPeriod').value = 'daily';
+      toggleValueMode();
+      modal.style.display = 'flex';
     }
-    if (e.target.closest('#limCancel')) {
+    if (e.target.closest('#limCancel') || (e.target === modal)) {
       modal.style.display = 'none';
     }
   });
 
   document.getElementById('limSave')?.addEventListener('click', async () => {
+    var limitVal = isBrl ? parseBRL(limValue.value) : parseInt(limValue.value || 0);
     const body = {
       user_id: document.getElementById('limUserId').value,
-      limit_type: document.getElementById('limType').value,
+      limit_type: limType.value,
       period: document.getElementById('limPeriod').value,
-      limit_value: document.getElementById('limValue').value,
+      limit_value: limitVal,
       admin_notes: document.getElementById('limNotes').value
     };
     const r = await fetch('/admin/api/limits', {
