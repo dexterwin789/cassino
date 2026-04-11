@@ -27,23 +27,27 @@
   </div>
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:16px;">
     <% for (let i = 1; i <= 2; i++) { %>
-    <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:20px;text-align:center;">
-      <label style="font-weight:600;display:block;margin-bottom:10px;color:var(--adm-text)">Banner Lateral <%= i %></label>
-      <div id="previewSide<%= i %>" style="min-height:100px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;background:rgba(0,0,0,.25);border-radius:8px;padding:8px;">
-        <% const sideKey = 'side_banner_' + i; %>
+    <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:20px;text-align:center;position:relative;">
+      <label style="font-weight:700;display:block;margin-bottom:12px;color:var(--adm-text);font-size:14px">Banner Lateral <%= i %></label>
+      <div class="sideDropZone" data-idx="<%= i %>" style="border:2px dashed rgba(255,255,255,.12);border-radius:12px;padding:24px 12px;text-align:center;cursor:pointer;transition:all .25s;background:rgba(0,0,0,.2);min-height:120px;display:flex;align-items:center;justify-content:center;flex-direction:column;margin-bottom:12px;position:relative;">
+        <div id="previewSide<%= i %>">
+          <% const sideKey = 'side_banner_' + i; %>
+          <% if (settings[sideKey]) { %>
+            <img src="<%= settings[sideKey] %>" style="max-height:120px;max-width:100%;border-radius:8px;box-shadow:0 4px 20px rgba(0,0,0,.3)">
+          <% } else { %>
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.15)" stroke-width="1.5" style="display:block;margin:0 auto 8px"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+            <p style="margin:0;color:rgba(255,255,255,.4);font-size:13px;font-weight:500">Clique ou arraste</p>
+            <p style="margin:4px 0 0;color:rgba(255,255,255,.18);font-size:10px">PNG, JPG, WebP</p>
+          <% } %>
+        </div>
+        <input type="file" class="sideBannerFile" data-idx="<%= i %>" accept="image/*" style="display:none;">
         <% if (settings[sideKey]) { %>
-          <img src="<%= settings[sideKey] %>" style="max-height:120px;max-width:100%;border-radius:6px;">
-        <% } else { %>
-          <span class="adm-muted" style="font-size:13px;">Nenhum banner</span>
+        <button type="button" class="btnDeleteSide" data-idx="<%= i %>" style="position:absolute;top:8px;right:8px;width:28px;height:28px;border-radius:50%;border:1px solid rgba(255,77,77,.3);background:rgba(255,77,77,.12);color:#ff4d4d;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;font-size:14px;line-height:1" title="Remover banner">&times;</button>
         <% } %>
       </div>
-      <div style="display:flex;gap:8px;justify-content:center;">
-        <label class="adm-btn" style="cursor:pointer;display:inline-flex;align-items:center;gap:4px;">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
-          Upload
-          <input type="file" class="sideBannerFile" data-idx="<%= i %>" accept="image/*" style="display:none;">
-        </label>
-        <input type="text" class="sideBannerLink" data-idx="<%= i %>" placeholder="Link (opcional)" value="<%= settings['side_banner_' + i + '_link'] || '' %>" style="flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:6px 10px;color:var(--adm-text);font-size:12px;">
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <label style="font-size:11px;color:rgba(255,255,255,.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px;text-align:left">Link (opcional)</label>
+        <input type="text" class="sideBannerLink" data-idx="<%= i %>" placeholder="https://..." value="<%= settings['side_banner_' + i + '_link'] || '' %>" style="height:38px;border-radius:10px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3);color:#fff;padding:0 12px;outline:none;font-size:12px;font-weight:500;transition:border-color .2s" onfocus="this.style.borderColor='var(--adm-green1)'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
       </div>
     </div>
     <% } %>
@@ -58,21 +62,24 @@
   </div>
   <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-top:16px;">
     <% for (let i = 1; i <= 3; i++) { %>
-    <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:16px;text-align:center;">
-      <label style="font-weight:600;display:block;margin-bottom:10px;color:var(--adm-text);font-size:13px;">Promo <%= i %></label>
-      <div id="previewPromo<%= i %>" style="min-height:70px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;background:rgba(0,0,0,.25);border-radius:8px;padding:6px;">
-        <% const promoKey = 'promo_banner_' + i; %>
+    <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:16px;text-align:center;position:relative;">
+      <label style="font-weight:700;display:block;margin-bottom:10px;color:var(--adm-text);font-size:13px;">Promo <%= i %></label>
+      <div class="promoDropZone" data-idx="<%= i %>" style="border:2px dashed rgba(255,255,255,.12);border-radius:12px;padding:20px 10px;text-align:center;cursor:pointer;transition:all .25s;background:rgba(0,0,0,.2);min-height:90px;display:flex;align-items:center;justify-content:center;flex-direction:column;margin-bottom:10px;position:relative;">
+        <div id="previewPromo<%= i %>">
+          <% const promoKey = 'promo_banner_' + i; %>
+          <% if (settings[promoKey]) { %>
+            <img src="<%= settings[promoKey] %>" style="max-height:80px;max-width:100%;border-radius:8px;box-shadow:0 4px 20px rgba(0,0,0,.3)">
+          <% } else { %>
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.15)" stroke-width="1.5" style="display:block;margin:0 auto 6px"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+            <p style="margin:0;color:rgba(255,255,255,.4);font-size:12px;font-weight:500">Clique ou arraste</p>
+            <p style="margin:3px 0 0;color:rgba(255,255,255,.18);font-size:10px">PNG, JPG, WebP</p>
+          <% } %>
+        </div>
+        <input type="file" class="promoBannerFile" data-idx="<%= i %>" accept="image/*" style="display:none;">
         <% if (settings[promoKey]) { %>
-          <img src="<%= settings[promoKey] %>" style="max-height:80px;max-width:100%;border-radius:6px;">
-        <% } else { %>
-          <span class="adm-muted" style="font-size:12px;">Nenhum</span>
+        <button type="button" class="btnDeletePromo" data-idx="<%= i %>" style="position:absolute;top:6px;right:6px;width:26px;height:26px;border-radius:50%;border:1px solid rgba(255,77,77,.3);background:rgba(255,77,77,.12);color:#ff4d4d;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;font-size:13px;line-height:1" title="Remover banner">&times;</button>
         <% } %>
       </div>
-      <label class="adm-btn" style="cursor:pointer;display:inline-flex;align-items:center;gap:4px;font-size:12px;">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
-        Upload
-        <input type="file" class="promoBannerFile" data-idx="<%= i %>" accept="image/*" style="display:none;">
-      </label>
     </div>
     <% } %>
   </div>
@@ -173,21 +180,60 @@
     btn.disabled = false; btn.textContent = 'Salvar';
   });
 
-  // ── Side Banners ──
-  document.querySelectorAll('.sideBannerFile').forEach(function(inp) {
-    inp.addEventListener('change', function() {
-      var idx = this.dataset.idx;
-      if (this.files[0]) {
-        var url = URL.createObjectURL(this.files[0]);
-        document.getElementById('previewSide' + idx).innerHTML = '<img src="' + url + '" style="max-height:120px;max-width:100%;border-radius:6px;">';
-      }
+  // ── Side Banners (drag-and-drop + delete) ──
+  var sideDeleteFlags = {};
+  function initDropZone(zone, fileInput, previewId, type) {
+    zone.addEventListener('click', function(e) { if (!e.target.closest('.btnDeleteSide,.btnDeletePromo')) fileInput.click(); });
+    zone.addEventListener('dragover', function(e) { e.preventDefault(); zone.style.borderColor = 'var(--adm-green1)'; zone.style.background = 'rgba(16,185,129,.06)'; });
+    zone.addEventListener('dragleave', function() { zone.style.borderColor = 'rgba(255,255,255,.12)'; zone.style.background = 'rgba(0,0,0,.2)'; });
+    zone.addEventListener('drop', function(e) {
+      e.preventDefault();
+      zone.style.borderColor = 'rgba(255,255,255,.12)'; zone.style.background = 'rgba(0,0,0,.2)';
+      if (e.dataTransfer.files[0]) { fileInput.files = e.dataTransfer.files; showPreview(fileInput.files[0], previewId, type, zone); }
     });
+    fileInput.addEventListener('change', function() { if (this.files[0]) showPreview(this.files[0], previewId, type, zone); });
+  }
+  function showPreview(f, previewId, type, zone) {
+    if (f.size > 2*1024*1024) return alert('Arquivo muito grande. Máx. 2MB.');
+    var url = URL.createObjectURL(f);
+    var h = type === 'promo' ? 80 : 120;
+    document.getElementById(previewId).innerHTML = '<img src="'+url+'" style="max-height:'+h+'px;max-width:100%;border-radius:8px;box-shadow:0 4px 20px rgba(0,0,0,.3)"><p style="margin:6px 0 0;color:rgba(255,255,255,.4);font-size:10px;font-weight:500">'+esc(f.name)+'</p>';
+    var existing = zone.querySelector('.btnDeleteSide,.btnDeletePromo');
+    if (!existing) {
+      var cls = type === 'promo' ? 'btnDeletePromo' : 'btnDeleteSide';
+      var sz = type === 'promo' ? 26 : 28;
+      zone.insertAdjacentHTML('beforeend', '<button type="button" class="'+cls+'" data-idx="'+zone.dataset.idx+'" style="position:absolute;top:'+(type==='promo'?6:8)+'px;right:'+(type==='promo'?6:8)+'px;width:'+sz+'px;height:'+sz+'px;border-radius:50%;border:1px solid rgba(255,77,77,.3);background:rgba(255,77,77,.12);color:#ff4d4d;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;font-size:'+(type==='promo'?13:14)+'px;line-height:1" title="Remover banner">&times;</button>');
+    }
+  }
+
+  document.querySelectorAll('.sideDropZone').forEach(function(zone) {
+    var idx = zone.dataset.idx;
+    var fileInput = zone.querySelector('.sideBannerFile');
+    initDropZone(zone, fileInput, 'previewSide' + idx, 'side');
+  });
+
+  document.addEventListener('click', function(e) {
+    var btn = e.target.closest('.btnDeleteSide');
+    if (btn) {
+      e.stopPropagation();
+      var idx = btn.dataset.idx;
+      sideDeleteFlags[idx] = true;
+      document.getElementById('previewSide' + idx).innerHTML = '<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.15)" stroke-width="1.5" style="display:block;margin:0 auto 8px"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg><p style="margin:0;color:rgba(255,77,77,.5);font-size:12px;font-weight:600">Removido</p><p style="margin:3px 0 0;color:rgba(255,255,255,.18);font-size:10px">Salve para confirmar</p>';
+      var fileInput = document.querySelector('.sideBannerFile[data-idx="' + idx + '"]');
+      fileInput.value = '';
+      btn.remove();
+    }
   });
 
   document.getElementById('btnSaveSideBanners').addEventListener('click', async function() {
     var btn = this; btn.disabled = true; btn.textContent = 'Salvando...';
     try {
       for (var i = 1; i <= 2; i++) {
+        if (sideDeleteFlags[i]) {
+          await fetch('/admin/api/settings', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key: 'side_banner_' + i, value: '' }), credentials: 'same-origin' });
+          await fetch('/admin/api/settings', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key: 'side_banner_' + i + '_link', value: '' }), credentials: 'same-origin' });
+          continue;
+        }
         var fileEl = document.querySelector('.sideBannerFile[data-idx="' + i + '"]');
         var linkEl = document.querySelector('.sideBannerLink[data-idx="' + i + '"]');
         if (fileEl.files[0]) {
@@ -200,26 +246,41 @@
           await fetch('/admin/api/settings', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key: 'side_banner_' + i + '_link', value: linkEl.value }), credentials: 'same-origin' });
         }
       }
-      alert('Banners laterais salvos!'); location.reload();
+      location.reload();
     } catch { alert('Erro de rede.'); }
     btn.disabled = false; btn.textContent = 'Salvar Banners Laterais';
   });
 
-  // ── Promo Banners ──
-  document.querySelectorAll('.promoBannerFile').forEach(function(inp) {
-    inp.addEventListener('change', function() {
-      var idx = this.dataset.idx;
-      if (this.files[0]) {
-        var url = URL.createObjectURL(this.files[0]);
-        document.getElementById('previewPromo' + idx).innerHTML = '<img src="' + url + '" style="max-height:80px;max-width:100%;border-radius:6px;">';
-      }
-    });
+  // ── Promo Banners (drag-and-drop + delete) ──
+  var promoDeleteFlags = {};
+
+  document.querySelectorAll('.promoDropZone').forEach(function(zone) {
+    var idx = zone.dataset.idx;
+    var fileInput = zone.querySelector('.promoBannerFile');
+    initDropZone(zone, fileInput, 'previewPromo' + idx, 'promo');
+  });
+
+  document.addEventListener('click', function(e) {
+    var btn = e.target.closest('.btnDeletePromo');
+    if (btn) {
+      e.stopPropagation();
+      var idx = btn.dataset.idx;
+      promoDeleteFlags[idx] = true;
+      document.getElementById('previewPromo' + idx).innerHTML = '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.15)" stroke-width="1.5" style="display:block;margin:0 auto 6px"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg><p style="margin:0;color:rgba(255,77,77,.5);font-size:11px;font-weight:600">Removido</p><p style="margin:3px 0 0;color:rgba(255,255,255,.18);font-size:10px">Salve para confirmar</p>';
+      var fileInput = document.querySelector('.promoBannerFile[data-idx="' + idx + '"]');
+      fileInput.value = '';
+      btn.remove();
+    }
   });
 
   document.getElementById('btnSavePromoBanners').addEventListener('click', async function() {
     var btn = this; btn.disabled = true; btn.textContent = 'Salvando...';
     try {
       for (var i = 1; i <= 3; i++) {
+        if (promoDeleteFlags[i]) {
+          await fetch('/admin/api/settings', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key: 'promo_banner_' + i, value: '' }), credentials: 'same-origin' });
+          continue;
+        }
         var fileEl = document.querySelector('.promoBannerFile[data-idx="' + i + '"]');
         if (fileEl.files[0]) {
           var fd = new FormData();
@@ -228,7 +289,7 @@
           await fetch('/admin/api/settings/banner-upload', { method: 'POST', body: fd, credentials: 'same-origin' });
         }
       }
-      alert('Banners promo salvos!'); location.reload();
+      location.reload();
     } catch { alert('Erro de rede.'); }
     btn.disabled = false; btn.textContent = 'Salvar Banners Promo';
   });

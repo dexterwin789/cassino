@@ -41,4 +41,80 @@
 </div>
 
 <script src="/public/js/admin.js" defer></script>
+
+<!-- ── Modal: Nova Notificação ── -->
+<div id="notifModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);align-items:center;justify-content:center">
+  <div style="background:linear-gradient(160deg,#111827,#0d1321);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:32px;width:520px;max-width:92vw;box-shadow:0 24px 80px rgba(0,0,0,.6)">
+    <h4 style="margin:0 0 24px;color:#fff;font-size:18px;font-weight:700;display:flex;align-items:center;gap:10px">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--adm-green1,#10b981)" stroke-width="2"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+      Nova Notificação
+    </h4>
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <label style="font-size:11px;color:rgba(255,255,255,.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Título *</label>
+        <input id="ntTitle" placeholder="ex: Bônus especial ativado!" style="height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3);color:#fff;padding:0 14px;outline:none;font-size:13px;font-weight:500;transition:border-color .2s" onfocus="this.style.borderColor='var(--adm-green1)'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <label style="font-size:11px;color:rgba(255,255,255,.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Mensagem</label>
+        <textarea id="ntMessage" rows="3" placeholder="Conteúdo da notificação..." style="border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3);color:#fff;padding:12px 14px;outline:none;font-size:13px;font-weight:500;transition:border-color .2s;resize:vertical;font-family:inherit" onfocus="this.style.borderColor='var(--adm-green1)'" onblur="this.style.borderColor='rgba(255,255,255,.1)'"></textarea>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <label style="font-size:11px;color:rgba(255,255,255,.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Tipo</label>
+          <select id="ntType" style="height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3);color:#fff;padding:0 14px;outline:none;font-size:13px;font-weight:500;transition:border-color .2s;cursor:pointer" onfocus="this.style.borderColor='var(--adm-green1)'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
+            <option value="info" style="background:#1a1f2e">Info</option>
+            <option value="success" style="background:#1a1f2e">Sucesso</option>
+            <option value="warning" style="background:#1a1f2e">Alerta</option>
+            <option value="promo" style="background:#1a1f2e">Promoção</option>
+            <option value="deposit" style="background:#1a1f2e">Depósito</option>
+          </select>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <label style="font-size:11px;color:rgba(255,255,255,.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px">User ID</label>
+          <input id="ntUserId" type="number" placeholder="0 = todos" value="0" style="height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3);color:#fff;padding:0 14px;outline:none;font-size:13px;font-weight:500;transition:border-color .2s" onfocus="this.style.borderColor='var(--adm-green1)'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
+          <span style="font-size:10px;color:rgba(255,255,255,.25);margin-top:2px">0 = global para todos os usuários</span>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <label style="font-size:11px;color:rgba(255,255,255,.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Link</label>
+        <input id="ntLink" placeholder="https://... (opcional)" style="height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3);color:#fff;padding:0 14px;outline:none;font-size:13px;font-weight:500;transition:border-color .2s" onfocus="this.style.borderColor='var(--adm-green1)'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:24px;justify-content:flex-end">
+      <button class="adm-btn" id="ntCancel" style="padding:10px 20px;border-radius:10px">Cancelar</button>
+      <button class="adm-btn primary" id="ntSave" style="padding:10px 24px;border-radius:10px;font-weight:700">Enviar Notificação</button>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+  var modal = document.getElementById('notifModal');
+  document.getElementById('btnAddNotif').addEventListener('click', function() {
+    document.getElementById('ntTitle').value='';
+    document.getElementById('ntMessage').value='';
+    document.getElementById('ntType').value='info';
+    document.getElementById('ntUserId').value='0';
+    document.getElementById('ntLink').value='';
+    modal.style.display='flex';
+  });
+  document.getElementById('ntCancel').addEventListener('click', function(){ modal.style.display='none'; });
+  modal.addEventListener('click', function(e){ if(e.target===modal) modal.style.display='none'; });
+  document.getElementById('ntSave').addEventListener('click', async function(){
+    var titulo = document.getElementById('ntTitle').value.trim();
+    if(!titulo) return alert('Título é obrigatório.');
+    var btn=this; btn.disabled=true; btn.textContent='Enviando...';
+    try {
+      var r = await fetch('/admin/api/notifications', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ titulo:titulo, mensagem:document.getElementById('ntMessage').value.trim(), tipo:document.getElementById('ntType').value, user_id:document.getElementById('ntUserId').value, link:document.getElementById('ntLink').value.trim() }),
+        credentials:'same-origin'
+      });
+      var d = await r.json();
+      if(d.ok){ modal.style.display='none'; location.reload(); }
+      else alert(d.msg||'Erro');
+    } catch{ alert('Erro de rede.'); }
+    btn.disabled=false; btn.textContent='Enviar Notificação';
+  });
+})();
+</script>
 <%- include('layout-foot') %>

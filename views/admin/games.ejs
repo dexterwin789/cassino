@@ -62,6 +62,82 @@
 </div>
 
 <script src="/public/js/admin.js" defer></script>
+
+<!-- ── Modal: Novo Jogo ── -->
+<div id="gameModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);align-items:center;justify-content:center">
+  <div style="background:linear-gradient(160deg,#111827,#0d1321);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:32px;width:520px;max-width:92vw;box-shadow:0 24px 80px rgba(0,0,0,.6)">
+    <h4 style="margin:0 0 24px;color:#fff;font-size:18px;font-weight:700;display:flex;align-items:center;gap:10px">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--adm-green1,#10b981)" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+      Novo Jogo
+    </h4>
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <label style="font-size:11px;color:rgba(255,255,255,.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Código do Jogo *</label>
+          <input id="gmCode" placeholder="ex: fortune-tiger" style="height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3);color:#fff;padding:0 14px;outline:none;font-size:13px;font-weight:500;transition:border-color .2s" onfocus="this.style.borderColor='var(--adm-green1)'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <label style="font-size:11px;color:rgba(255,255,255,.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Nome do Jogo *</label>
+          <input id="gmName" placeholder="ex: Fortune Tiger" style="height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3);color:#fff;padding:0 14px;outline:none;font-size:13px;font-weight:500;transition:border-color .2s" onfocus="this.style.borderColor='var(--adm-green1)'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <label style="font-size:11px;color:rgba(255,255,255,.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Provider</label>
+          <input id="gmProvider" placeholder="ex: PG Soft" style="height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3);color:#fff;padding:0 14px;outline:none;font-size:13px;font-weight:500;transition:border-color .2s" onfocus="this.style.borderColor='var(--adm-green1)'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <label style="font-size:11px;color:rgba(255,255,255,.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Categoria</label>
+          <select id="gmCategory" style="height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3);color:#fff;padding:0 14px;outline:none;font-size:13px;font-weight:500;transition:border-color .2s;cursor:pointer" onfocus="this.style.borderColor='var(--adm-green1)'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
+            <option value="slots" style="background:#1a1f2e">Slots</option>
+            <option value="crash" style="background:#1a1f2e">Crash</option>
+            <option value="mines" style="background:#1a1f2e">Mines</option>
+            <option value="dice" style="background:#1a1f2e">Dice</option>
+            <option value="table" style="background:#1a1f2e">Table</option>
+            <option value="live" style="background:#1a1f2e">Live</option>
+          </select>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <label style="font-size:11px;color:rgba(255,255,255,.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px">URL da Imagem</label>
+        <input id="gmImageUrl" placeholder="https://..." style="height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3);color:#fff;padding:0 14px;outline:none;font-size:13px;font-weight:500;transition:border-color .2s" onfocus="this.style.borderColor='var(--adm-green1)'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:24px;justify-content:flex-end">
+      <button class="adm-btn" id="gmCancel" style="padding:10px 20px;border-radius:10px">Cancelar</button>
+      <button class="adm-btn primary" id="gmSave" style="padding:10px 24px;border-radius:10px;font-weight:700">Salvar Jogo</button>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+  var modal = document.getElementById('gameModal');
+  document.getElementById('btnAddGame').addEventListener('click', function() {
+    ['gmCode','gmName','gmProvider','gmImageUrl'].forEach(function(id){ document.getElementById(id).value=''; });
+    document.getElementById('gmCategory').value = 'slots';
+    modal.style.display = 'flex';
+  });
+  document.getElementById('gmCancel').addEventListener('click', function() { modal.style.display='none'; });
+  modal.addEventListener('click', function(e) { if(e.target===modal) modal.style.display='none'; });
+  document.getElementById('gmSave').addEventListener('click', async function() {
+    var code = document.getElementById('gmCode').value.trim();
+    var name = document.getElementById('gmName').value.trim();
+    if(!code || !name) return alert('Código e nome são obrigatórios.');
+    var btn = this; btn.disabled=true; btn.textContent='Salvando...';
+    try {
+      var r = await fetch('/admin/api/games', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ game_code:code, game_name:name, provider:document.getElementById('gmProvider').value.trim(), image_url:document.getElementById('gmImageUrl').value.trim(), category:document.getElementById('gmCategory').value }),
+        credentials:'same-origin'
+      });
+      var d = await r.json();
+      if(d.ok){ modal.style.display='none'; location.reload(); }
+      else alert(d.msg||'Erro');
+    } catch{ alert('Erro de rede.'); }
+    btn.disabled=false; btn.textContent='Salvar Jogo';
+  });
+})();
+</script>
 <script>
 // Multi-select provider filter
 (function() {

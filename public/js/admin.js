@@ -578,23 +578,9 @@
     document.getElementById('syncModal').style.display = 'none';
   });
 
-  document.getElementById('btnAddGame')?.addEventListener('click', async () => {
-    const code = prompt('Game code:');
-    if (!code) return;
-    const name = prompt('Game name:');
-    if (!name) return;
-    const provider = prompt('Provider (opcional):') || '';
-    const image_url = prompt('Image URL (opcional):') || '';
-    const category = prompt('Categoria (slots/crash/mines/dice):') || 'slots';
-    const r = await fetch('/admin/api/games', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ game_code: code, game_name: name, provider, image_url, category }),
-      credentials: 'same-origin'
-    });
-    const d = await r.json();
-    if (d.ok) location.reload();
-    else alert(d.msg || 'Erro');
+  document.getElementById('btnAddGame')?.addEventListener('click', () => {
+    const modal = document.getElementById('gameModal');
+    if (modal) modal.style.display = 'flex';
   });
 
   document.getElementById('btnAddBanner')?.addEventListener('click', async () => {
@@ -617,95 +603,29 @@
     else alert(d.msg || 'Erro');
   });
 
-  document.getElementById('btnAddPromo')?.addEventListener('click', async () => {
-    const title = prompt('Título da promoção:');
-    if (!title) return;
-    const type = prompt('Tipo (bonus/cashback/freebet):') || 'bonus';
-    const code = prompt('Código (opcional):') || '';
-    const value_cents = prompt('Valor em centavos (ex: 1000 = R$10):') || '0';
-    const value_pct = prompt('Percentual (ex: 50 = 50%):') || '0';
-    const max_uses = prompt('Máx. de usos (0 = ilimitado):') || '0';
-    const r = await fetch('/admin/api/promotions', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title, type, code: code || undefined, value_cents, value_pct, max_uses }),
-      credentials: 'same-origin'
-    });
-    const d = await r.json();
-    if (d.ok) location.reload();
-    else alert(d.msg || 'Erro');
+  document.getElementById('btnAddPromo')?.addEventListener('click', () => {
+    const modal = document.getElementById('promoModal');
+    if (modal) modal.style.display = 'flex';
   });
 
-  document.getElementById('btnAddNotif')?.addEventListener('click', async () => {
-    const titulo = prompt('Título da notificação:');
-    if (!titulo) return;
-    const mensagem = prompt('Mensagem:') || '';
-    const tipo = prompt('Tipo (info/success/warning/promo/deposit):') || 'info';
-    const user_id = prompt('User ID (0 = global para todos):') || '0';
-    const link = prompt('Link (opcional):') || '';
-    const r = await fetch('/admin/api/notifications', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ titulo, mensagem, tipo, user_id, link }),
-      credentials: 'same-origin'
-    });
-    const d = await r.json();
-    if (d.ok) location.reload();
-    else alert(d.msg || 'Erro');
+  document.getElementById('btnAddNotif')?.addEventListener('click', () => {
+    const modal = document.getElementById('notifModal');
+    if (modal) modal.style.display = 'flex';
   });
 
-  document.getElementById('btnAddSport')?.addEventListener('click', async () => {
-    const name = prompt('Nome do esporte:');
-    if (!name) return;
-    const slug = prompt('Slug (ex: futebol):') || name.toLowerCase().replace(/\s+/g, '-');
-    const sort_order = prompt('Ordem (0, 1, 2...):') || '0';
-    const r = await fetch('/admin/api/sports', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, slug, sort_order }),
-      credentials: 'same-origin'
-    });
-    const d = await r.json();
-    if (d.ok) location.reload();
-    else alert(d.msg || 'Erro');
+  document.getElementById('btnAddSport')?.addEventListener('click', () => {
+    const modal = document.getElementById('sportModal');
+    if (modal) modal.style.display = 'flex';
   });
 
-  document.getElementById('btnAddLeague')?.addEventListener('click', async () => {
-    const name = prompt('Nome da liga:');
-    if (!name) return;
-    const slug = prompt('Slug (ex: brasileirao-a):') || name.toLowerCase().replace(/\s+/g, '-');
-    const sport_id = prompt('Sport ID:') || '';
-    const country = prompt('País (ex: Brasil):') || '';
-    const sort_order = prompt('Ordem (0, 1, 2...):') || '0';
-    const r = await fetch('/admin/api/leagues', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, slug, sport_id, country, sort_order }),
-      credentials: 'same-origin'
-    });
-    const d = await r.json();
-    if (d.ok) location.reload();
-    else alert(d.msg || 'Erro');
+  document.getElementById('btnAddLeague')?.addEventListener('click', () => {
+    const modal = document.getElementById('leagueModal');
+    if (modal) modal.style.display = 'flex';
   });
 
-  document.getElementById('btnAddCoupon')?.addEventListener('click', async () => {
-    const code = prompt('Código do cupom (ex: BEM-VINDO):');
-    if (!code) return;
-    const type = prompt('Tipo (bonus/cashback/freebet):') || 'bonus';
-    const description = prompt('Descrição:') || '';
-    const value_cents = prompt('Valor em centavos (ex: 1000 = R$10):') || '0';
-    const value_pct = prompt('Percentual (ex: 50 = 50%):') || '0';
-    const min_deposit = prompt('Depósito mínimo em centavos (0 = sem mínimo):') || '0';
-    const max_uses = prompt('Máx. de usos (0 = ilimitado):') || '0';
-    const r = await fetch('/admin/api/coupons', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ code, type, description, value_cents, value_pct, min_deposit, max_uses }),
-      credentials: 'same-origin'
-    });
-    const d = await r.json();
-    if (d.ok) location.reload();
-    else alert(d.msg || 'Erro');
+  document.getElementById('btnAddCoupon')?.addEventListener('click', () => {
+    const modal = document.getElementById('couponModal');
+    if (modal) modal.style.display = 'flex';
   });
 
   function boot() {

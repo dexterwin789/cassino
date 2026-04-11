@@ -40,4 +40,87 @@
 </div>
 
 <script src="/public/js/admin.js" defer></script>
+
+<!-- ── Modal: Novo Cupom ── -->
+<div id="couponModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);align-items:center;justify-content:center">
+  <div style="background:linear-gradient(160deg,#111827,#0d1321);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:32px;width:540px;max-width:92vw;box-shadow:0 24px 80px rgba(0,0,0,.6)">
+    <h4 style="margin:0 0 24px;color:#fff;font-size:18px;font-weight:700;display:flex;align-items:center;gap:10px">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--adm-green1,#10b981)" stroke-width="2"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M13 5v2"/><path d="M13 17v2"/><path d="M13 11v2"/></svg>
+      Novo Cupom
+    </h4>
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <label style="font-size:11px;color:rgba(255,255,255,.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Código do Cupom *</label>
+          <input id="cpCode" placeholder="ex: BEM-VINDO" style="height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3);color:#fff;padding:0 14px;outline:none;font-size:13px;font-weight:500;transition:border-color .2s;text-transform:uppercase" onfocus="this.style.borderColor='var(--adm-green1)'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <label style="font-size:11px;color:rgba(255,255,255,.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Tipo</label>
+          <select id="cpType" style="height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3);color:#fff;padding:0 14px;outline:none;font-size:13px;font-weight:500;transition:border-color .2s;cursor:pointer" onfocus="this.style.borderColor='var(--adm-green1)'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
+            <option value="bonus" style="background:#1a1f2e">Bônus</option>
+            <option value="cashback" style="background:#1a1f2e">Cashback</option>
+            <option value="freebet" style="background:#1a1f2e">Freebet</option>
+          </select>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <label style="font-size:11px;color:rgba(255,255,255,.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Descrição</label>
+        <input id="cpDesc" placeholder="ex: Cupom de boas-vindas para novos jogadores" style="height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3);color:#fff;padding:0 14px;outline:none;font-size:13px;font-weight:500;transition:border-color .2s" onfocus="this.style.borderColor='var(--adm-green1)'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <label style="font-size:11px;color:rgba(255,255,255,.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Valor (centavos)</label>
+          <input id="cpValueCents" type="number" placeholder="1000 = R$10" value="0" style="height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3);color:#fff;padding:0 14px;outline:none;font-size:13px;font-weight:500;transition:border-color .2s" onfocus="this.style.borderColor='var(--adm-green1)'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <label style="font-size:11px;color:rgba(255,255,255,.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Percentual (%)</label>
+          <input id="cpValuePct" type="number" placeholder="50 = 50%" value="0" style="height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3);color:#fff;padding:0 14px;outline:none;font-size:13px;font-weight:500;transition:border-color .2s" onfocus="this.style.borderColor='var(--adm-green1)'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <label style="font-size:11px;color:rgba(255,255,255,.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Depósito Mínimo (centavos)</label>
+          <input id="cpMinDeposit" type="number" placeholder="0 = sem mínimo" value="0" style="height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3);color:#fff;padding:0 14px;outline:none;font-size:13px;font-weight:500;transition:border-color .2s" onfocus="this.style.borderColor='var(--adm-green1)'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <label style="font-size:11px;color:rgba(255,255,255,.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Máx. Usos</label>
+          <input id="cpMaxUses" type="number" placeholder="0 = ilimitado" value="0" style="height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3);color:#fff;padding:0 14px;outline:none;font-size:13px;font-weight:500;transition:border-color .2s" onfocus="this.style.borderColor='var(--adm-green1)'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:24px;justify-content:flex-end">
+      <button class="adm-btn" id="cpCancel" style="padding:10px 20px;border-radius:10px">Cancelar</button>
+      <button class="adm-btn primary" id="cpSave" style="padding:10px 24px;border-radius:10px;font-weight:700">Salvar Cupom</button>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+  var modal = document.getElementById('couponModal');
+  document.getElementById('btnAddCoupon').addEventListener('click', function() {
+    ['cpCode','cpDesc'].forEach(function(id){ document.getElementById(id).value=''; });
+    document.getElementById('cpType').value='bonus';
+    ['cpValueCents','cpValuePct','cpMinDeposit','cpMaxUses'].forEach(function(id){ document.getElementById(id).value='0'; });
+    modal.style.display='flex';
+  });
+  document.getElementById('cpCancel').addEventListener('click', function(){ modal.style.display='none'; });
+  modal.addEventListener('click', function(e){ if(e.target===modal) modal.style.display='none'; });
+  document.getElementById('cpSave').addEventListener('click', async function(){
+    var code = document.getElementById('cpCode').value.trim();
+    if(!code) return alert('Código é obrigatório.');
+    var btn=this; btn.disabled=true; btn.textContent='Salvando...';
+    try {
+      var r = await fetch('/admin/api/coupons', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ code:code, type:document.getElementById('cpType').value, description:document.getElementById('cpDesc').value.trim(), value_cents:document.getElementById('cpValueCents').value, value_pct:document.getElementById('cpValuePct').value, min_deposit:document.getElementById('cpMinDeposit').value, max_uses:document.getElementById('cpMaxUses').value }),
+        credentials:'same-origin'
+      });
+      var d = await r.json();
+      if(d.ok){ modal.style.display='none'; location.reload(); }
+      else alert(d.msg||'Erro');
+    } catch{ alert('Erro de rede.'); }
+    btn.disabled=false; btn.textContent='Salvar Cupom';
+  });
+})();
+</script>
 <%- include('layout-foot') %>

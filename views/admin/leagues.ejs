@@ -43,4 +43,134 @@
 </div>
 
 <script src="/public/js/admin.js" defer></script>
+
+<!-- ── Modal: Novo Esporte ── -->
+<div id="sportModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);align-items:center;justify-content:center">
+  <div style="background:linear-gradient(160deg,#111827,#0d1321);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:32px;width:460px;max-width:92vw;box-shadow:0 24px 80px rgba(0,0,0,.6)">
+    <h4 style="margin:0 0 24px;color:#fff;font-size:18px;font-weight:700;display:flex;align-items:center;gap:10px">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--adm-green1,#10b981)" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+      Novo Esporte
+    </h4>
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <label style="font-size:11px;color:rgba(255,255,255,.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Nome do Esporte *</label>
+        <input id="spName" placeholder="ex: Futebol" style="height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3);color:#fff;padding:0 14px;outline:none;font-size:13px;font-weight:500;transition:border-color .2s" onfocus="this.style.borderColor='var(--adm-green1)'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <label style="font-size:11px;color:rgba(255,255,255,.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Slug</label>
+          <input id="spSlug" placeholder="auto-gerado se vazio" style="height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3);color:#fff;padding:0 14px;outline:none;font-size:13px;font-weight:500;transition:border-color .2s" onfocus="this.style.borderColor='var(--adm-green1)'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <label style="font-size:11px;color:rgba(255,255,255,.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Ordem</label>
+          <input id="spOrder" type="number" value="0" style="height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3);color:#fff;padding:0 14px;outline:none;font-size:13px;font-weight:500;transition:border-color .2s" onfocus="this.style.borderColor='var(--adm-green1)'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:24px;justify-content:flex-end">
+      <button class="adm-btn" id="spCancel" style="padding:10px 20px;border-radius:10px">Cancelar</button>
+      <button class="adm-btn primary" id="spSave" style="padding:10px 24px;border-radius:10px;font-weight:700">Salvar Esporte</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Modal: Nova Liga ── -->
+<div id="leagueModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);align-items:center;justify-content:center">
+  <div style="background:linear-gradient(160deg,#111827,#0d1321);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:32px;width:520px;max-width:92vw;box-shadow:0 24px 80px rgba(0,0,0,.6)">
+    <h4 style="margin:0 0 24px;color:#fff;font-size:18px;font-weight:700;display:flex;align-items:center;gap:10px">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--adm-green1,#10b981)" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5C7 4 7 7 7 7"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5C17 4 17 7 17 7"/><path d="M4 22h16"/><path d="M10 22V2h4v20"/></svg>
+      Nova Liga
+    </h4>
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <label style="font-size:11px;color:rgba(255,255,255,.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Nome da Liga *</label>
+        <input id="lgName" placeholder="ex: Brasileirão Série A" style="height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3);color:#fff;padding:0 14px;outline:none;font-size:13px;font-weight:500;transition:border-color .2s" onfocus="this.style.borderColor='var(--adm-green1)'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <label style="font-size:11px;color:rgba(255,255,255,.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Slug</label>
+          <input id="lgSlug" placeholder="auto-gerado se vazio" style="height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3);color:#fff;padding:0 14px;outline:none;font-size:13px;font-weight:500;transition:border-color .2s" onfocus="this.style.borderColor='var(--adm-green1)'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <label style="font-size:11px;color:rgba(255,255,255,.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Sport ID</label>
+          <input id="lgSportId" type="number" placeholder="ID do esporte" style="height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3);color:#fff;padding:0 14px;outline:none;font-size:13px;font-weight:500;transition:border-color .2s" onfocus="this.style.borderColor='var(--adm-green1)'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <label style="font-size:11px;color:rgba(255,255,255,.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px">País</label>
+          <input id="lgCountry" placeholder="ex: Brasil" style="height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3);color:#fff;padding:0 14px;outline:none;font-size:13px;font-weight:500;transition:border-color .2s" onfocus="this.style.borderColor='var(--adm-green1)'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <label style="font-size:11px;color:rgba(255,255,255,.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Ordem</label>
+          <input id="lgOrder" type="number" value="0" style="height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3);color:#fff;padding:0 14px;outline:none;font-size:13px;font-weight:500;transition:border-color .2s" onfocus="this.style.borderColor='var(--adm-green1)'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:24px;justify-content:flex-end">
+      <button class="adm-btn" id="lgCancel" style="padding:10px 20px;border-radius:10px">Cancelar</button>
+      <button class="adm-btn primary" id="lgSave" style="padding:10px 24px;border-radius:10px;font-weight:700">Salvar Liga</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  // ── Sport Modal ──
+  var sportModal = document.getElementById('sportModal');
+  document.getElementById('btnAddSport').addEventListener('click', function() {
+    document.getElementById('spName').value='';
+    document.getElementById('spSlug').value='';
+    document.getElementById('spOrder').value='0';
+    sportModal.style.display='flex';
+  });
+  document.getElementById('spCancel').addEventListener('click', function(){ sportModal.style.display='none'; });
+  sportModal.addEventListener('click', function(e){ if(e.target===sportModal) sportModal.style.display='none'; });
+  document.getElementById('spSave').addEventListener('click', async function(){
+    var name = document.getElementById('spName').value.trim();
+    if(!name) return alert('Nome é obrigatório.');
+    var slug = document.getElementById('spSlug').value.trim() || name.toLowerCase().replace(/\s+/g,'-');
+    var btn=this; btn.disabled=true; btn.textContent='Salvando...';
+    try {
+      var r = await fetch('/admin/api/sports', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ name:name, slug:slug, sort_order:document.getElementById('spOrder').value }),
+        credentials:'same-origin'
+      });
+      var d = await r.json();
+      if(d.ok){ sportModal.style.display='none'; location.reload(); }
+      else alert(d.msg||'Erro');
+    } catch{ alert('Erro de rede.'); }
+    btn.disabled=false; btn.textContent='Salvar Esporte';
+  });
+
+  // ── League Modal ──
+  var leagueModal = document.getElementById('leagueModal');
+  document.getElementById('btnAddLeague').addEventListener('click', function() {
+    ['lgName','lgSlug','lgCountry'].forEach(function(id){ document.getElementById(id).value=''; });
+    document.getElementById('lgSportId').value='';
+    document.getElementById('lgOrder').value='0';
+    leagueModal.style.display='flex';
+  });
+  document.getElementById('lgCancel').addEventListener('click', function(){ leagueModal.style.display='none'; });
+  leagueModal.addEventListener('click', function(e){ if(e.target===leagueModal) leagueModal.style.display='none'; });
+  document.getElementById('lgSave').addEventListener('click', async function(){
+    var name = document.getElementById('lgName').value.trim();
+    if(!name) return alert('Nome é obrigatório.');
+    var slug = document.getElementById('lgSlug').value.trim() || name.toLowerCase().replace(/\s+/g,'-');
+    var btn=this; btn.disabled=true; btn.textContent='Salvando...';
+    try {
+      var r = await fetch('/admin/api/leagues', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ name:name, slug:slug, sport_id:document.getElementById('lgSportId').value||'', country:document.getElementById('lgCountry').value.trim(), sort_order:document.getElementById('lgOrder').value }),
+        credentials:'same-origin'
+      });
+      var d = await r.json();
+      if(d.ok){ leagueModal.style.display='none'; location.reload(); }
+      else alert(d.msg||'Erro');
+    } catch{ alert('Erro de rede.'); }
+    btn.disabled=false; btn.textContent='Salvar Liga';
+  });
+})();
+</script>
 <%- include('layout-foot') %>
