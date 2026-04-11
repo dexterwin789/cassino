@@ -534,9 +534,8 @@ ul{list-style:none}
   width:36px;height:36px;border-radius:50%;border:none;
   background:rgba(0,0,0,.5);color:#fff;font-size:22px;
   display:grid;place-items:center;z-index:5;
-  transition:.2s;opacity:0;
+  transition:.2s;opacity:1;
 }
-.banner-main:hover .banner-arrow{opacity:1}
 .banner-prev{left:12px}
 .banner-next{right:12px}
 .banner-arrow:hover{background:rgba(0,0,0,.7)}
@@ -1282,13 +1281,19 @@ body.search-lock{overflow:hidden!important}
 .brl-mask-input{font-variant-numeric:tabular-nums}
 
 @media(max-width:768px){
-  .wallet-grid{grid-template-columns:1fr}
-  .wallet-sidebar-nav{flex-direction:row;overflow-x:auto;gap:.25rem;padding:0}
-  .wallet-nav-item{white-space:nowrap;padding:10px 14px;font-size:11px}
+  .wallet-section{margin-top:0}
+  .wallet-grid{display:flex;flex-direction:column;gap:0;border-radius:0}
+  /* Sidebar nav becomes vertical full-width list */
+  .wallet-sidebar-nav{flex-direction:column;overflow-x:visible;gap:0;padding:0;width:100%}
+  .wallet-nav-item{white-space:nowrap;padding:14px 16px;font-size:12px;border-radius:0;border-bottom:1px solid rgba(255,255,255,.05)}
   .wallet-nav-divider{display:none}
-  .wallet-nav-badge,.wallet-nav-value,.wallet-nav-arrow,.wnav-icon{display:none}
-  .wallet-sub-menu{flex-direction:row;overflow-x:auto}
-  .wallet-sub-back{white-space:nowrap;padding:10px 14px;font-size:10px}
+  .wallet-nav-badge,.wallet-nav-value{font-size:9px}
+  /* Sub-menu: sticky header with back button */
+  .wallet-sub-menu{flex-direction:column;overflow-x:visible;width:100%}
+  .wallet-sub-back{position:sticky;top:0;z-index:10;padding:14px 16px;font-size:12px;border-radius:0;background:rgba(255,57,1,.12);backdrop-filter:blur(8px)}
+  .wallet-sub-back svg{width:14px;height:14px}
+  .wallet-content{padding:12px 8px;padding-top:0}
+  .wallet-panel-title{position:sticky;top:0;z-index:9;margin:0 -8px 12px;border-radius:0;padding:12px 16px;font-size:12px;background:#0e1117}
   .acct-field-row{flex-direction:column;gap:0}
   .acct-footer-bar{flex-direction:column;gap:6px;text-align:center}
   .acct-perfil-row{flex-direction:column}
@@ -2620,6 +2625,8 @@ body.search-lock{overflow:hidden!important}
 @media(max-width:768px){
   .top10-card{flex:0 0 calc((100% - 20px) / 2);padding-left:36px}
   .top10-rank{font-size:clamp(80px,15vw,120px);letter-spacing:-14px}
+  .search-results-grid{grid-template-columns:repeat(3,1fr);gap:10px}
+  .search-results-grid .game-card img{height:120px}
   .provider-grid{grid-template-columns:repeat(3,1fr);gap:10px}
   .provider-grid .game-card img{height:150px}
   .search-results-grid .game-card img{height:150px}
@@ -2684,7 +2691,7 @@ body.search-lock{overflow:hidden!important}
   .topbar-logged{gap:5px;flex-shrink:0;flex-wrap:nowrap}
   .topbar-notif{padding:4px}
   .topbar-notif img{width:14px;height:14px}
-  .btn-deposit{padding:6px 12px;font-size:11px;white-space:nowrap}
+  .topbar-logged .btn-deposit{display:none}
   .topbar-balance-btn{padding:5px 8px;font-size:11px}
   .topbar-balance-refresh{padding:5px 6px}
   .topbar-user-btn{width:28px;height:28px}
@@ -2719,9 +2726,15 @@ body.search-lock{overflow:hidden!important}
   .cat-icon-circle img{width:44px;height:44px}
   .cat-icon-item span{font-size:10px}
 
-  /* --- Banner: full width, hide side banners --- */
-  .banner-area{grid-template-columns:1fr;gap:0;margin-bottom:10px}
-  .banner-main{height:180px}
+  /* --- Banner: full width peek carousel, hide side banners --- */
+  .banner-area{display:block;margin:0 -8px 10px;padding:0}
+  .banner-main{height:auto;border-radius:0;overflow:visible}
+  .banner-slider{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:0 8px}
+  .banner-slider::-webkit-scrollbar{display:none}
+  .banner-slide{min-width:80%;max-width:80%;flex-shrink:0;position:relative;opacity:1;pointer-events:auto;scroll-snap-align:start;border-radius:10px;overflow:hidden;height:120px}
+  .banner-slide img{width:100%;height:100%;object-fit:cover}
+  .banner-dots{display:none}
+  .banner-arrow{display:none}
   .banner-side{display:none}
 
   /* --- Remove gap between banner and search --- */
@@ -2733,10 +2746,10 @@ body.search-lock{overflow:hidden!important}
   /* --- Estúdios: 3 per row --- */
   .estudio-card{flex:0 0 calc(33.33% - 8px);min-width:0;height:80px}
 
-  /* --- Ganhos section compact --- */
-  .ganhos-trophy-card{flex:0 0 130px;height:80px;padding:0 10px}
-  .ganhos-trophy-img{width:40px;height:40px}
-  .ganhos-trophy-text{font-size:12px}
+  /* --- Ganhos section compact — trophy stacked vertically --- */
+  .ganhos-trophy-card{flex:0 0 80px;height:80px;padding:8px 6px;flex-direction:column;gap:4px;justify-content:center;align-items:center}
+  .ganhos-trophy-img{width:32px;height:32px}
+  .ganhos-trophy-text{font-size:9px;text-align:center;line-height:1.1}
   .ganho-card{flex:0 0 200px;height:80px;padding:10px}
   .ganho-thumb{width:44px;height:44px}
   .ganho-user{font-size:11px}
@@ -2744,9 +2757,11 @@ body.search-lock{overflow:hidden!important}
   .ganhos-tabs{gap:4px;flex-wrap:wrap}
   .ganhos-tab{padding:4px 10px;font-size:10px}
 
-  /* --- Apostas compact --- */
-  .apostas-wrapper{height:140px}
-  .aposta-row{padding:8px 10px;height:46px;gap:8px;font-size:11px}
+  /* --- Apostas compact with border-radius --- */
+  .apostas-wrapper{height:140px;border-radius:10px;overflow:hidden}
+  .aposta-row{padding:8px 10px;height:46px;gap:8px;font-size:11px;border-radius:0}
+  .aposta-row:first-child{border-radius:10px 10px 0 0}
+  .aposta-row:last-child{border-radius:0 0 10px 10px}
   .aposta-icon{width:30px;height:30px}
   .aposta-user{font-size:11px}
   .aposta-game{font-size:10px}
@@ -2781,11 +2796,11 @@ body.search-lock{overflow:hidden!important}
 @media(max-width:480px){
   .tab-switch{padding:6px 8px;font-size:11px;gap:4px}
   .btn-register,.btn-login{padding:5px 10px;font-size:10px}
-  .btn-deposit{padding:5px 10px;font-size:10px}
   .topbar-balance-btn{padding:4px 6px;font-size:10px}
   .topbar-balance-refresh{padding:4px 5px}
   .games-grid{grid-template-columns:repeat(3,1fr);gap:6px}
   .estudio-card{height:70px}
+  .search-results-grid{grid-template-columns:repeat(3,1fr)}
 }
 
 /* ===== NOTIFICATIONS ===== */
@@ -3020,7 +3035,6 @@ body.search-lock{overflow:hidden!important}
 @media(max-width:375px){
   .topbar-balance{display:none}
   .topbar-logged{gap:2px}
-  .btn-deposit{padding:4px 8px;font-size:9px}
   .btn-register,.btn-login{padding:4px 8px;font-size:9px}
   .logo-img{height:18px;max-width:120px}
   .games-grid{gap:5px}

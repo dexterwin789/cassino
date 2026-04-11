@@ -538,6 +538,53 @@ function initBannerDots() {
 if (bannerPrev) bannerPrev.addEventListener('click', function() { showBanner(bannerIndex - 1); startBannerAuto(); });
 if (bannerNext) bannerNext.addEventListener('click', function() { showBanner(bannerIndex + 1); startBannerAuto(); });
 
+/* ========== TOUCH SWIPE — TOP10 ========== */
+(function() {
+  var vp = document.querySelector('.top10-viewport');
+  if (!vp) return;
+  var startX = 0, startY = 0, dragging = false;
+  vp.addEventListener('touchstart', function(e) {
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+    dragging = true;
+  }, { passive: true });
+  vp.addEventListener('touchmove', function(e) {
+    if (!dragging) return;
+    var dx = e.touches[0].clientX - startX;
+    var dy = e.touches[0].clientY - startY;
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 10) {
+      e.preventDefault();
+    }
+  }, { passive: false });
+  vp.addEventListener('touchend', function(e) {
+    if (!dragging) return;
+    dragging = false;
+    var dx = e.changedTouches[0].clientX - startX;
+    if (Math.abs(dx) > 40) slideTop10(dx < 0 ? 1 : -1);
+  }, { passive: true });
+})();
+
+/* ========== TOUCH SWIPE — BANNER (desktop mode) ========== */
+(function() {
+  if (!bannerSlider) return;
+  var startX = 0, dragging = false;
+  bannerSlider.addEventListener('touchstart', function(e) {
+    startX = e.touches[0].clientX;
+    dragging = true;
+  }, { passive: true });
+  bannerSlider.addEventListener('touchend', function(e) {
+    if (!dragging) return;
+    dragging = false;
+    /* On mobile the CSS scroll-snap handles swipe natively; only act on desktop-style slider */
+    if (window.innerWidth <= 768) return;
+    var dx = e.changedTouches[0].clientX - startX;
+    if (Math.abs(dx) > 40) {
+      showBanner(bannerIndex + (dx < 0 ? 1 : -1));
+      startBannerAuto();
+    }
+  }, { passive: true });
+})();
+
 /* ========== SIDEBAR ========== */
 var sidebar = document.getElementById('sidebar');
 var sidebarOverlay = document.getElementById('sidebarOverlay');
@@ -1580,7 +1627,7 @@ function initApp() {
     renderApostas();
     initBannerDots();
     showBanner(0);
-    startBannerAuto();
+    if (window.innerWidth > 768) startBannerAuto();
     updateAuthState().then(function() {
       dismissPreloader();
       // Auto-open deposit modal if redirected from registration
