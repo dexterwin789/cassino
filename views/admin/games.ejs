@@ -4,6 +4,7 @@
   <div class="adm-page-head">
     <div><h3>Jogos</h3><p class="adm-muted">Catálogo de jogos</p></div>
     <div style="display:flex;gap:8px;">
+      <button class="adm-btn" id="btnAutoFetchImages" title="Buscar imagens automaticamente para jogos sem foto">🖼️ Buscar Imagens</button>
       <button class="adm-btn" id="btnBadImages" title="Desativar jogos sem imagem ou com imagem default" style="border-color:rgba(255,77,77,.3);color:#ff4d4d">🖼️ Limpar Imagens</button>
       <button class="adm-btn" id="btnDedupGames" title="Identificar e desativar jogos duplicados">🔍 Dedup</button>
       <button class="adm-btn" id="btnSyncPF" title="Importar/atualizar jogos do PlayFivers">🔄 Sync PlayFivers</button>
@@ -293,6 +294,19 @@
       renderList('');
     });
 })();
+
+// Auto-fetch missing images
+document.getElementById('btnAutoFetchImages')?.addEventListener('click', async function() {
+  var btn = this;
+  btn.disabled = true; btn.textContent = 'Buscando...';
+  try {
+    var r = await fetch('/admin/api/games/auto-fetch-images', { method: 'POST', credentials: 'same-origin' });
+    var d = await r.json();
+    alert(d.msg || (d.ok ? 'Concluído!' : 'Erro'));
+    if (d.ok && d.updated > 0) location.reload();
+  } catch { alert('Erro de rede.'); }
+  btn.disabled = false; btn.textContent = '🖼️ Buscar Imagens';
+});
 
 // Bad images button
 document.getElementById('btnBadImages')?.addEventListener('click', async function() {

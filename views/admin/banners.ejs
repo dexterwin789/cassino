@@ -80,6 +80,10 @@
         <button type="button" class="btnDeletePromo" data-idx="<%= i %>" style="position:absolute;top:6px;right:6px;width:26px;height:26px;border-radius:50%;border:1px solid rgba(255,77,77,.3);background:rgba(255,77,77,.12);color:#ff4d4d;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;font-size:13px;line-height:1" title="Remover banner">&times;</button>
         <% } %>
       </div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <label style="font-size:11px;color:rgba(255,255,255,.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px;text-align:left">Link (opcional)</label>
+        <input type="text" class="promoBannerLink" data-idx="<%= i %>" placeholder="https://..." value="<%= settings['promo_banner_' + i + '_link'] || '' %>" style="height:38px;border-radius:10px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3);color:#fff;padding:0 12px;outline:none;font-size:12px;font-weight:500;transition:border-color .2s" onfocus="this.style.borderColor='var(--adm-green1)'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
+      </div>
     </div>
     <% } %>
   </div>
@@ -279,6 +283,7 @@
       for (var i = 1; i <= 3; i++) {
         if (promoDeleteFlags[i]) {
           await fetch('/admin/api/settings', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key: 'promo_banner_' + i, value: '' }), credentials: 'same-origin' });
+          await fetch('/admin/api/settings', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key: 'promo_banner_' + i + '_link', value: '' }), credentials: 'same-origin' });
           continue;
         }
         var fileEl = document.querySelector('.promoBannerFile[data-idx="' + i + '"]');
@@ -287,6 +292,10 @@
           fd.append('image', fileEl.files[0]);
           fd.append('key', 'promo_banner_' + i);
           await fetch('/admin/api/settings/banner-upload', { method: 'POST', body: fd, credentials: 'same-origin' });
+        }
+        var linkEl = document.querySelector('.promoBannerLink[data-idx="' + i + '"]');
+        if (linkEl && linkEl.value !== undefined) {
+          await fetch('/admin/api/settings', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key: 'promo_banner_' + i + '_link', value: linkEl.value }), credentials: 'same-origin' });
         }
       }
       location.reload();

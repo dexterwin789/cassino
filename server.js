@@ -63,7 +63,7 @@ app.use(async (req, res, next) => {
     res.locals.sportsEnabled = sportsR.rows[0]?.value === '1';
 
     // Logo settings
-    const logoR = await pool.query("SELECT key, value FROM platform_settings WHERE key IN ('logo_dark', 'logo_light', 'promo_banner_1', 'promo_banner_2', 'promo_banner_3', 'side_banner_1', 'side_banner_2', 'side_banner_1_link', 'side_banner_2_link')");
+    const logoR = await pool.query("SELECT key, value FROM platform_settings WHERE key IN ('logo_dark', 'logo_light', 'promo_banner_1', 'promo_banner_2', 'promo_banner_3', 'promo_banner_1_link', 'promo_banner_2_link', 'promo_banner_3_link', 'side_banner_1', 'side_banner_2', 'side_banner_1_link', 'side_banner_2_link')");
     const pset = {};
     logoR.rows.forEach(r => { pset[r.key] = r.value; });
     res.locals.logoDark = pset.logo_dark || '';
@@ -71,6 +71,9 @@ app.use(async (req, res, next) => {
     res.locals.promoBanner1 = pset.promo_banner_1 || '';
     res.locals.promoBanner2 = pset.promo_banner_2 || '';
     res.locals.promoBanner3 = pset.promo_banner_3 || '';
+    res.locals.promoBanner1Link = pset.promo_banner_1_link || '#';
+    res.locals.promoBanner2Link = pset.promo_banner_2_link || '#';
+    res.locals.promoBanner3Link = pset.promo_banner_3_link || '#';
     res.locals.sideBanner1 = pset.side_banner_1 || '';
     res.locals.sideBanner2 = pset.side_banner_2 || '';
     res.locals.sideBanner1Link = pset.side_banner_1_link || '#';

@@ -244,6 +244,111 @@ router.delete('/games/:id', async (req, res) => {
   }
 });
 
+// Update game fields (image_url, etc.)
+router.put('/games/:id', async (req, res) => {
+  try {
+    const { image_url } = req.body;
+    await query('UPDATE games SET image_url = $1 WHERE id = $2', [image_url || null, req.params.id]);
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ ok: false, msg: 'Erro ao atualizar jogo.' });
+  }
+});
+
+// Auto-fetch missing game images from CDN patterns
+router.post('/games/auto-fetch-images', async (req, res) => {
+  try {
+    const https = require('https');
+    const http = require('http');
+
+    // Get all games with missing images
+    const gamesR = await query(
+      "SELECT id, game_code, game_name, provider, pf_game_code FROM games WHERE (image_url IS NULL OR image_url = '') AND is_active = TRUE ORDER BY provider, game_name"
+    );
+
+    if (!gamesR.rows.length) {
+      return res.json({ ok: true, msg: 'Todos os jogos já possuem imagem.', updated: 0 });
+    }
+
+    function checkUrl(url) {
+      return new Promise(resolve => {
+        const mod = url.startsWith('https') ? https : http;
+        mod.get(url, { timeout: 5000 }, r => {
+          resolve(r.statusCode === 200 ? url : null);
+        }).on('error', () => resolve(null));
+      });
+    }
+
+    function getCdnPatterns(game) {
+      const patterns = [];
+      const code = game.game_code || '';
+      const pfCode = game.pf_game_code || '';
+      const provider = (game.provider || '').toLowerCase();
+
+      // PlayFivers CDN patterns
+      if (pfCode) {
+        patterns.push(`https://imagensfivers.com/Games/Pragmatic-Play/${pfCode}.webp`);
+        patterns.push(`https://imagensfivers.com/Games/Pragmatic-Play/PP_${pfCode}.webp`);
+      }
+      // Extract PP code from game_code slug (e.g. "pragmatic-play-204" → "204")
+      const ppMatch = code.match(/(\d+)$/);
+      if (ppMatch) {
+        patterns.push(`https://imagensfivers.com/Games/Pragmatic-Play/PP_${ppMatch[1]}.webp`);
+      }
+      // Generic provider patterns
+      if (provider.includes('pragmatic')) {
+        const slug = code.replace(/^pragmatic-play-/, '');
+        patterns.push(`https://imagensfivers.com/Games/Pragmatic-Play/${slug}.webp`);
+        patterns.push(`https://imagensfivers.com/Games/Pragmatic-Play/PP_${slug}.webp`);
+      }
+      // PlayFivers CDN for other providers
+      const providerMap = {
+        'evolution': 'Evolution',
+        'ezugi': 'Ezugi',
+        'pgsoft': 'PGSoft',
+        'pg soft': 'PGSoft',
+        'spribe': 'Spribe',
+        'hacksaw': 'Hacksaw-Gaming',
+        'nolimit': 'Nolimit-City',
+        'push gaming': 'Push-Gaming',
+        'play n go': 'Playngo',
+        'playngo': 'Playngo'
+      };
+      for (const [key, folder] of Object.entries(providerMap)) {
+        if (provider.includes(key)) {
+          if (pfCode) patterns.push(`https://imagensfivers.com/Games/${folder}/${pfCode}.webp`);
+          patterns.push(`https://imagensfivers.com/Games/${folder}/${code}.webp`);
+        }
+      }
+      return [...new Set(patterns)]; // dedupe
+    }
+
+    let updated = 0;
+    const errors = [];
+
+    // Process in batches of 5 to avoid overwhelming the CDN
+    for (let i = 0; i < gamesR.rows.length; i += 5) {
+      const batch = gamesR.rows.slice(i, i + 5);
+      await Promise.all(batch.map(async (game) => {
+        const patterns = getCdnPatterns(game);
+        for (const url of patterns) {
+          const found = await checkUrl(url);
+          if (found) {
+            await query('UPDATE games SET image_url = $1 WHERE id = $2', [found, game.id]);
+            updated++;
+            return;
+          }
+        }
+      }));
+    }
+
+    res.json({ ok: true, msg: `Imagens encontradas: ${updated} de ${gamesR.rows.length} jogos sem imagem.`, updated, total: gamesR.rows.length });
+  } catch (err) {
+    console.error('[AUTO-FETCH IMAGES]', err);
+    res.status(500).json({ ok: false, msg: 'Erro ao buscar imagens: ' + err.message });
+  }
+});
+
 // Sync games from PlayFivers API
 router.post('/games/sync-playfivers', async (req, res) => {
   try {
@@ -284,11 +389,14 @@ router.post('/games/sync-playfivers', async (req, res) => {
 
       if (existing.rows.length) {
         // Update image/name/status — but don't reactivate clone games (unfunded wallet)
+        // Preserve existing image if API returns null/empty
         const isOriginal = g.original === true;
         const shouldBeActive = g.status !== false && isOriginal; // clones stay inactive
+        const existingGame = await query('SELECT image_url FROM games WHERE id = $1', [existing.rows[0].id]);
+        const newImage = g.image_url || existingGame.rows[0]?.image_url || null;
         await query(
           `UPDATE games SET game_name = $1, image_url = $2, is_active = $3, game_original = $4 WHERE id = $5`,
-          [g.name, g.image_url || null, shouldBeActive, isOriginal, existing.rows[0].id]
+          [g.name, newImage, shouldBeActive, isOriginal, existing.rows[0].id]
         );
         updated++;
       } else {
@@ -542,6 +650,19 @@ router.delete('/banners/:id', async (req, res) => {
     res.json({ ok: true });
   } catch (err) {
     res.status(500).json({ ok: false, msg: 'Erro ao excluir.' });
+  }
+});
+
+router.put('/banners/:id', async (req, res) => {
+  try {
+    const { link_url, sort_order } = req.body;
+    await query(
+      'UPDATE banners SET link_url = $1, sort_order = $2 WHERE id = $3',
+      [link_url || null, parseInt(sort_order) || 0, req.params.id]
+    );
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ ok: false, msg: 'Erro ao atualizar banner.' });
   }
 });
 

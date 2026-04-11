@@ -212,6 +212,41 @@
         await fetch(`/admin/api/banners/${btn.dataset.id}`, { method: 'DELETE', credentials: 'same-origin' });
         load();
       });
+      card.addEventListener('click', (e) => {
+        const btn = e.target.closest('.btn-edit-banner');
+        if (!btn) return;
+        const id = btn.dataset.id;
+        const curLink = btn.dataset.link || '';
+        const curOrder = btn.dataset.order || '0';
+        let editModal = document.getElementById('bannerEditModal');
+        if (!editModal) {
+          editModal = document.createElement('div');
+          editModal.id = 'bannerEditModal';
+          editModal.style.cssText = 'display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);align-items:center;justify-content:center';
+          editModal.innerHTML = `<div style="background:linear-gradient(160deg,#111827,#0d1321);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:32px;width:460px;max-width:92vw;box-shadow:0 24px 80px rgba(0,0,0,.6)"><h4 style="margin:0 0 24px;color:#fff;font-size:18px;font-weight:700">Editar Banner</h4><div style="display:flex;flex-direction:column;gap:18px"><div style="display:flex;flex-direction:column;gap:6px"><label style="font-size:11px;color:rgba(255,255,255,.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Link URL</label><input id="editBannerLink" placeholder="https://... (opcional)" style="height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3);color:#fff;padding:0 14px;outline:none;font-size:13px;font-weight:500;transition:border-color .2s" onfocus="this.style.borderColor='var(--adm-green1)'" onblur="this.style.borderColor='rgba(255,255,255,.1)'"></div><div style="display:flex;flex-direction:column;gap:6px"><label style="font-size:11px;color:rgba(255,255,255,.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Ordem de exibição</label><input id="editBannerOrder" type="number" value="0" style="height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3);color:#fff;padding:0 14px;outline:none;font-size:13px;font-weight:500;transition:border-color .2s;width:120px" onfocus="this.style.borderColor='var(--adm-green1)'" onblur="this.style.borderColor='rgba(255,255,255,.1)'"></div></div><div style="display:flex;gap:10px;margin-top:24px;justify-content:flex-end"><button class="adm-btn" id="editBannerCancel" style="padding:10px 20px;border-radius:10px">Cancelar</button><button class="adm-btn primary" id="editBannerSave" style="padding:10px 24px;border-radius:10px;font-weight:700">Salvar</button></div></div>`;
+          document.body.appendChild(editModal);
+          editModal.addEventListener('click', (ev) => { if (ev.target === editModal) editModal.style.display = 'none'; });
+          document.getElementById('editBannerCancel').addEventListener('click', () => { editModal.style.display = 'none'; });
+        }
+        document.getElementById('editBannerLink').value = curLink;
+        document.getElementById('editBannerOrder').value = curOrder;
+        editModal.style.display = 'flex';
+        document.getElementById('editBannerSave').onclick = async () => {
+          const saveBtn = document.getElementById('editBannerSave');
+          saveBtn.disabled = true; saveBtn.textContent = 'Salvando...';
+          try {
+            const r = await fetch(`/admin/api/banners/${id}`, {
+              method: 'PUT', headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ link_url: document.getElementById('editBannerLink').value, sort_order: document.getElementById('editBannerOrder').value }),
+              credentials: 'same-origin'
+            });
+            const d = await r.json();
+            if (d.ok) { editModal.style.display = 'none'; load(); }
+            else alert(d.msg || 'Erro');
+          } catch { alert('Erro de rede.'); }
+          saveBtn.disabled = false; saveBtn.textContent = 'Salvar';
+        };
+      });
     }
 
     if (pageName === 'affiliates') {
@@ -399,12 +434,13 @@
       return `<tr>
         <td>${r.id}</td>
         <td>${r.image_url ? `<img class="adm-thumb" src="${esc(r.image_url)}" alt="" style="width:100px;height:45px;object-fit:cover;border-radius:6px">` : '—'}</td>
-        <td style="color:rgba(255,255,255,.45)">${esc(r.link_url || '-')}</td>
+        <td style="color:rgba(255,255,255,.45);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(r.link_url || '-')}</td>
         <td>${r.sort_order}</td>
         <td>${activeTag(r.is_active)}</td>
         <td style="color:rgba(255,255,255,.45)">${fdate(r.created_at)}</td>
         <td>
           <div style="display:flex;gap:4px;">
+            <button class="adm-btn btn-edit-banner" data-id="${r.id}" data-link="${esc(r.link_url || '')}" data-order="${r.sort_order}" style="font-size:11px;height:30px;padding:0 8px;">Editar</button>
             <button class="adm-btn btn-toggle-banner" data-id="${r.id}" style="font-size:11px;height:30px;padding:0 8px;">${r.is_active ? 'Off' : 'On'}</button>
             <button class="adm-btn btn-delete-banner" data-id="${r.id}" style="font-size:11px;height:30px;padding:0 8px;border-color:rgba(255,77,77,.3);color:#ff4d4d">×</button>
           </div>
