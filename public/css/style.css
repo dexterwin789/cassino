@@ -1960,15 +1960,27 @@ body.search-lock{overflow:hidden!important}
   .gp-hero{height:420px}
   .gp-hero-image{width:150px;height:170px}
   .gp-stats{flex-direction:column}
-  .gp-info-bar{flex-direction:column;gap:12px;align-items:flex-start}
-  .gp-slider-card{flex:0 0 calc((100% - 24px) / 3);min-width:120px}
-  .gp-slider-card img{height:150px}
+  .gp-info-bar{flex-direction:row;gap:8px;align-items:center;padding:12px 14px}
+  .gp-game-name{font-size:15px}
+  .gp-provider-name{font-size:11px}
+  .gp-action-btn{padding:6px 10px;font-size:11px;gap:4px}
+  .gp-action-btn svg{width:14px;height:14px}
+  .gp-fullscreen-btn{padding:6px 8px}
+  .gp-slider-card{flex:0 0 calc((100% - 16px) / 3);min-width:0}
+  .gp-slider-card img{height:auto;aspect-ratio:4/3}
+  .gp-studios-track .estudio-card{flex:0 0 calc(33.33% - 11px);min-width:0;height:80px}
 }
 @media(max-width:480px){
   .gp-hero{height:360px}
   .gp-hero-image{width:130px;height:148px}
   .gp-hero-actions{flex-wrap:wrap;justify-content:center}
-  .gp-slider-card{flex:0 0 calc((100% - 12px) / 2);min-width:110px}
+  .gp-info-bar{padding:10px 12px;gap:6px}
+  .gp-game-name{font-size:13px}
+  .gp-provider-name{font-size:10px}
+  .gp-action-btn{padding:5px 8px;font-size:10px}
+  .gp-slider-card{flex:0 0 calc((100% - 12px) / 3);min-width:0}
+  .gp-slider-card img{height:auto;aspect-ratio:4/3}
+  .gp-studios-track .estudio-card{flex:0 0 calc(33.33% - 6px);height:70px}
 }
 
 /* ===== LOGIN MODAL ===== */
@@ -2574,10 +2586,15 @@ body.search-lock{overflow:hidden!important}
   .login-right{flex:1;width:100%}
 }
 @media(max-width:520px){
-  .login-modal{max-width:100%;border-radius:0;height:100vh;max-height:100vh}
+  .login-modal{max-width:100%;border-radius:0;height:100dvh;max-height:100dvh}
   .login-body{padding:0 24px}
-  .login-topbar{flex-wrap:wrap;height:auto;padding:8px}
-  .login-topbar-right{align-items:flex-start;padding:0}
+  .login-topbar{flex-wrap:nowrap;height:auto;min-height:48px;padding:10px 8px;gap:8px;align-items:center}
+  .login-help-btn{padding:4px 8px;font-size:10px;flex-shrink:0}
+  .login-help-btn img{width:18px;height:18px}
+  .login-topbar-right{align-items:flex-end;padding:0;flex:1;min-width:0}
+  .login-topbar-line{font-size:10px}
+  .login-link{font-size:10px}
+  .login-close{padding:4px;flex-shrink:0}
 }
 
 /* ===== PROVIDER GRID ===== */
@@ -2728,13 +2745,17 @@ body.search-lock{overflow:hidden!important}
 
   /* --- Banner: full width peek carousel, hide side banners --- */
   .banner-area{display:block;margin:0 -8px 10px;padding:0}
-  .banner-main{height:auto;border-radius:0;overflow:visible}
+  .banner-main{height:auto;border-radius:0;overflow:visible;position:relative}
   .banner-slider{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:0 8px}
   .banner-slider::-webkit-scrollbar{display:none}
   .banner-slide{min-width:80%;max-width:80%;flex-shrink:0;position:relative;opacity:1;pointer-events:auto;scroll-snap-align:start;border-radius:10px;overflow:hidden;height:120px}
-  .banner-slide img{width:100%;height:100%;object-fit:cover}
-  .banner-dots{display:none}
-  .banner-arrow{display:none}
+  .banner-slide img{width:100%;height:100%;object-fit:cover;object-position:center}
+  .banner-arrow{width:28px;height:28px;font-size:16px;background:rgba(0,0,0,.55)}
+  .banner-prev{left:6px}
+  .banner-next{right:6px}
+  .banner-dots{position:relative;bottom:auto;left:auto;transform:none;justify-content:center;margin-top:8px}
+  .banner-dots .dot{width:8px;height:8px}
+  .banner-dots .dot.active{width:18px}
   .banner-side{display:none}
 
   /* --- Remove gap between banner and search --- */

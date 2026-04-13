@@ -535,8 +535,36 @@ function initBannerDots() {
   });
 }
 
-if (bannerPrev) bannerPrev.addEventListener('click', function() { showBanner(bannerIndex - 1); startBannerAuto(); });
-if (bannerNext) bannerNext.addEventListener('click', function() { showBanner(bannerIndex + 1); startBannerAuto(); });
+if (bannerPrev) bannerPrev.addEventListener('click', function() {
+  if (isMobile() && bannerSlider) {
+    var slide = bannerSlider.querySelector('.banner-slide');
+    if (slide) bannerSlider.scrollBy({ left: -(slide.offsetWidth + 10), behavior: 'smooth' });
+  } else {
+    showBanner(bannerIndex - 1); startBannerAuto();
+  }
+});
+if (bannerNext) bannerNext.addEventListener('click', function() {
+  if (isMobile() && bannerSlider) {
+    var slide = bannerSlider.querySelector('.banner-slide');
+    if (slide) bannerSlider.scrollBy({ left: slide.offsetWidth + 10, behavior: 'smooth' });
+  } else {
+    showBanner(bannerIndex + 1); startBannerAuto();
+  }
+});
+
+/* Sync dots with scroll position on mobile */
+if (bannerSlider && bannerDotsEl) {
+  bannerSlider.addEventListener('scroll', function() {
+    if (!isMobile()) return;
+    var slides = getBannerSlides();
+    if (!slides.length) return;
+    var scrollLeft = bannerSlider.scrollLeft;
+    var slideW = slides[0].offsetWidth + 10;
+    var idx = Math.round(scrollLeft / slideW);
+    var dots = bannerDotsEl.querySelectorAll('.dot');
+    dots.forEach(function(d, i) { d.classList.toggle('active', i === idx); });
+  });
+}
 
 /* ========== TOUCH SWIPE — TOP10 ========== */
 (function() {
@@ -886,6 +914,10 @@ if (btnOpenLogin) btnOpenLogin.addEventListener('click', function() {
 // Deposit button
 var btnDeposit = document.getElementById('btnDeposit');
 if (btnDeposit) btnDeposit.addEventListener('click', function() {
+  if (!document.body.classList.contains('is-logged')) {
+    if (typeof openLoginModal === 'function') openLoginModal();
+    return;
+  }
   if (typeof openDepositModal === 'function') {
     openDepositModal();
   } else {

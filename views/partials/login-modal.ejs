@@ -606,7 +606,14 @@
   if (depModal) depModal.addEventListener('click', function(e) { if (e.target === depModal) closeDepositModal(); });
 
   document.querySelectorAll('#bnav-deposit, .bnav-deposit').forEach(function(btn) {
-    btn.addEventListener('click', function(e) { e.preventDefault(); openDepositModal(); });
+    btn.addEventListener('click', function(e) {
+      e.preventDefault();
+      if (!document.body.classList.contains('is-logged')) {
+        if (typeof openLoginModal === 'function') openLoginModal();
+        return;
+      }
+      openDepositModal();
+    });
   });
 
   /* Method card switching */
