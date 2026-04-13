@@ -2727,8 +2727,10 @@ body.search-lock{overflow:hidden!important}
   .topbar-user-btn{width:28px;height:28px}
   .topbar-user-avatar{width:24px;height:24px}
 
-  /* --- Promo strip: keep 3 in a row --- */
-  .promo-strip{grid-template-columns:repeat(3,1fr);gap:6px}
+  /* --- Promo strip: horizontal slider, 2 visible + 10% peek of 3rd --- */
+  .promo-strip{display:flex;gap:8px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:0 8px;margin:0 -8px 24px}
+  .promo-strip::-webkit-scrollbar{display:none}
+  .promo-strip-item{flex:0 0 calc(45% - 4px);scroll-snap-align:start}
 
   /* --- Sidebar mobile --- */
   .sidebar{
@@ -2757,12 +2759,12 @@ body.search-lock{overflow:hidden!important}
   .cat-icon-item span{font-size:10px}
 
   /* --- Banner: full width peek carousel, hide side banners --- */
-  .banner-area{display:block;margin:0 -8px 10px;padding:0}
-  .banner-main{height:auto;border-radius:0;overflow:visible;position:relative}
+  .banner-area{display:block;margin:0 -8px 10px;padding:0;background:var(--bg-body)}
+  .banner-main{height:auto;border-radius:0;overflow:visible;position:relative;padding-bottom:10px}
   .banner-slider{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:0 8px}
   .banner-slider::-webkit-scrollbar{display:none}
   .banner-slide{min-width:80%;max-width:80%;flex-shrink:0;position:relative;opacity:1;pointer-events:auto;scroll-snap-align:start;border-radius:10px;overflow:hidden;height:120px}
-  .banner-slide img{width:100%;height:100%;object-fit:cover;object-position:center}
+  .banner-slide img{width:100%;height:100%;object-fit:fill;object-position:center}
   .banner-arrow{width:28px;height:28px;font-size:16px;background:rgba(0,0,0,.55)}
   .banner-prev{left:6px}
   .banner-next{right:6px}
@@ -2838,6 +2840,42 @@ body.search-lock{overflow:hidden!important}
   .games-grid{grid-template-columns:repeat(3,1fr);gap:6px}
   .estudio-card{height:70px}
   .search-results-grid{grid-template-columns:repeat(3,1fr)}
+  .topbar-container{padding:0 6px;gap:3px}
+  .wallet-nav-item{font-size:11px;padding:10px 12px}
+  .wallet-panel-title{font-size:14px}
+  .wallet-content{padding:12px 8px;padding-top:0}
+  .ganhos-trophy-card{flex:0 0 110px;height:70px}
+  .ganho-card{flex:0 0 180px;height:70px}
+  .indique-desc{padding:12px}
+  .indique-link-input{font-size:11px;padding:8px 10px}
+  .indique-copy-btn{font-size:11px;padding:8px 12px}
+  .premios-tabs-wrap{flex-wrap:wrap}
+  .premios-tab{flex:1 1 40%;min-width:0}
+  .premios-tab-refresh{flex-shrink:0}
+}
+
+/* Small phones (375-435px) */
+@media(max-width:435px){
+  .topbar-container{padding:0 4px;gap:2px}
+  .topbar-logged{gap:3px}
+  .topbar-logged .btn-deposit{padding:4px 8px;font-size:9px}
+  .topbar-balance-btn{padding:3px 5px;font-size:9px}
+  .topbar-balance-refresh{padding:3px 4px}
+  .topbar-user-btn{width:26px;height:26px}
+  .topbar-user-avatar{width:22px;height:22px}
+  .topbar-notif{padding:3px}
+  .topbar-notif img{width:12px;height:12px}
+  .logo-img{height:20px;max-width:140px}
+  .btn-register,.btn-login{padding:4px 8px;font-size:9px}
+  .ganhos-trophy-card{flex:0 0 70px;height:70px;padding:6px 4px}
+  .ganhos-trophy-img{width:28px;height:28px}
+  .ganhos-trophy-text{font-size:8px}
+  .ganhos-scroll-wrapper{width:calc(100% - 82px)}
+  .ganho-card{flex:0 0 calc(100% - 20px);height:70px;padding:8px}
+  .ganho-thumb{width:38px;height:38px}
+  .ganho-user{font-size:10px}
+  .ganho-amount{font-size:12px}
+  .ganho-game{font-size:10px}
 }
 
 /* ===== NOTIFICATIONS ===== */
@@ -3042,30 +3080,6 @@ body.search-lock{overflow:hidden!important}
 
   /* Apostas table */
   .aposta-row{font-size:11px}
-}
-
-/* Small phones (480px) */
-@media(max-width:480px){
-  .topbar-container{padding:0 6px;gap:3px}
-
-  /* Wallet section — stacked experience */
-  .wallet-nav-item{font-size:11px;padding:10px 12px}
-  .wallet-panel-title{font-size:14px}
-  .wallet-content{padding:12px 8px;padding-top:0}
-
-  /* Ganhos — smaller cards */
-  .ganhos-trophy-card{flex:0 0 110px;height:70px}
-  .ganho-card{flex:0 0 180px;height:70px}
-
-  /* Indique mobile */
-  .indique-desc{padding:12px}
-  .indique-link-input{font-size:11px;padding:8px 10px}
-  .indique-copy-btn{font-size:11px;padding:8px 12px}
-
-  /* Prêmios — fit on small screens */
-  .premios-tabs-wrap{flex-wrap:wrap}
-  .premios-tab{flex:1 1 40%;min-width:0}
-  .premios-tab-refresh{flex-shrink:0}
 }
 
 /* Ultra-small (375px and below — iPhone SE, older devices) */
