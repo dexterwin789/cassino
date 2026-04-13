@@ -425,6 +425,18 @@ function renderAllSections() {
   renderTop10(hot);
   buildHomeProviderDropdown();
   renderHomeFiltered();
+  renderCategorySection('live', 'liveGamesScroll');
+  renderCategorySection('crash', 'crashGamesScroll');
+}
+
+function renderCategorySection(category, containerId) {
+  var el = document.getElementById(containerId);
+  if (!el) return;
+  var games = allGames.filter(function(g) {
+    return (g.category || '').toLowerCase() === category.toLowerCase();
+  });
+  if (!games.length) { el.closest('.game-section').style.display = 'none'; return; }
+  el.innerHTML = games.map(function(g) { return gameCardHTML(g); }).join('');
 }
 
 /* ========== TOP 10 SLIDER ========== */

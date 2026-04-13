@@ -658,6 +658,22 @@ ul{list-style:none}
 /* ===== SEARCH ===== */
 .search-section{margin-bottom:24px;position:relative}
 
+/* ===== CATEGORY GAMES HORIZONTAL SCROLL ===== */
+.category-games-scroll{
+  display:flex;gap:10px;
+  overflow-x:auto;scrollbar-width:none;
+  -webkit-overflow-scrolling:touch;
+  padding-bottom:4px;
+}
+.category-games-scroll::-webkit-scrollbar{display:none}
+.category-games-scroll .game-card{
+  flex:0 0 140px;min-width:0;
+}
+.category-games-scroll .game-card img{
+  width:100%;height:180px;object-fit:cover;
+  border-radius:var(--radius);
+}
+
 .search-box{
   display:flex;align-items:center;gap:10px;
   padding:.375rem .75rem;border-radius:8px;
@@ -902,7 +918,7 @@ body.search-lock{overflow:hidden!important}
   background:rgb(255,57,1);border-color:rgb(255,57,1);color:#fff;
 }
 .ganhos-strip{
-  display:flex;gap:12px;
+  display:flex;gap:12px;align-items:stretch;
   overflow-x:auto;
   padding-bottom:4px;
   position:relative;
@@ -910,15 +926,15 @@ body.search-lock{overflow:hidden!important}
 }
 .ganhos-strip::-webkit-scrollbar{display:none}
 .ganhos-trophy-card{
-  flex:0 0 195px;height:105px;
-  display:flex;align-items:center;gap:12px;
-  background:linear-gradient(90deg,#ffac4b40,#ffac4b00);
-  border-radius:.5rem;padding:0 16px;
+  flex:0 0 70px;height:90px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
+  background:linear-gradient(180deg,#ffac4b30,#ffac4b08);
+  border-radius:.5rem;padding:8px 6px;
 }
-.ganhos-trophy-img{width:60px;height:60px;object-fit:contain;flex-shrink:0}
+.ganhos-trophy-img{width:36px;height:36px;object-fit:contain;flex-shrink:0}
 .ganhos-trophy-text{
-  font-size:16px;font-weight:800;color:#fff;
-  line-height:1.2;letter-spacing:.5px;text-transform:uppercase;
+  font-size:10px;font-weight:800;color:#fff;
+  line-height:1.1;letter-spacing:.3px;text-transform:uppercase;text-align:center;
 }
 .ganhos-scroll-wrapper{
   flex:1;min-width:0;overflow:hidden;position:relative;
@@ -928,14 +944,14 @@ body.search-lock{overflow:hidden!important}
   transition:transform .5s ease;
 }
 .ganho-card{
-  flex:0 0 280px;height:105px;
-  display:flex;align-items:center;gap:12px;
+  flex:0 0 240px;height:90px;
+  display:flex;align-items:center;gap:10px;
   background-color:#21252e;
-  border-radius:.5rem;padding:14px;
+  border-radius:.5rem;padding:12px;
   box-sizing:border-box;
 }
 .ganho-thumb{
-  width:60px;height:60px;border-radius:8px;
+  width:50px;height:50px;border-radius:8px;
   object-fit:cover;flex-shrink:0;
 }
 .ganho-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
@@ -2760,7 +2776,7 @@ body.search-lock{overflow:hidden!important}
 
   /* --- Banner: full width peek carousel, hide side banners --- */
   .banner-area{display:block;margin:0 -8px 10px;padding:0;background:var(--bg-body)}
-  .banner-main{height:auto;border-radius:0;overflow:visible;position:relative;padding-bottom:10px}
+  .banner-main{height:auto;border-radius:0;overflow:visible;position:relative;padding-bottom:10px;background:transparent}
   .banner-slider{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:0 8px}
   .banner-slider::-webkit-scrollbar{display:none}
   .banner-slide{min-width:80%;max-width:80%;flex-shrink:0;position:relative;opacity:1;pointer-events:auto;scroll-snap-align:start;border-radius:10px;overflow:hidden;height:120px}
@@ -2773,8 +2789,21 @@ body.search-lock{overflow:hidden!important}
   .banner-dots .dot.active{width:18px}
   .banner-side{display:none}
 
+  /* --- Category game strips compact --- */
+  .category-games-scroll .game-card{flex:0 0 110px}
+  .category-games-scroll .game-card img{height:140px}
+
   /* --- Remove gap between banner and search --- */
   .search-section{margin-bottom:14px}
+
+  /* --- Archive bar: stack on mobile --- */
+  .archive-bar{flex-direction:column;align-items:stretch;gap:10px;margin:12px 0}
+  .archive-bar-left{flex-shrink:1}
+  .archive-title{white-space:normal;font-size:14px}
+  .archive-bar-right{flex-wrap:wrap;justify-content:stretch}
+  .archive-search-box{max-width:100%;flex:1 1 100%}
+  .archive-provider-wrap{flex:1 1 calc(50% - 4px)}
+  .archive-provider-btn{width:100%;font-size:12px;padding:7px 10px}
 
   /* --- Games grid: 3 per row --- */
   .games-grid{grid-template-columns:repeat(3,1fr);gap:8px}
@@ -2783,11 +2812,11 @@ body.search-lock{overflow:hidden!important}
   .estudio-card{flex:0 0 calc(33.33% - 8px);min-width:0;height:80px}
 
   /* --- Ganhos section compact — trophy stacked vertically --- */
-  .ganhos-trophy-card{flex:0 0 80px;height:80px;padding:8px 6px;flex-direction:column;gap:4px;justify-content:center;align-items:center}
-  .ganhos-trophy-img{width:32px;height:32px}
-  .ganhos-trophy-text{font-size:9px;text-align:center;line-height:1.1}
-  .ganhos-scroll-wrapper{overflow:hidden;flex:none;width:calc(100% - 92px)}
-  .ganho-card{flex:0 0 calc(100% - 30px);height:80px;padding:10px}
+  .ganhos-trophy-card{flex:0 0 64px;height:76px;padding:6px 4px}
+  .ganhos-trophy-img{width:30px;height:30px}
+  .ganhos-trophy-text{font-size:8px}
+  .ganhos-scroll-wrapper{overflow:hidden;flex:none;width:calc(100% - 76px)}
+  .ganho-card{flex:0 0 calc(100% - 16px);height:76px;padding:10px}
   .ganho-user{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .ganho-game{max-width:100%}
   .ganho-thumb{width:44px;height:44px}
@@ -2844,8 +2873,8 @@ body.search-lock{overflow:hidden!important}
   .wallet-nav-item{font-size:11px;padding:10px 12px}
   .wallet-panel-title{font-size:14px}
   .wallet-content{padding:12px 8px;padding-top:0}
-  .ganhos-trophy-card{flex:0 0 110px;height:70px}
-  .ganho-card{flex:0 0 180px;height:70px}
+  .ganhos-trophy-card{flex:0 0 58px;height:70px}
+  .ganho-card{flex:0 0 calc(100% - 12px);height:70px}
   .indique-desc{padding:12px}
   .indique-link-input{font-size:11px;padding:8px 10px}
   .indique-copy-btn{font-size:11px;padding:8px 12px}
@@ -2867,12 +2896,12 @@ body.search-lock{overflow:hidden!important}
   .topbar-notif img{width:12px;height:12px}
   .logo-img{height:20px;max-width:140px}
   .btn-register,.btn-login{padding:4px 8px;font-size:9px}
-  .ganhos-trophy-card{flex:0 0 70px;height:70px;padding:6px 4px}
-  .ganhos-trophy-img{width:28px;height:28px}
-  .ganhos-trophy-text{font-size:8px}
-  .ganhos-scroll-wrapper{width:calc(100% - 82px)}
-  .ganho-card{flex:0 0 calc(100% - 20px);height:70px;padding:8px}
-  .ganho-thumb{width:38px;height:38px}
+  .ganhos-trophy-card{flex:0 0 54px;height:66px;padding:4px 3px}
+  .ganhos-trophy-img{width:24px;height:24px}
+  .ganhos-trophy-text{font-size:7px}
+  .ganhos-scroll-wrapper{width:calc(100% - 66px)}
+  .ganho-card{flex:0 0 calc(100% - 10px);height:66px;padding:8px}
+  .ganho-thumb{width:36px;height:36px}
   .ganho-user{font-size:10px}
   .ganho-amount{font-size:12px}
   .ganho-game{font-size:10px}
