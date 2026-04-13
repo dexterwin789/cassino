@@ -1629,13 +1629,16 @@ function renderGanhos() {
 
 function startGanhosScroll() {
   if (ganhosInterval) clearInterval(ganhosInterval);
-  if (isMobile()) return; // on mobile, native scroll-snap handles it
   var track = document.getElementById('ganhosTrack');
   if (!track) return;
   var cards = track.querySelectorAll('.ganho-card');
   if (cards.length === 0) return;
-  var cardW = 280 + 12; // card width + gap
-  var maxIdx = Math.max(0, cards.length - 3);
+  var firstCard = cards[0];
+  var gap = 12;
+  var cardW = firstCard.offsetWidth + gap;
+  var wrapper = track.parentElement;
+  var visibleCount = wrapper ? Math.max(1, Math.floor(wrapper.offsetWidth / cardW)) : 3;
+  var maxIdx = Math.max(0, cards.length - visibleCount);
   ganhosScrollIdx = 0;
   ganhosInterval = setInterval(function() {
     ganhosScrollIdx++;
