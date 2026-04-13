@@ -1099,6 +1099,28 @@ function showWalletSection(panel) {
     // Load notifications when panel shown
     if (panel === 'notif' && typeof loadNotifications === 'function') loadNotifications();
   }
+
+  // Set initial mobile state
+  if (isMobile()) {
+    if (panel && (subPanels.indexOf(panel) !== -1 && panel !== 'perfil')) {
+      _walletMobileReturnTo = 'perfil';
+      var navI = document.querySelector('#walletSubMenu .wallet-nav-item[data-panel="' + panel + '"]');
+      setWalletMobileState('content', navI ? navI.textContent.trim() : panel);
+    } else if (panel && (saldoPanels.indexOf(panel) !== -1 && panel !== 'saldo')) {
+      _walletMobileReturnTo = 'saldo';
+      var navS = document.querySelector('#walletSubMenuSaldo .wallet-nav-item[data-panel="' + panel + '"]');
+      setWalletMobileState('content', navS ? navS.textContent.trim() : panel);
+    } else if (panel && (apostasPanels.indexOf(panel) !== -1 && panel !== 'apostas')) {
+      _walletMobileReturnTo = 'apostas';
+      var navA = document.querySelector('#walletSubMenuApostas .wallet-nav-item[data-panel="' + panel + '"]');
+      setWalletMobileState('content', navA ? navA.textContent.trim() : panel);
+    } else if (isSubPanel || isSaldoPanel || isApostasPanel) {
+      setWalletMobileState('submenu');
+    } else {
+      setWalletMobileState('nav');
+    }
+  }
+
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -1109,6 +1131,30 @@ function hideWalletSection() {
   if (wallet) wallet.style.display = 'none';
   // Reset to main menu
   hideWalletSubMenu();
+  setWalletMobileState('nav');
+}
+
+/* ========== MOBILE WALLET STATES ========== */
+var _walletMobileReturnTo = null; // tracks which sub-menu to return to from content view
+
+function setWalletMobileState(state, label) {
+  if (!isMobile()) return;
+  var grid = document.querySelector('.wallet-grid');
+  if (!grid) return;
+  var contentBack = document.getElementById('walletContentBack');
+  var contentBackLabel = document.getElementById('walletContentBackLabel');
+  grid.classList.remove('mobile-nav-view', 'mobile-submenu-view', 'mobile-content-view');
+  if (state === 'nav') {
+    grid.classList.add('mobile-nav-view');
+    if (contentBack) contentBack.style.display = 'none';
+  } else if (state === 'submenu') {
+    grid.classList.add('mobile-submenu-view');
+    if (contentBack) contentBack.style.display = 'none';
+  } else if (state === 'content') {
+    grid.classList.add('mobile-content-view');
+    if (contentBack) contentBack.style.display = '';
+    if (contentBackLabel && label) contentBackLabel.textContent = label;
+  }
 }
 
 // Sub-menu show/hide
@@ -1169,6 +1215,7 @@ if (walletSubBack) walletSubBack.addEventListener('click', function(e) {
   document.querySelectorAll('.wallet-panel').forEach(function(p) { p.classList.remove('active'); });
   var perfilPanel = document.getElementById('walletPanelPerfil');
   if (perfilPanel) perfilPanel.classList.add('active');
+  setWalletMobileState('nav');
 });
 
 // Nav item switching — main menu
@@ -1186,6 +1233,8 @@ document.querySelectorAll('#walletMainMenu .wallet-nav-item[data-panel]').forEac
       document.querySelectorAll('.wallet-panel').forEach(function(p) { p.classList.remove('active'); });
       var perfilPanel = document.getElementById('walletPanelPerfil');
       if (perfilPanel) perfilPanel.classList.add('active');
+      _walletMobileReturnTo = 'perfil';
+      setWalletMobileState('submenu');
       return;
     }
     if (hasSubmenu === 'saldo') {
@@ -1197,6 +1246,8 @@ document.querySelectorAll('#walletMainMenu .wallet-nav-item[data-panel]').forEac
       if (saldoPanel) saldoPanel.classList.add('active');
       var cartItem = document.querySelector('#walletSubMenuSaldo .wallet-nav-item[data-panel="carteira"]');
       if (cartItem) cartItem.classList.add('active');
+      _walletMobileReturnTo = 'saldo';
+      setWalletMobileState('submenu');
       return;
     }
     if (hasSubmenu === 'apostas') {
@@ -1208,6 +1259,8 @@ document.querySelectorAll('#walletMainMenu .wallet-nav-item[data-panel]').forEac
       if (cassinoPanel) cassinoPanel.classList.add('active');
       var cassinoItem = document.querySelector('#walletSubMenuApostas .wallet-nav-item[data-panel="apostasCassino"]');
       if (cassinoItem) cassinoItem.classList.add('active');
+      _walletMobileReturnTo = 'apostas';
+      setWalletMobileState('submenu');
       return;
     }
     hideWalletSubMenu();
@@ -1216,6 +1269,9 @@ document.querySelectorAll('#walletMainMenu .wallet-nav-item[data-panel]').forEac
     document.querySelectorAll('.wallet-panel').forEach(function(p) { p.classList.remove('active'); });
     var target = document.getElementById('walletPanel' + panel.charAt(0).toUpperCase() + panel.slice(1));
     if (target) target.classList.add('active');
+    // Items without sub-menu go directly to content view on mobile
+    _walletMobileReturnTo = 'main';
+    setWalletMobileState('content', item.textContent.trim().split('\n')[0].trim());
   });
 });
 
@@ -1229,6 +1285,10 @@ document.querySelectorAll('#walletSubMenu .wallet-nav-item[data-panel]').forEach
     document.querySelectorAll('.wallet-panel').forEach(function(p) { p.classList.remove('active'); });
     var target = document.getElementById('walletPanel' + panel.charAt(0).toUpperCase() + panel.slice(1));
     if (target) target.classList.add('active');
+    _walletMobileReturnTo = 'perfil';
+    setWalletMobileState('content', item.textContent.trim());
+    if (panel === 'sacar') loadWithdrawals();
+    if (panel === 'histTransacoes') loadTransactions();
   });
 });
 
@@ -1249,6 +1309,8 @@ document.querySelectorAll('#walletSubMenuSaldo .wallet-nav-item[data-panel]').fo
     if (target) target.classList.add('active');
     if (panel === 'sacar') loadWithdrawals();
     if (panel === 'histTransacoes') loadTransactions();
+    _walletMobileReturnTo = 'saldo';
+    setWalletMobileState('content', item.textContent.trim());
   });
 });
 
@@ -1263,6 +1325,7 @@ if (walletSubBackSaldo) walletSubBackSaldo.addEventListener('click', function(e)
   document.querySelectorAll('.wallet-panel').forEach(function(p) { p.classList.remove('active'); });
   var saldoPanel = document.getElementById('walletPanelSaldo');
   if (saldoPanel) saldoPanel.classList.add('active');
+  setWalletMobileState('nav');
 });
 
 // Nav item switching — sub-menu (Histórico de Apostas)
@@ -1275,6 +1338,8 @@ document.querySelectorAll('#walletSubMenuApostas .wallet-nav-item[data-panel]').
     document.querySelectorAll('.wallet-panel').forEach(function(p) { p.classList.remove('active'); });
     var target = document.getElementById('walletPanel' + panel.charAt(0).toUpperCase() + panel.slice(1));
     if (target) target.classList.add('active');
+    _walletMobileReturnTo = 'apostas';
+    setWalletMobileState('content', item.textContent.trim());
   });
 });
 
@@ -1289,6 +1354,7 @@ if (walletSubBackApostas) walletSubBackApostas.addEventListener('click', functio
   document.querySelectorAll('.wallet-panel').forEach(function(p) { p.classList.remove('active'); });
   var apostasPanel = document.getElementById('walletPanelApostasCassino');
   if (apostasPanel) apostasPanel.classList.add('active');
+  setWalletMobileState('nav');
 });
 
 // Wallet deposit button — just opens modal over current page
@@ -1303,6 +1369,42 @@ var walletWithdrawBtn = document.getElementById('walletWithdrawBtn');
 if (walletWithdrawBtn) walletWithdrawBtn.addEventListener('click', function(e) {
   e.preventDefault();
   showWalletSection('sacar');
+});
+
+// Mobile content-back button
+var walletContentBack = document.getElementById('walletContentBack');
+if (walletContentBack) walletContentBack.addEventListener('click', function(e) {
+  e.preventDefault();
+  if (_walletMobileReturnTo === 'perfil') {
+    showWalletSubMenu();
+    document.querySelectorAll('.wallet-panel').forEach(function(p) { p.classList.remove('active'); });
+    var perfilPanel = document.getElementById('walletPanelPerfil');
+    if (perfilPanel) perfilPanel.classList.add('active');
+    document.querySelectorAll('#walletSubMenu .wallet-nav-item').forEach(function(n) { n.classList.remove('active'); });
+    setWalletMobileState('submenu');
+  } else if (_walletMobileReturnTo === 'saldo') {
+    showSaldoSubMenu();
+    document.querySelectorAll('.wallet-panel').forEach(function(p) { p.classList.remove('active'); });
+    var cartPanel = document.getElementById('walletPanelCarteira');
+    if (cartPanel) cartPanel.classList.add('active');
+    document.querySelectorAll('#walletSubMenuSaldo .wallet-nav-item').forEach(function(n) { n.classList.remove('active'); });
+    var cartItem = document.querySelector('#walletSubMenuSaldo .wallet-nav-item[data-panel="carteira"]');
+    if (cartItem) cartItem.classList.add('active');
+    setWalletMobileState('submenu');
+  } else if (_walletMobileReturnTo === 'apostas') {
+    showApostasSubMenu();
+    document.querySelectorAll('.wallet-panel').forEach(function(p) { p.classList.remove('active'); });
+    var casPanel = document.getElementById('walletPanelApostasCassino');
+    if (casPanel) casPanel.classList.add('active');
+    document.querySelectorAll('#walletSubMenuApostas .wallet-nav-item').forEach(function(n) { n.classList.remove('active'); });
+    var casItem = document.querySelector('#walletSubMenuApostas .wallet-nav-item[data-panel="apostasCassino"]');
+    if (casItem) casItem.classList.add('active');
+    setWalletMobileState('submenu');
+  } else {
+    hideWalletSubMenu();
+    setWalletMobileState('nav');
+  }
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 });
 
 /* ========== ACCOUNT SECTION EXPAND/COLLAPSE ========== */
@@ -1527,6 +1629,7 @@ function renderGanhos() {
 
 function startGanhosScroll() {
   if (ganhosInterval) clearInterval(ganhosInterval);
+  if (isMobile()) return; // on mobile, native scroll-snap handles it
   var track = document.getElementById('ganhosTrack');
   if (!track) return;
   var cards = track.querySelectorAll('.ganho-card');

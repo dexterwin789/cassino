@@ -1294,6 +1294,18 @@ body.search-lock{overflow:hidden!important}
   .wallet-sub-back svg{width:14px;height:14px}
   .wallet-content{padding:12px 8px;padding-top:0}
   .wallet-panel-title{position:sticky;top:0;z-index:9;margin:0 -8px 12px;border-radius:0;padding:12px 16px;font-size:12px;background:#0e1117}
+  /* Mobile wallet: content-back header (shown when viewing content panel) */
+  .wallet-content-back{display:flex;align-items:center;gap:10px;padding:12px 16px;font-size:12px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:#fdffff;background:rgba(255,57,1,.12);backdrop-filter:blur(8px);text-decoration:none;cursor:pointer;position:sticky;top:0;z-index:10}
+  .wallet-content-back svg{width:14px;height:14px;opacity:.7;flex-shrink:0}
+  /* When mobile-content-view is active: hide nav, show content */
+  .wallet-grid.mobile-content-view .wallet-sidebar-nav{display:none}
+  .wallet-grid.mobile-content-view .wallet-content-back{display:flex}
+  .wallet-grid.mobile-content-view .wallet-panel-title{display:none}
+  .wallet-grid:not(.mobile-content-view) .wallet-content-back{display:none}
+  /* When viewing sub-menu on mobile: show nav + content together */
+  .wallet-grid.mobile-submenu-view .wallet-content{display:block}
+  /* Default mobile state: hide content when at nav index */
+  .wallet-grid.mobile-nav-view .wallet-content{display:none}
   .acct-field-row{flex-direction:column;gap:0}
   .acct-footer-bar{flex-direction:column;gap:6px;text-align:center}
   .acct-perfil-row{flex-direction:column}
@@ -2771,7 +2783,12 @@ body.search-lock{overflow:hidden!important}
   .ganhos-trophy-card{flex:0 0 80px;height:80px;padding:8px 6px;flex-direction:column;gap:4px;justify-content:center;align-items:center}
   .ganhos-trophy-img{width:32px;height:32px}
   .ganhos-trophy-text{font-size:9px;text-align:center;line-height:1.1}
-  .ganho-card{flex:0 0 200px;height:80px;padding:10px}
+  .ganhos-strip{scroll-snap-type:x mandatory}
+  .ganhos-trophy-card{scroll-snap-align:start}
+  .ganhos-scroll-wrapper{overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch;flex:none;width:calc(100% - 92px)}
+  .ganhos-scroll-wrapper::-webkit-scrollbar{display:none}
+  .ganhos-scroll-track{transition:none}
+  .ganho-card{flex:0 0 calc(100% - 20px);height:80px;padding:10px;scroll-snap-align:start}
   .ganho-thumb{width:44px;height:44px}
   .ganho-user{font-size:11px}
   .ganho-amount{font-size:13px}
