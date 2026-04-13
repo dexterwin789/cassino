@@ -127,45 +127,45 @@
 
     <section class="category-icons">
       <% if (locals.sportsEnabled) { %>
-      <div class="cat-icon-item">
+      <a href="#" class="cat-icon-item">
         <div class="cat-icon-circle"><img src="/public/img/esportes_svg.svg" width="60" height="60" alt="Esportes"></div>
         <span>Esportes</span>
-      </div>
+      </a>
       <% } %>
-      <div class="cat-icon-item">
+      <a href="#" class="cat-icon-item" onclick="if(typeof toggleWallet==='function'){toggleWallet('premios');return false;}">
         <div class="cat-icon-circle"><img src="/public/img/promocoes_svg.svg" width="60" height="60" alt="Promoções"></div>
         <span>Promoções</span>
-      </div>
-      <div class="cat-icon-item">
-        <div class="cat-icon-circle"><img src="/public/img/roleta_svg.svg" width="60" height="60" alt="Cassino"></div>
-        <span>Cassino</span>
-      </div>
-      <div class="cat-icon-item">
-        <div class="cat-icon-circle"><img src="/public/img/aviator.png" width="60" height="60" alt="Aviatrix"></div>
-        <span>Aviatrix</span>
-      </div>
-      <div class="cat-icon-item">
-        <div class="cat-icon-circle"><img src="/public/img/cartas_svg.svg" width="60" height="60" alt="Cassino"></div>
-        <span>Cassino</span>
-      </div>
+      </a>
+      <a href="/games?category=live" class="cat-icon-item">
+        <div class="cat-icon-circle"><img src="/public/img/roleta_svg.svg" width="60" height="60" alt="Cassino ao Vivo"></div>
+        <span>Cassino ao Vivo</span>
+      </a>
+      <a href="/game/aviator" class="cat-icon-item">
+        <div class="cat-icon-circle"><img src="/public/img/aviator.png" width="60" height="60" alt="Aviator"></div>
+        <span>Aviator</span>
+      </a>
+      <a href="/games?category=slots" class="cat-icon-item">
+        <div class="cat-icon-circle"><img src="/public/img/cartas_svg.svg" width="60" height="60" alt="Slots"></div>
+        <span>Slots</span>
+      </a>
       <% if (locals.sportsEnabled) { %>
-      <div class="cat-icon-item">
+      <a href="#" class="cat-icon-item">
         <div class="cat-icon-circle"><img src="/public/img/novo/controle_svg.svg" width="60" height="60" alt="E-Sports"></div>
         <span>E-Sports</span>
-      </div>
+      </a>
       <% } %>
-      <div class="cat-icon-item">
-        <div class="cat-icon-circle"><img src="/public/img/calendar.png" width="60" height="60" alt="Calendário"></div>
-        <span>Calendário</span>
-      </div>
-      <div class="cat-icon-item">
+      <a href="/games?category=crash" class="cat-icon-item">
+        <div class="cat-icon-circle"><img src="/public/img/calendar.png" width="60" height="60" alt="Crash"></div>
+        <span>Crash</span>
+      </a>
+      <a href="/games?category=mines" class="cat-icon-item">
         <div class="cat-icon-circle"><img src="/public/img/mines_svg.svg" width="60" height="60" alt="Mines"></div>
         <span>Mines</span>
-      </div>
-      <div class="cat-icon-item">
+      </a>
+      <a href="#" class="cat-icon-item is-logged-el" onclick="if(typeof toggleWallet==='function'){toggleWallet('indique');return false;}">
         <div class="cat-icon-circle"><img src="/public/img/indique_e_ganhe_svg.svg" width="60" height="60" alt="Indique"></div>
         <span>Indique</span>
-      </div>
+      </a>
     </section>
 
     <section class="banner-area">
@@ -758,7 +758,7 @@
             <!-- Indicações -->
             <div class="indique-history">
               <div class="indique-history-header">
-                <h3 style="color:var(--text);margin:0;font-size:13px;font-weight:800;letter-spacing:.5px">MINHAS INDICAÀ‡À•ES:</h3>
+                <h3 style="color:var(--text);margin:0;font-size:13px;font-weight:800;letter-spacing:.5px">MINHAS INDICAÇÕES:</h3>
               </div>
               <div class="indique-period-tabs" style="margin-bottom:16px">
                 <button class="indique-period active" data-period="all">Período total</button>
@@ -812,7 +812,7 @@
               <div class="acct-section-header">
                 <div class="acct-section-left">
                   <span class="acct-title">E-mail</span>
-                  <span class="acct-badge acct-badge-verified">âœ“ Verificado</span>
+                  <span class="acct-badge acct-badge-verified">✔ Verificado</span>
                 </div>
               </div>
               <div class="acct-summary"><span class="acct-summary-value" id="acctEmailValue">usuario@email.com</span></div>
@@ -823,7 +823,7 @@
               <div class="acct-section-header" onclick="toggleAcctSection('acctCelular')">
                 <div class="acct-section-left">
                   <span class="acct-title">Celular</span>
-                  <span class="acct-badge acct-badge-verified">âœ“ Verificado</span>
+                  <span class="acct-badge acct-badge-verified">✔ Verificado</span>
                 </div>
                 <button class="acct-toggle-btn">EDITAR</button>
               </div>
@@ -848,7 +848,7 @@
               <div class="acct-section-header" onclick="toggleAcctSection('acctEndereco')">
                 <div class="acct-section-left">
                   <span class="acct-title">Endereço</span>
-                  <span class="acct-badge acct-badge-complete">âœ“ Completo</span>
+                  <span class="acct-badge acct-badge-complete">✔ Completo</span>
                 </div>
                 <button class="acct-toggle-btn">EDITAR</button>
               </div>
@@ -890,8 +890,8 @@
               <div class="acct-section-header" onclick="toggleAcctSection('acctDocumento')">
                 <div class="acct-section-left">
                   <span class="acct-title">Documento</span>
-                  <span class="acct-doc-star">â˜…</span>
-                  <span class="acct-badge acct-badge-verified">âœ“ Verificado</span>
+                  <span class="acct-doc-star">★</span>
+                  <span class="acct-badge acct-badge-verified">✔ Verificado</span>
                 </div>
                 <button class="acct-toggle-btn">VER DADOS</button>
               </div>
@@ -919,7 +919,7 @@
               <div class="acct-section-header" onclick="toggleAcctSection('acctContratos')">
                 <div class="acct-section-left">
                   <span class="acct-title">Contratos e Aceites</span>
-                  <span class="acct-badge acct-badge-complete">âœ“ Completo</span>
+                  <span class="acct-badge acct-badge-complete">✔ Completo</span>
                 </div>
                 <button class="acct-toggle-btn">VISUALIZAR</button>
               </div>
@@ -952,7 +952,7 @@
                 </div>
                 <button class="acct-toggle-btn">EDITAR</button>
               </div>
-              <div class="acct-summary"><span class="acct-summary-value" id="acctPixSummary">â—† CPF: ***.***.***-00</span></div>
+              <div class="acct-summary"><span class="acct-summary-value" id="acctPixSummary">◆ CPF: ***.***.***-00</span></div>
               <div class="acct-expand">
                 <div class="acct-field-group">
                   <label class="acct-label">Tipo de Chave</label>
@@ -982,7 +982,7 @@
                 </div>
                 <button class="acct-toggle-btn">VER DADOS</button>
               </div>
-              <div class="acct-summary"><span class="acct-summary-value">â—‰ BRA | BRL | PT-BR</span></div>
+              <div class="acct-summary"><span class="acct-summary-value">◉ BRA | BRL | PT-BR</span></div>
               <div class="acct-expand">
                 <div class="acct-field-row">
                   <div class="acct-field-group acct-field-half">
@@ -1195,7 +1195,7 @@
                         <option>Prefiro não especificar</option>
                       </select>
                     </div>
-                    <button class="acct-btn-save acct-btn-danger" onclick="saveAcctField('pausaTemp')">âš  Selecione um período</button>
+                    <button class="acct-btn-save acct-btn-danger" onclick="saveAcctField('pausaTemp')">⚠ Selecione um período</button>
                   </div>
                 </div>
               </div>
@@ -1233,7 +1233,7 @@
                         <option>Prefiro não especificar</option>
                       </select>
                     </div>
-                    <button class="acct-btn-save acct-btn-danger" onclick="saveAcctField('autoExclusao')">âš  Selecione um período</button>
+                    <button class="acct-btn-save acct-btn-danger" onclick="saveAcctField('autoExclusao')">⚠ Selecione um período</button>
                   </div>
                 </div>
               </div>
@@ -1281,10 +1281,10 @@
 
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-<!-- â•â•â•â•â•â•â•â•â•â• LOGIN / REGISTER / DEPOSIT MODALS â•â•â•â•â•â•â•â•â•â• -->
+<!-- ==================== LOGIN / REGISTER / DEPOSIT MODALS ==================== -->
 <%- include('partials/login-modal') %>
 
-<!-- â•â•â•â•â•â•â•â•â•â• TOAST â•â•â•â•â•â•â•â•â•â• -->
+<!-- ==================== TOAST ==================== -->
 <div class="toast-container" id="toastContainer"></div>
 
 <script src="/public/js/script.js"></script>
