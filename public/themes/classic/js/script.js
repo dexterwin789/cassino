@@ -1,4 +1,4 @@
-/* /cassino/public/js/script.js — Esportiva Desktop Layout */
+/* /cassino/public/js/script.js — VemNaBet Desktop Layout */
 
 var allGames = [];
 

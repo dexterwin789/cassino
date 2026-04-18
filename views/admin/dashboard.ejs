@@ -302,9 +302,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     const actEl = document.getElementById('activityFeed');
     if (d.recentActivity && d.recentActivity.length) {
       const typeMap = {
-        deposit: { icon: 'Á°Å¸â—™Â°', color: '#2ee76b', label: 'Depósito' },
-        withdrawal: { icon: 'Á°Å¸', color: '#34D399', label: 'Saque' },
-        register: { icon: 'Á°Å¸â—˜Â¤', color: '#2b8cff', label: 'Registro' }
+        deposit: { icon: '\ud83d\udcb0', color: '#2ee76b', label: 'Depósito' },
+        withdrawal: { icon: '\ud83d\udcb8', color: '#34D399', label: 'Saque' },
+        register: { icon: '\ud83d\udc64', color: '#2b8cff', label: 'Registro' }
       };
       actEl.innerHTML = d.recentActivity.map(a => {
         const t = typeMap[a.type] || { icon: '', color: '#fff', label: a.type };

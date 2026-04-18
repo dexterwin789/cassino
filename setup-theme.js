@@ -71,14 +71,14 @@ if (!sql.includes('template_folder')) {
     "template_folder VARCHAR(50) DEFAULT 'classic',\n  is_active   BOOLEAN NOT NULL DEFAULT FALSE,"
   );
   sql += "\nALTER TABLE themes ADD COLUMN IF NOT EXISTS template_folder VARCHAR(50) DEFAULT 'classic';\n";
-  sql += "INSERT INTO themes (slug, name, css_vars, layout_config, template_folder, is_active) VALUES ('esportiva', 'Esportiva', '{}', '{}', 'esportiva', true) ON CONFLICT (slug) DO UPDATE SET template_folder = 'esportiva';\n";
-  sql += "INSERT INTO platform_settings (key, value) VALUES ('active_theme', 'esportiva') ON CONFLICT (key) DO UPDATE SET value = 'esportiva';\n";
+  sql += "INSERT INTO themes (slug, name, css_vars, layout_config, template_folder, is_active) VALUES ('vemnabet', 'VemNaBet', '{}', '{}', 'vemnabet', true) ON CONFLICT (slug) DO UPDATE SET template_folder = 'vemnabet';\n";
+  sql += "INSERT INTO platform_settings (key, value) VALUES ('active_theme', 'vemnabet') ON CONFLICT (key) DO UPDATE SET value = 'vemnabet';\n";
   fs.writeFileSync(B+'/src/config/schema.sql', sql);
-  console.log('  + template_folder + seed esportiva');
+  console.log('  + template_folder + seed vemnabet');
 }
 
-console.log('\n=== 5. CRIANDO TEMA ESPORTIVA - HEAD.EJS ===');
-w(B+'/views/themes/esportiva/partials/head.ejs', `<!DOCTYPE html>
+console.log('\n=== 5. CRIANDO TEMA VEMNABET - HEAD.EJS ===');
+w(B+'/views/themes/vemnabet/partials/head.ejs', `<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
@@ -169,14 +169,14 @@ if (!sql.includes('template_folder')) {
     "template_folder VARCHAR(50) DEFAULT 'classic',\n  is_active   BOOLEAN NOT NULL DEFAULT FALSE,"
   );
   sql += "\nALTER TABLE themes ADD COLUMN IF NOT EXISTS template_folder VARCHAR(50) DEFAULT 'classic';\n";
-  sql += "INSERT INTO themes (slug, name, css_vars, layout_config, template_folder, is_active) VALUES ('esportiva', 'Esportiva', '{}', '{}', 'esportiva', true) ON CONFLICT (slug) DO UPDATE SET template_folder = 'esportiva';\n";
-  sql += "INSERT INTO platform_settings (key, value) VALUES ('active_theme', 'esportiva') ON CONFLICT (key) DO UPDATE SET value = 'esportiva';\n";
+  sql += "INSERT INTO themes (slug, name, css_vars, layout_config, template_folder, is_active) VALUES ('vemnabet', 'VemNaBet', '{}', '{}', 'vemnabet', true) ON CONFLICT (slug) DO UPDATE SET template_folder = 'vemnabet';\n";
+  sql += "INSERT INTO platform_settings (key, value) VALUES ('active_theme', 'vemnabet') ON CONFLICT (key) DO UPDATE SET value = 'vemnabet';\n";
   fs.writeFileSync(B+'/src/config/schema.sql', sql);
-  console.log('  + template_folder + seed esportiva');
+  console.log('  + template_folder + seed vemnabet');
 }
 
-console.log('\n=== 5. CRIANDO TEMA ESPORTIVA - HEAD.EJS ===');
-w(B+'/views/themes/esportiva/partials/head.ejs', `<!DOCTYPE html>
+console.log('\n=== 5. CRIANDO TEMA VEMNABET - HEAD.EJS ===');
+w(B+'/views/themes/vemnabet/partials/head.ejs', `<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
@@ -267,14 +267,14 @@ if (!sql.includes('template_folder')) {
     "template_folder VARCHAR(50) DEFAULT 'classic',\n  is_active   BOOLEAN NOT NULL DEFAULT FALSE,"
   );
   sql += "\nALTER TABLE themes ADD COLUMN IF NOT EXISTS template_folder VARCHAR(50) DEFAULT 'classic';\n";
-  sql += "INSERT INTO themes (slug, name, css_vars, layout_config, template_folder, is_active) VALUES ('esportiva', 'Esportiva', '{}', '{}', 'esportiva', true) ON CONFLICT (slug) DO UPDATE SET template_folder = 'esportiva';\n";
-  sql += "INSERT INTO platform_settings (key, value) VALUES ('active_theme', 'esportiva') ON CONFLICT (key) DO UPDATE SET value = 'esportiva';\n";
+  sql += "INSERT INTO themes (slug, name, css_vars, layout_config, template_folder, is_active) VALUES ('vemnabet', 'VemNaBet', '{}', '{}', 'vemnabet', true) ON CONFLICT (slug) DO UPDATE SET template_folder = 'vemnabet';\n";
+  sql += "INSERT INTO platform_settings (key, value) VALUES ('active_theme', 'vemnabet') ON CONFLICT (key) DO UPDATE SET value = 'vemnabet';\n";
   fs.writeFileSync(B+'/src/config/schema.sql', sql);
-  console.log('  + template_folder + seed esportiva');
+  console.log('  + template_folder + seed vemnabet');
 }
 
-console.log('\n=== 5. CRIANDO TEMA ESPORTIVA - HEAD.EJS ===');
-w(B+'/views/themes/esportiva/partials/head.ejs', `<!DOCTYPE html>
+console.log('\n=== 5. CRIANDO TEMA VEMNABET - HEAD.EJS ===');
+w(B+'/views/themes/vemnabet/partials/head.ejs', `<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
@@ -365,14 +365,14 @@ if (!sql.includes('template_folder')) {
     "template_folder VARCHAR(50) DEFAULT 'classic',\n  is_active   BOOLEAN NOT NULL DEFAULT FALSE,"
   );
   sql += "\nALTER TABLE themes ADD COLUMN IF NOT EXISTS template_folder VARCHAR(50) DEFAULT 'classic';\n";
-  sql += "INSERT INTO themes (slug, name, css_vars, layout_config, template_folder, is_active) VALUES ('esportiva', 'Esportiva', '{}', '{}', 'esportiva', true) ON CONFLICT (slug) DO UPDATE SET template_folder = 'esportiva';\n";
-  sql += "INSERT INTO platform_settings (key, value) VALUES ('active_theme', 'esportiva') ON CONFLICT (key) DO UPDATE SET value = 'esportiva';\n";
+  sql += "INSERT INTO themes (slug, name, css_vars, layout_config, template_folder, is_active) VALUES ('vemnabet', 'VemNaBet', '{}', '{}', 'vemnabet', true) ON CONFLICT (slug) DO UPDATE SET template_folder = 'vemnabet';\n";
+  sql += "INSERT INTO platform_settings (key, value) VALUES ('active_theme', 'vemnabet') ON CONFLICT (key) DO UPDATE SET value = 'vemnabet';\n";
   fs.writeFileSync(B+'/src/config/schema.sql', sql);
-  console.log('  + template_folder + seed esportiva');
+  console.log('  + template_folder + seed vemnabet');
 }
 
-console.log('\n=== 5. CRIANDO TEMA ESPORTIVA - HEAD.EJS ===');
-w(B+'/views/themes/esportiva/partials/head.ejs', `<!DOCTYPE html>
+console.log('\n=== 5. CRIANDO TEMA VEMNABET - HEAD.EJS ===');
+w(B+'/views/themes/vemnabet/partials/head.ejs', `<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
@@ -463,14 +463,14 @@ if (!sql.includes('template_folder')) {
     "template_folder VARCHAR(50) DEFAULT 'classic',\n  is_active   BOOLEAN NOT NULL DEFAULT FALSE,"
   );
   sql += "\nALTER TABLE themes ADD COLUMN IF NOT EXISTS template_folder VARCHAR(50) DEFAULT 'classic';\n";
-  sql += "INSERT INTO themes (slug, name, css_vars, layout_config, template_folder, is_active) VALUES ('esportiva', 'Esportiva', '{}', '{}', 'esportiva', true) ON CONFLICT (slug) DO UPDATE SET template_folder = 'esportiva';\n";
-  sql += "INSERT INTO platform_settings (key, value) VALUES ('active_theme', 'esportiva') ON CONFLICT (key) DO UPDATE SET value = 'esportiva';\n";
+  sql += "INSERT INTO themes (slug, name, css_vars, layout_config, template_folder, is_active) VALUES ('vemnabet', 'VemNaBet', '{}', '{}', 'vemnabet', true) ON CONFLICT (slug) DO UPDATE SET template_folder = 'vemnabet';\n";
+  sql += "INSERT INTO platform_settings (key, value) VALUES ('active_theme', 'vemnabet') ON CONFLICT (key) DO UPDATE SET value = 'vemnabet';\n";
   fs.writeFileSync(B+'/src/config/schema.sql', sql);
-  console.log('  + template_folder + seed esportiva');
+  console.log('  + template_folder + seed vemnabet');
 }
 
-console.log('\n=== 5. CRIANDO TEMA ESPORTIVA - HEAD.EJS ===');
-w(B+'/views/themes/esportiva/partials/head.ejs', `<!DOCTYPE html>
+console.log('\n=== 5. CRIANDO TEMA VEMNABET - HEAD.EJS ===');
+w(B+'/views/themes/vemnabet/partials/head.ejs', `<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
@@ -561,14 +561,14 @@ if (!sql.includes('template_folder')) {
     "template_folder VARCHAR(50) DEFAULT 'classic',\n  is_active   BOOLEAN NOT NULL DEFAULT FALSE,"
   );
   sql += "\nALTER TABLE themes ADD COLUMN IF NOT EXISTS template_folder VARCHAR(50) DEFAULT 'classic';\n";
-  sql += "INSERT INTO themes (slug, name, css_vars, layout_config, template_folder, is_active) VALUES ('esportiva', 'Esportiva', '{}', '{}', 'esportiva', true) ON CONFLICT (slug) DO UPDATE SET template_folder = 'esportiva';\n";
-  sql += "INSERT INTO platform_settings (key, value) VALUES ('active_theme', 'esportiva') ON CONFLICT (key) DO UPDATE SET value = 'esportiva';\n";
+  sql += "INSERT INTO themes (slug, name, css_vars, layout_config, template_folder, is_active) VALUES ('vemnabet', 'VemNaBet', '{}', '{}', 'vemnabet', true) ON CONFLICT (slug) DO UPDATE SET template_folder = 'vemnabet';\n";
+  sql += "INSERT INTO platform_settings (key, value) VALUES ('active_theme', 'vemnabet') ON CONFLICT (key) DO UPDATE SET value = 'vemnabet';\n";
   fs.writeFileSync(B+'/src/config/schema.sql', sql);
-  console.log('  + template_folder + seed esportiva');
+  console.log('  + template_folder + seed vemnabet');
 }
 
-console.log('\n=== 5. CRIANDO TEMA ESPORTIVA - HEAD.EJS ===');
-w(B+'/views/themes/esportiva/partials/head.ejs', `<!DOCTYPE html>
+console.log('\n=== 5. CRIANDO TEMA VEMNABET - HEAD.EJS ===');
+w(B+'/views/themes/vemnabet/partials/head.ejs', `<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
@@ -659,14 +659,14 @@ if (!sql.includes('template_folder')) {
     "template_folder VARCHAR(50) DEFAULT 'classic',\n  is_active   BOOLEAN NOT NULL DEFAULT FALSE,"
   );
   sql += "\nALTER TABLE themes ADD COLUMN IF NOT EXISTS template_folder VARCHAR(50) DEFAULT 'classic';\n";
-  sql += "INSERT INTO themes (slug, name, css_vars, layout_config, template_folder, is_active) VALUES ('esportiva', 'Esportiva', '{}', '{}', 'esportiva', true) ON CONFLICT (slug) DO UPDATE SET template_folder = 'esportiva';\n";
-  sql += "INSERT INTO platform_settings (key, value) VALUES ('active_theme', 'esportiva') ON CONFLICT (key) DO UPDATE SET value = 'esportiva';\n";
+  sql += "INSERT INTO themes (slug, name, css_vars, layout_config, template_folder, is_active) VALUES ('vemnabet', 'VemNaBet', '{}', '{}', 'vemnabet', true) ON CONFLICT (slug) DO UPDATE SET template_folder = 'vemnabet';\n";
+  sql += "INSERT INTO platform_settings (key, value) VALUES ('active_theme', 'vemnabet') ON CONFLICT (key) DO UPDATE SET value = 'vemnabet';\n";
   fs.writeFileSync(B+'/src/config/schema.sql', sql);
-  console.log('  + template_folder + seed esportiva');
+  console.log('  + template_folder + seed vemnabet');
 }
 
-console.log('\n=== 5. CRIANDO TEMA ESPORTIVA - HEAD.EJS ===');
-w(B+'/views/themes/esportiva/partials/head.ejs', `<!DOCTYPE html>
+console.log('\n=== 5. CRIANDO TEMA VEMNABET - HEAD.EJS ===');
+w(B+'/views/themes/vemnabet/partials/head.ejs', `<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
@@ -757,14 +757,14 @@ if (!sql.includes('template_folder')) {
     "template_folder VARCHAR(50) DEFAULT 'classic',\n  is_active   BOOLEAN NOT NULL DEFAULT FALSE,"
   );
   sql += "\nALTER TABLE themes ADD COLUMN IF NOT EXISTS template_folder VARCHAR(50) DEFAULT 'classic';\n";
-  sql += "INSERT INTO themes (slug, name, css_vars, layout_config, template_folder, is_active) VALUES ('esportiva', 'Esportiva', '{}', '{}', 'esportiva', true) ON CONFLICT (slug) DO UPDATE SET template_folder = 'esportiva';\n";
-  sql += "INSERT INTO platform_settings (key, value) VALUES ('active_theme', 'esportiva') ON CONFLICT (key) DO UPDATE SET value = 'esportiva';\n";
+  sql += "INSERT INTO themes (slug, name, css_vars, layout_config, template_folder, is_active) VALUES ('vemnabet', 'VemNaBet', '{}', '{}', 'vemnabet', true) ON CONFLICT (slug) DO UPDATE SET template_folder = 'vemnabet';\n";
+  sql += "INSERT INTO platform_settings (key, value) VALUES ('active_theme', 'vemnabet') ON CONFLICT (key) DO UPDATE SET value = 'vemnabet';\n";
   fs.writeFileSync(B+'/src/config/schema.sql', sql);
-  console.log('  + template_folder + seed esportiva');
+  console.log('  + template_folder + seed vemnabet');
 }
 
-console.log('\n=== 5. CRIANDO TEMA ESPORTIVA - HEAD.EJS ===');
-w(B+'/views/themes/esportiva/partials/head.ejs', `<!DOCTYPE html>
+console.log('\n=== 5. CRIANDO TEMA VEMNABET - HEAD.EJS ===');
+w(B+'/views/themes/vemnabet/partials/head.ejs', `<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
@@ -855,14 +855,14 @@ if (!sql.includes('template_folder')) {
     "template_folder VARCHAR(50) DEFAULT 'classic',\n  is_active   BOOLEAN NOT NULL DEFAULT FALSE,"
   );
   sql += "\nALTER TABLE themes ADD COLUMN IF NOT EXISTS template_folder VARCHAR(50) DEFAULT 'classic';\n";
-  sql += "INSERT INTO themes (slug, name, css_vars, layout_config, template_folder, is_active) VALUES ('esportiva', 'Esportiva', '{}', '{}', 'esportiva', true) ON CONFLICT (slug) DO UPDATE SET template_folder = 'esportiva';\n";
-  sql += "INSERT INTO platform_settings (key, value) VALUES ('active_theme', 'esportiva') ON CONFLICT (key) DO UPDATE SET value = 'esportiva';\n";
+  sql += "INSERT INTO themes (slug, name, css_vars, layout_config, template_folder, is_active) VALUES ('vemnabet', 'VemNaBet', '{}', '{}', 'vemnabet', true) ON CONFLICT (slug) DO UPDATE SET template_folder = 'vemnabet';\n";
+  sql += "INSERT INTO platform_settings (key, value) VALUES ('active_theme', 'vemnabet') ON CONFLICT (key) DO UPDATE SET value = 'vemnabet';\n";
   fs.writeFileSync(B+'/src/config/schema.sql', sql);
-  console.log('  + template_folder + seed esportiva');
+  console.log('  + template_folder + seed vemnabet');
 }
 
-console.log('\n=== 5. CRIANDO TEMA ESPORTIVA - HEAD.EJS ===');
-w(B+'/views/themes/esportiva/partials/head.ejs', `<!DOCTYPE html>
+console.log('\n=== 5. CRIANDO TEMA VEMNABET - HEAD.EJS ===');
+w(B+'/views/themes/vemnabet/partials/head.ejs', `<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
@@ -955,14 +955,14 @@ if (!sql.includes('template_folder')) {
     "template_folder VARCHAR(50) DEFAULT 'classic',\n  is_active   BOOLEAN NOT NULL DEFAULT FALSE,"
   );
   sql += "\nALTER TABLE themes ADD COLUMN IF NOT EXISTS template_folder VARCHAR(50) DEFAULT 'classic';\n";
-  sql += "INSERT INTO themes (slug, name, css_vars, layout_config, template_folder, is_active) VALUES ('esportiva', 'Esportiva', '{}', '{}', 'esportiva', true) ON CONFLICT (slug) DO UPDATE SET template_folder = 'esportiva';\n";
-  sql += "INSERT INTO platform_settings (key, value) VALUES ('active_theme', 'esportiva') ON CONFLICT (key) DO UPDATE SET value = 'esportiva';\n";
+  sql += "INSERT INTO themes (slug, name, css_vars, layout_config, template_folder, is_active) VALUES ('vemnabet', 'VemNaBet', '{}', '{}', 'vemnabet', true) ON CONFLICT (slug) DO UPDATE SET template_folder = 'vemnabet';\n";
+  sql += "INSERT INTO platform_settings (key, value) VALUES ('active_theme', 'vemnabet') ON CONFLICT (key) DO UPDATE SET value = 'vemnabet';\n";
   fs.writeFileSync(B+'/src/config/schema.sql', sql);
-  console.log('  + template_folder + seed esportiva');
+  console.log('  + template_folder + seed vemnabet');
 }
 
-console.log('\n=== 5. CRIANDO TEMA ESPORTIVA - HEAD.EJS ===');
-w(B+'/views/themes/esportiva/partials/head.ejs', `<!DOCTYPE html>
+console.log('\n=== 5. CRIANDO TEMA VEMNABET - HEAD.EJS ===');
+w(B+'/views/themes/vemnabet/partials/head.ejs', `<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
@@ -1055,14 +1055,14 @@ if (!sql.includes('template_folder')) {
     "template_folder VARCHAR(50) DEFAULT 'classic',\n  is_active   BOOLEAN NOT NULL DEFAULT FALSE,"
   );
   sql += "\nALTER TABLE themes ADD COLUMN IF NOT EXISTS template_folder VARCHAR(50) DEFAULT 'classic';\n";
-  sql += "INSERT INTO themes (slug, name, css_vars, layout_config, template_folder, is_active) VALUES ('esportiva', 'Esportiva', '{}', '{}', 'esportiva', true) ON CONFLICT (slug) DO UPDATE SET template_folder = 'esportiva';\n";
-  sql += "INSERT INTO platform_settings (key, value) VALUES ('active_theme', 'esportiva') ON CONFLICT (key) DO UPDATE SET value = 'esportiva';\n";
+  sql += "INSERT INTO themes (slug, name, css_vars, layout_config, template_folder, is_active) VALUES ('vemnabet', 'VemNaBet', '{}', '{}', 'vemnabet', true) ON CONFLICT (slug) DO UPDATE SET template_folder = 'vemnabet';\n";
+  sql += "INSERT INTO platform_settings (key, value) VALUES ('active_theme', 'vemnabet') ON CONFLICT (key) DO UPDATE SET value = 'vemnabet';\n";
   fs.writeFileSync(B+'/src/config/schema.sql', sql);
-  console.log('  + template_folder + seed esportiva');
+  console.log('  + template_folder + seed vemnabet');
 }
 
-console.log('\n=== 5. CRIANDO TEMA ESPORTIVA - HEAD.EJS ===');
-w(B+'/views/themes/esportiva/partials/head.ejs', `<!DOCTYPE html>
+console.log('\n=== 5. CRIANDO TEMA VEMNABET - HEAD.EJS ===');
+w(B+'/views/themes/vemnabet/partials/head.ejs', `<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
@@ -1155,14 +1155,14 @@ if (!sql.includes('template_folder')) {
     "template_folder VARCHAR(50) DEFAULT 'classic',\n  is_active   BOOLEAN NOT NULL DEFAULT FALSE,"
   );
   sql += "\nALTER TABLE themes ADD COLUMN IF NOT EXISTS template_folder VARCHAR(50) DEFAULT 'classic';\n";
-  sql += "INSERT INTO themes (slug, name, css_vars, layout_config, template_folder, is_active) VALUES ('esportiva', 'Esportiva', '{}', '{}', 'esportiva', true) ON CONFLICT (slug) DO UPDATE SET template_folder = 'esportiva';\n";
-  sql += "INSERT INTO platform_settings (key, value) VALUES ('active_theme', 'esportiva') ON CONFLICT (key) DO UPDATE SET value = 'esportiva';\n";
+  sql += "INSERT INTO themes (slug, name, css_vars, layout_config, template_folder, is_active) VALUES ('vemnabet', 'VemNaBet', '{}', '{}', 'vemnabet', true) ON CONFLICT (slug) DO UPDATE SET template_folder = 'vemnabet';\n";
+  sql += "INSERT INTO platform_settings (key, value) VALUES ('active_theme', 'vemnabet') ON CONFLICT (key) DO UPDATE SET value = 'vemnabet';\n";
   fs.writeFileSync(B+'/src/config/schema.sql', sql);
-  console.log('  + template_folder + seed esportiva');
+  console.log('  + template_folder + seed vemnabet');
 }
 
-console.log('\n=== 5. CRIANDO TEMA ESPORTIVA - HEAD.EJS ===');
-w(B+'/views/themes/esportiva/partials/head.ejs', `<!DOCTYPE html>
+console.log('\n=== 5. CRIANDO TEMA VEMNABET - HEAD.EJS ===');
+w(B+'/views/themes/vemnabet/partials/head.ejs', `<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
@@ -1255,14 +1255,14 @@ if (!sql.includes('template_folder')) {
     "template_folder VARCHAR(50) DEFAULT 'classic',\n  is_active   BOOLEAN NOT NULL DEFAULT FALSE,"
   );
   sql += "\nALTER TABLE themes ADD COLUMN IF NOT EXISTS template_folder VARCHAR(50) DEFAULT 'classic';\n";
-  sql += "INSERT INTO themes (slug, name, css_vars, layout_config, template_folder, is_active) VALUES ('esportiva', 'Esportiva', '{}', '{}', 'esportiva', true) ON CONFLICT (slug) DO UPDATE SET template_folder = 'esportiva';\n";
-  sql += "INSERT INTO platform_settings (key, value) VALUES ('active_theme', 'esportiva') ON CONFLICT (key) DO UPDATE SET value = 'esportiva';\n";
+  sql += "INSERT INTO themes (slug, name, css_vars, layout_config, template_folder, is_active) VALUES ('vemnabet', 'VemNaBet', '{}', '{}', 'vemnabet', true) ON CONFLICT (slug) DO UPDATE SET template_folder = 'vemnabet';\n";
+  sql += "INSERT INTO platform_settings (key, value) VALUES ('active_theme', 'vemnabet') ON CONFLICT (key) DO UPDATE SET value = 'vemnabet';\n";
   fs.writeFileSync(B+'/src/config/schema.sql', sql);
-  console.log('  + template_folder + seed esportiva');
+  console.log('  + template_folder + seed vemnabet');
 }
 
-console.log('\n=== 5. CRIANDO TEMA ESPORTIVA - HEAD.EJS ===');
-w(B+'/views/themes/esportiva/partials/head.ejs', `<!DOCTYPE html>
+console.log('\n=== 5. CRIANDO TEMA VEMNABET - HEAD.EJS ===');
+w(B+'/views/themes/vemnabet/partials/head.ejs', `<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
@@ -1270,7 +1270,7 @@ w(B+'/views/themes/esportiva/partials/head.ejs', `<!DOCTYPE html>
   <title><%= typeof title !== 'undefined' ? title : 'Cassino' %></title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/themes/esportiva/css/style.css">
+  <link rel="stylesheet" href="/themes/vemnabet/css/style.css">
 ```
 
 
@@ -1356,14 +1356,14 @@ if (!sql.includes('template_folder')) {
     "template_folder VARCHAR(50) DEFAULT 'classic',\n  is_active   BOOLEAN NOT NULL DEFAULT FALSE,"
   );
   sql += "\nALTER TABLE themes ADD COLUMN IF NOT EXISTS template_folder VARCHAR(50) DEFAULT 'classic';\n";
-  sql += "INSERT INTO themes (slug, name, css_vars, layout_config, template_folder, is_active) VALUES ('esportiva', 'Esportiva', '{}', '{}', 'esportiva', true) ON CONFLICT (slug) DO UPDATE SET template_folder = 'esportiva';\n";
-  sql += "INSERT INTO platform_settings (key, value) VALUES ('active_theme', 'esportiva') ON CONFLICT (key) DO UPDATE SET value = 'esportiva';\n";
+  sql += "INSERT INTO themes (slug, name, css_vars, layout_config, template_folder, is_active) VALUES ('vemnabet', 'VemNaBet', '{}', '{}', 'vemnabet', true) ON CONFLICT (slug) DO UPDATE SET template_folder = 'vemnabet';\n";
+  sql += "INSERT INTO platform_settings (key, value) VALUES ('active_theme', 'vemnabet') ON CONFLICT (key) DO UPDATE SET value = 'vemnabet';\n";
   fs.writeFileSync(B+'/src/config/schema.sql', sql);
-  console.log('  + template_folder + seed esportiva');
+  console.log('  + template_folder + seed vemnabet');
 }
 
-console.log('\n=== 5. CRIANDO TEMA ESPORTIVA - HEAD.EJS ===');
-w(B+'/views/themes/esportiva/partials/head.ejs', `<!DOCTYPE html>
+console.log('\n=== 5. CRIANDO TEMA VEMNABET - HEAD.EJS ===');
+w(B+'/views/themes/vemnabet/partials/head.ejs', `<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
@@ -1456,14 +1456,14 @@ if (!sql.includes('template_folder')) {
     "template_folder VARCHAR(50) DEFAULT 'classic',\n  is_active   BOOLEAN NOT NULL DEFAULT FALSE,"
   );
   sql += "\nALTER TABLE themes ADD COLUMN IF NOT EXISTS template_folder VARCHAR(50) DEFAULT 'classic';\n";
-  sql += "INSERT INTO themes (slug, name, css_vars, layout_config, template_folder, is_active) VALUES ('esportiva', 'Esportiva', '{}', '{}', 'esportiva', true) ON CONFLICT (slug) DO UPDATE SET template_folder = 'esportiva';\n";
-  sql += "INSERT INTO platform_settings (key, value) VALUES ('active_theme', 'esportiva') ON CONFLICT (key) DO UPDATE SET value = 'esportiva';\n";
+  sql += "INSERT INTO themes (slug, name, css_vars, layout_config, template_folder, is_active) VALUES ('vemnabet', 'VemNaBet', '{}', '{}', 'vemnabet', true) ON CONFLICT (slug) DO UPDATE SET template_folder = 'vemnabet';\n";
+  sql += "INSERT INTO platform_settings (key, value) VALUES ('active_theme', 'vemnabet') ON CONFLICT (key) DO UPDATE SET value = 'vemnabet';\n";
   fs.writeFileSync(B+'/src/config/schema.sql', sql);
-  console.log('  + template_folder + seed esportiva');
+  console.log('  + template_folder + seed vemnabet');
 }
 
-console.log('\n=== 5. CRIANDO TEMA ESPORTIVA - HEAD.EJS ===');
-w(B+'/views/themes/esportiva/partials/head.ejs', `<!DOCTYPE html>
+console.log('\n=== 5. CRIANDO TEMA VEMNABET - HEAD.EJS ===');
+w(B+'/views/themes/vemnabet/partials/head.ejs', `<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
@@ -1556,14 +1556,14 @@ if (!sql.includes('template_folder')) {
     "template_folder VARCHAR(50) DEFAULT 'classic',\n  is_active   BOOLEAN NOT NULL DEFAULT FALSE,"
   );
   sql += "\nALTER TABLE themes ADD COLUMN IF NOT EXISTS template_folder VARCHAR(50) DEFAULT 'classic';\n";
-  sql += "INSERT INTO themes (slug, name, css_vars, layout_config, template_folder, is_active) VALUES ('esportiva', 'Esportiva', '{}', '{}', 'esportiva', true) ON CONFLICT (slug) DO UPDATE SET template_folder = 'esportiva';\n";
-  sql += "INSERT INTO platform_settings (key, value) VALUES ('active_theme', 'esportiva') ON CONFLICT (key) DO UPDATE SET value = 'esportiva';\n";
+  sql += "INSERT INTO themes (slug, name, css_vars, layout_config, template_folder, is_active) VALUES ('vemnabet', 'VemNaBet', '{}', '{}', 'vemnabet', true) ON CONFLICT (slug) DO UPDATE SET template_folder = 'vemnabet';\n";
+  sql += "INSERT INTO platform_settings (key, value) VALUES ('active_theme', 'vemnabet') ON CONFLICT (key) DO UPDATE SET value = 'vemnabet';\n";
   fs.writeFileSync(B+'/src/config/schema.sql', sql);
-  console.log('  + template_folder + seed esportiva');
+  console.log('  + template_folder + seed vemnabet');
 }
 
-console.log('\n=== 5. CRIANDO TEMA ESPORTIVA - HEAD.EJS ===');
-w(B+'/views/themes/esportiva/partials/head.ejs', `<!DOCTYPE html>
+console.log('\n=== 5. CRIANDO TEMA VEMNABET - HEAD.EJS ===');
+w(B+'/views/themes/vemnabet/partials/head.ejs', `<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
@@ -1571,7 +1571,7 @@ w(B+'/views/themes/esportiva/partials/head.ejs', `<!DOCTYPE html>
   <title><%= typeof title !== 'undefined' ? title : 'Cassino' %></title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/themes/esportiva/css/style.css">
+  <link rel="stylesheet" href="/themes/vemnabet/css/style.css">
 ```
 
 
@@ -1657,14 +1657,14 @@ if (!sql.includes('template_folder')) {
     "template_folder VARCHAR(50) DEFAULT 'classic',\n  is_active   BOOLEAN NOT NULL DEFAULT FALSE,"
   );
   sql += "\nALTER TABLE themes ADD COLUMN IF NOT EXISTS template_folder VARCHAR(50) DEFAULT 'classic';\n";
-  sql += "INSERT INTO themes (slug, name, css_vars, layout_config, template_folder, is_active) VALUES ('esportiva', 'Esportiva', '{}', '{}', 'esportiva', true) ON CONFLICT (slug) DO UPDATE SET template_folder = 'esportiva';\n";
-  sql += "INSERT INTO platform_settings (key, value) VALUES ('active_theme', 'esportiva') ON CONFLICT (key) DO UPDATE SET value = 'esportiva';\n";
+  sql += "INSERT INTO themes (slug, name, css_vars, layout_config, template_folder, is_active) VALUES ('vemnabet', 'VemNaBet', '{}', '{}', 'vemnabet', true) ON CONFLICT (slug) DO UPDATE SET template_folder = 'vemnabet';\n";
+  sql += "INSERT INTO platform_settings (key, value) VALUES ('active_theme', 'vemnabet') ON CONFLICT (key) DO UPDATE SET value = 'vemnabet';\n";
   fs.writeFileSync(B+'/src/config/schema.sql', sql);
-  console.log('  + template_folder + seed esportiva');
+  console.log('  + template_folder + seed vemnabet');
 }
 
-console.log('\n=== 5. CRIANDO TEMA ESPORTIVA - HEAD.EJS ===');
-w(B+'/views/themes/esportiva/partials/head.ejs', `<!DOCTYPE html>
+console.log('\n=== 5. CRIANDO TEMA VEMNABET - HEAD.EJS ===');
+w(B+'/views/themes/vemnabet/partials/head.ejs', `<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
@@ -1757,14 +1757,14 @@ if (!sql.includes('template_folder')) {
     "template_folder VARCHAR(50) DEFAULT 'classic',\n  is_active   BOOLEAN NOT NULL DEFAULT FALSE,"
   );
   sql += "\nALTER TABLE themes ADD COLUMN IF NOT EXISTS template_folder VARCHAR(50) DEFAULT 'classic';\n";
-  sql += "INSERT INTO themes (slug, name, css_vars, layout_config, template_folder, is_active) VALUES ('esportiva', 'Esportiva', '{}', '{}', 'esportiva', true) ON CONFLICT (slug) DO UPDATE SET template_folder = 'esportiva';\n";
-  sql += "INSERT INTO platform_settings (key, value) VALUES ('active_theme', 'esportiva') ON CONFLICT (key) DO UPDATE SET value = 'esportiva';\n";
+  sql += "INSERT INTO themes (slug, name, css_vars, layout_config, template_folder, is_active) VALUES ('vemnabet', 'VemNaBet', '{}', '{}', 'vemnabet', true) ON CONFLICT (slug) DO UPDATE SET template_folder = 'vemnabet';\n";
+  sql += "INSERT INTO platform_settings (key, value) VALUES ('active_theme', 'vemnabet') ON CONFLICT (key) DO UPDATE SET value = 'vemnabet';\n";
   fs.writeFileSync(B+'/src/config/schema.sql', sql);
-  console.log('  + template_folder + seed esportiva');
+  console.log('  + template_folder + seed vemnabet');
 }
 
-console.log('\n=== 5. CRIANDO TEMA ESPORTIVA - HEAD.EJS ===');
-w(B+'/views/themes/esportiva/partials/head.ejs', `<!DOCTYPE html>
+console.log('\n=== 5. CRIANDO TEMA VEMNABET - HEAD.EJS ===');
+w(B+'/views/themes/vemnabet/partials/head.ejs', `<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
@@ -1857,14 +1857,14 @@ if (!sql.includes('template_folder')) {
     "template_folder VARCHAR(50) DEFAULT 'classic',\n  is_active   BOOLEAN NOT NULL DEFAULT FALSE,"
   );
   sql += "\nALTER TABLE themes ADD COLUMN IF NOT EXISTS template_folder VARCHAR(50) DEFAULT 'classic';\n";
-  sql += "INSERT INTO themes (slug, name, css_vars, layout_config, template_folder, is_active) VALUES ('esportiva', 'Esportiva', '{}', '{}', 'esportiva', true) ON CONFLICT (slug) DO UPDATE SET template_folder = 'esportiva';\n";
-  sql += "INSERT INTO platform_settings (key, value) VALUES ('active_theme', 'esportiva') ON CONFLICT (key) DO UPDATE SET value = 'esportiva';\n";
+  sql += "INSERT INTO themes (slug, name, css_vars, layout_config, template_folder, is_active) VALUES ('vemnabet', 'VemNaBet', '{}', '{}', 'vemnabet', true) ON CONFLICT (slug) DO UPDATE SET template_folder = 'vemnabet';\n";
+  sql += "INSERT INTO platform_settings (key, value) VALUES ('active_theme', 'vemnabet') ON CONFLICT (key) DO UPDATE SET value = 'vemnabet';\n";
   fs.writeFileSync(B+'/src/config/schema.sql', sql);
-  console.log('  + template_folder + seed esportiva');
+  console.log('  + template_folder + seed vemnabet');
 }
 
-console.log('\n=== 5. CRIANDO TEMA ESPORTIVA - HEAD.EJS ===');
-w(B+'/views/themes/esportiva/partials/head.ejs', `<!DOCTYPE html>
+console.log('\n=== 5. CRIANDO TEMA VEMNABET - HEAD.EJS ===');
+w(B+'/views/themes/vemnabet/partials/head.ejs', `<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
@@ -1872,7 +1872,7 @@ w(B+'/views/themes/esportiva/partials/head.ejs', `<!DOCTYPE html>
   <title><%= typeof title !== 'undefined' ? title : 'Cassino' %></title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/themes/esportiva/css/style.css">
+  <link rel="stylesheet" href="/themes/vemnabet/css/style.css">
 ```
 
 
@@ -1958,14 +1958,14 @@ if (!sql.includes('template_folder')) {
     "template_folder VARCHAR(50) DEFAULT 'classic',\n  is_active   BOOLEAN NOT NULL DEFAULT FALSE,"
   );
   sql += "\nALTER TABLE themes ADD COLUMN IF NOT EXISTS template_folder VARCHAR(50) DEFAULT 'classic';\n";
-  sql += "INSERT INTO themes (slug, name, css_vars, layout_config, template_folder, is_active) VALUES ('esportiva', 'Esportiva', '{}', '{}', 'esportiva', true) ON CONFLICT (slug) DO UPDATE SET template_folder = 'esportiva';\n";
-  sql += "INSERT INTO platform_settings (key, value) VALUES ('active_theme', 'esportiva') ON CONFLICT (key) DO UPDATE SET value = 'esportiva';\n";
+  sql += "INSERT INTO themes (slug, name, css_vars, layout_config, template_folder, is_active) VALUES ('vemnabet', 'VemNaBet', '{}', '{}', 'vemnabet', true) ON CONFLICT (slug) DO UPDATE SET template_folder = 'vemnabet';\n";
+  sql += "INSERT INTO platform_settings (key, value) VALUES ('active_theme', 'vemnabet') ON CONFLICT (key) DO UPDATE SET value = 'vemnabet';\n";
   fs.writeFileSync(B+'/src/config/schema.sql', sql);
-  console.log('  + template_folder + seed esportiva');
+  console.log('  + template_folder + seed vemnabet');
 }
 
-console.log('\n=== 5. CRIANDO TEMA ESPORTIVA - HEAD.EJS ===');
-w(B+'/views/themes/esportiva/partials/head.ejs', `<!DOCTYPE html>
+console.log('\n=== 5. CRIANDO TEMA VEMNABET - HEAD.EJS ===');
+w(B+'/views/themes/vemnabet/partials/head.ejs', `<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
@@ -2058,14 +2058,14 @@ if (!sql.includes('template_folder')) {
     "template_folder VARCHAR(50) DEFAULT 'classic',\n  is_active   BOOLEAN NOT NULL DEFAULT FALSE,"
   );
   sql += "\nALTER TABLE themes ADD COLUMN IF NOT EXISTS template_folder VARCHAR(50) DEFAULT 'classic';\n";
-  sql += "INSERT INTO themes (slug, name, css_vars, layout_config, template_folder, is_active) VALUES ('esportiva', 'Esportiva', '{}', '{}', 'esportiva', true) ON CONFLICT (slug) DO UPDATE SET template_folder = 'esportiva';\n";
-  sql += "INSERT INTO platform_settings (key, value) VALUES ('active_theme', 'esportiva') ON CONFLICT (key) DO UPDATE SET value = 'esportiva';\n";
+  sql += "INSERT INTO themes (slug, name, css_vars, layout_config, template_folder, is_active) VALUES ('vemnabet', 'VemNaBet', '{}', '{}', 'vemnabet', true) ON CONFLICT (slug) DO UPDATE SET template_folder = 'vemnabet';\n";
+  sql += "INSERT INTO platform_settings (key, value) VALUES ('active_theme', 'vemnabet') ON CONFLICT (key) DO UPDATE SET value = 'vemnabet';\n";
   fs.writeFileSync(B+'/src/config/schema.sql', sql);
-  console.log('  + template_folder + seed esportiva');
+  console.log('  + template_folder + seed vemnabet');
 }
 
-console.log('\n=== 5. CRIANDO TEMA ESPORTIVA - HEAD.EJS ===');
-w(B+'/views/themes/esportiva/partials/head.ejs', `<!DOCTYPE html>
+console.log('\n=== 5. CRIANDO TEMA VEMNABET - HEAD.EJS ===');
+w(B+'/views/themes/vemnabet/partials/head.ejs', `<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
@@ -2158,14 +2158,14 @@ if (!sql.includes('template_folder')) {
     "template_folder VARCHAR(50) DEFAULT 'classic',\n  is_active   BOOLEAN NOT NULL DEFAULT FALSE,"
   );
   sql += "\nALTER TABLE themes ADD COLUMN IF NOT EXISTS template_folder VARCHAR(50) DEFAULT 'classic';\n";
-  sql += "INSERT INTO themes (slug, name, css_vars, layout_config, template_folder, is_active) VALUES ('esportiva', 'Esportiva', '{}', '{}', 'esportiva', true) ON CONFLICT (slug) DO UPDATE SET template_folder = 'esportiva';\n";
-  sql += "INSERT INTO platform_settings (key, value) VALUES ('active_theme', 'esportiva') ON CONFLICT (key) DO UPDATE SET value = 'esportiva';\n";
+  sql += "INSERT INTO themes (slug, name, css_vars, layout_config, template_folder, is_active) VALUES ('vemnabet', 'VemNaBet', '{}', '{}', 'vemnabet', true) ON CONFLICT (slug) DO UPDATE SET template_folder = 'vemnabet';\n";
+  sql += "INSERT INTO platform_settings (key, value) VALUES ('active_theme', 'vemnabet') ON CONFLICT (key) DO UPDATE SET value = 'vemnabet';\n";
   fs.writeFileSync(B+'/src/config/schema.sql', sql);
-  console.log('  + template_folder + seed esportiva');
+  console.log('  + template_folder + seed vemnabet');
 }
 
-console.log('\n=== 5. CRIANDO TEMA ESPORTIVA - HEAD.EJS ===');
-w(B+'/views/themes/esportiva/partials/head.ejs', `<!DOCTYPE html>
+console.log('\n=== 5. CRIANDO TEMA VEMNABET - HEAD.EJS ===');
+w(B+'/views/themes/vemnabet/partials/head.ejs', `<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
@@ -2173,7 +2173,7 @@ w(B+'/views/themes/esportiva/partials/head.ejs', `<!DOCTYPE html>
   <title><%= typeof title !== 'undefined' ? title : 'Cassino' %></title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/themes/esportiva/css/style.css">
+  <link rel="stylesheet" href="/themes/vemnabet/css/style.css">
 ```
 
 
@@ -2259,14 +2259,14 @@ if (!sql.includes('template_folder')) {
     "template_folder VARCHAR(50) DEFAULT 'classic',\n  is_active   BOOLEAN NOT NULL DEFAULT FALSE,"
   );
   sql += "\nALTER TABLE themes ADD COLUMN IF NOT EXISTS template_folder VARCHAR(50) DEFAULT 'classic';\n";
-  sql += "INSERT INTO themes (slug, name, css_vars, layout_config, template_folder, is_active) VALUES ('esportiva', 'Esportiva', '{}', '{}', 'esportiva', true) ON CONFLICT (slug) DO UPDATE SET template_folder = 'esportiva';\n";
-  sql += "INSERT INTO platform_settings (key, value) VALUES ('active_theme', 'esportiva') ON CONFLICT (key) DO UPDATE SET value = 'esportiva';\n";
+  sql += "INSERT INTO themes (slug, name, css_vars, layout_config, template_folder, is_active) VALUES ('vemnabet', 'VemNaBet', '{}', '{}', 'vemnabet', true) ON CONFLICT (slug) DO UPDATE SET template_folder = 'vemnabet';\n";
+  sql += "INSERT INTO platform_settings (key, value) VALUES ('active_theme', 'vemnabet') ON CONFLICT (key) DO UPDATE SET value = 'vemnabet';\n";
   fs.writeFileSync(B+'/src/config/schema.sql', sql);
-  console.log('  + template_folder + seed esportiva');
+  console.log('  + template_folder + seed vemnabet');
 }
 
-console.log('\n=== 5. CRIANDO TEMA ESPORTIVA - HEAD.EJS ===');
-w(B+'/views/themes/esportiva/partials/head.ejs', `<!DOCTYPE html>
+console.log('\n=== 5. CRIANDO TEMA VEMNABET - HEAD.EJS ===');
+w(B+'/views/themes/vemnabet/partials/head.ejs', `<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
@@ -2359,14 +2359,14 @@ if (!sql.includes('template_folder')) {
     "template_folder VARCHAR(50) DEFAULT 'classic',\n  is_active   BOOLEAN NOT NULL DEFAULT FALSE,"
   );
   sql += "\nALTER TABLE themes ADD COLUMN IF NOT EXISTS template_folder VARCHAR(50) DEFAULT 'classic';\n";
-  sql += "INSERT INTO themes (slug, name, css_vars, layout_config, template_folder, is_active) VALUES ('esportiva', 'Esportiva', '{}', '{}', 'esportiva', true) ON CONFLICT (slug) DO UPDATE SET template_folder = 'esportiva';\n";
-  sql += "INSERT INTO platform_settings (key, value) VALUES ('active_theme', 'esportiva') ON CONFLICT (key) DO UPDATE SET value = 'esportiva';\n";
+  sql += "INSERT INTO themes (slug, name, css_vars, layout_config, template_folder, is_active) VALUES ('vemnabet', 'VemNaBet', '{}', '{}', 'vemnabet', true) ON CONFLICT (slug) DO UPDATE SET template_folder = 'vemnabet';\n";
+  sql += "INSERT INTO platform_settings (key, value) VALUES ('active_theme', 'vemnabet') ON CONFLICT (key) DO UPDATE SET value = 'vemnabet';\n";
   fs.writeFileSync(B+'/src/config/schema.sql', sql);
-  console.log('  + template_folder + seed esportiva');
+  console.log('  + template_folder + seed vemnabet');
 }
 
-console.log('\n=== 5. CRIANDO TEMA ESPORTIVA - HEAD.EJS ===');
-w(B+'/views/themes/esportiva/partials/head.ejs', `<!DOCTYPE html>
+console.log('\n=== 5. CRIANDO TEMA VEMNABET - HEAD.EJS ===');
+w(B+'/views/themes/vemnabet/partials/head.ejs', `<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
@@ -2459,14 +2459,14 @@ if (!sql.includes('template_folder')) {
     "template_folder VARCHAR(50) DEFAULT 'classic',\n  is_active   BOOLEAN NOT NULL DEFAULT FALSE,"
   );
   sql += "\nALTER TABLE themes ADD COLUMN IF NOT EXISTS template_folder VARCHAR(50) DEFAULT 'classic';\n";
-  sql += "INSERT INTO themes (slug, name, css_vars, layout_config, template_folder, is_active) VALUES ('esportiva', 'Esportiva', '{}', '{}', 'esportiva', true) ON CONFLICT (slug) DO UPDATE SET template_folder = 'esportiva';\n";
-  sql += "INSERT INTO platform_settings (key, value) VALUES ('active_theme', 'esportiva') ON CONFLICT (key) DO UPDATE SET value = 'esportiva';\n";
+  sql += "INSERT INTO themes (slug, name, css_vars, layout_config, template_folder, is_active) VALUES ('vemnabet', 'VemNaBet', '{}', '{}', 'vemnabet', true) ON CONFLICT (slug) DO UPDATE SET template_folder = 'vemnabet';\n";
+  sql += "INSERT INTO platform_settings (key, value) VALUES ('active_theme', 'vemnabet') ON CONFLICT (key) DO UPDATE SET value = 'vemnabet';\n";
   fs.writeFileSync(B+'/src/config/schema.sql', sql);
-  console.log('  + template_folder + seed esportiva');
+  console.log('  + template_folder + seed vemnabet');
 }
 
-console.log('\n=== 5. CRIANDO TEMA ESPORTIVA - HEAD.EJS ===');
-w(B+'/views/themes/esportiva/partials/head.ejs', `<!DOCTYPE html>
+console.log('\n=== 5. CRIANDO TEMA VEMNABET - HEAD.EJS ===');
+w(B+'/views/themes/vemnabet/partials/head.ejs', `<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
@@ -2474,7 +2474,7 @@ w(B+'/views/themes/esportiva/partials/head.ejs', `<!DOCTYPE html>
   <title><%= typeof title !== 'undefined' ? title : 'Cassino' %></title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/themes/esportiva/css/style.css">
+  <link rel="stylesheet" href="/themes/vemnabet/css/style.css">
 ```
 
 
@@ -2560,14 +2560,14 @@ if (!sql.includes('template_folder')) {
     "template_folder VARCHAR(50) DEFAULT 'classic',\n  is_active   BOOLEAN NOT NULL DEFAULT FALSE,"
   );
   sql += "\nALTER TABLE themes ADD COLUMN IF NOT EXISTS template_folder VARCHAR(50) DEFAULT 'classic';\n";
-  sql += "INSERT INTO themes (slug, name, css_vars, layout_config, template_folder, is_active) VALUES ('esportiva', 'Esportiva', '{}', '{}', 'esportiva', true) ON CONFLICT (slug) DO UPDATE SET template_folder = 'esportiva';\n";
-  sql += "INSERT INTO platform_settings (key, value) VALUES ('active_theme', 'esportiva') ON CONFLICT (key) DO UPDATE SET value = 'esportiva';\n";
+  sql += "INSERT INTO themes (slug, name, css_vars, layout_config, template_folder, is_active) VALUES ('vemnabet', 'VemNaBet', '{}', '{}', 'vemnabet', true) ON CONFLICT (slug) DO UPDATE SET template_folder = 'vemnabet';\n";
+  sql += "INSERT INTO platform_settings (key, value) VALUES ('active_theme', 'vemnabet') ON CONFLICT (key) DO UPDATE SET value = 'vemnabet';\n";
   fs.writeFileSync(B+'/src/config/schema.sql', sql);
-  console.log('  + template_folder + seed esportiva');
+  console.log('  + template_folder + seed vemnabet');
 }
 
-console.log('\n=== 5. CRIANDO TEMA ESPORTIVA - HEAD.EJS ===');
-w(B+'/views/themes/esportiva/partials/head.ejs', `<!DOCTYPE html>
+console.log('\n=== 5. CRIANDO TEMA VEMNABET - HEAD.EJS ===');
+w(B+'/views/themes/vemnabet/partials/head.ejs', `<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
@@ -2660,14 +2660,14 @@ if (!sql.includes('template_folder')) {
     "template_folder VARCHAR(50) DEFAULT 'classic',\n  is_active   BOOLEAN NOT NULL DEFAULT FALSE,"
   );
   sql += "\nALTER TABLE themes ADD COLUMN IF NOT EXISTS template_folder VARCHAR(50) DEFAULT 'classic';\n";
-  sql += "INSERT INTO themes (slug, name, css_vars, layout_config, template_folder, is_active) VALUES ('esportiva', 'Esportiva', '{}', '{}', 'esportiva', true) ON CONFLICT (slug) DO UPDATE SET template_folder = 'esportiva';\n";
-  sql += "INSERT INTO platform_settings (key, value) VALUES ('active_theme', 'esportiva') ON CONFLICT (key) DO UPDATE SET value = 'esportiva';\n";
+  sql += "INSERT INTO themes (slug, name, css_vars, layout_config, template_folder, is_active) VALUES ('vemnabet', 'VemNaBet', '{}', '{}', 'vemnabet', true) ON CONFLICT (slug) DO UPDATE SET template_folder = 'vemnabet';\n";
+  sql += "INSERT INTO platform_settings (key, value) VALUES ('active_theme', 'vemnabet') ON CONFLICT (key) DO UPDATE SET value = 'vemnabet';\n";
   fs.writeFileSync(B+'/src/config/schema.sql', sql);
-  console.log('  + template_folder + seed esportiva');
+  console.log('  + template_folder + seed vemnabet');
 }
 
-console.log('\n=== 5. CRIANDO TEMA ESPORTIVA - HEAD.EJS ===');
-w(B+'/views/themes/esportiva/partials/head.ejs', `<!DOCTYPE html>
+console.log('\n=== 5. CRIANDO TEMA VEMNABET - HEAD.EJS ===');
+w(B+'/views/themes/vemnabet/partials/head.ejs', `<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
@@ -2760,14 +2760,14 @@ if (!sql.includes('template_folder')) {
     "template_folder VARCHAR(50) DEFAULT 'classic',\n  is_active   BOOLEAN NOT NULL DEFAULT FALSE,"
   );
   sql += "\nALTER TABLE themes ADD COLUMN IF NOT EXISTS template_folder VARCHAR(50) DEFAULT 'classic';\n";
-  sql += "INSERT INTO themes (slug, name, css_vars, layout_config, template_folder, is_active) VALUES ('esportiva', 'Esportiva', '{}', '{}', 'esportiva', true) ON CONFLICT (slug) DO UPDATE SET template_folder = 'esportiva';\n";
-  sql += "INSERT INTO platform_settings (key, value) VALUES ('active_theme', 'esportiva') ON CONFLICT (key) DO UPDATE SET value = 'esportiva';\n";
+  sql += "INSERT INTO themes (slug, name, css_vars, layout_config, template_folder, is_active) VALUES ('vemnabet', 'VemNaBet', '{}', '{}', 'vemnabet', true) ON CONFLICT (slug) DO UPDATE SET template_folder = 'vemnabet';\n";
+  sql += "INSERT INTO platform_settings (key, value) VALUES ('active_theme', 'vemnabet') ON CONFLICT (key) DO UPDATE SET value = 'vemnabet';\n";
   fs.writeFileSync(B+'/src/config/schema.sql', sql);
-  console.log('  + template_folder + seed esportiva');
+  console.log('  + template_folder + seed vemnabet');
 }
 
-console.log('\n=== 5. CRIANDO TEMA ESPORTIVA - HEAD.EJS ===');
-w(B+'/views/themes/esportiva/partials/head.ejs', `<!DOCTYPE html>
+console.log('\n=== 5. CRIANDO TEMA VEMNABET - HEAD.EJS ===');
+w(B+'/views/themes/vemnabet/partials/head.ejs', `<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
@@ -2775,7 +2775,7 @@ w(B+'/views/themes/esportiva/partials/head.ejs', `<!DOCTYPE html>
   <title><%= typeof title !== 'undefined' ? title : 'Cassino' %></title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/themes/esportiva/css/style.css">
+  <link rel="stylesheet" href="/themes/vemnabet/css/style.css">
 ```
 
 
@@ -2861,14 +2861,14 @@ if (!sql.includes('template_folder')) {
     "template_folder VARCHAR(50) DEFAULT 'classic',\n  is_active   BOOLEAN NOT NULL DEFAULT FALSE,"
   );
   sql += "\nALTER TABLE themes ADD COLUMN IF NOT EXISTS template_folder VARCHAR(50) DEFAULT 'classic';\n";
-  sql += "INSERT INTO themes (slug, name, css_vars, layout_config, template_folder, is_active) VALUES ('esportiva', 'Esportiva', '{}', '{}', 'esportiva', true) ON CONFLICT (slug) DO UPDATE SET template_folder = 'esportiva';\n";
-  sql += "INSERT INTO platform_settings (key, value) VALUES ('active_theme', 'esportiva') ON CONFLICT (key) DO UPDATE SET value = 'esportiva';\n";
+  sql += "INSERT INTO themes (slug, name, css_vars, layout_config, template_folder, is_active) VALUES ('vemnabet', 'VemNaBet', '{}', '{}', 'vemnabet', true) ON CONFLICT (slug) DO UPDATE SET template_folder = 'vemnabet';\n";
+  sql += "INSERT INTO platform_settings (key, value) VALUES ('active_theme', 'vemnabet') ON CONFLICT (key) DO UPDATE SET value = 'vemnabet';\n";
   fs.writeFileSync(B+'/src/config/schema.sql', sql);
-  console.log('  + template_folder + seed esportiva');
+  console.log('  + template_folder + seed vemnabet');
 }
 
-console.log('\n=== 5. CRIANDO TEMA ESPORTIVA - HEAD.EJS ===');
-w(B+'/views/themes/esportiva/partials/head.ejs', `<!DOCTYPE html>
+console.log('\n=== 5. CRIANDO TEMA VEMNABET - HEAD.EJS ===');
+w(B+'/views/themes/vemnabet/partials/head.ejs', `<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
@@ -2876,7 +2876,7 @@ w(B+'/views/themes/esportiva/partials/head.ejs', `<!DOCTYPE html>
   <title><%= typeof title !== 'undefined' ? title : 'Cassino' %></title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/themes/esportiva/css/style.css">
+  <link rel="stylesheet" href="/themes/vemnabet/css/style.css">
 ```
 
 
@@ -2962,14 +2962,14 @@ if (!sql.includes('template_folder')) {
     "template_folder VARCHAR(50) DEFAULT 'classic',\n  is_active   BOOLEAN NOT NULL DEFAULT FALSE,"
   );
   sql += "\nALTER TABLE themes ADD COLUMN IF NOT EXISTS template_folder VARCHAR(50) DEFAULT 'classic';\n";
-  sql += "INSERT INTO themes (slug, name, css_vars, layout_config, template_folder, is_active) VALUES ('esportiva', 'Esportiva', '{}', '{}', 'esportiva', true) ON CONFLICT (slug) DO UPDATE SET template_folder = 'esportiva';\n";
-  sql += "INSERT INTO platform_settings (key, value) VALUES ('active_theme', 'esportiva') ON CONFLICT (key) DO UPDATE SET value = 'esportiva';\n";
+  sql += "INSERT INTO themes (slug, name, css_vars, layout_config, template_folder, is_active) VALUES ('vemnabet', 'VemNaBet', '{}', '{}', 'vemnabet', true) ON CONFLICT (slug) DO UPDATE SET template_folder = 'vemnabet';\n";
+  sql += "INSERT INTO platform_settings (key, value) VALUES ('active_theme', 'vemnabet') ON CONFLICT (key) DO UPDATE SET value = 'vemnabet';\n";
   fs.writeFileSync(B+'/src/config/schema.sql', sql);
-  console.log('  + template_folder + seed esportiva');
+  console.log('  + template_folder + seed vemnabet');
 }
 
-console.log('\n=== 5. CRIANDO TEMA ESPORTIVA - HEAD.EJS ===');
-w(B+'/views/themes/esportiva/partials/head.ejs', `<!DOCTYPE html>
+console.log('\n=== 5. CRIANDO TEMA VEMNABET - HEAD.EJS ===');
+w(B+'/views/themes/vemnabet/partials/head.ejs', `<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
@@ -2977,7 +2977,7 @@ w(B+'/views/themes/esportiva/partials/head.ejs', `<!DOCTYPE html>
   <title><%= typeof title !== 'undefined' ? title : 'Cassino' %></title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/themes/esportiva/css/style.css">
+  <link rel="stylesheet" href="/themes/vemnabet/css/style.css">
 ```
 
 
@@ -3063,14 +3063,14 @@ if (!sql.includes('template_folder')) {
     "template_folder VARCHAR(50) DEFAULT 'classic',\n  is_active   BOOLEAN NOT NULL DEFAULT FALSE,"
   );
   sql += "\nALTER TABLE themes ADD COLUMN IF NOT EXISTS template_folder VARCHAR(50) DEFAULT 'classic';\n";
-  sql += "INSERT INTO themes (slug, name, css_vars, layout_config, template_folder, is_active) VALUES ('esportiva', 'Esportiva', '{}', '{}', 'esportiva', true) ON CONFLICT (slug) DO UPDATE SET template_folder = 'esportiva';\n";
-  sql += "INSERT INTO platform_settings (key, value) VALUES ('active_theme', 'esportiva') ON CONFLICT (key) DO UPDATE SET value = 'esportiva';\n";
+  sql += "INSERT INTO themes (slug, name, css_vars, layout_config, template_folder, is_active) VALUES ('vemnabet', 'VemNaBet', '{}', '{}', 'vemnabet', true) ON CONFLICT (slug) DO UPDATE SET template_folder = 'vemnabet';\n";
+  sql += "INSERT INTO platform_settings (key, value) VALUES ('active_theme', 'vemnabet') ON CONFLICT (key) DO UPDATE SET value = 'vemnabet';\n";
   fs.writeFileSync(B+'/src/config/schema.sql', sql);
-  console.log('  + template_folder + seed esportiva');
+  console.log('  + template_folder + seed vemnabet');
 }
 
-console.log('\n=== 5. CRIANDO TEMA ESPORTIVA - HEAD.EJS ===');
-w(B+'/views/themes/esportiva/partials/head.ejs', `<!DOCTYPE html>
+console.log('\n=== 5. CRIANDO TEMA VEMNABET - HEAD.EJS ===');
+w(B+'/views/themes/vemnabet/partials/head.ejs', `<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
@@ -3078,6 +3078,6 @@ w(B+'/views/themes/esportiva/partials/head.ejs', `<!DOCTYPE html>
   <title><%= typeof title !== 'undefined' ? title : 'Cassino' %></title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/themes/esportiva/css/style.css">
+  <link rel="stylesheet" href="/themes/vemnabet/css/style.css">
 ```
 

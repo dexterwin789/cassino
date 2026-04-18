@@ -26,7 +26,7 @@ async function seed() {
     ('vip_player', '11922222222', 'vip@casino.com', '11111111111', $2, 500.00, 5000.00, 500)
     ON CONFLICT (username) DO NOTHING
   `, [karlosHash, testHash]);
-  console.log('[SEED] Users —œ');
+  console.log('[SEED] Users ');
 
   //  2. Admin Users ——————————————————————
   await query(`UPDATE admin_users SET password_hash = $1 WHERE username = 'admin' AND password_hash LIKE '%placeholder%'`, [adminHash]);
@@ -36,7 +36,7 @@ async function seed() {
     ('suporte', $1, 'support')
     ON CONFLICT (username) DO NOTHING
   `, [adminHash]);
-  console.log('[SEED] Admins —œ');
+  console.log('[SEED] Admins ');
 
   //  3. Wallets ——————————————————————————
   const usersR = await query('SELECT id, balance FROM users');
@@ -46,7 +46,7 @@ async function seed() {
       ON CONFLICT (user_id) DO UPDATE SET balance_cents = $2
     `, [u.id, Math.round(parseFloat(u.balance) * 100)]);
   }
-  console.log('[SEED] Wallets —œ');
+  console.log('[SEED] Wallets ');
 
   //  4. Games ————————————————————————————
   const games = [
@@ -143,7 +143,7 @@ async function seed() {
       ON CONFLICT (game_code) DO UPDATE SET game_name=$2, image_url=$3, provider=$4, category=$5, sort_order=$6
     `, [code, name, img, provider, category, sort]);
   }
-  console.log('[SEED] Games —œ (' + games.length + ')');
+  console.log('[SEED] Games  (' + games.length + ')');
 
   //  4b. Fix theme colors (green/purple ™ orange) 
   await query(`
@@ -153,7 +153,7 @@ async function seed() {
        OR css_vars::text LIKE '%c084fc%' OR css_vars::text LIKE '%6EE7B7%' 
        OR css_vars::text LIKE '%6ee7b7%' OR css_vars::text LIKE '%7c3aed%'
   `);
-  console.log('[SEED] Theme colors fixed ™ orange —œ');
+  console.log('[SEED] Theme colors fixed ™ orange ');
 
   //  5. Banners ——————————————————————————
   const banners = [
@@ -173,7 +173,7 @@ async function seed() {
   for (const [img, link, sort] of banners) {
     await query('INSERT INTO banners (image_url, link_url, sort_order) VALUES ($1, $2, $3)', [img, link, sort]);
   }
-  console.log('[SEED] Banners —œ (' + banners.length + ')');
+  console.log('[SEED] Banners  (' + banners.length + ')');
 
   //  6. Transactions ————————————————————
   const userIds = usersR.rows.map(u => u.id);
@@ -215,7 +215,7 @@ async function seed() {
       VALUES ($1, $2, $3, $4, 'blackcat', $5, NOW() - ($6 || ' days')::INTERVAL, NOW() - ($6 || ' days')::INTERVAL)
     `, [tx.uid, tx.type, tx.status, tx.amt, 'TX-' + Math.random().toString(36).substring(2, 10).toUpperCase(), tx.days]);
   }
-  console.log('[SEED] Transactions —œ (' + txData.length + ')');
+  console.log('[SEED] Transactions  (' + txData.length + ')');
 
   //  7. Bets —————————————————————————————
   const gamesR = await query('SELECT id FROM games LIMIT 12');
@@ -238,7 +238,7 @@ async function seed() {
       VALUES ($1, $2, $3, $4, $5, $6, NOW() - ($7 || ' days')::INTERVAL)
     `, [b.uid, b.gid, b.amt, b.payout, b.multiplier, b.status, b.days]);
   }
-  console.log('[SEED] Bets —œ (' + betsData.length + ')');
+  console.log('[SEED] Bets  (' + betsData.length + ')');
 
   //  8. Game Rounds ——————————————————————
   for (let i = 0; i < 30; i++) {
@@ -246,7 +246,7 @@ async function seed() {
     const hash = require('crypto').randomBytes(32).toString('hex');
     const seed2 = require('crypto').randomBytes(16).toString('hex');
     const status = ['open', 'closed', 'closed', 'closed'][Math.floor(Math.random() * 4)];
-    const result = { multiplier: (Math.random() * 20 + 1).toFixed(2), symbol: ['Á°Å¸ÂÂ¯', 'Á°Å¸Â', 'Á°Å¸â—™Å½', 'Á°Å¸Â', 'Á°Å¸Å½Â°'][Math.floor(Math.random() * 5)] };
+    const result = { multiplier: (Math.random() * 20 + 1).toFixed(2), symbol: ['\ud83c\udfaf', '\ud83d\udc8e', '\ud83d\udcdd', '\ud83d\udc8e', '\ud83c\udfb0'][Math.floor(Math.random() * 5)] };
     const hoursAgo = Math.floor(Math.random() * 168);
     const endedAt = status === 'closed' ? new Date(Date.now() - hoursAgo * 3600000 + 120000) : null;
     const startedAt = new Date(Date.now() - hoursAgo * 3600000);
@@ -255,7 +255,7 @@ async function seed() {
       VALUES ($1, $2, $3, $4, $5, $6, $7)
     `, [gid, hash, seed2, JSON.stringify(result), status, startedAt, endedAt]);
   }
-  console.log('[SEED] Game Rounds —œ');
+  console.log('[SEED] Game Rounds ');
 
   //  9. Affiliates ———————————————————————
   const affiliateUserIds = userIds.slice(0, 5);
@@ -269,7 +269,7 @@ async function seed() {
       ON CONFLICT (user_id) DO NOTHING
     `, [affiliateUserIds[i], code, pct, earned]);
   }
-  console.log('[SEED] Affiliates —œ');
+  console.log('[SEED] Affiliates ');
 
   //  10. Affiliate Commissions ———————————
   const affR = await query('SELECT id, user_id FROM affiliates');
@@ -284,7 +284,7 @@ async function seed() {
       `, [aff.id, referredId, amt, status, Math.floor(Math.random() * 30)]);
     }
   }
-  console.log('[SEED] Affiliate Commissions —œ');
+  console.log('[SEED] Affiliate Commissions ');
 
   //  11. Support Tickets —————————————————
   const tickets = [
@@ -319,7 +319,7 @@ async function seed() {
       `, [ticketId, admR.rows[0].id, 'Olá! Estamos analisando seu caso. Em breve retornaremos com uma solução.']);
     }
   }
-  console.log('[SEED] Support Tickets + Messages —œ');
+  console.log('[SEED] Support Tickets + Messages ');
 
   //  12. Promotions ——————————————————————
   const promos = [
@@ -338,7 +338,7 @@ async function seed() {
       ON CONFLICT (code) DO NOTHING
     `, [p.title, p.desc, p.type, p.cents, p.pct, p.minDep, p.maxUses, p.code, p.active, p.expires]);
   }
-  console.log('[SEED] Promotions —œ');
+  console.log('[SEED] Promotions ');
 
   //  13. User Promotions —————————————————
   const promosR = await query('SELECT id FROM promotions LIMIT 4');
@@ -353,7 +353,7 @@ async function seed() {
       VALUES ($1, $2, $3, $4, NOW() - ($5 || ' days')::INTERVAL)
     `, [uid, pid, status, amt, Math.floor(Math.random() * 30)]);
   }
-  console.log('[SEED] User Promotions —œ');
+  console.log('[SEED] User Promotions ');
 
   //  14. Admin Audit Log —————————————————
   const adminsR = await query('SELECT id, username FROM admin_users');
@@ -378,7 +378,7 @@ async function seed() {
       VALUES ($1, $2, $3, $4, $5, $6, NOW() - ($7 || ' hours')::INTERVAL)
     `, [adminId, a.action, a.target_type, a.tid, JSON.stringify({ note: 'Ação executada com sucesso' }), '177.38.' + Math.floor(Math.random() * 255) + '.' + Math.floor(Math.random() * 255), Math.floor(Math.random() * 200)]);
   }
-  console.log('[SEED] Audit Log —œ');
+  console.log('[SEED] Audit Log ');
 
   //  15. Platform Settings ———————————————
   const settings = [
@@ -396,7 +396,7 @@ async function seed() {
   for (const [k, v] of settings) {
     await query('INSERT INTO platform_settings (key, value) VALUES ($1, $2) ON CONFLICT (key) DO UPDATE SET value = $2', [k, v]);
   }
-  console.log('[SEED] Platform Settings —œ');
+  console.log('[SEED] Platform Settings ');
 
   //  Done ————————————————————————————————
   const counts = await query(`

@@ -1,4 +1,4 @@
-﻿/* /cassino/public/js/script.js —šÂ¬ VemNaBet Desktop Layout */
+﻿/* /cassino/public/js/script.js — VemNaBet Desktop Layout */
 
 var allGames = [];
 
@@ -171,7 +171,7 @@ function handleSearchState() {
     if (searchGrid) searchGrid.innerHTML = '';
     return;
   }
-  // Special "all" command —šÂ¬ shows every game
+  // Special "all" command — shows every game
   if (q.toLowerCase() === 'all') {
     searchActiveTag = 'Todos';
     searchFiltered = allGames.slice();
@@ -330,7 +330,7 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape' && sea
 // Start placeholder animation on load
 startPlaceholderAnim();
 
-/* Provider grid IDs —šÂ¬ REPLACED by dynamic filter */
+/* Provider grid IDs — REPLACED by dynamic filter */
 var homeFilteredGames = [];
 var homeShown = 0;
 var homePageSize = 24;
@@ -578,7 +578,7 @@ if (bannerSlider && bannerDotsEl) {
   });
 }
 
-/* ========== TOUCH SWIPE —šÂ¬ TOP10 ========== */
+/* ========== TOUCH SWIPE — TOP10 ========== */
 (function() {
   var vp = document.querySelector('.top10-viewport');
   if (!vp) return;
@@ -604,7 +604,7 @@ if (bannerSlider && bannerDotsEl) {
   }, { passive: true });
 })();
 
-/* ========== TOUCH SWIPE —šÂ¬ BANNER (desktop mode) ========== */
+/* ========== TOUCH SWIPE — BANNER (desktop mode) ========== */
 (function() {
   if (!bannerSlider) return;
   var startX = 0, dragging = false;
@@ -688,7 +688,7 @@ if (menuToggle) menuToggle.addEventListener('click', function() {
   syncCollapsedSections();
 });
 
-/* ESPORTES group accordion —šÂ¬ toggles esportes + popular + top5 */
+/* ESPORTES group accordion — toggles esportes + popular + top5 */
 if (esportesToggle) esportesToggle.addEventListener('click', function() {
   esportesToggle.classList.toggle('collapsed');
   var isCollapsed = esportesToggle.classList.contains('collapsed');
@@ -804,7 +804,7 @@ function updateAuthState() {
         var uName = safeFooterName || 'Usuário';
         document.querySelectorAll('.acctFooterNameMirror').forEach(function(e) { e.textContent = uName; });
         var acctUid = document.getElementById('acctUserId');
-        if (acctUid && j.user) acctUid.value = j.user.id || '—šÂ¬';
+        if (acctUid && j.user) acctUid.value = j.user.id || '—';
         var acctEmail = document.getElementById('acctEmailValue');
         var userEmail = (j.user && (j.user.email || j.user.username)) || '';
         if (acctEmail && userEmail) acctEmail.textContent = userEmail;
@@ -874,7 +874,7 @@ function updateAuthState() {
           photoUserName.textContent = firstName;
         }
         var photoUserId = document.getElementById('acctPhotoUserId');
-        if (photoUserId && j.user) photoUserId.textContent = 'ID: ' + (j.user.id || '—šÂ¬');
+        if (photoUserId && j.user) photoUserId.textContent = 'ID: ' + (j.user.id || '—');
         // Birth date
         if (j.user.birth_date) {
           var bd = new Date(j.user.birth_date);
@@ -1064,7 +1064,7 @@ function showWalletSection(panel) {
     window.location.href = '/?panel=' + encodeURIComponent(panel);
     return;
   }
-  // Depositar —šÂ¬ just open modal, don't navigate
+  // Depositar — just open modal, don't navigate
   if (panel === 'depositar') {
     if (typeof openDepositModal === 'function') openDepositModal();
     return;
@@ -1230,13 +1230,13 @@ if (walletSubBack) walletSubBack.addEventListener('click', function(e) {
   setWalletMobileState('nav');
 });
 
-// Nav item switching —šÂ¬ main menu
+// Nav item switching — main menu
 document.querySelectorAll('#walletMainMenu .wallet-nav-item[data-panel]').forEach(function(item) {
   item.addEventListener('click', function(e) {
     e.preventDefault();
     var hasSubmenu = item.getAttribute('data-has-submenu');
     var panel = item.getAttribute('data-panel');
-    // Tema —šÂ¬ do nothing (toggle buttons handle it inline)
+    // Tema — do nothing (toggle buttons handle it inline)
     if (panel === 'tema') return;
     if (hasSubmenu === 'true') {
       // Open Meu Perfil sub-menu
@@ -1287,7 +1287,7 @@ document.querySelectorAll('#walletMainMenu .wallet-nav-item[data-panel]').forEac
   });
 });
 
-// Nav item switching —šÂ¬ sub-menu (Meu Perfil)
+// Nav item switching — sub-menu (Meu Perfil)
 document.querySelectorAll('#walletSubMenu .wallet-nav-item[data-panel]').forEach(function(item) {
   item.addEventListener('click', function(e) {
     e.preventDefault();
@@ -1304,12 +1304,12 @@ document.querySelectorAll('#walletSubMenu .wallet-nav-item[data-panel]').forEach
   });
 });
 
-// Nav item switching —šÂ¬ sub-menu (Gestão de Saldo)
+// Nav item switching — sub-menu (Gestão de Saldo)
 document.querySelectorAll('#walletSubMenuSaldo .wallet-nav-item[data-panel]').forEach(function(item) {
   item.addEventListener('click', function(e) {
     e.preventDefault();
     var panel = item.getAttribute('data-panel');
-    // Depositar —šÂ¬ just open modal, don't navigate
+    // Depositar — just open modal, don't navigate
     if (panel === 'depositar') {
       if (typeof openDepositModal === 'function') openDepositModal();
       return;
@@ -1340,7 +1340,7 @@ if (walletSubBackSaldo) walletSubBackSaldo.addEventListener('click', function(e)
   setWalletMobileState('nav');
 });
 
-// Nav item switching —šÂ¬ sub-menu (Histórico de Apostas)
+// Nav item switching — sub-menu (Histórico de Apostas)
 document.querySelectorAll('#walletSubMenuApostas .wallet-nav-item[data-panel]').forEach(function(item) {
   item.addEventListener('click', function(e) {
     e.preventDefault();
@@ -1369,14 +1369,14 @@ if (walletSubBackApostas) walletSubBackApostas.addEventListener('click', functio
   setWalletMobileState('nav');
 });
 
-// Wallet deposit button —šÂ¬ just opens modal over current page
+// Wallet deposit button — just opens modal over current page
 var walletDepositBtn = document.getElementById('walletDepositBtn');
 if (walletDepositBtn) walletDepositBtn.addEventListener('click', function(e) {
   e.preventDefault();
   if (typeof openDepositModal === 'function') openDepositModal();
 });
 
-// Wallet sacar button in Meu Perfil —šÂ¬ go to sacar panel
+// Wallet sacar button in Meu Perfil — go to sacar panel
 var walletWithdrawBtn = document.getElementById('walletWithdrawBtn');
 if (walletWithdrawBtn) walletWithdrawBtn.addEventListener('click', function(e) {
   e.preventDefault();
@@ -1697,7 +1697,7 @@ function apostaRowHTML(a) {
       '<span class="aposta-arrow">‚¬</span>' +
       '<span class="aposta-win">' + a.win + '</span>' +
     '</div>' +
-    '<span class="aposta-chevron">—šÂ¬Ã‚Âº</span>' +
+    '<span class="aposta-chevron">›</span>' +
   '</div>';
 }
 
@@ -2051,7 +2051,7 @@ function populateLoginHistory() {
         var d = new Date(r.created_at);
         var dt = d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
         var tr = document.createElement('tr');
-        tr.innerHTML = '<td>' + dt + '</td><td>' + (r.ip || '—šÂ¬') + '</td><td>' + ((r.city || '') + (r.state ? ', ' + r.state : '') || '—šÂ¬') + '</td><td>' + (r.coords || '—šÂ¬') + '</td>';
+        tr.innerHTML = '<td>' + dt + '</td><td>' + (r.ip || '—') + '</td><td>' + ((r.city || '') + (r.state ? ', ' + r.state : '') || '—') + '</td><td>' + (r.coords || '—') + '</td>';
         body.appendChild(tr);
       });
       if (count) count.textContent = 'Mostrando ' + j.rows.length + ' registro' + (j.rows.length > 1 ? 's' : '');
@@ -2241,7 +2241,7 @@ function loadTransactions() {
         tr.style.cursor = 'pointer';
         tr.innerHTML = '<td><span class="' + typeCls + '">' + typeLabel + '</span></td>' +
           '<td style="font-size:12px;color:var(--text-muted)">#' + tx.id + '</td>' +
-          '<td style="font-size:12px">' + (tx.provider || '—šÂ¬') + '</td>' +
+          '<td style="font-size:12px">' + (tx.provider || '—') + '</td>' +
           '<td style="font-weight:700">R$ ' + amt + '</td>' +
           '<td><span class="' + statusCls + '">' + statusLabel + '</span></td>' +
           '<td style="font-size:12px;color:var(--text-muted)">' + dt + '</td>';
@@ -2270,7 +2270,7 @@ if (histPeriodEl) {
   });
 }
 
-// Betting history tab switching —šÂ¬ Cassino
+// Betting history tab switching — Cassino
 document.querySelectorAll('#betCassinoTabs .hist-tab').forEach(function(tab) {
   tab.addEventListener('click', function() {
     document.querySelectorAll('#betCassinoTabs .hist-tab').forEach(function(t) { t.classList.remove('active'); });
@@ -2278,7 +2278,7 @@ document.querySelectorAll('#betCassinoTabs .hist-tab').forEach(function(tab) {
   });
 });
 
-// Betting history tab switching —šÂ¬ Esportivas
+// Betting history tab switching — Esportivas
 document.querySelectorAll('#betSportTabs .hist-tab').forEach(function(tab) {
   tab.addEventListener('click', function() {
     document.querySelectorAll('#betSportTabs .hist-tab').forEach(function(t) { t.classList.remove('active'); });
@@ -2358,12 +2358,12 @@ function notifRelativeTime(dateStr) {
 }
 
 var notifTypeIcons = {
-  info: { emoji: 'Â¹Á¯Ã‚Â¸Ã‚Â', cls: 'info' },
-  success: { emoji: '—œ', cls: 'success' },
-  warning: { emoji: 'Á¯Ã‚Â¸Ã‚Â', cls: 'warning' },
-  promo: { emoji: 'Á°Ã…Â¸Ã…Â½Ã‚Â', cls: 'promo' },
-  deposit: { emoji: 'Á°Ã…Â¸Â°', cls: 'success' },
-  bonus: { emoji: 'Á°Ã…Â¸Ã…Â½', cls: 'promo' }
+  info: { emoji: '\u2139\ufe0f', cls: 'info' },
+  success: { emoji: '\u2705', cls: 'success' },
+  warning: { emoji: '\u26a0\ufe0f', cls: 'warning' },
+  promo: { emoji: '\ud83c\udf81', cls: 'promo' },
+  deposit: { emoji: '\ud83d\udcb0', cls: 'success' },
+  bonus: { emoji: '\ud83c\udf81', cls: 'promo' }
 };
 
 function renderNotifications(notifications) {

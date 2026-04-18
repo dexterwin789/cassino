@@ -287,7 +287,7 @@ CREATE TABLE IF NOT EXISTS provider_images (
 -- Default inserts
 INSERT INTO platform_settings (key, value) VALUES
   ('active_theme', 'default'),
-  ('site_name', 'Esportiva'),
+  ('site_name', 'VemNaBet'),
   ('maintenance_mode', '0')
 ON CONFLICT (key) DO NOTHING;
 
@@ -295,7 +295,7 @@ ON CONFLICT (key) DO NOTHING;
 INSERT INTO themes (slug, name, description, css_vars, layout_config, is_active) VALUES
 (
   'default',
-  'Esportiva Classic',
+  'VemNaBet Classic',
   'Tema padrão com verde esmeralda e navy',
   '{
     "black": "#0B1726",
