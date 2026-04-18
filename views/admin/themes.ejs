@@ -2,7 +2,7 @@
 
 <div class="adm-themes-page">
   <div class="adm-page-head">
-    <div><h3>Gerenciador de Temas</h3><p class="adm-muted">Personalize a aparência da plataforma</p></div>
+    <div><h3>Gerenciador de Temas</h3><p class="adm-muted">Personalize a aparÃªncia da plataforma</p></div>
     <button class="adm-btn primary" id="btnNewTheme">
       <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
       Novo Tema
@@ -18,17 +18,17 @@
         <% const layout = typeof t.layout_config === 'string' ? JSON.parse(t.layout_config) : (t.layout_config || {}); %>
         <!-- Mini Preview -->
         <div class="theme-mini-preview" style="background:<%= vars.bg || '#000' %>">
-          <div class="tmp-header" style="background:<%= vars.card || '#1b2838' %>;border-bottom:2px solid <%= vars.green1 || '#ff6b3a' %>">
-            <div class="tmp-logo" style="background:<%= vars.green1 || '#ff6b3a' %>"></div>
+          <div class="tmp-header" style="background:<%= vars.card || '#1b2838' %>;border-bottom:2px solid <%= vars.green1 || '#34D399' %>">
+            <div class="tmp-logo" style="background:<%= vars.green1 || '#34D399' %>"></div>
             <div class="tmp-btns">
-              <span style="background:<%= vars.blue || '#ff3a00' %>"></span>
-              <span style="background:<%= vars.green2 || '#ff3a00' %>"></span>
+              <span style="background:<%= vars.blue || '#25D366' %>"></span>
+              <span style="background:<%= vars.green2 || '#25D366' %>"></span>
             </div>
           </div>
-          <div class="tmp-banner" style="background:linear-gradient(135deg,<%= vars.green3 || '#cc2e00' %>,<%= vars.accent || '#ff3a00' %>);aspect-ratio:<%= layout.bannerAspect || '16/7' %>"></div>
+          <div class="tmp-banner" style="background:linear-gradient(135deg,<%= vars.green3 || '#1A9E4C' %>,<%= vars.accent || '#25D366' %>);aspect-ratio:<%= layout.bannerAspect || '16/7' %>"></div>
           <div class="tmp-games">
             <% for(let i=0; i < Math.min(layout.gamesPerRow || 4, 6); i++) { %>
-            <div class="tmp-game" style="background:<%= vars.card || '#1b2838' %>;border:1px solid <%= vars.green3 || '#cc2e00' %>30"></div>
+            <div class="tmp-game" style="background:<%= vars.card || '#1b2838' %>;border:1px solid <%= vars.green3 || '#1A9E4C' %>30"></div>
             <% } %>
           </div>
         </div>
@@ -38,7 +38,7 @@
       </div>
       <div class="adm-theme-body">
         <h4><%= t.name %></h4>
-        <p class="adm-muted"><%= t.description || 'Sem descrição' %></p>
+        <p class="adm-muted"><%= t.description || 'Sem descriÃ§Ã£o' %></p>
         <div class="adm-theme-meta">
           <span class="adm-meta-tag"><%= layout.headerStyle || 'classic' %></span>
           <span class="adm-meta-tag"><%= layout.gamesPerRow || 4 %> cols</span>
@@ -78,7 +78,7 @@
       <div class="te-section">
         <h4 class="te-section-title">
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-          Informações
+          InformaÃ§Ãµes
         </h4>
         <div class="te-row">
           <div class="te-field">
@@ -91,8 +91,8 @@
           </div>
         </div>
         <div class="te-field">
-          <label>Descrição</label>
-          <input type="text" id="teDesc" class="te-input" placeholder="Descrição curta do tema" />
+          <label>DescriÃ§Ã£o</label>
+          <input type="text" id="teDesc" class="te-input" placeholder="DescriÃ§Ã£o curta do tema" />
         </div>
       </div>
 
@@ -134,36 +134,36 @@
           <div class="te-color-item">
             <label>Verde 1</label>
             <div class="te-color-pick">
-              <input type="color" id="cGreen1" value="#ff6b3a" />
-              <input type="text" class="te-color-hex" data-for="cGreen1" value="#ff6b3a" />
+              <input type="color" id="cGreen1" value="#34D399" />
+              <input type="text" class="te-color-hex" data-for="cGreen1" value="#34D399" />
             </div>
           </div>
           <div class="te-color-item">
             <label>Verde 2</label>
             <div class="te-color-pick">
-              <input type="color" id="cGreen2" value="#ff3a00" />
-              <input type="text" class="te-color-hex" data-for="cGreen2" value="#ff3a00" />
+              <input type="color" id="cGreen2" value="#25D366" />
+              <input type="text" class="te-color-hex" data-for="cGreen2" value="#25D366" />
             </div>
           </div>
           <div class="te-color-item">
             <label>Verde 3</label>
             <div class="te-color-pick">
-              <input type="color" id="cGreen3" value="#cc2e00" />
-              <input type="text" class="te-color-hex" data-for="cGreen3" value="#cc2e00" />
+              <input type="color" id="cGreen3" value="#1A9E4C" />
+              <input type="text" class="te-color-hex" data-for="cGreen3" value="#1A9E4C" />
             </div>
           </div>
           <div class="te-color-item">
             <label>Azul</label>
             <div class="te-color-pick">
-              <input type="color" id="cBlue" value="#ff3a00" />
-              <input type="text" class="te-color-hex" data-for="cBlue" value="#ff3a00" />
+              <input type="color" id="cBlue" value="#25D366" />
+              <input type="text" class="te-color-hex" data-for="cBlue" value="#25D366" />
             </div>
           </div>
           <div class="te-color-item">
             <label>Accent</label>
             <div class="te-color-pick">
-              <input type="color" id="cAccent" value="#ff3a00" />
-              <input type="text" class="te-color-hex" data-for="cAccent" value="#ff3a00" />
+              <input type="color" id="cAccent" value="#25D366" />
+              <input type="text" class="te-color-hex" data-for="cAccent" value="#25D366" />
             </div>
           </div>
           <div class="te-color-item">
@@ -203,7 +203,7 @@
             <label>Aspecto do Banner</label>
             <select id="lcBannerAspect" class="te-select">
               <option value="16/5">Ultra-wide (16/5)</option>
-              <option value="16/7" selected>Padrão (16/7)</option>
+              <option value="16/7" selected>PadrÃ£o (16/7)</option>
               <option value="16/8">Alto (16/8)</option>
               <option value="16/9">Cinema (16/9)</option>
               <option value="2/1">Quadrado alto (2/1)</option>
@@ -212,18 +212,18 @@
         </div>
         <div class="te-row">
           <div class="te-field">
-            <label>Ícones Rápidos</label>
+            <label>Ãcones RÃ¡pidos</label>
             <select id="lcQuickIcons" class="te-select">
-              <option value="4">4 ícones</option>
-              <option value="5">5 ícones</option>
-              <option value="6" selected>6 ícones</option>
-              <option value="8">8 ícones</option>
+              <option value="4">4 Ã­cones</option>
+              <option value="5">5 Ã­cones</option>
+              <option value="6" selected>6 Ã­cones</option>
+              <option value="8">8 Ã­cones</option>
             </select>
           </div>
           <div class="te-field">
             <label>Estilo do Header</label>
             <select id="lcHeaderStyle" class="te-select">
-              <option value="classic" selected>Clássico</option>
+              <option value="classic" selected>ClÃ¡ssico</option>
               <option value="neon">Neon</option>
               <option value="royal">Royal</option>
               <option value="minimal">Minimalista</option>
@@ -234,7 +234,7 @@
           <div class="te-field">
             <label>Estilo do Footer</label>
             <select id="lcFooterStyle" class="te-select">
-              <option value="classic" selected>Clássico</option>
+              <option value="classic" selected>ClÃ¡ssico</option>
               <option value="neon">Neon</option>
               <option value="royal">Royal</option>
               <option value="minimal">Minimalista</option>
@@ -245,7 +245,7 @@
             <select id="lcBorderRadius" class="te-select">
               <option value="8">8px - Sutil</option>
               <option value="12">12px - Moderado</option>
-              <option value="16" selected>16px - Padrão</option>
+              <option value="16" selected>16px - PadrÃ£o</option>
               <option value="20">20px - Arredondado</option>
               <option value="24">24px - Muito arredondado</option>
             </select>
@@ -257,7 +257,7 @@
       <div class="te-section">
         <h4 class="te-section-title">
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-          Pré-visualização
+          PrÃ©-visualizaÃ§Ã£o
         </h4>
         <div class="te-live-preview" id="livePreview">
           <div class="tlp-header">
@@ -283,7 +283,7 @@
 </div>
 
 <style>
-/* ─── Theme Editor Modal ─── */
+/* â”€â”€â”€ Theme Editor Modal â”€â”€â”€ */
 .theme-modal-overlay{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);display:none;align-items:flex-start;justify-content:center;padding:2rem;overflow-y:auto}
 .theme-modal-overlay.open{display:flex}
 .theme-modal{background:#0e1117;border:1px solid rgba(255,255,255,.08);border-radius:16px;max-width:760px;width:100%;animation:tmSlide .3s ease}
@@ -369,7 +369,7 @@ document.addEventListener('DOMContentLoaded', () => {
     layout_config: typeof t.layout_config === 'string' ? JSON.parse(t.layout_config) : (t.layout_config || {})
   }))) %>;
 
-  // Color map: field id → css_vars key
+  // Color map: field id â†’ css_vars key
   const colorMap = {
     cBg: 'bg', cBlack: 'black', cCard: 'card', cText: 'text',
     cGreen1: 'green1', cGreen2: 'green2', cGreen3: 'green3',
@@ -385,7 +385,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('teDesc').value = theme?.description || '';
 
     const cv = theme?.css_vars || {};
-    const defaults = { black:'#0B1726', bg:'#0d1b2a', card:'#1b2838', text:'#f6f6f6', green1:'#ff6b3a', green2:'#ff3a00', green3:'#cc2e00', blue:'#ff3a00', accent:'#ff3a00', success:'#34D399', danger:'#ff4d4d' };
+    const defaults = { black:'#0B1726', bg:'#0d1b2a', card:'#1b2838', text:'#f6f6f6', green1:'#34D399', green2:'#25D366', green3:'#1A9E4C', blue:'#25D366', accent:'#25D366', success:'#34D399', danger:'#ff4d4d' };
     for (const [fid, key] of Object.entries(colorMap)) {
       const v = cv[key] || defaults[key];
       document.getElementById(fid).value = v;
@@ -423,7 +423,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Layout change → update preview
+  // Layout change â†’ update preview
   ['lcGamesPerRow','lcBannerAspect','lcQuickIcons','lcHeaderStyle','lcFooterStyle','lcBorderRadius'].forEach(id => {
     document.getElementById(id).addEventListener('change', updatePreview);
   });

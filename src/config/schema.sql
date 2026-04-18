@@ -1,4 +1,4 @@
--- Cassino Platform — PostgreSQL Schema
+-- Cassino Platform â€” PostgreSQL Schema
 -- All tables, InnoDB-equivalent, utf8mb4 (default in PG)
 
 CREATE TABLE IF NOT EXISTS users (
@@ -92,7 +92,7 @@ CREATE TABLE IF NOT EXISTS banners (
   created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- ─── Bets ─────────────────────────────────────────
+-- â”€â”€â”€ Bets â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 CREATE TABLE IF NOT EXISTS bets (
   id            SERIAL PRIMARY KEY,
   user_id       INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -108,7 +108,7 @@ CREATE INDEX IF NOT EXISTS idx_bets_user ON bets(user_id);
 CREATE INDEX IF NOT EXISTS idx_bets_game ON bets(game_id);
 CREATE INDEX IF NOT EXISTS idx_bets_status ON bets(status);
 
--- ─── Game Rounds ──────────────────────────────────
+-- â”€â”€â”€ Game Rounds â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 CREATE TABLE IF NOT EXISTS game_rounds (
   id            SERIAL PRIMARY KEY,
   game_id       INT REFERENCES games(id) ON DELETE SET NULL,
@@ -122,7 +122,7 @@ CREATE TABLE IF NOT EXISTS game_rounds (
 CREATE INDEX IF NOT EXISTS idx_game_rounds_game ON game_rounds(game_id);
 CREATE INDEX IF NOT EXISTS idx_game_rounds_status ON game_rounds(status);
 
--- ─── Affiliates ───────────────────────────────────
+-- â”€â”€â”€ Affiliates â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 CREATE TABLE IF NOT EXISTS affiliates (
   id            SERIAL PRIMARY KEY,
   user_id       INT NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,
@@ -134,7 +134,7 @@ CREATE TABLE IF NOT EXISTS affiliates (
 );
 CREATE INDEX IF NOT EXISTS idx_affiliates_code ON affiliates(code);
 
--- ─── Affiliate Commissions ────────────────────────
+-- â”€â”€â”€ Affiliate Commissions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 CREATE TABLE IF NOT EXISTS affiliate_commissions (
   id              SERIAL PRIMARY KEY,
   affiliate_id    INT NOT NULL REFERENCES affiliates(id) ON DELETE CASCADE,
@@ -146,7 +146,7 @@ CREATE TABLE IF NOT EXISTS affiliate_commissions (
 );
 CREATE INDEX IF NOT EXISTS idx_aff_comm_affiliate ON affiliate_commissions(affiliate_id);
 
--- ─── Support Tickets ──────────────────────────────
+-- â”€â”€â”€ Support Tickets â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 CREATE TABLE IF NOT EXISTS support_tickets (
   id            SERIAL PRIMARY KEY,
   user_id       INT REFERENCES users(id) ON DELETE SET NULL,
@@ -159,7 +159,7 @@ CREATE TABLE IF NOT EXISTS support_tickets (
 CREATE INDEX IF NOT EXISTS idx_tickets_user ON support_tickets(user_id);
 CREATE INDEX IF NOT EXISTS idx_tickets_status ON support_tickets(status);
 
--- ─── Support Messages ─────────────────────────────
+-- â”€â”€â”€ Support Messages â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 CREATE TABLE IF NOT EXISTS support_messages (
   id            SERIAL PRIMARY KEY,
   ticket_id     INT NOT NULL REFERENCES support_tickets(id) ON DELETE CASCADE,
@@ -170,7 +170,7 @@ CREATE TABLE IF NOT EXISTS support_messages (
 );
 CREATE INDEX IF NOT EXISTS idx_messages_ticket ON support_messages(ticket_id);
 
--- ─── Promotions ───────────────────────────────────
+-- â”€â”€â”€ Promotions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 CREATE TABLE IF NOT EXISTS promotions (
   id            SERIAL PRIMARY KEY,
   title         VARCHAR(255) NOT NULL,
@@ -188,7 +188,7 @@ CREATE TABLE IF NOT EXISTS promotions (
   created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- ─── User Promotions ──────────────────────────────
+-- â”€â”€â”€ User Promotions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 CREATE TABLE IF NOT EXISTS user_promotions (
   id            SERIAL PRIMARY KEY,
   user_id       INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -200,7 +200,7 @@ CREATE TABLE IF NOT EXISTS user_promotions (
 CREATE INDEX IF NOT EXISTS idx_user_promos_user ON user_promotions(user_id);
 CREATE INDEX IF NOT EXISTS idx_user_promos_promo ON user_promotions(promotion_id);
 
--- ─── Admin Audit Log ──────────────────────────────
+-- â”€â”€â”€ Admin Audit Log â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 CREATE TABLE IF NOT EXISTS admin_audit_log (
   id            SERIAL PRIMARY KEY,
   admin_id      INT REFERENCES admin_users(id) ON DELETE SET NULL,
@@ -214,7 +214,7 @@ CREATE TABLE IF NOT EXISTS admin_audit_log (
 CREATE INDEX IF NOT EXISTS idx_audit_admin ON admin_audit_log(admin_id);
 CREATE INDEX IF NOT EXISTS idx_audit_action ON admin_audit_log(action);
 
--- ─── Sports Categories ────────────────────────────
+-- â”€â”€â”€ Sports Categories â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 CREATE TABLE IF NOT EXISTS sports_categories (
   id            SERIAL PRIMARY KEY,
   name          VARCHAR(128) NOT NULL,
@@ -225,7 +225,7 @@ CREATE TABLE IF NOT EXISTS sports_categories (
   created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- ─── Leagues ──────────────────────────────────────
+-- â”€â”€â”€ Leagues â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 CREATE TABLE IF NOT EXISTS leagues (
   id            SERIAL PRIMARY KEY,
   sport_id      INT REFERENCES sports_categories(id) ON DELETE CASCADE,
@@ -239,7 +239,7 @@ CREATE TABLE IF NOT EXISTS leagues (
 );
 CREATE INDEX IF NOT EXISTS idx_leagues_sport ON leagues(sport_id);
 
--- ─── Coupons ──────────────────────────────────────
+-- â”€â”€â”€ Coupons â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 CREATE TABLE IF NOT EXISTS coupons (
   id              SERIAL PRIMARY KEY,
   code            VARCHAR(64) NOT NULL UNIQUE,
@@ -296,17 +296,17 @@ INSERT INTO themes (slug, name, description, css_vars, layout_config, is_active)
 (
   'default',
   'Esportiva Classic',
-  'Tema padrão com verde esmeralda e navy',
+  'Tema padrÃ£o com verde esmeralda e navy',
   '{
     "black": "#0B1726",
     "bg": "#0d1b2a",
     "card": "#1b2838",
     "text": "#f6f6f6",
-    "green1": "#ff6b3a",
-    "green2": "#ff3a00",
-    "green3": "#cc2e00",
-    "blue": "#ff3a00",
-    "accent": "#ff3a00",
+    "green1": "#34D399",
+    "green2": "#25D366",
+    "green3": "#1A9E4C",
+    "blue": "#25D366",
+    "accent": "#25D366",
     "danger": "#ff4d4d",
     "success": "#34D399"
   }',
@@ -329,11 +329,11 @@ INSERT INTO themes (slug, name, description, css_vars, layout_config, is_active)
     "bg": "#0d0d22",
     "card": "#13132e",
     "text": "#eef0ff",
-    "green1": "#ff6b3a",
-    "green2": "#ff3a00",
-    "green3": "#cc2e00",
+    "green1": "#34D399",
+    "green2": "#25D366",
+    "green3": "#1A9E4C",
     "blue": "#06b6d4",
-    "accent": "#ff3a00",
+    "accent": "#25D366",
     "danger": "#f43f5e",
     "success": "#22d3ee"
   }',
@@ -356,11 +356,11 @@ INSERT INTO themes (slug, name, description, css_vars, layout_config, is_active)
     "bg": "#061a12",
     "card": "#0a2419",
     "text": "#f0fdf4",
-    "green1": "#ff6b3a",
-    "green2": "#ff3a00",
-    "green3": "#cc2e00",
+    "green1": "#34D399",
+    "green2": "#25D366",
+    "green3": "#1A9E4C",
     "blue": "#38bdf8",
-    "accent": "#ff3a00",
+    "accent": "#25D366",
     "danger": "#ef4444",
     "success": "#34d399"
   }',

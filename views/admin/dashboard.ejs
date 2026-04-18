@@ -9,14 +9,14 @@
         <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
       </div>
       <div class="adm-stat-info">
-        <div class="adm-stat-label">Total Usuários</div>
+        <div class="adm-stat-label">Total UsuÃ¡rios</div>
         <div class="adm-stat-value" id="statUsers"><%= stats.totalUsers %></div>
         <div class="adm-stat-sub" id="statTodayUsers">+<%= stats.todayUsers %> hoje</div>
       </div>
     </div>
 
     <div class="adm-stat-card">
-      <div class="adm-stat-icon" style="background:rgba(255,58,0,.12);color:#ff3a00;">
+      <div class="adm-stat-icon" style="background:rgba(37,211,102,.12);color:#25D366;">
         <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
       </div>
       <div class="adm-stat-info">
@@ -33,7 +33,7 @@
       <div class="adm-stat-info">
         <div class="adm-stat-label">Jogos Ativos</div>
         <div class="adm-stat-value" id="statGames"><%= stats.totalGames %></div>
-        <div class="adm-stat-sub">no catálogo</div>
+        <div class="adm-stat-sub">no catÃ¡logo</div>
       </div>
     </div>
 
@@ -49,7 +49,7 @@
     </div>
 
     <div class="adm-stat-card">
-      <div class="adm-stat-icon" style="background:rgba(255,107,58,.12);color:#ff6b3a;">
+      <div class="adm-stat-icon" style="background:rgba(52,211,153,.12);color:#34D399;">
         <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
       </div>
       <div class="adm-stat-info">
@@ -64,7 +64,7 @@
         <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 11v1a10 10 0 0 1-2.2 6.3"/></svg>
       </div>
       <div class="adm-stat-info">
-        <div class="adm-stat-label">Conversão</div>
+        <div class="adm-stat-label">ConversÃ£o</div>
         <div class="adm-stat-value" id="statConversion">-</div>
         <div class="adm-stat-sub">dep/registros</div>
       </div>
@@ -83,7 +83,7 @@
     </div>
     <div class="adm-chart-card">
       <div class="adm-chart-head">
-        <h3>Novos Usuários (7 dias)</h3>
+        <h3>Novos UsuÃ¡rios (7 dias)</h3>
       </div>
       <div class="adm-chart-body" style="height:280px;">
         <canvas id="usersChart"></canvas>
@@ -141,7 +141,7 @@
       <div class="adm-list-head">
         <h3>
           <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-          Últimos Depósitos
+          Ãšltimos DepÃ³sitos
         </h3>
         <a href="/admin/deposits" class="adm-link-sm">Ver todos</a>
       </div>
@@ -167,11 +167,11 @@
   <div class="adm-quick-actions">
     <a href="/admin/users" class="adm-quick-btn">
       <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
-      Usuários
+      UsuÃ¡rios
     </a>
     <a href="/admin/deposits" class="adm-quick-btn">
       <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-      Depósitos
+      DepÃ³sitos
     </a>
     <a href="/admin/withdrawals" class="adm-quick-btn">
       <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
@@ -179,7 +179,7 @@
     </a>
     <a href="/admin/reports" class="adm-quick-btn">
       <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-      Relatórios
+      RelatÃ³rios
     </a>
     <a href="/admin/games" class="adm-quick-btn">
       <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
@@ -187,7 +187,7 @@
     </a>
     <a href="/admin/notifications" class="adm-quick-btn">
       <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-      Notificações
+      NotificaÃ§Ãµes
     </a>
     <a href="/admin/coupons" class="adm-quick-btn">
       <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 12v-2a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v2"/><path d="M4 12a2 2 0 0 0 0 4h16a2 2 0 0 0 0-4"/></svg>
@@ -195,7 +195,7 @@
     </a>
     <a href="/admin/settings" class="adm-quick-btn">
       <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9z"/></svg>
-      Configurações
+      ConfiguraÃ§Ãµes
     </a>
   </div>
 </div>
@@ -230,7 +230,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         data: {
           labels: revLabels,
           datasets: [
-            { label: 'Depósitos', data: revDeps, borderColor: '#2ee76b', backgroundColor: 'rgba(46,231,107,.08)', fill: true, tension: .4, borderWidth: 2, pointRadius: 3, pointBackgroundColor: '#2ee76b' },
+            { label: 'DepÃ³sitos', data: revDeps, borderColor: '#2ee76b', backgroundColor: 'rgba(46,231,107,.08)', fill: true, tension: .4, borderWidth: 2, pointRadius: 3, pointBackgroundColor: '#2ee76b' },
             { label: 'Saques', data: revWds, borderColor: '#ff4d4d', backgroundColor: 'rgba(255,77,77,.08)', fill: true, tension: .4, borderWidth: 2, pointRadius: 3, pointBackgroundColor: '#ff4d4d' }
           ]
         },
@@ -274,12 +274,12 @@ document.addEventListener('DOMContentLoaded', async () => {
           <div class="adm-list-rank" style="background:${['rgba(255,215,0,.15)','rgba(192,192,192,.12)','rgba(205,127,50,.12)','rgba(255,255,255,.04)','rgba(255,255,255,.04)'][i]};color:${['#ffd700','#c0c0c0','#cd7f32','rgba(255,255,255,.5)','rgba(255,255,255,.5)'][i]}">${i+1}</div>
           <div class="adm-list-info">
             <strong>${esc(u.username)}</strong>
-            <span>${u.dep_count} depósitos</span>
+            <span>${u.dep_count} depÃ³sitos</span>
           </div>
           <div class="adm-list-val" style="color:#2ee76b">${brl(parseInt(u.total_deposited)/100)}</div>
         </div>`).join('');
     } else {
-      depEl.innerHTML = '<div class="adm-list-empty">Nenhum depósito registrado</div>';
+      depEl.innerHTML = '<div class="adm-list-empty">Nenhum depÃ³sito registrado</div>';
     }
 
     // Top Games
@@ -302,18 +302,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     const actEl = document.getElementById('activityFeed');
     if (d.recentActivity && d.recentActivity.length) {
       const typeMap = {
-        deposit: { icon: '💰', color: '#2ee76b', label: 'Depósito' },
-        withdrawal: { icon: '📤', color: '#ff6b3a', label: 'Saque' },
-        register: { icon: '👤', color: '#2b8cff', label: 'Registro' }
+        deposit: { icon: 'ðŸ’°', color: '#2ee76b', label: 'DepÃ³sito' },
+        withdrawal: { icon: 'ðŸ“¤', color: '#34D399', label: 'Saque' },
+        register: { icon: 'ðŸ‘¤', color: '#2b8cff', label: 'Registro' }
       };
       actEl.innerHTML = d.recentActivity.map(a => {
-        const t = typeMap[a.type] || { icon: '•', color: '#fff', label: a.type };
+        const t = typeMap[a.type] || { icon: 'â€¢', color: '#fff', label: a.type };
         const amt = a.amount_cents > 0 ? brl(parseInt(a.amount_cents)/100) : '';
         return `<div class="adm-activity-item">
           <div class="adm-activity-dot" style="background:${t.color}">${t.icon}</div>
           <div class="adm-activity-info">
             <div><strong>${esc(a.username || '#'+a.user_id)}</strong> <span class="adm-activity-type">${t.label}</span></div>
-            <div class="adm-activity-meta">${fdate(a.created_at)}${amt ? ' • <strong style="color:'+t.color+'">'+amt+'</strong>' : ''}</div>
+            <div class="adm-activity-meta">${fdate(a.created_at)}${amt ? ' â€¢ <strong style="color:'+t.color+'">'+amt+'</strong>' : ''}</div>
           </div>
         </div>`;
       }).join('');
@@ -337,27 +337,27 @@ document.addEventListener('DOMContentLoaded', async () => {
         </div>`;
       }).join('');
     } else {
-      listEl.innerHTML = '<div class="adm-list-empty">Nenhum depósito ainda</div>';
+      listEl.innerHTML = '<div class="adm-list-empty">Nenhum depÃ³sito ainda</div>';
     }
 
     // Financial Summary
     const finEl = document.getElementById('financialSummary');
     finEl.innerHTML = `
       <div class="adm-summary-row">
-        <span class="adm-summary-label">Total Depósitos</span>
+        <span class="adm-summary-label">Total DepÃ³sitos</span>
         <span class="adm-summary-val" style="color:#2ee76b">${brl(d.totalRevenue / 100)}</span>
       </div>
       <div class="adm-summary-row">
-        <span class="adm-summary-label">Depósitos Hoje</span>
+        <span class="adm-summary-label">DepÃ³sitos Hoje</span>
         <span class="adm-summary-val" style="color:#2ee76b">${brl(d.todayRevenue / 100)} <small style="color:rgba(255,255,255,.35)">(${d.todayDeposits}x)</small></span>
       </div>
       <div class="adm-summary-row">
         <span class="adm-summary-label">Total Saques Pagos</span>
-        <span class="adm-summary-val" style="color:#ff6b3a">${brl(d.totalWithdrawalsAmount / 100)}</span>
+        <span class="adm-summary-val" style="color:#34D399">${brl(d.totalWithdrawalsAmount / 100)}</span>
       </div>
       <div class="adm-summary-row">
         <span class="adm-summary-label">Saques Pendentes</span>
-        <span class="adm-summary-val" style="color:#ff4d4d">${d.pendingWithdrawals}x • ${brl(d.pendingWithdrawalsAmount / 100)}</span>
+        <span class="adm-summary-val" style="color:#ff4d4d">${d.pendingWithdrawals}x â€¢ ${brl(d.pendingWithdrawalsAmount / 100)}</span>
       </div>
       <div class="adm-summary-divider"></div>
       <div class="adm-summary-row">

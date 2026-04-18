@@ -124,7 +124,7 @@ router.get('/referrals', async (req, res) => {
   try {
     const user = req.session.user;
     const countR = await query('SELECT COUNT(*) AS c FROM users WHERE referred_by = $1', [user.id]);
-    const baseUrl = process.env.NODE_ENV === 'production' ? (process.env.BASE_URL || 'https://cassino.up.railway.app') : 'http://localhost:3000';
+    const baseUrl = process.env.BASE_URL || (process.env.NODE_ENV === 'production' ? 'https://www.vemnabet.bet' : 'http://localhost:3000');
 
     res.render('user/referrals', {
       title: 'Indicações',

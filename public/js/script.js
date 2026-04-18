@@ -1,4 +1,4 @@
-/* /cassino/public/js/script.js — CassinoBet Desktop Layout */
+/* /cassino/public/js/script.js Ã¢â‚¬â€ VemNaBet Desktop Layout */
 
 var allGames = [];
 
@@ -171,7 +171,7 @@ function handleSearchState() {
     if (searchGrid) searchGrid.innerHTML = '';
     return;
   }
-  // Special "all" command — shows every game
+  // Special "all" command Ã¢â‚¬â€ shows every game
   if (q.toLowerCase() === 'all') {
     searchActiveTag = 'Todos';
     searchFiltered = allGames.slice();
@@ -184,7 +184,7 @@ function handleSearchState() {
   }
   if (q.length < 2) {
     if (searchMessage) {
-      searchMessage.textContent = 'Pesquisa mínima de 2 caracteres';
+      searchMessage.textContent = 'Pesquisa mÃƒÂ­nima de 2 caracteres';
       searchMessage.style.display = 'block';
     }
     if (searchTagsEl) searchTagsEl.innerHTML = '';
@@ -245,7 +245,7 @@ function doSearch() {
   if (queryMatched.length === 0) {
     // No results
     if (searchMessage) {
-      searchMessage.textContent = 'Não encontramos resultados para sua busca';
+      searchMessage.textContent = 'NÃƒÂ£o encontramos resultados para sua busca';
       searchMessage.style.display = 'block';
     }
     if (searchTagsEl) { searchTagsEl.innerHTML = ''; searchTagsEl.style.display = 'none'; }
@@ -330,7 +330,7 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape' && sea
 // Start placeholder animation on load
 startPlaceholderAnim();
 
-/* Provider grid IDs — REPLACED by dynamic filter */
+/* Provider grid IDs Ã¢â‚¬â€ REPLACED by dynamic filter */
 var homeFilteredGames = [];
 var homeShown = 0;
 var homePageSize = 24;
@@ -578,7 +578,7 @@ if (bannerSlider && bannerDotsEl) {
   });
 }
 
-/* ========== TOUCH SWIPE — TOP10 ========== */
+/* ========== TOUCH SWIPE Ã¢â‚¬â€ TOP10 ========== */
 (function() {
   var vp = document.querySelector('.top10-viewport');
   if (!vp) return;
@@ -604,7 +604,7 @@ if (bannerSlider && bannerDotsEl) {
   }, { passive: true });
 })();
 
-/* ========== TOUCH SWIPE — BANNER (desktop mode) ========== */
+/* ========== TOUCH SWIPE Ã¢â‚¬â€ BANNER (desktop mode) ========== */
 (function() {
   if (!bannerSlider) return;
   var startX = 0, dragging = false;
@@ -669,7 +669,7 @@ if (sidebarOverlay) sidebarOverlay.addEventListener('click', function() {
   if (sidebarOverlay) sidebarOverlay.classList.remove('active');
 });
 
-/* Bottom nav Menu button → opens sidebar on mobile */
+/* Bottom nav Menu button Ã¢â€ â€™ opens sidebar on mobile */
 var bnavMenu = document.getElementById('bnav-menu');
 if (bnavMenu) bnavMenu.addEventListener('click', function(e) {
   e.preventDefault();
@@ -688,7 +688,7 @@ if (menuToggle) menuToggle.addEventListener('click', function() {
   syncCollapsedSections();
 });
 
-/* ESPORTES group accordion — toggles esportes + popular + top5 */
+/* ESPORTES group accordion Ã¢â‚¬â€ toggles esportes + popular + top5 */
 if (esportesToggle) esportesToggle.addEventListener('click', function() {
   esportesToggle.classList.toggle('collapsed');
   var isCollapsed = esportesToggle.classList.contains('collapsed');
@@ -787,7 +787,7 @@ function updateAuthState() {
         var nameEl = document.getElementById('dropdownUserName');
         if (nameEl && j.user) {
           var safeName = (!isEmail(j.user.name)) ? j.user.name : null;
-          nameEl.textContent = safeName || 'Usuário';
+          nameEl.textContent = safeName || 'UsuÃƒÂ¡rio';
         }
         // Set date
         var dateEl = document.getElementById('dropdownDate');
@@ -799,12 +799,12 @@ function updateAuthState() {
         // Account section data
         var acctName = document.getElementById('acctFooterName');
         var safeFooterName = (j.user && !isEmail(j.user.name)) ? j.user.name : null;
-        if (acctName) acctName.textContent = safeFooterName || 'Usuário';
+        if (acctName) acctName.textContent = safeFooterName || 'UsuÃƒÂ¡rio';
         // Mirror name to all footer bars
-        var uName = safeFooterName || 'Usuário';
+        var uName = safeFooterName || 'UsuÃƒÂ¡rio';
         document.querySelectorAll('.acctFooterNameMirror').forEach(function(e) { e.textContent = uName; });
         var acctUid = document.getElementById('acctUserId');
-        if (acctUid && j.user) acctUid.value = j.user.id || '—';
+        if (acctUid && j.user) acctUid.value = j.user.id || 'Ã¢â‚¬â€';
         var acctEmail = document.getElementById('acctEmailValue');
         var userEmail = (j.user && (j.user.email || j.user.username)) || '';
         if (acctEmail && userEmail) acctEmail.textContent = userEmail;
@@ -855,10 +855,10 @@ function updateAuthState() {
         var pSum = document.getElementById('acctPixSummary');
         if (pSum) {
           if (j.user.pix_key) {
-            pSum.textContent = '◆ ' + pixType.toUpperCase() + ': ' + j.user.pix_key;
+            pSum.textContent = 'Ã¢â€”â€  ' + pixType.toUpperCase() + ': ' + j.user.pix_key;
           } else if (j.user.cpf) {
             var pc = j.user.cpf.replace(/\D/g,'');
-            pSum.textContent = '◆ CPF: ' + pc.slice(0,3) + '.' + pc.slice(3,6) + '.' + pc.slice(6,9) + '-' + pc.slice(9);
+            pSum.textContent = 'Ã¢â€”â€  CPF: ' + pc.slice(0,3) + '.' + pc.slice(3,6) + '.' + pc.slice(6,9) + '-' + pc.slice(9);
           }
         }
         // Name (skip if it looks like an email)
@@ -870,11 +870,11 @@ function updateAuthState() {
         var photoUserName = document.getElementById('acctPhotoUserName');
         if (photoUserName && j.user) {
           var rawName = (!isEmail(j.user.name)) ? (j.user.name || '') : '';
-          var firstName = rawName.split(' ')[0] || 'Usuário';
+          var firstName = rawName.split(' ')[0] || 'UsuÃƒÂ¡rio';
           photoUserName.textContent = firstName;
         }
         var photoUserId = document.getElementById('acctPhotoUserId');
-        if (photoUserId && j.user) photoUserId.textContent = 'ID: ' + (j.user.id || '—');
+        if (photoUserId && j.user) photoUserId.textContent = 'ID: ' + (j.user.id || 'Ã¢â‚¬â€');
         // Birth date
         if (j.user.birth_date) {
           var bd = new Date(j.user.birth_date);
@@ -978,7 +978,7 @@ if (dropdownLogout) dropdownLogout.addEventListener('click', function(e) {
     .catch(function() { window.location.reload(); });
 });
 
-// Dropdown Menu → toggles sidebar (same as bars)
+// Dropdown Menu Ã¢â€ â€™ toggles sidebar (same as bars)
 var dropdownMenu = document.getElementById('dropdownMenu');
 if (dropdownMenu) dropdownMenu.addEventListener('click', function(e) {
   e.preventDefault();
@@ -991,7 +991,7 @@ if (dropdownMenu) dropdownMenu.addEventListener('click', function(e) {
   }
 });
 
-// Dropdown Wallet → open wallet section with saldo sub-menu
+// Dropdown Wallet Ã¢â€ â€™ open wallet section with saldo sub-menu
 var dropdownWallet = document.getElementById('dropdownWallet');
 if (dropdownWallet) dropdownWallet.addEventListener('click', function(e) {
   e.preventDefault();
@@ -1002,7 +1002,7 @@ if (dropdownWallet) dropdownWallet.addEventListener('click', function(e) {
 /* ========== THEME TOGGLE ========== */
 function setTheme(mode) {
   document.documentElement.setAttribute('data-theme', mode);
-  localStorage.setItem('cassinoBetTheme', mode);
+  localStorage.setItem('vemNaBetTheme', mode);
   document.querySelectorAll('.theme-btn-dark').forEach(function(b) { b.classList.toggle('active', mode === 'dark'); });
   document.querySelectorAll('.theme-btn-light').forEach(function(b) { b.classList.toggle('active', mode === 'light'); });
   document.querySelectorAll('.wallet-theme-card').forEach(function(c) {
@@ -1011,7 +1011,7 @@ function setTheme(mode) {
 }
 // Init theme from localStorage
 (function() {
-  var saved = localStorage.getItem('cassinoBetTheme') || 'dark';
+  var saved = localStorage.getItem('vemNaBetTheme') || 'dark';
   setTheme(saved);
 })();
 document.querySelectorAll('#themeDark, .theme-btn-dark').forEach(function(btn) {
@@ -1064,7 +1064,7 @@ function showWalletSection(panel) {
     window.location.href = '/?panel=' + encodeURIComponent(panel);
     return;
   }
-  // Depositar — just open modal, don't navigate
+  // Depositar Ã¢â‚¬â€ just open modal, don't navigate
   if (panel === 'depositar') {
     if (typeof openDepositModal === 'function') openDepositModal();
     return;
@@ -1230,13 +1230,13 @@ if (walletSubBack) walletSubBack.addEventListener('click', function(e) {
   setWalletMobileState('nav');
 });
 
-// Nav item switching — main menu
+// Nav item switching Ã¢â‚¬â€ main menu
 document.querySelectorAll('#walletMainMenu .wallet-nav-item[data-panel]').forEach(function(item) {
   item.addEventListener('click', function(e) {
     e.preventDefault();
     var hasSubmenu = item.getAttribute('data-has-submenu');
     var panel = item.getAttribute('data-panel');
-    // Tema — do nothing (toggle buttons handle it inline)
+    // Tema Ã¢â‚¬â€ do nothing (toggle buttons handle it inline)
     if (panel === 'tema') return;
     if (hasSubmenu === 'true') {
       // Open Meu Perfil sub-menu
@@ -1250,7 +1250,7 @@ document.querySelectorAll('#walletMainMenu .wallet-nav-item[data-panel]').forEac
       return;
     }
     if (hasSubmenu === 'saldo') {
-      // Open Gestão de Saldo sub-menu
+      // Open GestÃƒÂ£o de Saldo sub-menu
       showSaldoSubMenu();
       document.querySelectorAll('.wallet-nav-item').forEach(function(n) { n.classList.remove('active'); });
       document.querySelectorAll('.wallet-panel').forEach(function(p) { p.classList.remove('active'); });
@@ -1263,7 +1263,7 @@ document.querySelectorAll('#walletMainMenu .wallet-nav-item[data-panel]').forEac
       return;
     }
     if (hasSubmenu === 'apostas') {
-      // Open Histórico de Apostas sub-menu
+      // Open HistÃƒÂ³rico de Apostas sub-menu
       showApostasSubMenu();
       document.querySelectorAll('.wallet-nav-item').forEach(function(n) { n.classList.remove('active'); });
       document.querySelectorAll('.wallet-panel').forEach(function(p) { p.classList.remove('active'); });
@@ -1287,7 +1287,7 @@ document.querySelectorAll('#walletMainMenu .wallet-nav-item[data-panel]').forEac
   });
 });
 
-// Nav item switching — sub-menu (Meu Perfil)
+// Nav item switching Ã¢â‚¬â€ sub-menu (Meu Perfil)
 document.querySelectorAll('#walletSubMenu .wallet-nav-item[data-panel]').forEach(function(item) {
   item.addEventListener('click', function(e) {
     e.preventDefault();
@@ -1304,12 +1304,12 @@ document.querySelectorAll('#walletSubMenu .wallet-nav-item[data-panel]').forEach
   });
 });
 
-// Nav item switching — sub-menu (Gestão de Saldo)
+// Nav item switching Ã¢â‚¬â€ sub-menu (GestÃƒÂ£o de Saldo)
 document.querySelectorAll('#walletSubMenuSaldo .wallet-nav-item[data-panel]').forEach(function(item) {
   item.addEventListener('click', function(e) {
     e.preventDefault();
     var panel = item.getAttribute('data-panel');
-    // Depositar — just open modal, don't navigate
+    // Depositar Ã¢â‚¬â€ just open modal, don't navigate
     if (panel === 'depositar') {
       if (typeof openDepositModal === 'function') openDepositModal();
       return;
@@ -1340,7 +1340,7 @@ if (walletSubBackSaldo) walletSubBackSaldo.addEventListener('click', function(e)
   setWalletMobileState('nav');
 });
 
-// Nav item switching — sub-menu (Histórico de Apostas)
+// Nav item switching Ã¢â‚¬â€ sub-menu (HistÃƒÂ³rico de Apostas)
 document.querySelectorAll('#walletSubMenuApostas .wallet-nav-item[data-panel]').forEach(function(item) {
   item.addEventListener('click', function(e) {
     e.preventDefault();
@@ -1369,14 +1369,14 @@ if (walletSubBackApostas) walletSubBackApostas.addEventListener('click', functio
   setWalletMobileState('nav');
 });
 
-// Wallet deposit button — just opens modal over current page
+// Wallet deposit button Ã¢â‚¬â€ just opens modal over current page
 var walletDepositBtn = document.getElementById('walletDepositBtn');
 if (walletDepositBtn) walletDepositBtn.addEventListener('click', function(e) {
   e.preventDefault();
   if (typeof openDepositModal === 'function') openDepositModal();
 });
 
-// Wallet sacar button in Meu Perfil — go to sacar panel
+// Wallet sacar button in Meu Perfil Ã¢â‚¬â€ go to sacar panel
 var walletWithdrawBtn = document.getElementById('walletWithdrawBtn');
 if (walletWithdrawBtn) walletWithdrawBtn.addEventListener('click', function(e) {
   e.preventDefault();
@@ -1517,7 +1517,7 @@ Object.keys(dropdownPanelMap).forEach(function(id) {
   }
 });
 
-// Logo click → back to home
+// Logo click Ã¢â€ â€™ back to home
 var topbarLogo = document.querySelector('.topbar-logo');
 if (topbarLogo) {
   topbarLogo.addEventListener('click', function(e) {
@@ -1570,11 +1570,11 @@ document.querySelectorAll('.ganhos-tab').forEach(function(tab) {
 
 /* ========== RANDOM DATA HELPERS ========== */
 var fakeNames = [
-  'Lucas','Ana','Pedro','Maria','João','Carla','Bruno','Fernanda','Rafael','Juliana',
-  'Carlos','Patrícia','Thiago','Camila','Diego','Amanda','Rodrigo','Larissa','Felipe','Mariana',
-  'Gustavo','Beatriz','André','Letícia','Daniel','Tatiana','Leandro','Vanessa','Marcos','Bruna',
-  'Eduardo','Raquel','Vinícius','Isabela','Fabio','Renata','Mateus','Aline','Gabriel','Priscila',
-  'Leonardo','Natália','Henrique','Débora','Alex','Cristiane','Paulo','Sabrina','Roberto','Luciana'
+  'Lucas','Ana','Pedro','Maria','JoÃƒÂ£o','Carla','Bruno','Fernanda','Rafael','Juliana',
+  'Carlos','PatrÃƒÂ­cia','Thiago','Camila','Diego','Amanda','Rodrigo','Larissa','Felipe','Mariana',
+  'Gustavo','Beatriz','AndrÃƒÂ©','LetÃƒÂ­cia','Daniel','Tatiana','Leandro','Vanessa','Marcos','Bruna',
+  'Eduardo','Raquel','VinÃƒÂ­cius','Isabela','Fabio','Renata','Mateus','Aline','Gabriel','Priscila',
+  'Leonardo','NatÃƒÂ¡lia','Henrique','DÃƒÂ©bora','Alex','Cristiane','Paulo','Sabrina','Roberto','Luciana'
 ];
 var gameImages = [
   '/public/img/games/2.webp','/public/img/games/3.webp',
@@ -1668,7 +1668,7 @@ function startGanhosScroll() {
   }, 2500);
 }
 
-/* ========== ÚLTIMAS APOSTAS RENDER + VERTICAL SCROLL ========== */
+/* ========== ÃƒÅ¡LTIMAS APOSTAS RENDER + VERTICAL SCROLL ========== */
 var apostasInterval = null;
 
 function generateAposta() {
@@ -1694,10 +1694,10 @@ function apostaRowHTML(a) {
     '</div>' +
     '<div class="aposta-values">' +
       '<span class="aposta-bet">' + a.bet + '</span>' +
-      '<span class="aposta-arrow">→</span>' +
+      '<span class="aposta-arrow">Ã¢â€ â€™</span>' +
       '<span class="aposta-win">' + a.win + '</span>' +
     '</div>' +
-    '<span class="aposta-chevron">›</span>' +
+    '<span class="aposta-chevron">Ã¢â‚¬Âº</span>' +
   '</div>';
 }
 
@@ -1821,7 +1821,7 @@ function saveAcctField(type) {
         if (d) d.textContent = '+55 ' + phoneInp.value;
         toggleAcctSection('acctCelular');
       } else { showToast(j.msg || 'Erro', 'error'); }
-    }).catch(function() { showToast('Erro de conexão.', 'error'); });
+    }).catch(function() { showToast('Erro de conexÃƒÂ£o.', 'error'); });
     return;
   }
   if (type === 'address') {
@@ -1840,7 +1840,7 @@ function saveAcctField(type) {
         if (d) d.textContent = (rua ? rua.value : '') + ' - ' + (cidade ? cidade.value : '') + ', ' + (estado ? estado.value : '');
         toggleAcctSection('acctEndereco');
       } else { showToast(j.msg || 'Erro', 'error'); }
-    }).catch(function() { showToast('Erro de conexão.', 'error'); });
+    }).catch(function() { showToast('Erro de conexÃƒÂ£o.', 'error'); });
     return;
   }
   if (type === 'pix') {
@@ -1855,10 +1855,10 @@ function saveAcctField(type) {
       if (j.ok) {
         showToast(j.msg, 'success');
         var d = document.getElementById('acctPixSummary');
-        if (d) d.textContent = '◆ ' + (pixType ? pixType.value.toUpperCase() : 'CPF') + ': ' + pixKey.value;
+        if (d) d.textContent = 'Ã¢â€”â€  ' + (pixType ? pixType.value.toUpperCase() : 'CPF') + ': ' + pixKey.value;
         toggleAcctSection('acctPix');
       } else { showToast(j.msg || 'Erro', 'error'); }
-    }).catch(function() { showToast('Erro de conexão.', 'error'); });
+    }).catch(function() { showToast('Erro de conexÃƒÂ£o.', 'error'); });
     return;
   }
   if (type === 'password') {
@@ -1867,8 +1867,8 @@ function saveAcctField(type) {
     var conf = document.getElementById('acctSenhaConfirm');
     if (!cur || !nova || !conf) return;
     if (!cur.value || !nova.value) { showToast('Preencha todos os campos.', 'error'); return; }
-    if (nova.value !== conf.value) { showToast('As senhas não coincidem.', 'error'); return; }
-    if (nova.value.length < 6) { showToast('Mínimo 6 caracteres.', 'error'); return; }
+    if (nova.value !== conf.value) { showToast('As senhas nÃƒÂ£o coincidem.', 'error'); return; }
+    if (nova.value.length < 6) { showToast('MÃƒÂ­nimo 6 caracteres.', 'error'); return; }
     fetch('/api/user/change-password', {
       method: 'POST', credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
@@ -1879,12 +1879,12 @@ function saveAcctField(type) {
         cur.value = ''; nova.value = ''; conf.value = '';
         toggleAcctSection('acctSenha');
       } else { showToast(j.msg || 'Erro', 'error'); }
-    }).catch(function() { showToast('Erro de conexão.', 'error'); });
+    }).catch(function() { showToast('Erro de conexÃƒÂ£o.', 'error'); });
     return;
   }
   // Generic (pausas, etc)
   if (type === 'pausaTemp' || type === 'autoExclusao') {
-    showToast('Configuração salva com sucesso!', 'success');
+    showToast('ConfiguraÃƒÂ§ÃƒÂ£o salva com sucesso!', 'success');
     return;
   }
   showToast('Salvo com sucesso!', 'success');
@@ -1905,7 +1905,7 @@ function toggleLimitForm(formId, value) {
     if (_limitsLoaded) saveLimits();
   } else {
     if (fields) fields.style.display = '';
-    if (tag) { tag.textContent = 'Personalizado'; tag.style.background = 'rgba(255,57,1,.12)'; tag.style.color = '#ff3a00'; }
+    if (tag) { tag.textContent = 'Personalizado'; tag.style.background = 'rgba(37,211,102,.12)'; tag.style.color = '#25D366'; }
   }
 }
 window.toggleLimitForm = toggleLimitForm;
@@ -1919,7 +1919,7 @@ function updatePixMask() {
   if (!sel || !inp) return;
   var type = sel.value;
   var masks = { cpf: '000.000.000-00', email: 'email@exemplo.com', phone: '(00) 00000-0000', random: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx' };
-  var labels = { cpf: 'Chave PIX (CPF)', email: 'Chave PIX (E-mail)', phone: 'Chave PIX (Celular)', random: 'Chave PIX (Aleatória)' };
+  var labels = { cpf: 'Chave PIX (CPF)', email: 'Chave PIX (E-mail)', phone: 'Chave PIX (Celular)', random: 'Chave PIX (AleatÃƒÂ³ria)' };
   inp.placeholder = masks[type] || 'Chave PIX';
   inp.value = '';
   if (label) label.textContent = labels[type] || 'Chave PIX';
@@ -1966,7 +1966,7 @@ if (cepInput) {
     fetch('https://viacep.com.br/ws/' + cep + '/json/')
       .then(function(r) { return r.json(); })
       .then(function(d) {
-        if (d.erro) { showToast('CEP não encontrado.', 'error'); return; }
+        if (d.erro) { showToast('CEP nÃƒÂ£o encontrado.', 'error'); return; }
         var rua = document.getElementById('acctRua');
         var cidade = document.getElementById('acctCidade');
         var estado = document.getElementById('acctEstado');
@@ -1994,8 +1994,8 @@ if (acctPhotoInput) {
   acctPhotoInput.addEventListener('change', function(e) {
     var file = e.target.files[0];
     if (!file) return;
-    if (!file.type.startsWith('image/')) { showToast('Selecione uma imagem válida.', 'error'); return; }
-    if (file.size > 2 * 1024 * 1024) { showToast('Imagem muito grande (máx 2MB).', 'error'); return; }
+    if (!file.type.startsWith('image/')) { showToast('Selecione uma imagem vÃƒÂ¡lida.', 'error'); return; }
+    if (file.size > 2 * 1024 * 1024) { showToast('Imagem muito grande (mÃƒÂ¡x 2MB).', 'error'); return; }
     var reader = new FileReader();
     reader.onload = function(ev) {
       var src = ev.target.result;
@@ -2051,12 +2051,12 @@ function populateLoginHistory() {
         var d = new Date(r.created_at);
         var dt = d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
         var tr = document.createElement('tr');
-        tr.innerHTML = '<td>' + dt + '</td><td>' + (r.ip || '—') + '</td><td>' + ((r.city || '') + (r.state ? ', ' + r.state : '') || '—') + '</td><td>' + (r.coords || '—') + '</td>';
+        tr.innerHTML = '<td>' + dt + '</td><td>' + (r.ip || 'Ã¢â‚¬â€') + '</td><td>' + ((r.city || '') + (r.state ? ', ' + r.state : '') || 'Ã¢â‚¬â€') + '</td><td>' + (r.coords || 'Ã¢â‚¬â€') + '</td>';
         body.appendChild(tr);
       });
       if (count) count.textContent = 'Mostrando ' + j.rows.length + ' registro' + (j.rows.length > 1 ? 's' : '');
     }).catch(function() {
-      body.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px">Erro ao carregar histórico.</td></tr>';
+      body.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px">Erro ao carregar histÃƒÂ³rico.</td></tr>';
     });
 }
 
@@ -2109,7 +2109,7 @@ function saveLimits() {
   }).then(function(r) { return r.json(); }).then(function(j) {
     if (j.ok) showToast(j.msg, 'success');
     else showToast(j.msg || 'Erro', 'error');
-  }).catch(function() { showToast('Erro de conexão.', 'error'); });
+  }).catch(function() { showToast('Erro de conexÃƒÂ£o.', 'error'); });
 }
 window.saveLimits = saveLimits;
 
@@ -2166,7 +2166,7 @@ function submitWithdrawal() {
   if (!pixKey || !pixKey.value.trim()) { showToast('Informe a chave PIX.', 'error'); return; }
   if (!amountEl || !amountEl.value.trim()) { showToast('Informe o valor.', 'error'); return; }
   var amount = parseBrl(amountEl.value);
-  if (amount < 10) { showToast('Valor mínimo: R$ 10,00', 'error'); return; }
+  if (amount < 10) { showToast('Valor mÃƒÂ­nimo: R$ 10,00', 'error'); return; }
 
   fetch('/api/withdrawal/create', {
     method: 'POST', credentials: 'include',
@@ -2183,7 +2183,7 @@ function submitWithdrawal() {
       loadWithdrawals();
       refreshWalletUI();
     } else { showToast(j.msg || 'Erro', 'error'); }
-  }).catch(function() { showToast('Erro de conexão.', 'error'); });
+  }).catch(function() { showToast('Erro de conexÃƒÂ£o.', 'error'); });
 }
 window.submitWithdrawal = submitWithdrawal;
 
@@ -2224,8 +2224,8 @@ function loadTransactions() {
     .then(function(r) { return r.json(); })
     .then(function(j) {
       if (!j.ok || !j.rows.length) {
-        body.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--text-muted)">Nenhuma transação encontrada.</td></tr>';
-        if (count) count.textContent = '0 transações';
+        body.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--text-muted)">Nenhuma transaÃƒÂ§ÃƒÂ£o encontrada.</td></tr>';
+        if (count) count.textContent = '0 transaÃƒÂ§ÃƒÂµes';
         return;
       }
       body.innerHTML = '';
@@ -2233,7 +2233,7 @@ function loadTransactions() {
         var d = new Date(tx.created_at);
         var dt = d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
         var typeCls = 'tx-type tx-type-' + tx.type;
-        var typeLabel = tx.type === 'deposit' ? 'Depósito' : tx.type === 'withdrawal' ? 'Saque' : tx.type;
+        var typeLabel = tx.type === 'deposit' ? 'DepÃƒÂ³sito' : tx.type === 'withdrawal' ? 'Saque' : tx.type;
         var statusCls = 'tx-status tx-status-' + tx.status;
         var statusLabel = tx.status === 'paid' ? 'Pago' : tx.status === 'pending' ? 'Pendente' : tx.status === 'approved' ? 'Aprovado' : tx.status === 'failed' ? 'Falhou' : tx.status === 'rejected' ? 'Rejeitado' : tx.status;
         var amt = (parseInt(tx.amount_cents) / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
@@ -2241,15 +2241,15 @@ function loadTransactions() {
         tr.style.cursor = 'pointer';
         tr.innerHTML = '<td><span class="' + typeCls + '">' + typeLabel + '</span></td>' +
           '<td style="font-size:12px;color:var(--text-muted)">#' + tx.id + '</td>' +
-          '<td style="font-size:12px">' + (tx.provider || '—') + '</td>' +
+          '<td style="font-size:12px">' + (tx.provider || 'Ã¢â‚¬â€') + '</td>' +
           '<td style="font-weight:700">R$ ' + amt + '</td>' +
           '<td><span class="' + statusCls + '">' + statusLabel + '</span></td>' +
           '<td style="font-size:12px;color:var(--text-muted)">' + dt + '</td>';
         body.appendChild(tr);
       });
-      if (count) count.textContent = 'Mostrando ' + j.rows.length + ' transaç' + (j.rows.length > 1 ? 'ões' : 'ão');
+      if (count) count.textContent = 'Mostrando ' + j.rows.length + ' transaÃƒÂ§' + (j.rows.length > 1 ? 'ÃƒÂµes' : 'ÃƒÂ£o');
     }).catch(function() {
-      body.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px">Erro ao carregar transações.</td></tr>';
+      body.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px">Erro ao carregar transaÃƒÂ§ÃƒÂµes.</td></tr>';
     });
 }
 
@@ -2270,7 +2270,7 @@ if (histPeriodEl) {
   });
 }
 
-// Betting history tab switching — Cassino
+// Betting history tab switching Ã¢â‚¬â€ Cassino
 document.querySelectorAll('#betCassinoTabs .hist-tab').forEach(function(tab) {
   tab.addEventListener('click', function() {
     document.querySelectorAll('#betCassinoTabs .hist-tab').forEach(function(t) { t.classList.remove('active'); });
@@ -2278,7 +2278,7 @@ document.querySelectorAll('#betCassinoTabs .hist-tab').forEach(function(tab) {
   });
 });
 
-// Betting history tab switching — Esportivas
+// Betting history tab switching Ã¢â‚¬â€ Esportivas
 document.querySelectorAll('#betSportTabs .hist-tab').forEach(function(tab) {
   tab.addEventListener('click', function() {
     document.querySelectorAll('#betSportTabs .hist-tab').forEach(function(t) { t.classList.remove('active'); });
@@ -2327,7 +2327,7 @@ function applySacarPixMask(mask) {
   key.addEventListener('input', sacarPixMaskHandler);
 }
 
-// Sacar PIX type change → update mask and pre-fill
+// Sacar PIX type change Ã¢â€ â€™ update mask and pre-fill
 var sacarPixTypeEl = document.getElementById('sacarPixType');
 if (sacarPixTypeEl) {
   sacarPixTypeEl.addEventListener('change', function() {
@@ -2338,7 +2338,7 @@ if (sacarPixTypeEl) {
     if (t === 'cpf') { applySacarPixMask('000.000.000-00'); key.placeholder = '000.000.000-00'; }
     else if (t === 'phone') { applySacarPixMask('(00) 00000-0000'); key.placeholder = '(00) 00000-0000'; }
     else if (t === 'email') { key.placeholder = 'email@exemplo.com'; }
-    else { key.placeholder = 'Chave aleatória'; }
+    else { key.placeholder = 'Chave aleatÃƒÂ³ria'; }
   });
 }
 
@@ -2351,19 +2351,19 @@ function notifRelativeTime(dateStr) {
   var d = new Date(dateStr).getTime();
   var diff = Math.floor((now - d) / 1000);
   if (diff < 60) return 'agora';
-  if (diff < 3600) return Math.floor(diff / 60) + ' min atrás';
-  if (diff < 86400) return Math.floor(diff / 3600) + 'h atrás';
-  if (diff < 604800) return Math.floor(diff / 86400) + 'd atrás';
+  if (diff < 3600) return Math.floor(diff / 60) + ' min atrÃƒÂ¡s';
+  if (diff < 86400) return Math.floor(diff / 3600) + 'h atrÃƒÂ¡s';
+  if (diff < 604800) return Math.floor(diff / 86400) + 'd atrÃƒÂ¡s';
   return new Date(dateStr).toLocaleDateString('pt-BR');
 }
 
 var notifTypeIcons = {
-  info: { emoji: 'ℹ️', cls: 'info' },
-  success: { emoji: '✅', cls: 'success' },
-  warning: { emoji: '⚠️', cls: 'warning' },
-  promo: { emoji: '🎁', cls: 'promo' },
-  deposit: { emoji: '💰', cls: 'success' },
-  bonus: { emoji: '🎉', cls: 'promo' }
+  info: { emoji: 'Ã¢â€žÂ¹Ã¯Â¸Â', cls: 'info' },
+  success: { emoji: 'Ã¢Å“â€¦', cls: 'success' },
+  warning: { emoji: 'Ã¢Å¡Â Ã¯Â¸Â', cls: 'warning' },
+  promo: { emoji: 'Ã°Å¸Å½Â', cls: 'promo' },
+  deposit: { emoji: 'Ã°Å¸â€™Â°', cls: 'success' },
+  bonus: { emoji: 'Ã°Å¸Å½â€°', cls: 'promo' }
 };
 
 function renderNotifications(notifications) {
@@ -2484,7 +2484,7 @@ if (notifShowReadBtn) {
     if (section) {
       var visible = section.style.display !== 'none';
       section.style.display = visible ? 'none' : '';
-      notifShowReadBtn.textContent = visible ? 'Mostrar notificações lidas' : 'Ocultar notificações lidas';
+      notifShowReadBtn.textContent = visible ? 'Mostrar notificaÃƒÂ§ÃƒÂµes lidas' : 'Ocultar notificaÃƒÂ§ÃƒÂµes lidas';
     }
   });
 }
@@ -2503,7 +2503,7 @@ function stopNotifPolling() {
   if (_notifPollId) { clearInterval(_notifPollId); _notifPollId = null; }
 }
 
-// Topbar bell → open notif panel
+// Topbar bell Ã¢â€ â€™ open notif panel
 var topbarNotifBtn = document.getElementById('topbarNotif');
 if (topbarNotifBtn) topbarNotifBtn.addEventListener('click', function(e) {
   e.preventDefault();
@@ -2511,7 +2511,7 @@ if (topbarNotifBtn) topbarNotifBtn.addEventListener('click', function(e) {
   showWalletSection('notif');
   loadNotifications();
 });
-// Sidebar bell → open notif panel
+// Sidebar bell Ã¢â€ â€™ open notif panel
 var sidebarNotifBtn = document.getElementById('sidebarNotifBtn');
 if (sidebarNotifBtn) sidebarNotifBtn.addEventListener('click', function(e) {
   e.preventDefault();
@@ -2549,7 +2549,7 @@ function setupIndiqueLink() {
   if (shareBtn) {
     shareBtn.addEventListener('click', function() {
       if (navigator.share && input.value) {
-        navigator.share({ title: 'CassinoBet', text: 'Venha jogar comigo!', url: input.value });
+        navigator.share({ title: 'VemNaBet', text: 'Venha jogar comigo!', url: input.value });
       } else if (input.value) {
         navigator.clipboard.writeText(input.value);
         showToast('Link copiado!', 'success');
@@ -2566,7 +2566,7 @@ document.querySelectorAll('.indique-period').forEach(function(btn) {
   });
 });
 
-// Prêmios tabs
+// PrÃƒÂªmios tabs
 document.querySelectorAll('.premios-tab').forEach(function(btn) {
   btn.addEventListener('click', function() {
     document.querySelectorAll('.premios-tab').forEach(function(b) { b.classList.remove('active'); });
@@ -2574,7 +2574,7 @@ document.querySelectorAll('.premios-tab').forEach(function(btn) {
   });
 });
 
-// Prêmios filters
+// PrÃƒÂªmios filters
 document.querySelectorAll('.premios-filter').forEach(function(btn) {
   btn.addEventListener('click', function() {
     document.querySelectorAll('.premios-filter').forEach(function(b) { b.classList.remove('active'); });
