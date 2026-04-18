@@ -1,8 +1,8 @@
-<%- include('layout-head', { title: 'Provedores', page: 'providers' }) %>
+﻿<%- include('layout-head', { title: 'Provedores', page: 'providers' }) %>
 
 <div class="adm-page-card">
   <div class="adm-page-head">
-    <div><h3>Provedores</h3><p class="adm-muted">Imagens dos estÃºdios exibidas na home e pÃ¡gina de provedores</p></div>
+    <div><h3>Provedores</h3><p class="adm-muted">Imagens dos estúdios exibidas na home e página de provedores</p></div>
     <div style="display:flex;gap:8px">
       <button class="adm-btn primary" id="btnAddProvider">+ Adicionar</button>
       <button class="adm-btn" id="btnRefresh">Atualizar</button>
@@ -10,7 +10,7 @@
   </div>
   <div class="adm-table-wrap">
     <table class="adm-table">
-      <thead><tr><th>ID</th><th>Preview</th><th>Nome</th><th>URL da Imagem</th><th>Ordem</th><th>Ativo</th><th>AÃ§Ãµes</th></tr></thead>
+      <thead><tr><th>ID</th><th>Preview</th><th>Nome</th><th>URL da Imagem</th><th>Ordem</th><th>Ativo</th><th>Ações</th></tr></thead>
       <tbody id="provTbody"></tbody>
     </table>
   </div>
@@ -33,7 +33,7 @@
           <div id="provPreviewArea">
             <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="1.5" style="display:block;margin:0 auto 8px"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
             <p style="margin:0;color:rgba(255,255,255,.45);font-size:13px;font-weight:500">Clique ou arraste a imagem</p>
-            <p style="margin:6px 0 0;color:rgba(255,255,255,.2);font-size:11px">PNG, JPG, WebP â€” mÃ¡x. 2MB</p>
+            <p style="margin:6px 0 0;color:rgba(255,255,255,.2);font-size:11px">PNG, JPG, WebP — máx. 2MB</p>
           </div>
           <input type="file" id="provFileInput" accept="image/*" style="display:none;">
         </div>
@@ -68,7 +68,7 @@
   function esc(s) { var d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
 
   // Drag & drop + file pick
-  var provDefaultDropHTML = '<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="1.5" style="display:block;margin:0 auto 8px"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg><p style="margin:0;color:rgba(255,255,255,.45);font-size:13px;font-weight:500">Clique ou arraste a imagem</p><p style="margin:6px 0 0;color:rgba(255,255,255,.2);font-size:11px">PNG, JPG, WebP â€” mÃ¡x. 2MB</p>';
+  var provDefaultDropHTML = '<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="1.5" style="display:block;margin:0 auto 8px"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg><p style="margin:0;color:rgba(255,255,255,.45);font-size:13px;font-weight:500">Clique ou arraste a imagem</p><p style="margin:6px 0 0;color:rgba(255,255,255,.2);font-size:11px">PNG, JPG, WebP — máx. 2MB</p>';
 
   dropZone.addEventListener('click', function() { fileInput.click(); });
   dropZone.addEventListener('dragover', function(e) { e.preventDefault(); dropZone.style.borderColor = 'var(--adm-green1)'; dropZone.style.background = 'rgba(52,211,153,.06)'; });
@@ -80,7 +80,7 @@
   fileInput.addEventListener('change', function() { if (this.files[0]) handleProvFile(this.files[0]); });
 
   function handleProvFile(f) {
-    if (f.size > 2 * 1024 * 1024) return alert('Arquivo muito grande. MÃ¡x. 2MB.');
+    if (f.size > 2 * 1024 * 1024) return alert('Arquivo muito grande. Máx. 2MB.');
     selectedFile = f;
     var url = URL.createObjectURL(f);
     previewArea.innerHTML = '<img src="' + url + '" style="max-height:80px;max-width:100%;border-radius:8px;box-shadow:0 4px 20px rgba(0,0,0,.3)"><p style="margin:6px 0 0;color:rgba(255,255,255,.4);font-size:11px;font-weight:500">' + esc(f.name) + '</p>';
@@ -102,7 +102,7 @@
       tb.innerHTML = items.map(function(r) {
         return '<tr>' +
           '<td>' + r.id + '</td>' +
-          '<td>' + (r.image_url ? '<img src="' + esc(r.image_url) + '" alt="" style="width:80px;height:50px;object-fit:contain;background:radial-gradient(ellipse at center,#fc3801,#992201);border-radius:8px;padding:4px">' : 'â€”') + '</td>' +
+          '<td>' + (r.image_url ? '<img src="' + esc(r.image_url) + '" alt="" style="width:80px;height:50px;object-fit:contain;background:radial-gradient(ellipse at center,#fc3801,#992201);border-radius:8px;padding:4px">' : '—') + '</td>' +
           '<td><strong>' + esc(r.provider_name) + '</strong></td>' +
           '<td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:rgba(255,255,255,.55)">' + esc(r.image_url) + '</td>' +
           '<td>' + r.sort_order + '</td>' +
@@ -148,7 +148,7 @@
     var name = document.getElementById('provName').value.trim();
     var img = document.getElementById('provImageUrl').value.trim();
     var sort = parseInt(document.getElementById('provSortOrder').value) || 0;
-    if (!name) return alert('Nome Ã© obrigatÃ³rio.');
+    if (!name) return alert('Nome é obrigatório.');
     if (!selectedFile && !img) return alert('Envie uma imagem ou informe a URL.');
 
     var btn = this; btn.disabled = true; btn.textContent = 'Salvando...';

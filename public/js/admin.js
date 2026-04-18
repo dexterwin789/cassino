@@ -17,9 +17,10 @@
 
   function tag(status) {
     const s = (status || '').toLowerCase();
-    if (s === 'paid') return `<span class="adm-tag ok">paid</span>`;
-    if (s === 'pending') return `<span class="adm-tag warn">pending</span>`;
-    if (s === 'failed' || s === 'canceled') return `<span class="adm-tag bad">${esc(s)}</span>`;
+    if (s === 'paid') return `<span class="adm-tag ok">Pago</span>`;
+    if (s === 'pending') return `<span class="adm-tag warn">Pendente</span>`;
+    if (s === 'failed') return `<span class="adm-tag bad">Falhou</span>`;
+    if (s === 'canceled') return `<span class="adm-tag bad">Cancelado</span>`;
     return `<span class="adm-tag">${esc(s)}</span>`;
   }
 

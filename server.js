@@ -1,4 +1,4 @@
-require('dotenv').config();
+﻿require('dotenv').config();
 const express = require('express');
 const session = require('express-session');
 const PgSession = require('connect-pg-simple')(session);
@@ -43,7 +43,7 @@ app.set('views', path.join(__dirname, 'views'));
 // Static files
 app.use('/public', express.static(path.join(__dirname, 'public')));
 
-// Theme middleware Ã¢â‚¬â€ injects full theme object into all views
+// Theme middleware —šÂ¬ injects full theme object into all views
 app.use(async (req, res, next) => {
   try {
     const r = await pool.query(
@@ -102,7 +102,7 @@ app.use('/dashboard', require('./src/routes/userDashboard'));
 
 // 404
 app.use((req, res) => {
-  res.status(404).render('404', { title: 'NÃƒÂ£o encontrado' });
+  res.status(404).render('404', { title: 'Não encontrado' });
 });
 
 // Error handler
@@ -166,7 +166,7 @@ async function autoMigrate() {
     await pool.query('CREATE INDEX IF NOT EXISTS idx_gtx_user ON game_transactions(user_id)');
     await pool.query('CREATE INDEX IF NOT EXISTS idx_gtx_txn ON game_transactions(txn_id)');
 
-    // Jogo ResponsÃƒÂ¡vel limits
+    // Jogo Responsável limits
     await addCol('users', 'limit_deposit_type', "VARCHAR(16) DEFAULT 'unlimited'");
     await addCol('users', 'limit_deposit_period', 'VARCHAR(16)');
     await addCol('users', 'limit_deposit_amount', 'INTEGER DEFAULT 0');
@@ -307,25 +307,25 @@ async function autoMigrate() {
         ('1XGAMING', '/public/img/novo/estudio5.png', 5),
         ('NETENT', '/public/img/novo/estudio6.png', 6)
       ON CONFLICT (provider_name) DO NOTHING`);
-      console.log('[SEED] Provider images seeded Ã¢Å“â€œ');
+      console.log('[SEED] Provider images seeded —œ');
     }
 
     // Seed test notifications for user 24
     const notifCount = await pool.query('SELECT COUNT(*) FROM notifications WHERE user_id = 24');
     if (parseInt(notifCount.rows[0].count) === 0) {
       await pool.query(`INSERT INTO notifications (user_id, tipo, titulo, mensagem) VALUES
-        (24, 'success', 'Bem-vindo ÃƒÂ  VemNaBet!', 'Sua conta foi criada com sucesso. Aproveite nossos jogos!'),
-        (24, 'deposit', 'DepÃƒÂ³sito confirmado', 'Seu depÃƒÂ³sito de R$ 100,00 foi creditado na sua carteira.'),
-        (24, 'promo', 'BÃƒÂ´nus especial de boas-vindas', 'VocÃƒÂª ganhou 20 rodadas grÃƒÂ¡tis no Fortune Tiger! Jogue agora.'),
-        (24, 'info', 'VerificaÃƒÂ§ÃƒÂ£o de identidade', 'Complete seu cadastro com CPF e data de nascimento para liberar saques.'),
-        (24, 'warning', 'SessÃƒÂ£o em novo dispositivo', 'Detectamos um novo acesso ÃƒÂ  sua conta. Se nÃƒÂ£o foi vocÃƒÂª, altere sua senha.'),
-        (0, 'promo', 'PromoÃƒÂ§ÃƒÂ£o de PÃƒÂ¡scoa!', 'Deposite R$ 50 e ganhe R$ 25 de bÃƒÂ´nus. VÃƒÂ¡lido atÃƒÂ© domingo!'),
-        (0, 'info', 'ManutenÃƒÂ§ÃƒÂ£o programada', 'O sistema ficarÃƒÂ¡ indisponÃƒÂ­vel dia 10/04 das 03:00 ÃƒÂ s 05:00 para manutenÃƒÂ§ÃƒÂ£o.')
+        (24, 'success', 'Bem-vindo ÃÆ’Ã‚Â  VemNaBet!', 'Sua conta foi criada com sucesso. Aproveite nossos jogos!'),
+        (24, 'deposit', 'Depósito confirmado', 'Seu depósito de R$ 100,00 foi creditado na sua carteira.'),
+        (24, 'promo', 'Bônus especial de boas-vindas', 'Você ganhou 20 rodadas grátis no Fortune Tiger! Jogue agora.'),
+        (24, 'info', 'Verificação de identidade', 'Complete seu cadastro com CPF e data de nascimento para liberar saques.'),
+        (24, 'warning', 'Sessão em novo dispositivo', 'Detectamos um novo acesso ÃÆ’Ã‚Â  sua conta. Se não foi você, altere sua senha.'),
+        (0, 'promo', 'Promoção de Páscoa!', 'Deposite R$ 50 e ganhe R$ 25 de bônus. Válido até domingo!'),
+        (0, 'info', 'Manutenção programada', 'O sistema ficará indisponível dia 10/04 das 03:00 ÃÆ’Ã‚Â s 05:00 para manutenção.')
       `);
-      console.log('[MIGRATE] Notifications seeded for user 24 Ã¢Å“â€œ');
+      console.log('[MIGRATE] Notifications seeded for user 24 —œ');
     }
 
-    // Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Dedup: deactivate duplicate games (keep synced version) Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+    // —šÂ¬—šÂ¬—šÂ¬ Dedup: deactivate duplicate games (keep synced version) —šÂ¬—šÂ¬—šÂ¬—šÂ¬—šÂ¬
     const dedupResult = await pool.query(`
       WITH ranked AS (
         SELECT id,
@@ -341,7 +341,7 @@ async function autoMigrate() {
     `);
     if (dedupResult.rowCount > 0) console.log('[MIGRATE] Deduped ' + dedupResult.rowCount + ' duplicate games');
 
-    // Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Deactivate all games that are NOT PG Soft or Pragmatic Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+    // —šÂ¬—šÂ¬—šÂ¬ Deactivate all games that are NOT PG Soft or Pragmatic —šÂ¬—šÂ¬—šÂ¬—šÂ¬—šÂ¬
     const cleanupResult = await pool.query(`
       UPDATE games SET is_active = FALSE
       WHERE is_active = TRUE
@@ -349,7 +349,7 @@ async function autoMigrate() {
     `);
     if (cleanupResult.rowCount > 0) console.log('[MIGRATE] Deactivated ' + cleanupResult.rowCount + ' non-PG/Pragmatic games');
 
-    // Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Seed sample data for admin verification Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+    // —šÂ¬—šÂ¬—šÂ¬ Seed sample data for admin verification —šÂ¬—šÂ¬—šÂ¬—šÂ¬—šÂ¬—šÂ¬—šÂ¬—šÂ¬—šÂ¬—šÂ¬—šÂ¬—šÂ¬—šÂ¬
     // Banners
     const bannerCount = await pool.query('SELECT COUNT(*) FROM banners');
     if (parseInt(bannerCount.rows[0].count) === 0) {
@@ -358,7 +358,7 @@ async function autoMigrate() {
         ('/public/img/novo/33.webp', '/games?category=slots', 2, TRUE),
         ('/public/img/novo/44.webp', '/games?category=live', 3, TRUE)
       `);
-      console.log('[SEED] Banners seeded Ã¢Å“â€œ');
+      console.log('[SEED] Banners seeded —œ');
     }
 
     // Sports categories
@@ -366,15 +366,15 @@ async function autoMigrate() {
     if (parseInt(sportCount.rows[0].count) === 0) {
       await pool.query(`INSERT INTO sports_categories (name, slug, icon_url, sort_order, is_active) VALUES
         ('Futebol', 'futebol', '/public/img/novo/top1.svg', 1, TRUE),
-        ('TÃƒÂªnis', 'tenis', '/public/img/novo/top2.svg', 2, TRUE),
+        ('Tênis', 'tenis', '/public/img/novo/top2.svg', 2, TRUE),
         ('Basquete', 'basquete', '/public/img/novo/top3.svg', 3, TRUE),
-        ('VÃƒÂ´lei', 'volei', '/public/img/novo/top4.svg', 4, TRUE),
+        ('Vôlei', 'volei', '/public/img/novo/top4.svg', 4, TRUE),
         ('Esportes Virtuais', 'esportes-virtuais', '/public/img/novo/top5.svg', 5, TRUE),
         ('MMA / UFC', 'mma', NULL, 6, TRUE),
         ('Futebol Americano', 'futebol-americano', NULL, 7, TRUE),
         ('Baseball', 'baseball', NULL, 8, TRUE)
       `);
-      console.log('[SEED] Sports categories seeded Ã¢Å“â€œ');
+      console.log('[SEED] Sports categories seeded —œ');
     }
 
     // Leagues
@@ -385,7 +385,7 @@ async function autoMigrate() {
       const fid = futId.rows[0]?.id || 1;
       const bid = basqId.rows[0]?.id || 3;
       await pool.query(`INSERT INTO leagues (sport_id, name, slug, country, icon_url, sort_order, is_active) VALUES
-        (${fid}, 'BrasileirÃƒÂ£o SÃƒÂ©rie A', 'brasileirao-a', 'BR', '/public/img/novo/popular1.svg', 1, TRUE),
+        (${fid}, 'Brasileirão Série A', 'brasileirao-a', 'BR', '/public/img/novo/popular1.svg', 1, TRUE),
         (${fid}, 'Copa Libertadores', 'libertadores', 'SA', '/public/img/novo/popular2.svg', 2, TRUE),
         (${fid}, 'Premier League', 'premier-league', 'GB', '/public/img/novo/popular3.svg', 3, TRUE),
         (${fid}, 'La Liga', 'la-liga', 'ES', '/public/img/novo/popular4.svg', 4, TRUE),
@@ -396,35 +396,35 @@ async function autoMigrate() {
         (${bid}, 'NBA', 'nba', 'US', '/public/img/novo/popular9.svg', 9, TRUE),
         (${fid}, 'Copa do Brasil', 'copa-do-brasil', 'BR', NULL, 10, TRUE),
         (${fid}, 'Europa League', 'europa-league', 'EU', NULL, 11, TRUE),
-        (${fid}, 'BrasileirÃƒÂ£o SÃƒÂ©rie B', 'brasileirao-b', 'BR', NULL, 12, TRUE)
+        (${fid}, 'Brasileirão Série B', 'brasileirao-b', 'BR', NULL, 12, TRUE)
       `);
-      console.log('[SEED] Leagues seeded Ã¢Å“â€œ');
+      console.log('[SEED] Leagues seeded —œ');
     }
 
     // Coupons
     const couponCount = await pool.query('SELECT COUNT(*) FROM coupons');
     if (parseInt(couponCount.rows[0].count) === 0) {
       await pool.query(`INSERT INTO coupons (code, description, type, value_cents, value_pct, min_deposit, max_uses, max_per_user, is_active, expires_at) VALUES
-        ('BEMVINDO50', 'BÃƒÂ´nus de boas-vindas 50%', 'percentage', 0, 50.00, 2000, 1000, 1, TRUE, NOW() + INTERVAL '90 days'),
-        ('PIX20', 'R$ 20 de bÃƒÂ´nus no PIX', 'bonus', 2000, 0, 5000, 500, 1, TRUE, NOW() + INTERVAL '60 days'),
+        ('BEMVINDO50', 'Bônus de boas-vindas 50%', 'percentage', 0, 50.00, 2000, 1000, 1, TRUE, NOW() + INTERVAL '90 days'),
+        ('PIX20', 'R$ 20 de bônus no PIX', 'bonus', 2000, 0, 5000, 500, 1, TRUE, NOW() + INTERVAL '60 days'),
         ('ESPORTIVA10', '10% cashback na primeira aposta', 'percentage', 0, 10.00, 1000, 2000, 1, TRUE, NOW() + INTERVAL '30 days'),
-        ('FREEBET25', 'Aposta grÃƒÂ¡tis de R$ 25', 'bonus', 2500, 0, 0, 200, 1, TRUE, NOW() + INTERVAL '15 days'),
-        ('VIP100', 'BÃƒÂ´nus exclusivo VIP R$ 100', 'bonus', 10000, 0, 10000, 50, 1, TRUE, NOW() + INTERVAL '365 days')
+        ('FREEBET25', 'Aposta grátis de R$ 25', 'bonus', 2500, 0, 0, 200, 1, TRUE, NOW() + INTERVAL '15 days'),
+        ('VIP100', 'Bônus exclusivo VIP R$ 100', 'bonus', 10000, 0, 10000, 50, 1, TRUE, NOW() + INTERVAL '365 days')
       `);
-      console.log('[SEED] Coupons seeded Ã¢Å“â€œ');
+      console.log('[SEED] Coupons seeded —œ');
     }
 
     // Promotions
     const promoCount = await pool.query('SELECT COUNT(*) FROM promotions');
     if (parseInt(promoCount.rows[0].count) === 0) {
       await pool.query(`INSERT INTO promotions (title, description, type, value_cents, value_pct, min_deposit, max_uses, code, is_active, starts_at, expires_at) VALUES
-        ('BÃƒÂ´nus de Primeiro DepÃƒÂ³sito', 'Ganhe 100% de bÃƒÂ´nus no seu primeiro depÃƒÂ³sito atÃƒÂ© R$ 500', 'bonus', 50000, 100.00, 2000, 0, 'FIRST100', TRUE, NOW(), NOW() + INTERVAL '365 days'),
+        ('Bônus de Primeiro Depósito', 'Ganhe 100% de bônus no seu primeiro depósito até R$ 500', 'bonus', 50000, 100.00, 2000, 0, 'FIRST100', TRUE, NOW(), NOW() + INTERVAL '365 days'),
         ('Cashback Semanal', 'Receba 10% de cashback sobre suas perdas da semana', 'cashback', 0, 10.00, 0, 0, 'CASHBACK10', TRUE, NOW(), NOW() + INTERVAL '365 days'),
-        ('Rodadas GrÃƒÂ¡tis Fortune Tiger', '20 rodadas grÃƒÂ¡tis no Fortune Tiger para novos jogadores', 'free_spins', 0, 0, 5000, 500, 'FTIG20', TRUE, NOW(), NOW() + INTERVAL '90 days'),
+        ('Rodadas Grátis Fortune Tiger', '20 rodadas grátis no Fortune Tiger para novos jogadores', 'free_spins', 0, 0, 5000, 500, 'FTIG20', TRUE, NOW(), NOW() + INTERVAL '90 days'),
         ('Indique e Ganhe', 'Ganhe R$ 50 por cada amigo indicado que depositar', 'referral', 5000, 0, 0, 0, NULL, TRUE, NOW(), NULL),
-        ('Happy Hour Dobrado', 'DepÃƒÂ³sitos entre 18h-22h ganham 50% extra', 'bonus', 0, 50.00, 2000, 0, 'HAPPY50', TRUE, NOW(), NOW() + INTERVAL '180 days')
+        ('Happy Hour Dobrado', 'Depósitos entre 18h-22h ganham 50% extra', 'bonus', 0, 50.00, 2000, 0, 'HAPPY50', TRUE, NOW(), NOW() + INTERVAL '180 days')
       `);
-      console.log('[SEED] Promotions seeded Ã¢Å“â€œ');
+      console.log('[SEED] Promotions seeded —œ');
     }
 
     // Sample users (for bets, transactions, etc.)
@@ -444,7 +444,7 @@ async function autoMigrate() {
       for (const [username, name, phone, email, cpf, hash2, bal] of sampleUsers) {
         await pool.query(`INSERT INTO users (username, name, phone, email, cpf, password_hash, balance) VALUES ($1,$2,$3,$4,$5,$6,$7) ON CONFLICT (username) DO NOTHING`, [username, name, phone, email, cpf, hash2, bal]);
       }
-      console.log('[SEED] Sample users seeded Ã¢Å“â€œ');
+      console.log('[SEED] Sample users seeded —œ');
     }
 
     // Sample transactions (deposits + withdrawals)
@@ -468,7 +468,7 @@ async function autoMigrate() {
           const daysAgo = Math.floor(Math.random() * 10);
           await pool.query(`INSERT INTO transactions (user_id, type, status, amount_cents, provider, created_at) VALUES ($1, 'withdrawal', 'paid', $2, 'pix', NOW() - INTERVAL '${daysAgo} days')`, [uid, amt]);
         }
-        console.log('[SEED] Transactions seeded Ã¢Å“â€œ');
+        console.log('[SEED] Transactions seeded —œ');
       }
     }
 
@@ -490,7 +490,7 @@ async function autoMigrate() {
           betValues.push(`(${uid}, ${gid}, ${amt}, ${payout}, '${mult}', '${status}', NOW() - INTERVAL '${daysAgo} days')`);
         }
         await pool.query(`INSERT INTO bets (user_id, game_id, amount_cents, payout_cents, multiplier, status, created_at) VALUES ${betValues.join(',')}`);
-        console.log('[SEED] Bets seeded Ã¢Å“â€œ');
+        console.log('[SEED] Bets seeded —œ');
       }
     }
 
@@ -506,7 +506,7 @@ async function autoMigrate() {
           (${userIds[3] || userIds[0]}, 25000, 'cpf', '321.654.987-00', 'pending', NOW() - INTERVAL '6 hours'),
           (${userIds[4] || userIds[1]}, 1500, 'random', 'abc-123-def', 'rejected', NOW() - INTERVAL '5 days')
         `);
-        console.log('[SEED] Withdrawals seeded Ã¢Å“â€œ');
+        console.log('[SEED] Withdrawals seeded —œ');
       }
     }
 
@@ -515,14 +515,14 @@ async function autoMigrate() {
     if (parseInt(ticketCount.rows[0].count) < 3) {
       const userIds = (await pool.query('SELECT id FROM users ORDER BY id LIMIT 5')).rows.map(r => r.id);
       if (userIds.length >= 3) {
-        const t1 = await pool.query(`INSERT INTO support_tickets (user_id, subject, status, priority) VALUES ($1, 'DepÃƒÂ³sito nÃƒÂ£o creditado', 'open', 'high') RETURNING id`, [userIds[0]]);
-        await pool.query(`INSERT INTO support_messages (ticket_id, sender_type, sender_id, message) VALUES ($1, 'user', $2, 'Fiz um depÃƒÂ³sito de R$ 100 via PIX hÃƒÂ¡ 2 horas e o saldo nÃƒÂ£o foi creditado. Segue comprovante.')`, [t1.rows[0].id, userIds[0]]);
+        const t1 = await pool.query(`INSERT INTO support_tickets (user_id, subject, status, priority) VALUES ($1, 'Depósito não creditado', 'open', 'high') RETURNING id`, [userIds[0]]);
+        await pool.query(`INSERT INTO support_messages (ticket_id, sender_type, sender_id, message) VALUES ($1, 'user', $2, 'Fiz um depósito de R$ 100 via PIX há 2 horas e o saldo não foi creditado. Segue comprovante.')`, [t1.rows[0].id, userIds[0]]);
         const t2 = await pool.query(`INSERT INTO support_tickets (user_id, subject, status, priority) VALUES ($1, 'Como funciona o cashback?', 'open', 'normal') RETURNING id`, [userIds[1]]);
-        await pool.query(`INSERT INTO support_messages (ticket_id, sender_type, sender_id, message) VALUES ($1, 'user', $2, 'Gostaria de saber como funciona o programa de cashback semanal. Qual o percentual e quando ÃƒÂ© pago?')`, [t2.rows[0].id, userIds[1]]);
+        await pool.query(`INSERT INTO support_messages (ticket_id, sender_type, sender_id, message) VALUES ($1, 'user', $2, 'Gostaria de saber como funciona o programa de cashback semanal. Qual o percentual e quando é pago?')`, [t2.rows[0].id, userIds[1]]);
         const t3 = await pool.query(`INSERT INTO support_tickets (user_id, subject, status, priority) VALUES ($1, 'Problema ao sacar', 'closed', 'high') RETURNING id`, [userIds[2]]);
-        await pool.query(`INSERT INTO support_messages (ticket_id, sender_type, sender_id, message) VALUES ($1, 'user', $2, 'Meu saque estÃƒÂ¡ pendente hÃƒÂ¡ 3 dias. Podem verificar?')`, [t3.rows[0].id, userIds[2]]);
-        await pool.query(`INSERT INTO support_messages (ticket_id, sender_type, sender_id, message) VALUES ($1, 'admin', 1, 'OlÃƒÂ¡! Verificamos e o saque foi processado. Deve cair em atÃƒÂ© 24h ÃƒÂºteis.')`, [t3.rows[0].id]);
-        console.log('[SEED] Support tickets seeded Ã¢Å“â€œ');
+        await pool.query(`INSERT INTO support_messages (ticket_id, sender_type, sender_id, message) VALUES ($1, 'user', $2, 'Meu saque está pendente há 3 dias. Podem verificar?')`, [t3.rows[0].id, userIds[2]]);
+        await pool.query(`INSERT INTO support_messages (ticket_id, sender_type, sender_id, message) VALUES ($1, 'admin', 1, 'Olá! Verificamos e o saque foi processado. Deve cair em até 24h úteis.')`, [t3.rows[0].id]);
+        console.log('[SEED] Support tickets seeded —œ');
       }
     }
 
@@ -535,24 +535,24 @@ async function autoMigrate() {
           (${userIds[0]}, 'REF-PEDRO', 5.00, 15000, TRUE),
           (${userIds[3] || userIds[1]}, 'REF-ANA', 7.50, 32500, TRUE)
         ON CONFLICT (user_id) DO NOTHING`);
-        console.log('[SEED] Affiliates seeded Ã¢Å“â€œ');
+        console.log('[SEED] Affiliates seeded —œ');
       }
     }
 
-    // Seed user_limits (Jogo ResponsÃƒÂ¡vel)
+    // Seed user_limits (Jogo Responsável)
     const limitsCount = await pool.query('SELECT COUNT(*) FROM user_limits');
     if (parseInt(limitsCount.rows[0].count) === 0) {
       const userIds = (await pool.query('SELECT id FROM users ORDER BY id LIMIT 5')).rows.map(r => r.id);
       if (userIds.length >= 3) {
         await pool.query(`INSERT INTO user_limits (user_id, limit_type, period, limit_value, enforced_by, admin_notes) VALUES
-          (${userIds[0]}, 'deposit', 'daily', 50000, 'user', 'Auto-configurado pelo usuÃƒÂ¡rio'),
-          (${userIds[0]}, 'bet', 'daily', 10000, 'user', 'Limite de aposta diÃƒÂ¡ria'),
+          (${userIds[0]}, 'deposit', 'daily', 50000, 'user', 'Auto-configurado pelo usuário'),
+          (${userIds[0]}, 'bet', 'daily', 10000, 'user', 'Limite de aposta diária'),
           (${userIds[1]}, 'deposit', 'monthly', 500000, 'admin', 'Limite imposto por suspeita de comportamento compulsivo'),
           (${userIds[1]}, 'loss', 'weekly', 100000, 'admin', 'Limite de perda semanal imposto pelo admin'),
           (${userIds[2]}, 'time', 'daily', 480, 'user', 'Limite de 8 horas por dia'),
-          (${userIds[2]}, 'deposit', 'weekly', 200000, 'user', 'Limite de depÃƒÂ³sito semanal R$ 2.000')
+          (${userIds[2]}, 'deposit', 'weekly', 200000, 'user', 'Limite de depósito semanal R$ 2.000')
         `);
-        console.log('[SEED] User limits seeded Ã¢Å“â€œ');
+        console.log('[SEED] User limits seeded —œ');
       }
     }
 
@@ -562,10 +562,10 @@ async function autoMigrate() {
       await pool.query(`UPDATE games SET is_featured = TRUE, featured_order = sub.rn
         FROM (SELECT id, ROW_NUMBER() OVER (ORDER BY sort_order, id) AS rn FROM games WHERE is_active = TRUE LIMIT 10) sub
         WHERE games.id = sub.id`);
-      console.log('[SEED] Featured games set Ã¢Å“â€œ');
+      console.log('[SEED] Featured games set —œ');
     }
 
-    // Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ End seed data Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+    // —šÂ¬—šÂ¬—šÂ¬ End seed data —šÂ¬—šÂ¬—šÂ¬—šÂ¬—šÂ¬—šÂ¬—šÂ¬—šÂ¬—šÂ¬—šÂ¬—šÂ¬—šÂ¬—šÂ¬—šÂ¬—šÂ¬—šÂ¬—šÂ¬—šÂ¬—šÂ¬—šÂ¬—šÂ¬—šÂ¬—šÂ¬—šÂ¬—šÂ¬—šÂ¬—šÂ¬—šÂ¬—šÂ¬—šÂ¬—šÂ¬—šÂ¬—šÂ¬—šÂ¬—šÂ¬—šÂ¬—šÂ¬—šÂ¬—šÂ¬
 
     // Ensure admin has valid hash
     const hash = await bcrypt.hash('Admin@12345', 10);
@@ -579,7 +579,7 @@ async function autoMigrate() {
       WHERE css_vars::text LIKE '%"gold1"%'
     `);
 
-    // Fix theme colors: any green/purple Ã¢â€ â€™ orange
+    // Fix theme colors: any green/purple ‚¬ orange
     await pool.query(`
       UPDATE themes SET css_vars = jsonb_set(jsonb_set(jsonb_set(jsonb_set(css_vars::jsonb,
         '{green1}', '"#34D399"'), '{green2}', '"#25D366"'), '{green3}', '"#1A9E4C"'), '{accent}', '"#25D366"')
@@ -588,7 +588,7 @@ async function autoMigrate() {
          OR css_vars::text LIKE '%6ee7b7%' OR css_vars::text LIKE '%7c3aed%'
          OR css_vars::text LIKE '%047857%'
     `);
-    console.log('[MIGRATE] Theme colors Ã¢â€ â€™ orange Ã¢Å“â€œ');
+    console.log('[MIGRATE] Theme colors ‚¬ orange —œ');
 
     // Auto-seed new games (83 total)
     const newGames = [

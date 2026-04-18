@@ -7,19 +7,19 @@ const { requireAdmin } = require('../middleware/auth');
 
 router.get('/login', (req, res) => {
   if (req.session.admin) return res.redirect('/admin');
-  res.render('admin/login', { error: null, title: 'Admin Login' });
+  res.render('admin/login', { error: null, title: 'Login Admin' });
 });
 
 router.post('/login', async (req, res) => {
   const { username, password } = req.body;
   if (!username || !password) {
-    return res.render('admin/login', { error: 'Preencha todos os campos.', title: 'Admin Login' });
+    return res.render('admin/login', { error: 'Preencha todos os campos.', title: 'Login Admin' });
   }
   try {
     const r = await query('SELECT id, username, password_hash, role, is_active FROM admin_users WHERE username = $1', [username.trim()]);
     const adm = r.rows[0];
     if (!adm || !adm.is_active || !(await bcrypt.compare(password, adm.password_hash))) {
-      return res.render('admin/login', { error: 'Usuário ou senha inválidos.', title: 'Admin Login' });
+      return res.render('admin/login', { error: 'Usuário ou senha inválidos.', title: 'Login Admin' });
     }
     req.session.admin = { id: adm.id, username: adm.username, role: adm.role };
     req.session.save((saveErr) => {
@@ -28,7 +28,7 @@ router.post('/login', async (req, res) => {
     });
   } catch (err) {
     console.error('[ADMIN LOGIN]', err);
-    res.render('admin/login', { error: 'Erro interno.', title: 'Admin Login' });
+    res.render('admin/login', { error: 'Erro interno.', title: 'Login Admin' });
   }
 });
 
@@ -137,7 +137,7 @@ router.get('/top10', requireAdmin, (req, res) => {
 });
 
 router.get('/audit', requireAdmin, (req, res) => {
-  res.render('admin/audit', { title: 'Audit Log', admin: req.session.admin });
+  res.render('admin/audit', { title: 'Log de Auditoria', admin: req.session.admin });
 });
 
 router.get('/providers', requireAdmin, (req, res) => {

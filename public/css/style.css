@@ -1,4 +1,4 @@
-/* VemNaBet Ã¢â‚¬â€ Desktop + Responsive Layout */
+/* VemNaBet — Desktop + Responsive Layout */
 :root {
   --bg-body: #151923;
   --bg-header: #0b1726;
@@ -739,7 +739,7 @@ body.search-lock{overflow:hidden!important}
 }
 .search-results-grid::-webkit-scrollbar{display:none}
 
-/* Search game cards Ã¢â‚¬â€ match provider grid */
+/* Search game cards — match provider grid */
 .search-results-grid .game-card{border-radius:12px;overflow:hidden;background:var(--bg-card);border:1px solid var(--border);cursor:pointer;position:relative;transition:.2s}
 .search-results-grid .game-card:hover{transform:translateY(-3px);box-shadow:0 8px 25px rgba(0,0,0,.4);border-color:rgba(37,211,102,.25)}
 .search-results-grid .game-card img{width:100%;height:193px;object-fit:cover;display:block}
@@ -959,7 +959,7 @@ body.search-lock{overflow:hidden!important}
 .ganho-game{font-size:11px;color:rgba(255,255,255,.55);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ganho-amount{font-size:17px;font-weight:800;color:#22c55e;margin-top:2px;white-space:nowrap}
 
-/* ===== ÃƒÅ¡LTIMAS APOSTAS ===== */
+/* ===== ÃÅ¡LTIMAS APOSTAS ===== */
 .apostas-wrapper{
   overflow:hidden;height:168px;position:relative;
 }
@@ -1622,7 +1622,7 @@ body.search-lock{overflow:hidden!important}
   padding-left:62px;
   box-sizing:border-box;
 }
-/* White number behind image Ã¢â‚¬â€ ALWAYS visible */
+/* White number behind image — ALWAYS visible */
 .top10-rank{
   position:absolute;
   left:0;bottom:0;
@@ -1655,7 +1655,7 @@ body.search-lock{overflow:hidden!important}
 .top10-card:hover .top10-img-wrap img{
   transform:scale(1.05);
 }
-/* Gold badge Ã¢â‚¬â€ hover only */
+/* Gold badge — hover only */
 .top10-badge{
   position:absolute;top:8px;right:8px;z-index:20;
   width:28px;height:28px;min-width:28px;min-height:28px;
@@ -1688,7 +1688,7 @@ body.search-lock{overflow:hidden!important}
   border-radius:.375rem;
   text-transform:uppercase;
 }
-/* Arrows Ã¢â‚¬â€ overlaying the viewport edges */
+/* Arrows — overlaying the viewport edges */
 .top10-arrow{
   position:absolute;top:50%;transform:translateY(-50%);
   width:36px;height:36px;z-index:10;
@@ -1947,7 +1947,7 @@ body.search-lock{overflow:hidden!important}
 }
 .gp-slider-arrow:hover{color:rgb(37,211,102)}
 
-/* Game cards in sliders â€” match provider-grid dimensions */
+/* Game cards in sliders  match provider-grid dimensions */
 .gp-slider-card img{width:100%;height:193px;object-fit:cover;display:block}
 .gp-slider-card .game-overlay{
   position:absolute;inset:0;
@@ -1969,7 +1969,7 @@ body.search-lock{overflow:hidden!important}
   box-shadow:0 4px 14px rgba(37,211,102,.35);
 }
 
-/* Studios in game page â€” same as home */
+/* Studios in game page  same as home */
 .gp-studios-track .estudio-card{
   flex:0 0 166px;height:110px;
 }
@@ -2359,7 +2359,7 @@ body.search-lock{overflow:hidden!important}
 /* Body */
 .dep-body{padding:0 20px 20px;display:flex;flex-direction:column;gap:14px}
 
-/* Methods â€” 48x48 total */
+/* Methods  48x48 total */
 .dep-methods{display:flex;gap:10px}
 .dep-method-card{
   width:48px;height:48px;
@@ -2428,7 +2428,7 @@ body.search-lock{overflow:hidden!important}
   text-shadow:0 0 10px rgba(37,211,102,.3);
 }
 
-/* HOT badge â€” top right */
+/* HOT badge  top right */
 .dep-badge{
   display:flex;align-items:center;justify-content:center;gap:.25rem;
   position:absolute;top:0;right:0;
@@ -2438,7 +2438,7 @@ body.search-lock{overflow:hidden!important}
   border-bottom-left-radius:.5rem;
 }
 
-/* Check badge â€” bottom right of selected */
+/* Check badge  bottom right of selected */
 .dep-val-check{
   position:absolute;bottom:0;right:0;
   background:#25D366;
@@ -2808,10 +2808,10 @@ body.search-lock{overflow:hidden!important}
   /* --- Games grid: 3 per row --- */
   .games-grid{grid-template-columns:repeat(3,1fr);gap:8px}
 
-  /* --- EstÃºdios: 3 per row --- */
+  /* --- Estúdios: 3 per row --- */
   .estudio-card{flex:0 0 calc(33.33% - 8px);min-width:0;height:80px}
 
-  /* --- Ganhos section compact â€” trophy stacked vertically --- */
+  /* --- Ganhos section compact  trophy stacked vertically --- */
   .ganhos-trophy-card{flex:0 0 64px;height:76px;padding:6px 4px}
   .ganhos-trophy-img{width:30px;height:30px}
   .ganhos-trophy-text{font-size:8px}
@@ -2843,7 +2843,7 @@ body.search-lock{overflow:hidden!important}
   .wallet-nav-item{padding:12px 14px;font-size:12px;min-height:44px}
   .wallet-content{padding:16px 12px;padding-top:0}
 
-  /* PrÃªmios mobile */
+  /* Prêmios mobile */
   .premios-card{padding:.75rem}
   .premios-tabs-wrap{padding:.375rem;gap:.375rem}
   .premios-tab{padding:.375rem;font-size:.7rem}
@@ -3090,7 +3090,7 @@ body.search-lock{overflow:hidden!important}
   .site-footer{padding-bottom:env(safe-area-inset-bottom)}
 }
 
-/* Tablet (960px) â€” smooth transition before 768px breakpoint */
+/* Tablet (960px)  smooth transition before 768px breakpoint */
 @media(max-width:960px){
   .topbar-tabs{width:200px;padding:0 6px}
   .tab-switch{font-size:12px;padding:6px 10px}
@@ -3100,7 +3100,7 @@ body.search-lock{overflow:hidden!important}
   .premios-filter{padding:4px 10px;font-size:10px}
 }
 
-/* Mobile â€” extra refinements beyond existing 768px rules */
+/* Mobile  extra refinements beyond existing 768px rules */
 @media(max-width:768px){
   /* Topbar polish */
   .topbar{height:56px}
@@ -3111,7 +3111,7 @@ body.search-lock{overflow:hidden!important}
   .aposta-row{font-size:11px}
 }
 
-/* Ultra-small (375px and below â€” iPhone SE, older devices) */
+/* Ultra-small (375px and below  iPhone SE, older devices) */
 @media(max-width:375px){
   .topbar-balance-btn{padding:4px 6px;font-size:10px}
   .topbar-logged{gap:2px}

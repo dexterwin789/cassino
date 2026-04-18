@@ -1,4 +1,4 @@
-/* ranking.js â€” ranking drawer */
+/* ranking.js  ranking drawer */
 (function () {
   const drawer = document.getElementById("rankingDrawer");
   const closeBtn = document.getElementById("closeRanking");

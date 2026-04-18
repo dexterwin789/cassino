@@ -1,4 +1,4 @@
-// seed.js â€” Populates all 18 tables with professional sample data
+﻿// seed.js — Populates all 18 tables with professional sample data
 // Run: railway run node seed.js
 require('dotenv').config();
 const bcrypt = require('bcrypt');
@@ -7,7 +7,7 @@ const { pool, query } = require('./src/config/database');
 async function seed() {
   console.log('[SEED] Starting...');
 
-  // â”€â”€â”€ 1. Users â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  //  1. Users ————————————————————————————
   const karlosHash = await bcrypt.hash('123456', 10);
   const adminHash = await bcrypt.hash('Admin@12345', 10);
   const testHash = await bcrypt.hash('teste123', 10);
@@ -26,9 +26,9 @@ async function seed() {
     ('vip_player', '11922222222', 'vip@casino.com', '11111111111', $2, 500.00, 5000.00, 500)
     ON CONFLICT (username) DO NOTHING
   `, [karlosHash, testHash]);
-  console.log('[SEED] Users âœ“');
+  console.log('[SEED] Users —œ');
 
-  // â”€â”€â”€ 2. Admin Users â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  //  2. Admin Users ——————————————————————
   await query(`UPDATE admin_users SET password_hash = $1 WHERE username = 'admin' AND password_hash LIKE '%placeholder%'`, [adminHash]);
   await query(`
     INSERT INTO admin_users (username, password_hash, role) VALUES
@@ -36,9 +36,9 @@ async function seed() {
     ('suporte', $1, 'support')
     ON CONFLICT (username) DO NOTHING
   `, [adminHash]);
-  console.log('[SEED] Admins âœ“');
+  console.log('[SEED] Admins —œ');
 
-  // â”€â”€â”€ 3. Wallets â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  //  3. Wallets ——————————————————————————
   const usersR = await query('SELECT id, balance FROM users');
   for (const u of usersR.rows) {
     await query(`
@@ -46,9 +46,9 @@ async function seed() {
       ON CONFLICT (user_id) DO UPDATE SET balance_cents = $2
     `, [u.id, Math.round(parseFloat(u.balance) * 100)]);
   }
-  console.log('[SEED] Wallets âœ“');
+  console.log('[SEED] Wallets —œ');
 
-  // â”€â”€â”€ 4. Games â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  //  4. Games ————————————————————————————
   const games = [
     ['fortune-tiger', 'Fortune Tiger', '/public/img/games/1.avif', 'pg', 'quente', 1],
     ['fortune-ox', 'Fortune Ox', '/public/img/games/2.webp', 'pg', 'quente', 2],
@@ -74,7 +74,7 @@ async function seed() {
     ['hot-fruits', 'Hot Fruits', '/public/img/games/1.avif', 'evor', 'evor', 22],
     ['spaceman', 'Spaceman', '/public/img/games/10.avif', 'pp', 'crash', 23],
     ['sweet-bonanza', 'Sweet Bonanza', '/public/img/games/12.webp', 'pp', 'pp', 24],
-    // â”€â”€ Novos jogos â”€â”€
+    //  Novos jogos 
     ['big-bass-bonanza', 'Big Bass Bonanza', '/public/img/games/3.webp', 'pp', 'pp', 25],
     ['sugar-rush', 'Sugar Rush', '/public/img/games/6.webp', 'pp', 'quente', 26],
     ['starlight-princess', 'Starlight Princess', '/public/img/games/8.webp', 'pp', 'pp', 27],
@@ -101,7 +101,7 @@ async function seed() {
     ['fruit-party', 'Fruit Party', '/public/img/games/12.webp', 'pp', 'pp', 48],
     ['dog-house', 'The Dog House Megaways', '/public/img/games/4.webp', 'pp', 'quente', 49],
     ['buffalo-king', 'Buffalo King Megaways', '/public/img/games/8.webp', 'pp', 'pp', 50],
-    // â”€â”€ Batch 3 â€” mais jogos â”€â”€
+    //  Batch 3 — mais jogos 
     ['fortune-pirates', 'Fortune Pirates', '/public/img/games/1.avif', 'pg', 'pg', 51],
     ['fortune-fruits', 'Fortune Fruits', '/public/img/games/2.webp', 'pg', 'pg', 52],
     ['midas-fortune', 'Midas Fortune', '/public/img/games/5.webp', 'pg', 'quente', 53],
@@ -143,9 +143,9 @@ async function seed() {
       ON CONFLICT (game_code) DO UPDATE SET game_name=$2, image_url=$3, provider=$4, category=$5, sort_order=$6
     `, [code, name, img, provider, category, sort]);
   }
-  console.log('[SEED] Games âœ“ (' + games.length + ')');
+  console.log('[SEED] Games —œ (' + games.length + ')');
 
-  // â”€â”€â”€ 4b. Fix theme colors (green/purple â†’ orange) â”€â”€
+  //  4b. Fix theme colors (green/purple ™ orange) 
   await query(`
     UPDATE themes SET css_vars = jsonb_set(jsonb_set(jsonb_set(jsonb_set(css_vars::jsonb, 
       '{green1}', '"#34D399"'), '{green2}', '"#25D366"'), '{green3}', '"#1A9E4C"'), '{accent}', '"#25D366"')
@@ -153,9 +153,9 @@ async function seed() {
        OR css_vars::text LIKE '%c084fc%' OR css_vars::text LIKE '%6EE7B7%' 
        OR css_vars::text LIKE '%6ee7b7%' OR css_vars::text LIKE '%7c3aed%'
   `);
-  console.log('[SEED] Theme colors fixed â†’ orange âœ“');
+  console.log('[SEED] Theme colors fixed ™ orange —œ');
 
-  // â”€â”€â”€ 5. Banners â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  //  5. Banners ——————————————————————————
   const banners = [
     ['/public/img/banner1.avif', null, 1],
     ['/public/img/banner2.webp', null, 2],
@@ -173,9 +173,9 @@ async function seed() {
   for (const [img, link, sort] of banners) {
     await query('INSERT INTO banners (image_url, link_url, sort_order) VALUES ($1, $2, $3)', [img, link, sort]);
   }
-  console.log('[SEED] Banners âœ“ (' + banners.length + ')');
+  console.log('[SEED] Banners —œ (' + banners.length + ')');
 
-  // â”€â”€â”€ 6. Transactions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  //  6. Transactions ————————————————————
   const userIds = usersR.rows.map(u => u.id);
   const txData = [];
   // Deposits paid
@@ -215,9 +215,9 @@ async function seed() {
       VALUES ($1, $2, $3, $4, 'blackcat', $5, NOW() - ($6 || ' days')::INTERVAL, NOW() - ($6 || ' days')::INTERVAL)
     `, [tx.uid, tx.type, tx.status, tx.amt, 'TX-' + Math.random().toString(36).substring(2, 10).toUpperCase(), tx.days]);
   }
-  console.log('[SEED] Transactions âœ“ (' + txData.length + ')');
+  console.log('[SEED] Transactions —œ (' + txData.length + ')');
 
-  // â”€â”€â”€ 7. Bets â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  //  7. Bets —————————————————————————————
   const gamesR = await query('SELECT id FROM games LIMIT 12');
   const gameIds = gamesR.rows.map(g => g.id);
   const betsData = [];
@@ -238,15 +238,15 @@ async function seed() {
       VALUES ($1, $2, $3, $4, $5, $6, NOW() - ($7 || ' days')::INTERVAL)
     `, [b.uid, b.gid, b.amt, b.payout, b.multiplier, b.status, b.days]);
   }
-  console.log('[SEED] Bets âœ“ (' + betsData.length + ')');
+  console.log('[SEED] Bets —œ (' + betsData.length + ')');
 
-  // â”€â”€â”€ 8. Game Rounds â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  //  8. Game Rounds ——————————————————————
   for (let i = 0; i < 30; i++) {
     const gid = gameIds[Math.floor(Math.random() * gameIds.length)];
     const hash = require('crypto').randomBytes(32).toString('hex');
     const seed2 = require('crypto').randomBytes(16).toString('hex');
     const status = ['open', 'closed', 'closed', 'closed'][Math.floor(Math.random() * 4)];
-    const result = { multiplier: (Math.random() * 20 + 1).toFixed(2), symbol: ['ðŸ¯', 'ðŸ‰', 'ðŸ’Ž', 'ðŸ€', 'ðŸŽ°'][Math.floor(Math.random() * 5)] };
+    const result = { multiplier: (Math.random() * 20 + 1).toFixed(2), symbol: ['Á°Å¸ÂÂ¯', 'Á°Å¸Â', 'Á°Å¸â—™Å½', 'Á°Å¸Â', 'Á°Å¸Å½Â°'][Math.floor(Math.random() * 5)] };
     const hoursAgo = Math.floor(Math.random() * 168);
     const endedAt = status === 'closed' ? new Date(Date.now() - hoursAgo * 3600000 + 120000) : null;
     const startedAt = new Date(Date.now() - hoursAgo * 3600000);
@@ -255,9 +255,9 @@ async function seed() {
       VALUES ($1, $2, $3, $4, $5, $6, $7)
     `, [gid, hash, seed2, JSON.stringify(result), status, startedAt, endedAt]);
   }
-  console.log('[SEED] Game Rounds âœ“');
+  console.log('[SEED] Game Rounds —œ');
 
-  // â”€â”€â”€ 9. Affiliates â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  //  9. Affiliates ———————————————————————
   const affiliateUserIds = userIds.slice(0, 5);
   for (let i = 0; i < affiliateUserIds.length; i++) {
     const code = ['KARLOS10', 'JOGADOR5', 'MARIA20', 'LUCASVIP', 'ANAPRO'][i];
@@ -269,9 +269,9 @@ async function seed() {
       ON CONFLICT (user_id) DO NOTHING
     `, [affiliateUserIds[i], code, pct, earned]);
   }
-  console.log('[SEED] Affiliates âœ“');
+  console.log('[SEED] Affiliates —œ');
 
-  // â”€â”€â”€ 10. Affiliate Commissions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  //  10. Affiliate Commissions ———————————
   const affR = await query('SELECT id, user_id FROM affiliates');
   for (const aff of affR.rows) {
     for (let j = 0; j < 3; j++) {
@@ -284,18 +284,18 @@ async function seed() {
       `, [aff.id, referredId, amt, status, Math.floor(Math.random() * 30)]);
     }
   }
-  console.log('[SEED] Affiliate Commissions âœ“');
+  console.log('[SEED] Affiliate Commissions —œ');
 
-  // â”€â”€â”€ 11. Support Tickets â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  //  11. Support Tickets —————————————————
   const tickets = [
-    { uid: userIds[0], subject: 'DepÃ³sito nÃ£o creditado', priority: 'high', status: 'open' },
-    { uid: userIds[1], subject: 'Como funciona o bÃ´nus de boas-vindas?', priority: 'normal', status: 'closed' },
+    { uid: userIds[0], subject: 'Depósito não creditado', priority: 'high', status: 'open' },
+    { uid: userIds[1], subject: 'Como funciona o bônus de boas-vindas?', priority: 'normal', status: 'closed' },
     { uid: userIds[2], subject: 'Preciso alterar meu telefone', priority: 'normal', status: 'in_progress' },
-    { uid: userIds[3], subject: 'Saque pendente hÃ¡ 2 dias', priority: 'urgent', status: 'open' },
+    { uid: userIds[3], subject: 'Saque pendente há 2 dias', priority: 'urgent', status: 'open' },
     { uid: userIds[4], subject: 'Bug no jogo Fortune Tiger', priority: 'high', status: 'in_progress' },
     { uid: userIds[0], subject: 'Quero ser afiliado VIP', priority: 'low', status: 'closed' },
     { uid: userIds[5], subject: 'Conta bloqueada sem motivo', priority: 'urgent', status: 'open' },
-    { uid: userIds[2], subject: 'PromoÃ§Ã£o nÃ£o aparece na minha conta', priority: 'normal', status: 'open' }
+    { uid: userIds[2], subject: 'Promoção não aparece na minha conta', priority: 'normal', status: 'open' }
   ];
   for (const t of tickets) {
     const r = await query(`
@@ -309,26 +309,26 @@ async function seed() {
     await query(`
       INSERT INTO support_messages (ticket_id, sender_type, sender_id, message, created_at) VALUES
       ($1, 'user', $2, $3, NOW() - INTERVAL '2 days')
-    `, [ticketId, t.uid, 'OlÃ¡, ' + t.subject.toLowerCase() + '. Podem me ajudar?']);
+    `, [ticketId, t.uid, 'Olá, ' + t.subject.toLowerCase() + '. Podem me ajudar?']);
 
     if (t.status !== 'open') {
       const admR = await query('SELECT id FROM admin_users LIMIT 1');
       await query(`
         INSERT INTO support_messages (ticket_id, sender_type, sender_id, message, created_at) VALUES
         ($1, 'admin', $2, $3, NOW() - INTERVAL '1 day')
-      `, [ticketId, admR.rows[0].id, 'OlÃ¡! Estamos analisando seu caso. Em breve retornaremos com uma soluÃ§Ã£o.']);
+      `, [ticketId, admR.rows[0].id, 'Olá! Estamos analisando seu caso. Em breve retornaremos com uma solução.']);
     }
   }
-  console.log('[SEED] Support Tickets + Messages âœ“');
+  console.log('[SEED] Support Tickets + Messages —œ');
 
-  // â”€â”€â”€ 12. Promotions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  //  12. Promotions ——————————————————————
   const promos = [
-    { title: 'BÃ´nus de Boas-Vindas 100%', desc: 'Duplique seu primeiro depÃ³sito! Deposite e receba 100% de bÃ´nus.', type: 'bonus', cents: 0, pct: 100, minDep: 3000, maxUses: 0, code: 'WELCOME100', active: true, expires: 90 },
+    { title: 'Bônus de Boas-Vindas 100%', desc: 'Duplique seu primeiro depósito! Deposite e receba 100% de bônus.', type: 'bonus', cents: 0, pct: 100, minDep: 3000, maxUses: 0, code: 'WELCOME100', active: true, expires: 90 },
     { title: 'Cashback Semanal 15%', desc: 'Receba 15% de volta das suas perdas da semana.', type: 'cashback', cents: 0, pct: 15, minDep: 5000, maxUses: 0, code: 'CASHBACK15', active: true, expires: 30 },
-    { title: 'R$25 GrÃ¡tis no Cadastro', desc: 'Receba R$25 sÃ³ por se cadastrar! Sem depÃ³sito necessÃ¡rio.', type: 'bonus', cents: 2500, pct: 0, minDep: 0, maxUses: 500, code: 'FREE25', active: true, expires: 60 },
-    { title: 'Freebet R$50 - Fortune Tiger', desc: 'Aposta grÃ¡tis de R$50 no Fortune Tiger!', type: 'freebet', cents: 5000, pct: 0, minDep: 10000, maxUses: 100, code: 'TIGER50', active: true, expires: 15 },
-    { title: 'BÃ´nus VIP 200%', desc: 'Exclusivo para jogadores VIP. Deposite e ganhe 200%!', type: 'bonus', cents: 0, pct: 200, minDep: 50000, maxUses: 50, code: 'VIP200', active: true, expires: 45 },
-    { title: 'Happy Hour - Sexta-feira', desc: 'Todas as sextas: depÃ³sitos com 50% extra das 18h Ã s 23h.', type: 'bonus', cents: 0, pct: 50, minDep: 3000, maxUses: 0, code: 'FRIDAY50', active: false, expires: 7 },
+    { title: 'R$25 Grátis no Cadastro', desc: 'Receba R$25 só por se cadastrar! Sem depósito necessário.', type: 'bonus', cents: 2500, pct: 0, minDep: 0, maxUses: 500, code: 'FREE25', active: true, expires: 60 },
+    { title: 'Freebet R$50 - Fortune Tiger', desc: 'Aposta grátis de R$50 no Fortune Tiger!', type: 'freebet', cents: 5000, pct: 0, minDep: 10000, maxUses: 100, code: 'TIGER50', active: true, expires: 15 },
+    { title: 'Bônus VIP 200%', desc: 'Exclusivo para jogadores VIP. Deposite e ganhe 200%!', type: 'bonus', cents: 0, pct: 200, minDep: 50000, maxUses: 50, code: 'VIP200', active: true, expires: 45 },
+    { title: 'Happy Hour - Sexta-feira', desc: 'Todas as sextas: depósitos com 50% extra das 18h Í s 23h.', type: 'bonus', cents: 0, pct: 50, minDep: 3000, maxUses: 0, code: 'FRIDAY50', active: false, expires: 7 },
     { title: 'Indique e Ganhe R$10', desc: 'Ganhe R$10 para cada amigo que depositar.', type: 'bonus', cents: 1000, pct: 0, minDep: 0, maxUses: 0, code: 'INDICA10', active: true, expires: 365 }
   ];
   for (const p of promos) {
@@ -338,9 +338,9 @@ async function seed() {
       ON CONFLICT (code) DO NOTHING
     `, [p.title, p.desc, p.type, p.cents, p.pct, p.minDep, p.maxUses, p.code, p.active, p.expires]);
   }
-  console.log('[SEED] Promotions âœ“');
+  console.log('[SEED] Promotions —œ');
 
-  // â”€â”€â”€ 13. User Promotions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  //  13. User Promotions —————————————————
   const promosR = await query('SELECT id FROM promotions LIMIT 4');
   const promoIds = promosR.rows.map(p => p.id);
   for (let i = 0; i < 15; i++) {
@@ -353,9 +353,9 @@ async function seed() {
       VALUES ($1, $2, $3, $4, NOW() - ($5 || ' days')::INTERVAL)
     `, [uid, pid, status, amt, Math.floor(Math.random() * 30)]);
   }
-  console.log('[SEED] User Promotions âœ“');
+  console.log('[SEED] User Promotions —œ');
 
-  // â”€â”€â”€ 14. Admin Audit Log â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  //  14. Admin Audit Log —————————————————
   const adminsR = await query('SELECT id, username FROM admin_users');
   const auditActions = [
     { action: 'user.toggle_active', target_type: 'user', tid: userIds[5] },
@@ -376,11 +376,11 @@ async function seed() {
     await query(`
       INSERT INTO admin_audit_log (admin_id, action, target_type, target_id, details, ip_address, created_at)
       VALUES ($1, $2, $3, $4, $5, $6, NOW() - ($7 || ' hours')::INTERVAL)
-    `, [adminId, a.action, a.target_type, a.tid, JSON.stringify({ note: 'AÃ§Ã£o executada com sucesso' }), '177.38.' + Math.floor(Math.random() * 255) + '.' + Math.floor(Math.random() * 255), Math.floor(Math.random() * 200)]);
+    `, [adminId, a.action, a.target_type, a.tid, JSON.stringify({ note: 'Ação executada com sucesso' }), '177.38.' + Math.floor(Math.random() * 255) + '.' + Math.floor(Math.random() * 255), Math.floor(Math.random() * 200)]);
   }
-  console.log('[SEED] Audit Log âœ“');
+  console.log('[SEED] Audit Log —œ');
 
-  // â”€â”€â”€ 15. Platform Settings â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  //  15. Platform Settings ———————————————
   const settings = [
     ['min_deposit', '3000'],
     ['max_deposit', '5000000'],
@@ -396,9 +396,9 @@ async function seed() {
   for (const [k, v] of settings) {
     await query('INSERT INTO platform_settings (key, value) VALUES ($1, $2) ON CONFLICT (key) DO UPDATE SET value = $2', [k, v]);
   }
-  console.log('[SEED] Platform Settings âœ“');
+  console.log('[SEED] Platform Settings —œ');
 
-  // â”€â”€â”€ Done â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  //  Done ————————————————————————————————
   const counts = await query(`
     SELECT 
       (SELECT COUNT(*) FROM users) AS users,
@@ -421,12 +421,12 @@ async function seed() {
       (SELECT COUNT(*) FROM sessions) AS sessions
   `);
   
-  console.log('\nâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•');
-  console.log('  SEED COMPLETO â€” Contagem final:');
-  console.log('â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•');
+  console.log('\nÂÂÂÂÂÂÂÂÂÂÂÂÂÂÂÂÂ');
+  console.log('  SEED COMPLETO — Contagem final:');
+  console.log('ÂÂÂÂÂÂÂÂÂÂÂÂÂÂÂÂÂ');
   const c = counts.rows[0];
   Object.entries(c).forEach(([k, v]) => console.log(`  ${k.padEnd(20)} ${v}`));
-  console.log('â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•\n');
+  console.log('ÂÂÂÂÂÂÂÂÂÂÂÂÂÂÂÂÂ\n');
 
   await pool.end();
 }

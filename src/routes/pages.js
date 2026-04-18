@@ -1,4 +1,4 @@
-const router = require('express').Router();
+﻿const router = require('express').Router();
 const { query } = require('../config/database');
 
 // Main page
@@ -46,7 +46,7 @@ router.get('/games', async (req, res) => {
     else if (category) filterLabel = 'Jogos de ' + category;
 
     res.render('games', {
-      title: filterLabel + ' â€” VemNaBet',
+      title: filterLabel + ' — VemNaBet',
       games: gamesR.rows,
       banners: bannersR.rows,
       providers: providersR.rows.map(r => r.provider),
@@ -65,7 +65,7 @@ router.get('/ranking', (req, res) => {
   res.render('ranking', { title: 'Ranking' });
 });
 
-// Providers page â€” only shows providers from provider_images (admin-controlled)
+// Providers page — only shows providers from provider_images (admin-controlled)
 router.get('/providers', async (req, res) => {
   try {
     // Game counts for badge
@@ -82,7 +82,7 @@ router.get('/providers', async (req, res) => {
     provImgR.rows.forEach(r => { providerImageMap[r.provider_name.toUpperCase()] = r.image_url; });
 
     res.render('providers', {
-      title: 'Provedores â€” VemNaBet',
+      title: 'Provedores — VemNaBet',
       providers,
       gameCounts,
       providerImageMap
@@ -98,7 +98,7 @@ router.get('/game/:code', async (req, res) => {
   try {
     const code = req.params.code;
     const gameR = await query('SELECT id, game_code, game_name, image_url, provider, category FROM games WHERE game_code = $1 AND is_active = TRUE', [code]);
-    if (!gameR.rows.length) return res.status(404).send('Jogo nÃ£o encontrado');
+    if (!gameR.rows.length) return res.status(404).send('Jogo não encontrado');
     const game = gameR.rows[0];
 
     // Related games (same provider, exclude current)
@@ -116,7 +116,7 @@ router.get('/game/:code', async (req, res) => {
     const ganhos24h = (5000 + Math.random() * 45000).toFixed(2);
 
     res.render('game', {
-      title: game.game_name + ' â€” VemNaBet',
+      title: game.game_name + ' — VemNaBet',
       game,
       relatedGames: relatedR.rows,
       providerImages: provImgR.rows,

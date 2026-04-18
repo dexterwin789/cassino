@@ -74,22 +74,22 @@
 [data-theme="light"] .sq-card:hover{background:#dde2e8;border-color:rgba(0,0,0,.1)}
 [data-theme="light"] .sq-label{color:#475569}
 [data-theme="light"] .sq-card img{filter:none;opacity:1}
-/* Collapsed sidebar cards â€” light bg */
+/* Collapsed sidebar cards  light bg */
 [data-theme="light"] .sidebar.collapsed .sq-card{background:#e8ecf1;border-color:rgba(0,0,0,.06)}
 [data-theme="light"] .sidebar.collapsed .sq-card:hover{background:#dde2e8}
 [data-theme="light"] .sidebar.collapsed .sq-img{filter:none;opacity:1}
 [data-theme="light"] .menu-title{color:#1a1a2e}
-/* Menu items â€” light bg */
+/* Menu items  light bg */
 [data-theme="light"] .menu-list li{color:#475569}
 [data-theme="light"] .menu-list li:hover{color:#25D366;background:rgba(37,211,102,.06)}
 [data-theme="light"] .menu-list li:hover .mi{opacity:1}
 [data-theme="light"] .menu-list li.active{color:#25D366}
-/* Sidebar icon filter â€” gray for menu icons, colorful for popular leagues */
+/* Sidebar icon filter  gray for menu icons, colorful for popular leagues */
 [data-theme="light"] .mi{filter:brightness(0) saturate(100%);opacity:.55}
 [data-theme="light"] .mi.grayscale{filter:none!important;opacity:1!important}
 [data-theme="light"] .menu-list li:hover .mi{filter:brightness(0) saturate(100%) invert(28%) sepia(96%) saturate(3624%) hue-rotate(3deg) brightness(101%) contrast(106%);opacity:1}
 [data-theme="light"] .menu-list li.active .mi{filter:brightness(0) saturate(100%) invert(28%) sepia(96%) saturate(3624%) hue-rotate(3deg) brightness(101%) contrast(106%);opacity:1}
-/* Collapsed sidebar menu items â€” light bg */
+/* Collapsed sidebar menu items  light bg */
 [data-theme="light"] .sidebar.collapsed .menu-list li{background:#e8ecf1}
 [data-theme="light"] .sidebar.collapsed .menu-list li:hover{background:rgba(37,211,102,.08)}
 [data-theme="light"] .sidebar.collapsed .menu-list li:hover .mi{opacity:1}
@@ -100,7 +100,7 @@
 [data-theme="light"] .sidebar-bottom a:hover{color:#25D366;background:rgba(37,211,102,.06)}
 [data-theme="light"] .sidebar-bottom a img{filter:brightness(0) saturate(100%);opacity:.55}
 [data-theme="light"] .sidebar-bottom a:hover img{opacity:1}
-/* Collapsed sidebar bottom links â€” light bg */
+/* Collapsed sidebar bottom links  light bg */
 [data-theme="light"] .sidebar.collapsed .sidebar-bottom a{background:#e8ecf1}
 [data-theme="light"] .sidebar.collapsed .sidebar-bottom a:hover{background:rgba(37,211,102,.08)}
 [data-theme="light"] .sidebar.collapsed .sidebar-bottom .mi{filter:brightness(0) saturate(100%);opacity:.55}
@@ -265,7 +265,7 @@
 [data-theme="light"] .hist-tab:hover{border-color:rgba(37,211,102,.3);color:#1a1a2e}
 [data-theme="light"] .hist-tab.active{background:rgba(37,211,102,.06);border-color:#25D366;color:#25D366}
 
-/* Notifications panel â€” light theme */
+/* Notifications panel  light theme */
 [data-theme="light"] .notif-item{background:#fff;border-color:rgba(0,0,0,.06)}
 [data-theme="light"] .notif-item:hover{background:rgba(0,0,0,.02);border-color:rgba(0,0,0,.08)}
 [data-theme="light"] .notif-item.unread{border-left-color:#25D366}
@@ -280,7 +280,7 @@
 [data-theme="light"] .notif-show-read{border-color:rgba(0,0,0,.1);color:#64748b}
 [data-theme="light"] .notif-show-read:hover{border-color:rgba(0,0,0,.2);color:#1a1a2e}
 
-/* All wallet panel titles â€” MUST be dark in light theme */
+/* All wallet panel titles  MUST be dark in light theme */
 [data-theme="light"] .wallet-panel-title{color:#1a1a2e !important}
 [data-theme="light"] .acct-title{color:#1a1a2e !important}
 [data-theme="light"] .acct-limit-header{color:#1a1a2e !important}
@@ -362,7 +362,7 @@
 /* Toast */
 [data-theme="light"] .toast-container .toast{box-shadow:0 4px 16px rgba(0,0,0,.15)}
 
-/* ===== PRÃŠMIOS E RECOMPENSAS â€” Light Theme ===== */
+/* ===== PRÃŠMIOS E RECOMPENSAS  Light Theme ===== */
 [data-theme="light"] .premios-card{background-color:#fff;color:#1a1a2e;border:1px solid rgba(0,0,0,.08)}
 [data-theme="light"] .premios-tabs-wrap{background:rgba(0,0,0,.04)}
 [data-theme="light"] .premios-tab{background:rgba(0,0,0,.03);border-color:rgba(0,0,0,.06);color:#64748b}
@@ -376,7 +376,7 @@
 [data-theme="light"] .premios-filter-label{color:#64748b}
 [data-theme="light"] .premios-empty{color:#475569}
 
-/* ===== INDIQUE E GANHE â€” Light Theme ===== */
+/* ===== INDIQUE E GANHE  Light Theme ===== */
 [data-theme="light"] .indique-desc{background:rgba(0,0,0,.02);border-color:rgba(0,0,0,.08)}
 [data-theme="light"] .indique-desc-icon{background:rgba(37,211,102,.08)}
 [data-theme="light"] .indique-link-input{background:#f8fafc;border-color:rgba(0,0,0,.1);color:#1a1a2e}
