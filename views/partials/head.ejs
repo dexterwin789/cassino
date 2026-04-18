@@ -34,7 +34,11 @@
 <!-- Page Preloader -->
 <div class="preloader" id="pagePreloader">
   <div class="preloader-inner">
-    <img src="/public/img/novo/logo.png" alt="" class="preloader-logo">
+    <% if (locals.logoDark) { %>
+      <img src="<%= logoDark %>" alt="" class="preloader-logo">
+    <% } else { %>
+      <img src="/public/img/novo/logo.png" alt="" class="preloader-logo">
+    <% } %>
     <div class="preloader-bar"><div class="preloader-bar-fill"></div></div>
   </div>
 </div>

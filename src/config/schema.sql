@@ -298,7 +298,7 @@ INSERT INTO themes (slug, name, description, css_vars, layout_config, is_active)
   'VemNaBet Classic',
   'Tema padrão com verde esmeralda e navy',
   '{
-    "black": "#0B1726",
+    "black": "#0a0c14",
     "bg": "#0d1b2a",
     "card": "#1b2838",
     "text": "#f6f6f6",

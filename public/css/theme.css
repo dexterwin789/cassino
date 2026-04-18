@@ -5,7 +5,7 @@
 
 /* Fallback if no theme loaded */
 :root {
-  --bg: #0B1726;
+  --bg: #0a0c14;
   --text-primary: #f6f6f6;
   --text-secondary: rgba(255,255,255,.7);
   --accent: #25D366;
@@ -32,21 +32,21 @@
 [data-theme="light"] .main-container{color:#1a1a2e}
 
 /* Topbar */
-[data-theme="light"] .topbar{background:#fff;border-color:rgba(0,0,0,.08);box-shadow:0 1px 4px rgba(0,0,0,.06)}
-[data-theme="light"] .tab-switch{color:#475569}
-[data-theme="light"] .tab-switch img{filter:brightness(0) saturate(100%);opacity:.7}
-[data-theme="light"] .tab-switch.active{color:#25D366}
-[data-theme="light"] .tab-switch.active img{filter:brightness(0) saturate(100%) invert(28%) sepia(96%) saturate(3624%) hue-rotate(3deg) brightness(101%) contrast(106%);opacity:1}
-[data-theme="light"] .bars-toggle img{filter:brightness(0) saturate(100%);opacity:.7}
-[data-theme="light"] .topbar-balance{background:rgba(0,0,0,.04)}
-[data-theme="light"] .topbar-balance-btn{color:#1a1a2e}
-[data-theme="light"] .topbar-balance-val{color:#1a1a2e}
-[data-theme="light"] .topbar-balance-refresh{border-color:rgba(0,0,0,.08)}
+[data-theme="light"] .topbar{background:#25D366;border-color:rgba(0,0,0,.08);box-shadow:0 2px 8px rgba(37,211,102,.25)}
+[data-theme="light"] .tab-switch{color:rgba(255,255,255,.8)}
+[data-theme="light"] .tab-switch img{filter:brightness(0) invert(1);opacity:.8}
+[data-theme="light"] .tab-switch.active{color:#fff}
+[data-theme="light"] .tab-switch.active img{filter:brightness(0) invert(1);opacity:1}
+[data-theme="light"] .bars-toggle img{filter:brightness(0) invert(1);opacity:.8}
+[data-theme="light"] .topbar-balance{background:rgba(255,255,255,.15)}
+[data-theme="light"] .topbar-balance-btn{color:#fff}
+[data-theme="light"] .topbar-balance-val{color:#fff}
+[data-theme="light"] .topbar-balance-refresh{border-color:rgba(255,255,255,.2)}
 [data-theme="light"] .topbar-balance-refresh img,
-[data-theme="light"] .topbar-notif img{filter:brightness(0) saturate(100%);opacity:.7}
+[data-theme="light"] .topbar-notif img{filter:brightness(0) invert(1);opacity:.8}
 [data-theme="light"] .topbar-user-btn{border-color:rgba(0,0,0,.15)}
-[data-theme="light"] .topbar-user-avatar[src*=".svg"]{filter:brightness(0) saturate(100%);opacity:.7}
-[data-theme="light"] .btn-login{border-color:rgba(0,0,0,.15);color:#1a1a2e}
+[data-theme="light"] .topbar-user-avatar[src*=".svg"]{filter:brightness(0) invert(1);opacity:.8}
+[data-theme="light"] .btn-login{border-color:rgba(255,255,255,.3);color:#fff}
 [data-theme="light"] .topbar-notif-badge{background:#25D366}
 
 /* Dropdown */
