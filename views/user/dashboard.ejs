@@ -62,7 +62,7 @@
     <span>Link de Indicação</span>
   </div>
   <div class="ud-agent-row">
-    <code class="ud-agent-link" id="agentLink"><%= `${process.env.BASE_URL || (process.env.NODE_ENV === 'production' ? 'https://www.vemnabet.bet' : 'http://localhost:3000')}/?ref=${u.id}` %></code>
+    <code class="ud-agent-link" id="agentLink"><%= `${process.env.BASE_URL || (process.env.NODE_ENV === 'production' ? 'https://vemnabet.bet' : 'http://localhost:3000')}/?ref=${u.id}` %></code>
     <button class="ud-btn-copy" onclick="navigator.clipboard.writeText(document.getElementById('agentLink').textContent);this.textContent='Copiado!';setTimeout(()=>this.textContent='Copiar',1500)">Copiar</button>
   </div>
 </div>
