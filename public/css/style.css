@@ -742,7 +742,7 @@ body.search-lock{overflow:hidden!important}
 /* Search game cards — match provider grid */
 .search-results-grid .game-card{border-radius:12px;overflow:hidden;background:var(--bg-card);border:1px solid var(--border);cursor:pointer;position:relative;transition:.2s}
 .search-results-grid .game-card:hover{transform:translateY(-3px);box-shadow:0 8px 25px rgba(0,0,0,.4);border-color:rgba(37,211,102,.25)}
-.search-results-grid .game-card img{width:100%;height:400px;object-fit:cover;display:block}
+.search-results-grid .game-card img{width:100%;height:193px;object-fit:cover;display:block}
 .search-results-grid .game-card .game-overlay{position:absolute;inset:0;background:rgba(0,0,0,.55);display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;transition:opacity .25s ease;border-radius:12px}
 .search-results-grid .game-card:hover .game-overlay{opacity:1}
 .search-results-grid .game-card .play-btn{display:flex;align-items:center;gap:.5rem;background-color:rgb(37,211,102);color:rgb(33,36,37);padding:.375rem .625rem;border-radius:.375rem;font-size:.7rem;font-weight:700;text-transform:uppercase;box-shadow:0 4px 14px rgba(37,211,102,.35)}
@@ -813,7 +813,7 @@ body.search-lock{overflow:hidden!important}
   border-color:rgba(37,211,102,.25);
   box-shadow:0 8px 25px rgba(0,0,0,.4);
 }
-.game-card img{width:100%;height:300px;object-fit:cover;display:block}
+.game-card img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block}
 
 .game-card .game-overlay{
   position:absolute;inset:0;
@@ -1948,7 +1948,7 @@ body.search-lock{overflow:hidden!important}
 .gp-slider-arrow:hover{color:rgb(37,211,102)}
 
 /* Game cards in sliders  match provider-grid dimensions */
-.gp-slider-card img{width:100%;height:400px;object-fit:cover;display:block}
+.gp-slider-card img{width:100%;height:193px;object-fit:cover;display:block}
 .gp-slider-card .game-overlay{
   position:absolute;inset:0;
   background:rgba(0,0,0,.55);
@@ -2643,7 +2643,7 @@ body.search-lock{overflow:hidden!important}
   border-color:rgba(37,211,102,.25);
 }
 .provider-grid .game-card img{
-  width:100%;height:400px;object-fit:cover;display:block;
+  width:100%;height:193px;object-fit:cover;display:block;
 }
 .provider-grid .game-card .game-overlay{
   position:absolute;inset:0;
@@ -2734,13 +2734,7 @@ body.search-lock{overflow:hidden!important}
   }
 }
 
-/* Game image heights mobile */
-@media(max-width:768px){
-  .game-card img,
-  .search-results-grid .game-card img,
-  .provider-grid .game-card img,
-  .gp-slider-card img{height:230px!important}
-}
+
 
 /* ===== RESPONSIVE ===== */
 @media(max-width:1024px){
