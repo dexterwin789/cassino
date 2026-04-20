@@ -326,16 +326,7 @@
       apiPost('/api/login', { login: login, password: password })
         .then(function(data) {
           var j = data.json || data;
-          if (j && j.ok) {
-            sessionStorage.setItem('acctLoginStart', Date.now());
-            closeLoginModal();
-            var cents = (j.user && j.user.wallet_balance_cents != null) ? Number(j.user.wallet_balance_cents) : null;
-            if (cents !== null && cents <= 0) {
-              window.location.href = '/?openDeposit=1';
-            } else {
-              window.location.reload();
-            }
-          }
+          if (j && j.ok) { sessionStorage.setItem('acctLoginStart', Date.now()); closeLoginModal(); window.location.reload(); }
           else { if (typeof showToast === 'function') showToast(j.msg || 'Erro ao entrar', 'error'); }
         })
         .catch(function() { if (typeof showToast === 'function') showToast('Erro ao conectar', 'error'); })
