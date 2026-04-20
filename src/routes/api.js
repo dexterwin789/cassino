@@ -759,7 +759,7 @@ router.get('/user/bets', requireUser, async (req, res) => {
     const r = await query(`
       SELECT b.id, b.game_id, b.amount_cents, b.payout_cents, b.multiplier,
              b.status, b.created_at,
-             g.name AS game_name, g.provider AS game_provider
+             g.game_name AS game_name, g.provider AS game_provider
       FROM bets b
       LEFT JOIN games g ON g.id = b.game_id
       WHERE b.user_id = $1 ${kindFilter} ${dateFilter}
@@ -793,7 +793,7 @@ router.get('/user/statement', requireUser, async (req, res) => {
              FROM transactions WHERE user_id = $1 ${dateExpr('created_at')}
              ORDER BY created_at DESC LIMIT 200`, [uid]),
       query(`SELECT b.id, b.amount_cents, b.payout_cents, b.status, b.created_at,
-                    g.name AS game_name
+                    g.game_name AS game_name
              FROM bets b LEFT JOIN games g ON g.id = b.game_id
              WHERE b.user_id = $1 ${dateExpr('b.created_at')}
              ORDER BY b.created_at DESC LIMIT 200`, [uid]),
