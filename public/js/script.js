@@ -1110,6 +1110,14 @@ function showWalletSection(panel) {
     if (panel === 'histTransacoes') loadTransactions();
     // Load notifications when panel shown
     if (panel === 'notif' && typeof loadNotifications === 'function') loadNotifications();
+    // Load referral leads when "Indique e Ganhe" panel is shown
+    if (panel === 'indique' && typeof loadIndiqueLeads === 'function') loadIndiqueLeads('all');
+    // Load casino bets
+    if (panel === 'apostasCassino' && typeof loadBets === 'function') loadBets('casino', 'today');
+    // Load sport bets
+    if (panel === 'apostasEsportivas' && typeof loadBets === 'function') loadBets('sport', 'today');
+    // Load full statement
+    if (panel === 'extrato' && typeof loadExtrato === 'function') loadExtrato('total');
   }
 
   // Set initial mobile state
@@ -2593,7 +2601,7 @@ function loadIndiqueLeads(period) {
   var list = document.getElementById('indiqueLeadsList');
   var empty = document.getElementById('indiqueEmptyMsg');
   if (!list) return;
-  fetch('/api/referrals/leads?period=' + encodeURIComponent(period || 'all'), { credentials: 'same-origin' })
+  fetch('/api/referrals/leads?period=' + encodeURIComponent(period || 'all'), { credentials: 'include', cache: 'no-store' })
     .then(function(r) { return r.json(); })
     .then(function(d) {
       if (!d.ok) return;
@@ -2647,7 +2655,7 @@ function loadBets(kind, period) {
   var count = document.getElementById(countId);
   if (!tbody) return;
   tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--text-muted)">Carregando...</td></tr>';
-  fetch('/api/user/bets?period=' + encodeURIComponent(_betState.period) + '&kind=' + encodeURIComponent(_betState.kind), { credentials: 'same-origin' })
+  fetch('/api/user/bets?period=' + encodeURIComponent(_betState.period) + '&kind=' + encodeURIComponent(_betState.kind), { credentials: 'include', cache: 'no-store' })
     .then(function(r) { return r.json(); })
     .then(function(d) {
       var rows = (d && d.rows) || [];
@@ -2697,7 +2705,7 @@ function loadExtrato(period) {
   var count = document.getElementById('extratoCount');
   if (!tbody) return;
   tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--text-muted)">Carregando...</td></tr>';
-  fetch('/api/user/statement?period=' + encodeURIComponent(period || 'total'), { credentials: 'same-origin' })
+  fetch('/api/user/statement?period=' + encodeURIComponent(period || 'total'), { credentials: 'include', cache: 'no-store' })
     .then(function(r) { return r.json(); })
     .then(function(d) {
       var rows = (d && d.rows) || [];
