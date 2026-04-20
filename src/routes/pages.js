@@ -10,7 +10,7 @@ router.get('/', async (req, res) => {
 
     // Affiliate settings for homepage wallet panel
     const setR = await query(
-      `SELECT key, value FROM platform_settings WHERE key IN ('aff_referral_bonus','aff_default_commission','aff_min_deposit','aff_revshare_enabled','aff_revshare_pct')`
+      `SELECT key, value FROM platform_settings WHERE key IN ('aff_referral_bonus','aff_default_commission','aff_min_deposit','aff_revshare_enabled','aff_revshare_pct','bonus_enabled')`
     );
     const s = {};
     setR.rows.forEach(r => { s[r.key] = r.value; });
@@ -21,13 +21,15 @@ router.get('/', async (req, res) => {
       revshareEnabled: s.aff_revshare_enabled === '1',
       revsharePct: parseFloat(s.aff_revshare_pct || '0')
     };
+    const bonusEnabled = s.bonus_enabled === '1';
 
     res.render('index', {
       title: 'Cassino',
       games: gamesR.rows,
       banners: bannersR.rows,
       providerImages: provImgR.rows,
-      affiliateSettings
+      affiliateSettings,
+      bonusEnabled
     });
   } catch (err) {
     console.error('[INDEX]', err);

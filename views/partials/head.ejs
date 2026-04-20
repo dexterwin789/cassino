@@ -11,6 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/public/css/style.css?v=20260421a" />
   <link rel="stylesheet" href="/public/css/theme.css?v=20260421a" />
+  <link rel="stylesheet" href="/public/css/pagination.css?v=20260421a" />
   <% if (typeof extraCss !== 'undefined' && extraCss) { %>
     <% extraCss.forEach(function(css) { %>
       <link rel="stylesheet" href="<%= css %>" />
@@ -31,8 +32,10 @@
     }
   </style>
   <% } %>
+  <script>
+    window.VNB_BONUS_ENABLED = <%= (typeof bonusEnabled !== 'undefined' && bonusEnabled) ? 'true' : 'false' %>;
+  </script>
 </head>
-<body>
 <!-- Page Preloader -->
 <div class="preloader" id="pagePreloader">
   <div class="preloader-inner">

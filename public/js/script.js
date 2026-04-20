@@ -2052,6 +2052,23 @@ if (acctPhotoRemove) acctPhotoRemove.addEventListener('click', function() {
 });
 
 /* ========== LOGIN HISTORY TABLE ========== */
+var _loginHistPg = null;
+function renderLoginHistoryRows(rows) {
+  var body = document.getElementById('loginHistoryBody');
+  if (!body) return;
+  if (!rows.length) {
+    body.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--text-muted)">Nenhum registro encontrado.</td></tr>';
+    return;
+  }
+  body.innerHTML = '';
+  rows.forEach(function(r) {
+    var d = new Date(r.created_at);
+    var dt = d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    var tr = document.createElement('tr');
+    tr.innerHTML = '<td>' + dt + '</td><td>' + (r.ip || '—') + '</td><td>' + ((r.city || '') + (r.state ? ', ' + r.state : '') || '—') + '</td><td>' + (r.coords || '—') + '</td>';
+    body.appendChild(tr);
+  });
+}
 function populateLoginHistory() {
   var body = document.getElementById('loginHistoryBody');
   var count = document.getElementById('loginHistoryCount');
@@ -2059,20 +2076,21 @@ function populateLoginHistory() {
   fetch('/api/user/login-history', { credentials: 'include' })
     .then(function(r) { return r.json(); })
     .then(function(j) {
-      if (!j.ok || !j.rows.length) {
+      var rows = (j && j.rows) || [];
+      if (count) count.textContent = rows.length + ' registro' + (rows.length === 1 ? '' : 's');
+      if (!rows.length) {
         body.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--text-muted)">Nenhum registro encontrado.</td></tr>';
-        if (count) count.textContent = '0 registros';
         return;
       }
-      body.innerHTML = '';
-      j.rows.forEach(function(r) {
-        var d = new Date(r.created_at);
-        var dt = d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-        var tr = document.createElement('tr');
-        tr.innerHTML = '<td>' + dt + '</td><td>' + (r.ip || '—') + '</td><td>' + ((r.city || '') + (r.state ? ', ' + r.state : '') || '—') + '</td><td>' + (r.coords || '—') + '</td>';
-        body.appendChild(tr);
-      });
-      if (count) count.textContent = 'Mostrando ' + j.rows.length + ' registro' + (j.rows.length > 1 ? 's' : '');
+      if (!_loginHistPg && window.VNBPagination) {
+        _loginHistPg = window.VNBPagination.create({
+          containerId: 'loginHistoryPagination',
+          pageSize: 10,
+          onChange: function(st) { renderLoginHistoryRows(st.pageItems); }
+        });
+      }
+      if (_loginHistPg) _loginHistPg.setItems(rows);
+      else renderLoginHistoryRows(rows.slice(0, 10));
     }).catch(function() {
       body.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px">Erro ao carregar histórico.</td></tr>';
     });
@@ -2384,31 +2402,13 @@ var notifTypeIcons = {
   bonus: { emoji: '\ud83c\udf81', cls: 'promo' }
 };
 
-function renderNotifications(notifications) {
-  var list = document.getElementById('notifList');
-  var emptyBanner = document.getElementById('notifEmptyBanner');
-  var markAll = document.getElementById('notifMarkAll');
-  var showReadBtn = document.getElementById('notifShowRead');
-  if (!list) return;
-  
-  var unreadNotifs = notifications ? notifications.filter(function(n) { return !n.lida; }) : [];
-  var readNotifs = notifications ? notifications.filter(function(n) { return n.lida; }) : [];
-  
-  // Show/hide empty banner
-  if (emptyBanner) emptyBanner.style.display = unreadNotifs.length === 0 ? '' : 'none';
-  if (markAll) markAll.style.display = unreadNotifs.length > 0 ? 'inline-block' : 'none';
-  if (showReadBtn) showReadBtn.style.display = readNotifs.length > 0 ? '' : 'none';
-  
-  if (!notifications || !notifications.length) {
-    list.innerHTML = '';
-    return;
-  }
-  
-  // Render unread notifications
+var _notifPg = null;
+function _renderNotifBatch(list, notifs, unreadTotal, readTotal) {
   var html = '';
-  unreadNotifs.forEach(function(n) {
+  notifs.forEach(function(n) {
     var icon = notifTypeIcons[n.tipo] || notifTypeIcons.info;
-    html += '<div class="notif-item unread" data-id="' + n.id + '">';
+    var cls = n.lida ? 'notif-item' : 'notif-item unread';
+    html += '<div class="' + cls + '" data-id="' + n.id + '">';
     html += '<div class="notif-icon ' + icon.cls + '">' + icon.emoji + '</div>';
     html += '<div class="notif-body">';
     html += '<div class="notif-title">' + (n.titulo || '') + '</div>';
@@ -2416,25 +2416,7 @@ function renderNotifications(notifications) {
     html += '<div class="notif-time">' + notifRelativeTime(n.created_at) + '</div>';
     html += '</div></div>';
   });
-  
-  // Render read notifications (hidden by default)
-  if (readNotifs.length) {
-    html += '<div class="notif-read-section" id="notifReadSection" style="display:none">';
-    readNotifs.forEach(function(n) {
-      var icon = notifTypeIcons[n.tipo] || notifTypeIcons.info;
-      html += '<div class="notif-item" data-id="' + n.id + '">';
-      html += '<div class="notif-icon ' + icon.cls + '">' + icon.emoji + '</div>';
-      html += '<div class="notif-body">';
-      html += '<div class="notif-title">' + (n.titulo || '') + '</div>';
-      if (n.mensagem) html += '<div class="notif-msg">' + n.mensagem + '</div>';
-      html += '<div class="notif-time">' + notifRelativeTime(n.created_at) + '</div>';
-      html += '</div></div>';
-    });
-    html += '</div>';
-  }
-  
   list.innerHTML = html;
-  // Click to mark as read
   list.querySelectorAll('.notif-item.unread').forEach(function(item) {
     item.addEventListener('click', function() {
       var id = item.getAttribute('data-id');
@@ -2444,8 +2426,28 @@ function renderNotifications(notifications) {
   });
 }
 
+function renderNotifications(notifications) {
+  var list = document.getElementById('notifList');
+  var emptyBanner = document.getElementById('notifEmptyBanner');
+  var markAll = document.getElementById('notifMarkAll');
+  var showReadBtn = document.getElementById('notifShowRead');
+  var pgEl = document.getElementById('notifPagination');
+  if (!list) return;
+
+  var notifs = notifications || [];
+  _notifAll = notifs;
+  var unreadNotifs = notifs.filter(function(n) { return !n.lida; });
+  var readNotifs = notifs.filter(function(n) { return n.lida; });
+
+  if (emptyBanner) emptyBanner.style.display = unreadNotifs.length === 0 ? '' : 'none';
+  if (markAll) markAll.style.display = unreadNotifs.length > 0 ? 'inline-block' : 'none';
+  if (showReadBtn) showReadBtn.style.display = readNotifs.length > 0 ? '' : 'none';
+
+  _applyNotifFilter();
+}
+
 function loadNotifications() {
-  fetch('/api/notifications?limit=30', { credentials: 'include' })
+  fetch('/api/notifications?limit=500', { credentials: 'include' })
     .then(function(r) { return r.json(); })
     .then(function(j) {
       if (!j || !j.ok) return;
@@ -2494,17 +2496,34 @@ function markAllNotifsRead() {
 var notifMarkAllBtn = document.getElementById('notifMarkAll');
 if (notifMarkAllBtn) notifMarkAllBtn.addEventListener('click', markAllNotifsRead);
 
-// Wire show-read button
+// Wire show-read button — toggles between "unread only" and "all"
+var _notifShowRead = false;
+var _notifAll = [];
 var notifShowReadBtn = document.getElementById('notifShowRead');
 if (notifShowReadBtn) {
   notifShowReadBtn.addEventListener('click', function() {
-    var section = document.getElementById('notifReadSection');
-    if (section) {
-      var visible = section.style.display !== 'none';
-      section.style.display = visible ? 'none' : '';
-      notifShowReadBtn.textContent = visible ? 'Mostrar notificaçÃÆ’Ã‚Âµes lidas' : 'Ocultar notificaçÃÆ’Ã‚Âµes lidas';
-    }
+    _notifShowRead = !_notifShowRead;
+    notifShowReadBtn.textContent = _notifShowRead ? 'Ocultar notificações lidas' : 'Mostrar notificações lidas';
+    _applyNotifFilter();
   });
+}
+function _applyNotifFilter() {
+  var arr = _notifAll || [];
+  var unread = arr.filter(function(n) { return !n.lida; });
+  var read = arr.filter(function(n) { return n.lida; });
+  var ordered = _notifShowRead ? unread.concat(read) : unread;
+  var list = document.getElementById('notifList');
+  if (!list) return;
+  if (!_notifPg && window.VNBPagination) {
+    _notifPg = window.VNBPagination.create({
+      containerId: 'notifPagination',
+      pageSize: 10,
+      onChange: function(st) { _renderNotifBatch(list, st.pageItems); }
+    });
+  }
+  if (!ordered.length) { list.innerHTML = ''; var pg=document.getElementById('notifPagination'); if(pg)pg.style.display='none'; return; }
+  if (_notifPg) _notifPg.setItems(ordered);
+  else _renderNotifBatch(list, ordered.slice(0, 10));
 }
 
 // Wire refresh button
@@ -2597,9 +2616,57 @@ function fmtDateShort(d) {
   return dd + '/' + mm + '/' + dt.getFullYear();
 }
 
+var _leadsPg = null;
+function _renderLeadRows(leads) {
+  var list = document.getElementById('indiqueLeadsList');
+  if (!list) return;
+  var rows = leads.map(function(l) {
+    var isActive = l.deposited_cents > 0 || l.bets_count > 0;
+    var badge = isActive
+      ? '<span style="padding:3px 9px;border-radius:10px;background:rgba(37,211,102,.15);color:#25D366;font-size:10px;font-weight:800;letter-spacing:.3px">ATIVO</span>'
+      : '<span style="padding:3px 9px;border-radius:10px;background:rgba(255,255,255,.06);color:var(--text-muted);font-size:10px;font-weight:700">LEAD</span>';
+    var displayName = l.username || l.email || ('Usuário #' + l.id);
+    // Você ganhou (comissão revshare) — ZERO se nenhuma comissão registrada
+    var commission = parseInt(l.commission_cents || 0);
+    var commissionHtml = commission > 0
+      ? '<span style="color:#25D366;font-weight:800">+' + brlFmt(commission) + '</span>'
+      : '<span style="color:var(--text-muted);font-weight:700">R$ 0,00</span>';
+    // Volume apostado pelo lead
+    var volume = parseInt(l.bets_volume_cents || 0);
+    var depHtml = parseInt(l.deposited_cents || 0) > 0
+      ? '<span style="color:#25D366">' + brlFmt(l.deposited_cents) + '</span>'
+      : '<span style="color:var(--text-muted)">—</span>';
+    return '<div style="padding:14px 12px;border-bottom:1px solid rgba(255,255,255,.05);display:flex;flex-direction:column;gap:8px">'
+         +   '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">'
+         +     '<div style="flex:1;min-width:0">'
+         +       '<div style="color:var(--text);font-weight:800;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + displayName + '</div>'
+         +       '<div style="color:var(--text-muted);font-size:11px;margin-top:2px">Indicado em ' + fmtDateShort(l.created_at) + ' · ' + (l.bets_count || 0) + ' aposta' + (l.bets_count === 1 ? '' : 's') + '</div>'
+         +     '</div>'
+         +     badge
+         +   '</div>'
+         +   '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:8px 0 0">'
+         +     '<div style="background:rgba(0,0,0,.2);padding:8px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.04)">'
+         +       '<div style="color:var(--text-muted);font-size:10px;text-transform:uppercase;letter-spacing:.4px;font-weight:700">Depositado</div>'
+         +       '<div style="font-size:13px;font-weight:800;margin-top:2px">' + depHtml + '</div>'
+         +     '</div>'
+         +     '<div style="background:rgba(0,0,0,.2);padding:8px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.04)">'
+         +       '<div style="color:var(--text-muted);font-size:10px;text-transform:uppercase;letter-spacing:.4px;font-weight:700">Apostado</div>'
+         +       '<div style="font-size:13px;font-weight:800;margin-top:2px;color:var(--text)">' + brlFmt(volume) + '</div>'
+         +     '</div>'
+         +     '<div style="background:rgba(16,185,129,.08);padding:8px 10px;border-radius:8px;border:1px solid rgba(16,185,129,.2)">'
+         +       '<div style="color:#10B981;font-size:10px;text-transform:uppercase;letter-spacing:.4px;font-weight:800">Você Ganhou</div>'
+         +       '<div style="font-size:13px;font-weight:800;margin-top:2px">' + commissionHtml + '</div>'
+         +     '</div>'
+         +   '</div>'
+         + '</div>';
+  }).join('');
+  list.innerHTML = rows;
+}
+
 function loadIndiqueLeads(period) {
   var list = document.getElementById('indiqueLeadsList');
   var empty = document.getElementById('indiqueEmptyMsg');
+  var pgEl = document.getElementById('indiqueLeadsPagination');
   if (!list) return;
   fetch('/api/referrals/leads?period=' + encodeURIComponent(period || 'all'), { credentials: 'include', cache: 'no-store' })
     .then(function(r) { return r.json(); })
@@ -2610,29 +2677,20 @@ function loadIndiqueLeads(period) {
         if (empty) empty.style.display = '';
         list.style.display = 'none';
         list.innerHTML = '';
+        if (pgEl) pgEl.style.display = 'none';
         return;
       }
       if (empty) empty.style.display = 'none';
       list.style.display = '';
-      var rows = leads.map(function(l) {
-        var badge = l.deposited_cents > 0
-          ? '<span style="padding:2px 8px;border-radius:8px;background:rgba(37,211,102,.15);color:#25D366;font-size:10px;font-weight:700">ATIVO</span>'
-          : '<span style="padding:2px 8px;border-radius:8px;background:rgba(255,255,255,.06);color:var(--text-muted);font-size:10px">LEAD</span>';
-        var depositedHtml = l.deposited_cents > 0
-          ? '<span style="color:#25D366;font-weight:600">' + brlFmt(l.deposited_cents) + '</span>'
-          : '<span style="color:var(--text-muted)">—</span>';
-        return '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 8px;border-bottom:1px solid rgba(255,255,255,.05)">'
-             + '<div style="flex:1;min-width:0">'
-             +   '<div style="color:var(--text);font-weight:700;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + (l.username || '') + '</div>'
-             +   '<div style="color:var(--text-muted);font-size:11px">' + fmtDateShort(l.created_at) + ' · ' + (l.bets_count || 0) + ' apostas</div>'
-             + '</div>'
-             + '<div style="text-align:right">'
-             +   '<div style="font-size:12px">' + depositedHtml + '</div>'
-             +   '<div style="margin-top:3px">' + badge + '</div>'
-             + '</div>'
-             + '</div>';
-      }).join('');
-      list.innerHTML = rows;
+      if (!_leadsPg && window.VNBPagination) {
+        _leadsPg = window.VNBPagination.create({
+          containerId: 'indiqueLeadsPagination',
+          pageSize: 10,
+          onChange: function(st) { _renderLeadRows(st.pageItems); }
+        });
+      }
+      if (_leadsPg) _leadsPg.setItems(leads);
+      else _renderLeadRows(leads.slice(0, 10));
     })
     .catch(function() {});
 }
@@ -2646,38 +2704,61 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // ── Bets (Cassino / Esportivas) ─────────────────────────────
 var _betState = { kind: 'casino', period: 'today' };
+var _betPgs = { casino: null, sport: null };
+function _renderBetsRows(kind, rows) {
+  var tbodyId = kind === 'sport' ? 'betSportBody' : 'betCassinoBody';
+  var tbody = document.getElementById(tbodyId);
+  if (!tbody) return;
+  if (!rows.length) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--text-muted)">Não há informações para exibir.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = rows.map(function(b) {
+    var payout = parseInt(b.payout_cents || 0);
+    var amt = parseInt(b.amount_cents || 0);
+    var resultHtml = payout > 0
+      ? '<span style="color:#25D366;font-weight:600">+' + brlFmt(payout) + '</span>'
+      : '<span style="color:#ef4444">-' + brlFmt(amt) + '</span>';
+    return '<tr>'
+      + '<td>' + (b.game_name || '—') + '</td>'
+      + '<td>#' + b.id + '</td>'
+      + '<td>' + brlFmt(amt) + '</td>'
+      + '<td>' + resultHtml + '</td>'
+      + '<td>' + fmtDateShort(b.created_at) + '</td>'
+      + '</tr>';
+  }).join('');
+}
 function loadBets(kind, period) {
   if (kind) _betState.kind = kind;
   if (period) _betState.period = period;
-  var tbodyId = _betState.kind === 'sport' ? 'betSportBody' : 'betCassinoBody';
-  var countId = _betState.kind === 'sport' ? 'betSportCount' : 'betCassinoCount';
+  var k = _betState.kind;
+  var tbodyId = k === 'sport' ? 'betSportBody' : 'betCassinoBody';
+  var countId = k === 'sport' ? 'betSportCount' : 'betCassinoCount';
+  var pgId = k === 'sport' ? 'betSportPagination' : 'betCassinoPagination';
   var tbody = document.getElementById(tbodyId);
   var count = document.getElementById(countId);
   if (!tbody) return;
   tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--text-muted)">Carregando...</td></tr>';
-  fetch('/api/user/bets?period=' + encodeURIComponent(_betState.period) + '&kind=' + encodeURIComponent(_betState.kind), { credentials: 'include', cache: 'no-store' })
+  fetch('/api/user/bets?period=' + encodeURIComponent(_betState.period) + '&kind=' + encodeURIComponent(k), { credentials: 'include', cache: 'no-store' })
     .then(function(r) { return r.json(); })
     .then(function(d) {
       var rows = (d && d.rows) || [];
       if (count) count.textContent = rows.length + ' registro' + (rows.length === 1 ? '' : 's');
       if (!rows.length) {
         tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--text-muted)">Não há informações para exibir.</td></tr>';
+        var pgEl = document.getElementById(pgId);
+        if (pgEl) pgEl.style.display = 'none';
         return;
       }
-      tbody.innerHTML = rows.map(function(b) {
-        var payout = parseInt(b.payout_cents || 0);
-        var amt = parseInt(b.amount_cents || 0);
-        var resultHtml = payout > 0
-          ? '<span style="color:#25D366;font-weight:600">+' + brlFmt(payout) + '</span>'
-          : '<span style="color:#ef4444">-' + brlFmt(amt) + '</span>';
-        return '<tr>'
-          + '<td>' + (b.game_name || '—') + '</td>'
-          + '<td>#' + b.id + '</td>'
-          + '<td>' + brlFmt(amt) + '</td>'
-          + '<td>' + resultHtml + '</td>'
-          + '<td>' + fmtDateShort(b.created_at) + '</td>'
-          + '</tr>';
-      }).join('');
+      if (!_betPgs[k] && window.VNBPagination) {
+        _betPgs[k] = window.VNBPagination.create({
+          containerId: pgId,
+          pageSize: 10,
+          onChange: function(st) { _renderBetsRows(k, st.pageItems); }
+        });
+      }
+      if (_betPgs[k]) _betPgs[k].setItems(rows);
+      else _renderBetsRows(k, rows.slice(0, 10));
     })
     .catch(function() {
       tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px;color:#ef4444">Erro ao carregar.</td></tr>';
@@ -2700,6 +2781,29 @@ document.querySelectorAll('#betSportTabs .hist-tab').forEach(function(btn) {
 });
 
 // ── Extrato completo ────────────────────────────────────────
+var _extratoPg = null;
+function _renderExtratoRows(rows) {
+  var tbody = document.getElementById('extratoBody');
+  if (!tbody) return;
+  if (!rows.length) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--text-muted)">Nenhuma movimentação encontrada.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = rows.map(function(r) {
+    var cents = parseInt(r.amount_cents || 0);
+    var amtHtml = cents >= 0
+      ? '<span style="color:#25D366;font-weight:600">+' + brlFmt(Math.abs(cents)) + '</span>'
+      : '<span style="color:#ef4444;font-weight:600">-' + brlFmt(Math.abs(cents)) + '</span>';
+    return '<tr>'
+      + '<td>' + r.kind + '</td>'
+      + '<td>' + r.id + '</td>'
+      + '<td>' + (r.desc || '—') + '</td>'
+      + '<td>' + amtHtml + '</td>'
+      + '<td>' + brlFmt(r._balance) + '</td>'
+      + '<td>' + fmtDateShort(r.created_at) + '</td>'
+      + '</tr>';
+  }).join('');
+}
 function loadExtrato(period) {
   var tbody = document.getElementById('extratoBody');
   var count = document.getElementById('extratoCount');
@@ -2712,26 +2816,22 @@ function loadExtrato(period) {
       if (count) count.textContent = rows.length + ' registro' + (rows.length === 1 ? '' : 's');
       if (!rows.length) {
         tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--text-muted)">Nenhuma movimentação encontrada.</td></tr>';
+        var pgEl = document.getElementById('extratoPagination');
+        if (pgEl) pgEl.style.display = 'none';
         return;
       }
       var running = 0;
-      // Compute running from oldest→newest, then render newest→oldest
       var asc = rows.slice().reverse();
       asc.forEach(function(r) { running += parseInt(r.amount_cents || 0); r._balance = running; });
-      tbody.innerHTML = rows.map(function(r) {
-        var cents = parseInt(r.amount_cents || 0);
-        var amtHtml = cents >= 0
-          ? '<span style="color:#25D366;font-weight:600">+' + brlFmt(Math.abs(cents)) + '</span>'
-          : '<span style="color:#ef4444;font-weight:600">-' + brlFmt(Math.abs(cents)) + '</span>';
-        return '<tr>'
-          + '<td>' + r.kind + '</td>'
-          + '<td>' + r.id + '</td>'
-          + '<td>' + (r.desc || '—') + '</td>'
-          + '<td>' + amtHtml + '</td>'
-          + '<td>' + brlFmt(r._balance) + '</td>'
-          + '<td>' + fmtDateShort(r.created_at) + '</td>'
-          + '</tr>';
-      }).join('');
+      if (!_extratoPg && window.VNBPagination) {
+        _extratoPg = window.VNBPagination.create({
+          containerId: 'extratoPagination',
+          pageSize: 10,
+          onChange: function(st) { _renderExtratoRows(st.pageItems); }
+        });
+      }
+      if (_extratoPg) _extratoPg.setItems(rows);
+      else _renderExtratoRows(rows.slice(0, 10));
     })
     .catch(function() {
       tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:#ef4444">Erro ao carregar.</td></tr>';

@@ -24,6 +24,13 @@
         <option value="1" <%= settings.sports_enabled === '1' ? 'selected' : '' %>>Ativado</option>
       </select>
     </div>
+    <div class="adm-setting-card">
+      <label>Sistema de Bônus (Prêmios, Saldo Bônus, Filtros)</label>
+      <select id="setBonusEnabled">
+        <option value="0" <%= settings.bonus_enabled !== '1' ? 'selected' : '' %>>Desativado</option>
+        <option value="1" <%= settings.bonus_enabled === '1' ? 'selected' : '' %>>Ativado</option>
+      </select>
+    </div>
   </div>
 
   <button class="adm-btn primary" id="btnSaveSettings" style="margin-top:16px;">Salvar Configurações</button>
@@ -95,7 +102,8 @@ document.getElementById('btnSaveSettings')?.addEventListener('click', async () =
   const settings = [
     { key: 'site_name', value: document.getElementById('setSiteName').value },
     { key: 'maintenance_mode', value: document.getElementById('setMaintenance').value },
-    { key: 'sports_enabled', value: document.getElementById('setSports').value }
+    { key: 'sports_enabled', value: document.getElementById('setSports').value },
+    { key: 'bonus_enabled', value: document.getElementById('setBonusEnabled').value }
   ];
   for (const s of settings) {
     await fetch('/admin/api/settings', {

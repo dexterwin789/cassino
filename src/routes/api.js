@@ -865,22 +865,39 @@ router.get('/referrals/leads', requireUser, async (req, res) => {
     else if (period === '90d') dateFilter = "AND u.created_at >= NOW() - INTERVAL '90 days'";
 
     const r = await query(`
-      SELECT u.id, u.username, u.name, u.created_at,
+      SELECT u.id, u.username, u.name, u.email, u.created_at,
         COALESCE((SELECT SUM(amount_cents) FROM transactions WHERE user_id = u.id AND status = 'paid' AND type IN ('deposit','pix_in')), 0) AS deposited_cents,
-        COALESCE((SELECT COUNT(*) FROM bets WHERE user_id = u.id), 0) AS bets_count
+        COALESCE((SELECT COUNT(*)::int FROM bets WHERE user_id = u.id), 0) AS bets_count,
+        COALESCE((SELECT SUM(amount_cents) FROM bets WHERE user_id = u.id), 0) AS bets_volume_cents,
+        COALESCE((
+          SELECT SUM(ac.amount_cents)
+          FROM affiliate_commissions ac
+          JOIN affiliates a ON a.id = ac.affiliate_id
+          WHERE a.user_id = $1 AND ac.referred_user_id = u.id
+        ), 0) AS commission_cents,
+        COALESCE((
+          SELECT SUM(ac.amount_cents)
+          FROM affiliate_commissions ac
+          JOIN affiliates a ON a.id = ac.affiliate_id
+          WHERE a.user_id = $1 AND ac.referred_user_id = u.id AND ac.status = 'paid'
+        ), 0) AS commission_paid_cents
       FROM users u
       WHERE u.referred_by = $1 ${dateFilter}
       ORDER BY u.created_at DESC
-      LIMIT 50
+      LIMIT 500
     `, [uid]);
 
     const leads = r.rows.map(x => ({
       id: x.id,
       username: x.username,
       name: x.name,
+      email: x.email,
       created_at: x.created_at,
       deposited_cents: parseInt(x.deposited_cents || 0),
-      bets_count: parseInt(x.bets_count || 0)
+      bets_count: parseInt(x.bets_count || 0),
+      bets_volume_cents: parseInt(x.bets_volume_cents || 0),
+      commission_cents: parseInt(x.commission_cents || 0),
+      commission_paid_cents: parseInt(x.commission_paid_cents || 0)
     }));
     res.json({ ok: true, leads });
   } catch (err) {
