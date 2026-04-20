@@ -47,6 +47,15 @@ app.use(session({
   }
 }));
 
+// Capture ?ref= from any URL → store in session (expires with session cookie)
+app.use((req, res, next) => {
+  const ref = (req.query && req.query.ref) ? String(req.query.ref).trim().slice(0, 64) : null;
+  if (ref && req.session) {
+    req.session.pendingRef = ref;
+  }
+  next();
+});
+
 // View engine
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));

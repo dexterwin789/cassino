@@ -42,10 +42,27 @@ router.post('/register', async (req, res) => {
     }
 
     const hash = await bcrypt.hash(pass, 10);
+
+    // Resolve referral (session has priority; fallback to body.ref)
+    let referredById = null;
+    const refRaw = (req.session && req.session.pendingRef) || (req.body && req.body.ref) || '';
+    const refStr = String(refRaw).trim();
+    if (refStr) {
+      // Try affiliate code (string) first
+      const byCode = await query('SELECT user_id FROM affiliates WHERE code = $1 AND is_active = TRUE LIMIT 1', [refStr]);
+      if (byCode.rows.length) {
+        referredById = byCode.rows[0].user_id;
+      } else if (/^\d+$/.test(refStr)) {
+        // Fallback: numeric user_id
+        const byId = await query('SELECT id FROM users WHERE id = $1 LIMIT 1', [parseInt(refStr, 10)]);
+        if (byId.rows.length) referredById = byId.rows[0].id;
+      }
+    }
+
     const r = await query(
-      `INSERT INTO users (username, name, phone, email, cpf, birth_date, password_hash) 
-       VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id, username, name, phone, email, cpf`,
-      [user, cleanName || null, ph || null, cleanEmail || null, cleanCpf || null, birth_date || null, hash]
+      `INSERT INTO users (username, name, phone, email, cpf, birth_date, password_hash, referred_by) 
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id, username, name, phone, email, cpf`,
+      [user, cleanName || null, ph || null, cleanEmail || null, cleanCpf || null, birth_date || null, hash, referredById]
     );
     const u = r.rows[0];
 
@@ -53,6 +70,7 @@ router.post('/register', async (req, res) => {
     await query('INSERT INTO wallets (user_id, balance_cents) VALUES ($1, 0) ON CONFLICT DO NOTHING', [u.id]);
 
     req.session.user = u;
+    if (req.session.pendingRef) delete req.session.pendingRef;
 
     // Record login history
     const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress || '';

@@ -63,6 +63,45 @@ router.post('/blackcat', async (req, res) => {
       [parseInt(tx.amount_cents), tx.user_id]
     );
 
+    // ── Affiliate commission ─────────────────────
+    // If this user was referred by an affiliate and deposit meets min threshold,
+    // create commission row + bump affiliate total_earned_cents.
+    try {
+      const refR = await client.query('SELECT referred_by FROM users WHERE id = $1', [tx.user_id]);
+      const referredBy = refR.rows[0]?.referred_by;
+      if (referredBy) {
+        const affR = await client.query(
+          'SELECT id, commission_pct, is_active FROM affiliates WHERE user_id = $1 LIMIT 1',
+          [referredBy]
+        );
+        const aff = affR.rows[0];
+        if (aff && aff.is_active) {
+          // Load min deposit
+          const setR = await client.query("SELECT value FROM platform_settings WHERE key = 'aff_min_deposit' LIMIT 1");
+          const minDep = parseInt(setR.rows[0]?.value || '0', 10);
+          const amtCents = parseInt(tx.amount_cents);
+          if (!minDep || amtCents >= minDep) {
+            const commAmt = Math.floor(amtCents * (parseFloat(aff.commission_pct) / 100));
+            // Only create if not already exists for this transaction
+            const exists = await client.query(
+              'SELECT id FROM affiliate_commissions WHERE transaction_id = $1 LIMIT 1',
+              [tx.id]
+            );
+            if (!exists.rows.length) {
+              await client.query(
+                `INSERT INTO affiliate_commissions (affiliate_id, referred_user_id, transaction_id, amount_cents, status)
+                 VALUES ($1, $2, $3, $4, 'pending')`,
+                [aff.id, tx.user_id, tx.id, commAmt]
+              );
+            }
+          }
+        }
+      }
+    } catch (affErr) {
+      console.error('[WEBHOOK][AFF]', affErr);
+      // Do NOT rollback for affiliate errors — deposit is credited regardless
+    }
+
     await client.query('COMMIT');
     res.json({ ok: true, credited: true, tx_id: tx.id, transactionId });
   } catch (err) {
