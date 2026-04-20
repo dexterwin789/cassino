@@ -30,8 +30,9 @@ app.use((req, res, next) => {
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Trust Railway/Heroku reverse proxy so secure cookies work
-app.set('trust proxy', 1);
+// Trust Railway/Heroku/Cloudflare reverse proxy chain so secure cookies work
+// (custom domain goes Cloudflare → Railway → App = 2 hops)
+app.set('trust proxy', true);
 
 // Sessions
 app.use(session({
