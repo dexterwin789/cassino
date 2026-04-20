@@ -464,8 +464,11 @@ ul{list-style:none}
 .main-content{
   flex:1;min-width:0;
   padding:20px 28px;
-  overflow:visible;
+  overflow-y:auto;overflow-x:hidden;
+  height:calc(100vh - var(--topbar-h));
+  scrollbar-width:none;
 }
+.main-content::-webkit-scrollbar{display:none}
 .main-container{
   max-width:var(--main-max-w);
   margin:0 auto;

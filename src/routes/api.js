@@ -83,7 +83,11 @@ router.post('/login', async (req, res) => {
     }
 
     const r = await query(
-      'SELECT id, username, name, phone, email, cpf, password_hash, balance FROM users WHERE username = $1 OR email = $1 OR cpf = $2',
+      `SELECT u.id, u.username, u.name, u.phone, u.email, u.cpf, u.password_hash,
+              COALESCE(w.balance_cents, 0) AS wallet_balance_cents
+       FROM users u
+       LEFT JOIN wallets w ON w.user_id = u.id
+       WHERE u.username = $1 OR u.email = $1 OR u.cpf = $2`,
       [login, login.replace(/\D/g, '')]
     );
     const u = r.rows[0];

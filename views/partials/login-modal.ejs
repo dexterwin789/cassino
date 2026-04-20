@@ -329,8 +329,8 @@
           if (j && j.ok) {
             sessionStorage.setItem('acctLoginStart', Date.now());
             closeLoginModal();
-            var bal = (j.user && (j.user.balance || j.user.balance === 0)) ? Number(j.user.balance) : null;
-            if (bal !== null && bal <= 0) {
+            var cents = (j.user && j.user.wallet_balance_cents != null) ? Number(j.user.wallet_balance_cents) : null;
+            if (cents !== null && cents <= 0) {
               window.location.href = '/?openDeposit=1';
             } else {
               window.location.reload();
