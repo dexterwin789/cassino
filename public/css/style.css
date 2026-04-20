@@ -463,7 +463,8 @@ ul{list-style:none}
 /* ===== MAIN CONTENT ===== */
 .main-content{
   flex:1;min-width:0;
-  padding:20px 28px;overflow-x:hidden;
+  padding:20px 28px;
+  overflow:visible;
 }
 .main-container{
   max-width:var(--main-max-w);

@@ -83,7 +83,7 @@ router.post('/login', async (req, res) => {
     }
 
     const r = await query(
-      'SELECT id, username, name, phone, email, cpf, password_hash FROM users WHERE username = $1 OR email = $1 OR cpf = $2',
+      'SELECT id, username, name, phone, email, cpf, password_hash, balance FROM users WHERE username = $1 OR email = $1 OR cpf = $2',
       [login, login.replace(/\D/g, '')]
     );
     const u = r.rows[0];

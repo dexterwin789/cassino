@@ -1,4 +1,4 @@
-﻿<!-- ÂÂÂÂÂ LOGIN MODAL ÂÂÂÂÂ -->
+﻿<!-- LOGIN MODAL -->
 <div class="login-overlay" id="loginModal">
   <div class="login-modal">
     <div class="login-left">
@@ -326,7 +326,16 @@
       apiPost('/api/login', { login: login, password: password })
         .then(function(data) {
           var j = data.json || data;
-          if (j && j.ok) { sessionStorage.setItem('acctLoginStart', Date.now()); closeLoginModal(); window.location.reload(); }
+          if (j && j.ok) {
+            sessionStorage.setItem('acctLoginStart', Date.now());
+            closeLoginModal();
+            var bal = (j.user && (j.user.balance || j.user.balance === 0)) ? Number(j.user.balance) : null;
+            if (bal !== null && bal <= 0) {
+              window.location.href = '/?openDeposit=1';
+            } else {
+              window.location.reload();
+            }
+          }
           else { if (typeof showToast === 'function') showToast(j.msg || 'Erro ao entrar', 'error'); }
         })
         .catch(function() { if (typeof showToast === 'function') showToast('Erro ao conectar', 'error'); })
