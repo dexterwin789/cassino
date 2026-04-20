@@ -21,7 +21,7 @@ app.use(helmet({
 app.use((req, res, next) => {
   res.setHeader(
     'Content-Security-Policy',
-    "frame-ancestors 'self' https://straplay.com https://*.straplay.com https://straplay-production.up.railway.app https://*.up.railway.app"
+    "frame-ancestors 'self' https://vemnabet.bet https://*.vemnabet.bet https://straplay.com https://*.straplay.com https://straplay-production.up.railway.app https://*.up.railway.app"
   );
   next();
 });

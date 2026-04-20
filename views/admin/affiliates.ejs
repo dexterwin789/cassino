@@ -1,5 +1,325 @@
 <%- include('layout-head', { title: 'Afiliados', page: 'affiliates' }) %>
 
+<% var _commType = (typeof affSettings !== 'undefined' && affSettings.aff_commission_type) || 'revshare'; %>
+<% var _stats = (typeof affStats !== 'undefined') ? affStats : { total:0, active:0, totalEarned:0, pendingCommissions:0, totalLeads:0 }; %>
+<%
+  function _brl(cents){
+    var n = (parseInt(cents || 0, 10)) / 100;
+    return 'R$ ' + n.toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  }
+%>
+
+<!-- ═══ STATS DASHBOARD ═══ -->
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-bottom:24px;">
+  <div class="adm-stat-card">
+    <div class="adm-stat-icon" style="background:linear-gradient(135deg,#25D366 0%,#128C7E 100%);">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    </div>
+    <div style="flex:1">
+      <div class="adm-stat-label">Total de Afiliados</div>
+      <div style="font-size:28px;font-weight:800;margin-top:4px;color:var(--adm-text)"><%= _stats.total %></div>
+      <div class="adm-muted" style="font-size:12px;margin-top:2px;"><%= _stats.active %> ativos</div>
+    </div>
+  </div>
+
+  <div class="adm-stat-card">
+    <div class="adm-stat-icon" style="background:linear-gradient(135deg,#3B82F6 0%,#1E40AF 100%);">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+    </div>
+    <div style="flex:1">
+      <div class="adm-stat-label">Leads Indicados</div>
+      <div style="font-size:28px;font-weight:800;margin-top:4px;color:var(--adm-text)"><%= _stats.totalLeads %></div>
+      <div class="adm-muted" style="font-size:12px;margin-top:2px;">usuários com referrer</div>
+    </div>
+  </div>
+
+  <div class="adm-stat-card">
+    <div class="adm-stat-icon" style="background:linear-gradient(135deg,#FFD700 0%,#F59E0B 100%);">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+    </div>
+    <div style="flex:1">
+      <div class="adm-stat-label">Total Pago</div>
+      <div style="font-size:22px;font-weight:800;margin-top:4px;color:#FFD700"><%= _brl(_stats.totalEarned) %></div>
+      <div class="adm-muted" style="font-size:12px;margin-top:2px;">acumulado histórico</div>
+    </div>
+  </div>
+
+  <div class="adm-stat-card">
+    <div class="adm-stat-icon" style="background:linear-gradient(135deg,#F97316 0%,#DC2626 100%);">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    </div>
+    <div style="flex:1">
+      <div class="adm-stat-label">Comissões Pendentes</div>
+      <div style="font-size:22px;font-weight:800;margin-top:4px;color:#F97316"><%= _brl(_stats.pendingCommissions) %></div>
+      <div class="adm-muted" style="font-size:12px;margin-top:2px;">aguardando pagamento</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODELO DE COMISSIONAMENTO ═══ -->
+<div class="adm-page-card" style="margin-bottom:24px;">
+  <div class="adm-page-head">
+    <div>
+      <h3 style="display:flex;align-items:center;gap:10px;">
+        <span style="display:inline-grid;place-items:center;width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,rgba(37,211,102,.2),rgba(37,211,102,.05));border:1px solid rgba(37,211,102,.3);">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#25D366" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </span>
+        Modelo de Comissionamento
+      </h3>
+      <p class="adm-muted">Apenas <strong>um</strong> modelo fica ativo por vez. Mudança afeta comissões <strong>futuras</strong>.</p>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;padding:6px 12px;border-radius:20px;background:<%= _commType === 'revshare' ? 'rgba(37,211,102,.12)' : 'rgba(255,215,0,.12)' %>;border:1px solid <%= _commType === 'revshare' ? 'rgba(37,211,102,.3)' : 'rgba(255,215,0,.3)' %>;">
+      <span style="width:8px;height:8px;border-radius:50%;background:<%= _commType === 'revshare' ? '#25D366' : '#FFD700' %>;box-shadow:0 0 8px <%= _commType === 'revshare' ? '#25D366' : '#FFD700' %>;"></span>
+      <span style="font-size:12px;font-weight:700;color:<%= _commType === 'revshare' ? '#25D366' : '#FFD700' %>;text-transform:uppercase;letter-spacing:.5px;"><%= _commType === 'revshare' ? 'RevShare Ativo' : 'CPA Ativo' %></span>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-top:20px;">
+    <label class="adm-setting-card aff-model-card" style="cursor:pointer;padding:20px;transition:all .2s;<%= _commType === 'revshare' ? 'border-color:#25D366;background:linear-gradient(135deg,rgba(37,211,102,.08),rgba(37,211,102,.02));box-shadow:0 8px 24px rgba(37,211,102,.15);' : '' %>">
+      <div style="display:flex;align-items:flex-start;gap:14px;">
+        <input type="radio" name="affCommissionType" value="revshare" <%= _commType === 'revshare' ? 'checked' : '' %> style="margin-top:4px;accent-color:#25D366;width:18px;height:18px;">
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="font-weight:800;font-size:16px;color:#25D366;">RevShare</span>
+            <span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:6px;background:rgba(37,211,102,.15);color:#25D366;text-transform:uppercase;letter-spacing:.5px;">Recomendado</span>
+          </div>
+          <div class="adm-muted" style="font-size:13px;margin-top:8px;line-height:1.5;">Afiliado ganha um <strong style="color:var(--adm-text)">% recorrente</strong> sobre a movimentação do indicado. Pagamento contínuo enquanto o usuário apostar.</div>
+        </div>
+      </div>
+    </label>
+    <label class="adm-setting-card aff-model-card" style="cursor:pointer;padding:20px;transition:all .2s;<%= _commType === 'cpa' ? 'border-color:#FFD700;background:linear-gradient(135deg,rgba(255,215,0,.08),rgba(255,215,0,.02));box-shadow:0 8px 24px rgba(255,215,0,.15);' : '' %>">
+      <div style="display:flex;align-items:flex-start;gap:14px;">
+        <input type="radio" name="affCommissionType" value="cpa" <%= _commType === 'cpa' ? 'checked' : '' %> style="margin-top:4px;accent-color:#FFD700;width:18px;height:18px;">
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="font-weight:800;font-size:16px;color:#FFD700;">CPA (Bônus Fixo)</span>
+            <span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:6px;background:rgba(255,215,0,.15);color:#FFD700;text-transform:uppercase;letter-spacing:.5px;">Pagamento único</span>
+          </div>
+          <div class="adm-muted" style="font-size:13px;margin-top:8px;line-height:1.5;">Afiliado recebe um <strong style="color:var(--adm-text)">valor fixo</strong> por cada indicado que cumpre o depósito mínimo. Uma vez apenas.</div>
+        </div>
+      </div>
+    </label>
+  </div>
+  <button class="adm-btn primary" id="btnSaveCommType" style="margin-top:20px;">Salvar Modelo</button>
+</div>
+
+<!-- ═══ CONFIGURAÇÕES GERAIS ═══ -->
+<div class="adm-page-card" style="margin-bottom:24px;">
+  <div class="adm-page-head">
+    <div>
+      <h3 style="display:flex;align-items:center;gap:10px;">
+        <span style="display:inline-grid;place-items:center;width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,rgba(59,130,246,.2),rgba(59,130,246,.05));border:1px solid rgba(59,130,246,.3);">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 6v6m11-7h-6M7 12H1m15.5-6.5l-4.24 4.24m-4.52 4.52L3.5 18.5M18.5 18.5l-4.24-4.24m-4.52-4.52L5.5 5.5"/></svg>
+        </span>
+        Configurações Gerais
+      </h3>
+      <p class="adm-muted">Regras globais do programa de afiliados</p>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;margin-top:20px;">
+    <div class="adm-setting-card">
+      <label>Comissão Padrão (%)</label>
+      <input type="number" id="affDefaultCommission" value="<%= (typeof affSettings !== 'undefined' && affSettings.aff_default_commission) || '10' %>" min="0" max="100" step="0.5">
+    </div>
+    <div class="adm-setting-card">
+      <label>Depósito Mín. p/ Comissão</label>
+      <input type="text" id="affMinDeposit" class="brl-mask-reais" value="" data-initial-cents="<%= (typeof affSettings !== 'undefined' && affSettings.aff_min_deposit) || '2000' %>" min="0">
+    </div>
+    <div class="adm-setting-card">
+      <label>Cookie (dias)</label>
+      <input type="number" id="affCookieDays" value="<%= (typeof affSettings !== 'undefined' && affSettings.aff_cookie_days) || '30' %>" min="1" max="365">
+    </div>
+    <div class="adm-setting-card">
+      <label>Aprovação Automática</label>
+      <select id="affAutoApprove">
+        <option value="1" <%= (typeof affSettings !== 'undefined' && affSettings.aff_auto_approve === '1') ? 'selected' : '' %>>Sim</option>
+        <option value="0" <%= (typeof affSettings === 'undefined' || !affSettings.aff_auto_approve || affSettings.aff_auto_approve === '0') ? 'selected' : '' %>>Não</option>
+      </select>
+    </div>
+    <div class="adm-setting-card">
+      <label>Bônus por Indicação (R$)</label>
+      <input type="text" id="affReferralBonus" class="brl-mask-reais" value="" data-initial-cents="<%= (typeof affSettings !== 'undefined' && affSettings.aff_referral_bonus) || '5000' %>" min="0">
+    </div>
+    <div class="adm-setting-card">
+      <label>Máx. Afiliados</label>
+      <input type="number" id="affMaxAffiliates" value="<%= (typeof affSettings !== 'undefined' && affSettings.aff_max_affiliates) || '0' %>" min="0" placeholder="0 = ilimitado">
+    </div>
+    <div class="adm-setting-card">
+      <label>Saque Mínimo (R$)</label>
+      <input type="text" id="affMinWithdrawal" class="brl-mask-reais" value="" data-initial-cents="<%= (typeof affSettings !== 'undefined' && affSettings.aff_min_withdrawal) || '5000' %>" min="0">
+    </div>
+  </div>
+  <button class="adm-btn primary" id="btnSaveAffSettings" style="margin-top:20px;">Salvar Configurações</button>
+</div>
+
+<!-- ═══ REVSHARE ═══ -->
+<div class="adm-page-card" style="margin-bottom:24px;">
+  <div class="adm-page-head">
+    <div>
+      <h3 style="display:flex;align-items:center;gap:10px;">
+        <span style="display:inline-grid;place-items:center;width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,rgba(37,211,102,.2),rgba(37,211,102,.05));border:1px solid rgba(37,211,102,.3);">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#25D366" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+        </span>
+        Percentual de RevShare
+      </h3>
+      <p class="adm-muted">% que o afiliado recebe sobre a movimentação do indicado (aplicado apenas com modelo RevShare ativo).</p>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;margin-top:20px;">
+    <div class="adm-setting-card">
+      <label>Ativar RevShare</label>
+      <select id="affRevshareEnabled">
+        <option value="1" <%= (typeof affSettings !== 'undefined' && affSettings.aff_revshare_enabled === '1') ? 'selected' : '' %>>Sim</option>
+        <option value="0" <%= (typeof affSettings === 'undefined' || affSettings.aff_revshare_enabled !== '1') ? 'selected' : '' %>>Não</option>
+      </select>
+    </div>
+    <div class="adm-setting-card">
+      <label>Percentual RevShare (%)</label>
+      <input type="number" id="affRevsharePct" value="<%= (typeof affSettings !== 'undefined' && affSettings.aff_revshare_pct) || '5' %>" min="0" max="100" step="0.5">
+    </div>
+  </div>
+  <button class="adm-btn primary" id="btnSaveRevshare" style="margin-top:20px;">Salvar RevShare</button>
+</div>
+
+<!-- ═══ LISTA DE AFILIADOS ═══ -->
+<div class="adm-page-card" data-page="affiliates">
+  <div class="adm-page-head">
+    <div>
+      <h3 style="display:flex;align-items:center;gap:10px;">
+        <span style="display:inline-grid;place-items:center;width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,rgba(139,92,246,.2),rgba(139,92,246,.05));border:1px solid rgba(139,92,246,.3);">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </span>
+        Afiliados Cadastrados
+      </h3>
+      <p class="adm-muted">Todos os usuários com código de afiliado ativo</p>
+    </div>
+    <button class="adm-btn" data-action="refresh">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px;vertical-align:-2px"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+      Atualizar
+    </button>
+  </div>
+  <div class="adm-toolbar">
+    <div class="adm-field"><label>Buscar</label><input type="text" placeholder="código / username" data-filter="q" /></div>
+    <div class="adm-field"><label>Por página</label><select data-filter="limit"><option value="10">10</option><option value="25" selected>25</option><option value="50">50</option><option value="100">100</option></select></div>
+    <div class="adm-field"><label>&nbsp;</label><button class="adm-btn primary" data-action="apply">Aplicar</button></div>
+  </div>
+  <div class="adm-table-wrap">
+    <table class="adm-table">
+      <thead><tr><th>ID</th><th>Usuário</th><th>Código</th><th>Comissão %</th><th>Total Ganho</th><th>Status</th><th>Criado</th><th>Ações</th></tr></thead>
+      <tbody data-tbody></tbody>
+    </table>
+  </div>
+  <div class="adm-pager">
+    <div class="adm-muted"><span data-count>0</span> resultados</div>
+    <div class="adm-pager-btns">
+      <button class="adm-btn" data-action="prev">‹</button>
+      <span class="adm-muted">Página <span data-page-num>1</span></span>
+      <button class="adm-btn" data-action="next">›</button>
+    </div>
+  </div>
+</div>
+
+<style>
+  .aff-model-card:hover { transform: translateY(-2px); }
+  .aff-model-card input[type="radio"] { cursor: pointer; }
+</style>
+
+<script src="/public/js/admin.js" defer></script>
+<script>
+function brlMaskReais(input) {
+  input.addEventListener('input', function() {
+    var v = this.value.replace(/\D/g, '');
+    if (!v) { this.value = ''; return; }
+    v = (parseInt(v, 10) / 100).toFixed(2);
+    this.value = 'R$ ' + v.replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  });
+}
+function parseReais(str) {
+  if (!str) return 0;
+  var n = str.replace(/[R$\s.]/g, '').replace(',', '.');
+  return parseFloat(n || 0);
+}
+function formatReais(val) {
+  var n = parseFloat(val || 0);
+  return 'R$ ' + n.toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+}
+document.querySelectorAll('.brl-mask-reais').forEach(function(el) {
+  brlMaskReais(el);
+  if (el.dataset.initialCents) {
+    var reais = (parseInt(el.dataset.initialCents, 10) || 0) / 100;
+    el.value = formatReais(reais);
+  } else if (el.dataset.initial) {
+    el.value = formatReais(el.dataset.initial);
+  }
+});
+
+document.getElementById('btnSaveCommType')?.addEventListener('click', async function() {
+  var btn = this; btn.disabled = true; btn.textContent = 'Salvando...';
+  var sel = document.querySelector('input[name="affCommissionType"]:checked');
+  var val = sel ? sel.value : 'revshare';
+  try {
+    var r = await fetch('/admin/api/affiliate-settings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ settings: { aff_commission_type: val } }),
+      credentials: 'same-origin'
+    });
+    var d = await r.json();
+    if (d.ok) { alert('Modelo salvo! ' + (val === 'revshare' ? 'RevShare ativo.' : 'CPA ativo.')); location.reload(); }
+    else alert(d.msg || 'Erro');
+  } catch { alert('Erro de rede.'); }
+  btn.disabled = false; btn.textContent = 'Salvar Modelo';
+});
+
+document.getElementById('btnSaveAffSettings')?.addEventListener('click', async function() {
+  var btn = this; btn.disabled = true; btn.textContent = 'Salvando...';
+  try {
+    var r = await fetch('/admin/api/affiliate-settings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        settings: {
+          aff_default_commission: document.getElementById('affDefaultCommission').value,
+          aff_min_deposit: Math.round(parseReais(document.getElementById('affMinDeposit').value) * 100),
+          aff_cookie_days: document.getElementById('affCookieDays').value,
+          aff_auto_approve: document.getElementById('affAutoApprove').value,
+          aff_referral_bonus: Math.round(parseReais(document.getElementById('affReferralBonus').value) * 100),
+          aff_max_affiliates: document.getElementById('affMaxAffiliates').value,
+          aff_min_withdrawal: Math.round(parseReais(document.getElementById('affMinWithdrawal').value) * 100)
+        }
+      }),
+      credentials: 'same-origin'
+    });
+    var d = await r.json();
+    if (d.ok) alert('Configurações salvas!');
+    else alert(d.msg || 'Erro');
+  } catch { alert('Erro de rede.'); }
+  btn.disabled = false; btn.textContent = 'Salvar Configurações';
+});
+
+document.getElementById('btnSaveRevshare')?.addEventListener('click', async function() {
+  var btn = this; btn.disabled = true; btn.textContent = 'Salvando...';
+  try {
+    var r = await fetch('/admin/api/affiliate-settings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        settings: {
+          aff_revshare_enabled: document.getElementById('affRevshareEnabled').value,
+          aff_revshare_pct: document.getElementById('affRevsharePct').value
+        }
+      }),
+      credentials: 'same-origin'
+    });
+    var d = await r.json();
+    if (d.ok) alert('RevShare salvo!');
+    else alert(d.msg || 'Erro');
+  } catch { alert('Erro de rede.'); }
+  btn.disabled = false; btn.textContent = 'Salvar RevShare';
+});
+</script>
+<%- include('layout-foot') %>
+<%- include('layout-head', { title: 'Afiliados', page: 'affiliates' }) %>
+
 <!-- ── Modelo de Comissionamento ── -->
 <div class="adm-page-card" style="margin-bottom:24px;">
   <div class="adm-page-head">

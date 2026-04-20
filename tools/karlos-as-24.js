@@ -18,6 +18,28 @@ async function main() {
     const phone = '11999990000';
     const hash = await bcrypt.hash('123456', 10);
 
+    // Remove any pre-existing karlos duplicates (from older seed runs)
+    const dupes = await client.query(
+      `SELECT id FROM users WHERE (email = $1 OR username = $2 OR cpf = $3) AND id <> $4`,
+      [email, username, cpf, TARGET_ID]
+    );
+    const dupeIds = dupes.rows.map(r => r.id);
+    if (dupeIds.length) {
+      console.log(`→ removing ${dupeIds.length} duplicate karlos user(s): ${dupeIds.join(',')}`);
+      // Clean FK deps
+      await client.query('DELETE FROM affiliate_commissions WHERE referred_user_id = ANY($1)', [dupeIds]);
+      await client.query(
+        `DELETE FROM affiliate_commissions WHERE affiliate_id IN (SELECT id FROM affiliates WHERE user_id = ANY($1))`,
+        [dupeIds]
+      );
+      await client.query('DELETE FROM affiliates WHERE user_id = ANY($1)', [dupeIds]);
+      await client.query('DELETE FROM wallets WHERE user_id = ANY($1)', [dupeIds]);
+      await client.query('DELETE FROM transactions WHERE user_id = ANY($1)', [dupeIds]);
+      // Detach any users that were referred by these dupes
+      await client.query('UPDATE users SET referred_by = NULL WHERE referred_by = ANY($1)', [dupeIds]);
+      await client.query('DELETE FROM users WHERE id = ANY($1)', [dupeIds]);
+    }
+
     // Overwrite user ID 24
     const u = await client.query(
       `UPDATE users

@@ -1273,6 +1273,7 @@ document.querySelectorAll('#walletMainMenu .wallet-nav-item[data-panel]').forEac
       if (cassinoItem) cassinoItem.classList.add('active');
       _walletMobileReturnTo = 'apostas';
       setWalletMobileState('submenu');
+      if (typeof loadBets === 'function') loadBets('casino', 'today');
       return;
     }
     hideWalletSubMenu();
@@ -1284,6 +1285,10 @@ document.querySelectorAll('#walletMainMenu .wallet-nav-item[data-panel]').forEac
     // Items without sub-menu go directly to content view on mobile
     _walletMobileReturnTo = 'main';
     setWalletMobileState('content', item.textContent.trim().split('\n')[0].trim());
+    // Lazy-load panel data
+    if (panel === 'indique' && typeof loadIndiqueLeads === 'function') loadIndiqueLeads('all');
+    if (panel === 'extrato' && typeof loadExtrato === 'function') loadExtrato('total');
+    if (panel === 'notif' && typeof loadNotifications === 'function') loadNotifications();
   });
 });
 
@@ -1301,6 +1306,8 @@ document.querySelectorAll('#walletSubMenu .wallet-nav-item[data-panel]').forEach
     setWalletMobileState('content', item.textContent.trim());
     if (panel === 'sacar') loadWithdrawals();
     if (panel === 'histTransacoes') loadTransactions();
+    if (panel === 'indique' && typeof loadIndiqueLeads === 'function') loadIndiqueLeads('all');
+    if (panel === 'extrato' && typeof loadExtrato === 'function') loadExtrato('total');
   });
 });
 
@@ -1352,6 +1359,9 @@ document.querySelectorAll('#walletSubMenuApostas .wallet-nav-item[data-panel]').
     if (target) target.classList.add('active');
     _walletMobileReturnTo = 'apostas';
     setWalletMobileState('content', item.textContent.trim());
+    // Lazy-load bets
+    if (panel === 'apostasCassino' && typeof loadBets === 'function') loadBets('casino', 'today');
+    if (panel === 'apostasEsportivas' && typeof loadBets === 'function') loadBets('sport', 'today');
   });
 });
 
@@ -2624,6 +2634,108 @@ document.addEventListener('DOMContentLoaded', function() {
   if (document.getElementById('indiqueLeadsList')) {
     loadIndiqueLeads('all');
   }
+});
+
+// ── Bets (Cassino / Esportivas) ─────────────────────────────
+var _betState = { kind: 'casino', period: 'today' };
+function loadBets(kind, period) {
+  if (kind) _betState.kind = kind;
+  if (period) _betState.period = period;
+  var tbodyId = _betState.kind === 'sport' ? 'betSportBody' : 'betCassinoBody';
+  var countId = _betState.kind === 'sport' ? 'betSportCount' : 'betCassinoCount';
+  var tbody = document.getElementById(tbodyId);
+  var count = document.getElementById(countId);
+  if (!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--text-muted)">Carregando...</td></tr>';
+  fetch('/api/user/bets?period=' + encodeURIComponent(_betState.period) + '&kind=' + encodeURIComponent(_betState.kind), { credentials: 'same-origin' })
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      var rows = (d && d.rows) || [];
+      if (count) count.textContent = rows.length + ' registro' + (rows.length === 1 ? '' : 's');
+      if (!rows.length) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--text-muted)">Não há informações para exibir.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = rows.map(function(b) {
+        var payout = parseInt(b.payout_cents || 0);
+        var amt = parseInt(b.amount_cents || 0);
+        var resultHtml = payout > 0
+          ? '<span style="color:#25D366;font-weight:600">+' + brlFmt(payout) + '</span>'
+          : '<span style="color:#ef4444">-' + brlFmt(amt) + '</span>';
+        return '<tr>'
+          + '<td>' + (b.game_name || '—') + '</td>'
+          + '<td>#' + b.id + '</td>'
+          + '<td>' + brlFmt(amt) + '</td>'
+          + '<td>' + resultHtml + '</td>'
+          + '<td>' + fmtDateShort(b.created_at) + '</td>'
+          + '</tr>';
+      }).join('');
+    })
+    .catch(function() {
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px;color:#ef4444">Erro ao carregar.</td></tr>';
+    });
+}
+
+document.querySelectorAll('#betCassinoTabs .hist-tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('#betCassinoTabs .hist-tab').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    loadBets('casino', btn.dataset.period || 'today');
+  });
+});
+document.querySelectorAll('#betSportTabs .hist-tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('#betSportTabs .hist-tab').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    loadBets('sport', btn.dataset.period || 'today');
+  });
+});
+
+// ── Extrato completo ────────────────────────────────────────
+function loadExtrato(period) {
+  var tbody = document.getElementById('extratoBody');
+  var count = document.getElementById('extratoCount');
+  if (!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--text-muted)">Carregando...</td></tr>';
+  fetch('/api/user/statement?period=' + encodeURIComponent(period || 'total'), { credentials: 'same-origin' })
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      var rows = (d && d.rows) || [];
+      if (count) count.textContent = rows.length + ' registro' + (rows.length === 1 ? '' : 's');
+      if (!rows.length) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--text-muted)">Nenhuma movimentação encontrada.</td></tr>';
+        return;
+      }
+      var running = 0;
+      // Compute running from oldest→newest, then render newest→oldest
+      var asc = rows.slice().reverse();
+      asc.forEach(function(r) { running += parseInt(r.amount_cents || 0); r._balance = running; });
+      tbody.innerHTML = rows.map(function(r) {
+        var cents = parseInt(r.amount_cents || 0);
+        var amtHtml = cents >= 0
+          ? '<span style="color:#25D366;font-weight:600">+' + brlFmt(Math.abs(cents)) + '</span>'
+          : '<span style="color:#ef4444;font-weight:600">-' + brlFmt(Math.abs(cents)) + '</span>';
+        return '<tr>'
+          + '<td>' + r.kind + '</td>'
+          + '<td>' + r.id + '</td>'
+          + '<td>' + (r.desc || '—') + '</td>'
+          + '<td>' + amtHtml + '</td>'
+          + '<td>' + brlFmt(r._balance) + '</td>'
+          + '<td>' + fmtDateShort(r.created_at) + '</td>'
+          + '</tr>';
+      }).join('');
+    })
+    .catch(function() {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:#ef4444">Erro ao carregar.</td></tr>';
+    });
+}
+
+document.querySelectorAll('#extratoTabs .hist-tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('#extratoTabs .hist-tab').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    loadExtrato(btn.dataset.period || 'total');
+  });
 });
 
 // Prêmios tabs

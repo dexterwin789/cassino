@@ -739,6 +739,119 @@ router.get('/diag/playfivers', async (req, res) => {
   }
 });
 
+// GET /api/user/bets?period=today|yesterday|7d|30d|90d|total&kind=casino|sport
+router.get('/user/bets', requireUser, async (req, res) => {
+  try {
+    const uid = req.session.user.id;
+    const period = (req.query.period || 'total').toString();
+    const kind = (req.query.kind || 'casino').toString();
+    let dateFilter = '';
+    if (period === 'today') dateFilter = "AND b.created_at >= CURRENT_DATE";
+    else if (period === 'yesterday') dateFilter = "AND b.created_at >= CURRENT_DATE - INTERVAL '1 day' AND b.created_at < CURRENT_DATE";
+    else if (period === '7d') dateFilter = "AND b.created_at >= NOW() - INTERVAL '7 days'";
+    else if (period === '30d') dateFilter = "AND b.created_at >= NOW() - INTERVAL '30 days'";
+    else if (period === '90d') dateFilter = "AND b.created_at >= NOW() - INTERVAL '90 days'";
+
+    // Cassino bets come from `bets` table (with a game_id). Sports bets have
+    // no game_id (or could live in a separate table in the future).
+    const kindFilter = kind === 'sport' ? 'AND b.game_id IS NULL' : 'AND b.game_id IS NOT NULL';
+
+    const r = await query(`
+      SELECT b.id, b.game_id, b.amount_cents, b.payout_cents, b.multiplier,
+             b.status, b.created_at,
+             g.name AS game_name, g.provider AS game_provider
+      FROM bets b
+      LEFT JOIN games g ON g.id = b.game_id
+      WHERE b.user_id = $1 ${kindFilter} ${dateFilter}
+      ORDER BY b.created_at DESC
+      LIMIT 200
+    `, [uid]);
+
+    res.json({ ok: true, rows: r.rows });
+  } catch (err) {
+    console.error('[GET_USER_BETS]', err);
+    res.json({ ok: true, rows: [] });
+  }
+});
+
+// GET /api/user/statement?period=...  — Extrato completo (todas movimentações)
+router.get('/user/statement', requireUser, async (req, res) => {
+  try {
+    const uid = req.session.user.id;
+    const period = (req.query.period || 'total').toString();
+    const dateExpr = (col) => {
+      if (period === 'today') return `AND ${col} >= CURRENT_DATE`;
+      if (period === 'yesterday') return `AND ${col} >= CURRENT_DATE - INTERVAL '1 day' AND ${col} < CURRENT_DATE`;
+      if (period === '7d') return `AND ${col} >= NOW() - INTERVAL '7 days'`;
+      if (period === '30d') return `AND ${col} >= NOW() - INTERVAL '30 days'`;
+      if (period === '90d') return `AND ${col} >= NOW() - INTERVAL '90 days'`;
+      return '';
+    };
+
+    const [txR, betR, wR] = await Promise.all([
+      query(`SELECT id, type, status, amount_cents, provider, created_at
+             FROM transactions WHERE user_id = $1 ${dateExpr('created_at')}
+             ORDER BY created_at DESC LIMIT 200`, [uid]),
+      query(`SELECT b.id, b.amount_cents, b.payout_cents, b.status, b.created_at,
+                    g.name AS game_name
+             FROM bets b LEFT JOIN games g ON g.id = b.game_id
+             WHERE b.user_id = $1 ${dateExpr('b.created_at')}
+             ORDER BY b.created_at DESC LIMIT 200`, [uid]),
+      query(`SELECT id, amount_cents, status, created_at
+             FROM withdrawals WHERE user_id = $1 ${dateExpr('created_at')}
+             ORDER BY created_at DESC LIMIT 100`, [uid])
+    ]);
+
+    const rows = [];
+    txR.rows.forEach(t => rows.push({
+      kind: t.type === 'deposit' ? 'Depósito' : (t.type === 'bonus' ? 'Bônus' : t.type),
+      id: 'T-' + t.id,
+      desc: (t.provider || '').toUpperCase() || '—',
+      amount_cents: t.amount_cents,
+      status: t.status,
+      created_at: t.created_at,
+      positive: t.type !== 'withdrawal'
+    }));
+    betR.rows.forEach(b => {
+      rows.push({
+        kind: 'Aposta',
+        id: 'B-' + b.id,
+        desc: b.game_name || '—',
+        amount_cents: -Math.abs(parseInt(b.amount_cents || 0)),
+        status: b.status,
+        created_at: b.created_at,
+        positive: false
+      });
+      if (parseInt(b.payout_cents || 0) > 0) {
+        rows.push({
+          kind: 'Prêmio',
+          id: 'P-' + b.id,
+          desc: b.game_name || '—',
+          amount_cents: parseInt(b.payout_cents),
+          status: 'paid',
+          created_at: b.created_at,
+          positive: true
+        });
+      }
+    });
+    wR.rows.forEach(w => rows.push({
+      kind: 'Saque',
+      id: 'W-' + w.id,
+      desc: 'PIX',
+      amount_cents: -Math.abs(parseInt(w.amount_cents || 0)),
+      status: w.status,
+      created_at: w.created_at,
+      positive: false
+    }));
+    rows.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+    res.json({ ok: true, rows: rows.slice(0, 300) });
+  } catch (err) {
+    console.error('[GET_STATEMENT]', err);
+    res.json({ ok: true, rows: [] });
+  }
+});
+
 // GET /api/referrals/leads — homepage widget list
 router.get('/referrals/leads', requireUser, async (req, res) => {
   try {

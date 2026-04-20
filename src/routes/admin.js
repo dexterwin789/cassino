@@ -97,7 +97,27 @@ router.get('/affiliates', requireAdmin, async (req, res) => {
   const r = await query('SELECT key, value FROM platform_settings WHERE key LIKE $1 ORDER BY key', ['aff_%']);
   const affSettings = {};
   r.rows.forEach(row => { affSettings[row.key] = row.value; });
-  res.render('admin/affiliates', { title: 'Afiliados', admin: req.session.admin, affSettings });
+  // Stats dashboard
+  let affStats = { total: 0, active: 0, totalEarned: 0, pendingCommissions: 0, totalLeads: 0 };
+  try {
+    const s = await query(`
+      SELECT
+        (SELECT COUNT(*) FROM affiliates)::int AS total,
+        (SELECT COUNT(*) FROM affiliates WHERE is_active = true)::int AS active,
+        (SELECT COALESCE(SUM(total_earned_cents),0) FROM affiliates)::bigint AS total_earned,
+        (SELECT COALESCE(SUM(amount_cents),0) FROM affiliate_commissions WHERE status = 'pending')::bigint AS pending,
+        (SELECT COUNT(*) FROM users WHERE referred_by IS NOT NULL)::int AS leads
+    `);
+    const row = s.rows[0] || {};
+    affStats = {
+      total: Number(row.total || 0),
+      active: Number(row.active || 0),
+      totalEarned: Number(row.total_earned || 0),
+      pendingCommissions: Number(row.pending || 0),
+      totalLeads: Number(row.leads || 0)
+    };
+  } catch (e) { /* tables may not exist yet */ }
+  res.render('admin/affiliates', { title: 'Afiliados', admin: req.session.admin, affSettings, affStats });
 });
 
 router.get('/support', requireAdmin, (req, res) => {
