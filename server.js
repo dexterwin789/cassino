@@ -9,24 +9,22 @@ const { pool } = require('./src/config/database');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Security — allow being embedded in straplay iframe
+// Security — CSP disabled (quebrava imagens/scripts externos). Embed em iframe do straplay liberado via frame-ancestors direto.
 app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'", 'https:', 'data:', "'unsafe-inline'", "'unsafe-eval'"],
-      'frame-ancestors': [
-        "'self'",
-        'https://straplay.com',
-        'https://*.straplay.com',
-        'https://straplay-production.up.railway.app',
-        'https://*.up.railway.app'
-      ]
-    }
-  },
+  contentSecurityPolicy: false,
   crossOriginEmbedderPolicy: false,
   crossOriginResourcePolicy: { policy: 'cross-origin' },
   frameguard: false
 }));
+
+// Permitir embed apenas no straplay (usa CSP frame-ancestors; X-Frame-Options está desligado via frameguard:false)
+app.use((req, res, next) => {
+  res.setHeader(
+    'Content-Security-Policy',
+    "frame-ancestors 'self' https://straplay.com https://*.straplay.com https://straplay-production.up.railway.app https://*.up.railway.app"
+  );
+  next();
+});
 
 // Body parsing
 app.use(express.json());
