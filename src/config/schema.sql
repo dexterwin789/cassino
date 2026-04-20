@@ -1,4 +1,4 @@
-﻿-- Cassino Platform — PostgreSQL Schema
+-- Cassino Platform — PostgreSQL Schema
 -- All tables, InnoDB-equivalent, utf8mb4 (default in PG)
 
 CREATE TABLE IF NOT EXISTS users (
@@ -146,6 +146,14 @@ CREATE TABLE IF NOT EXISTS affiliate_commissions (
 );
 CREATE INDEX IF NOT EXISTS idx_aff_comm_affiliate ON affiliate_commissions(affiliate_id);
 
+-- Commission type ('deposit' or 'revshare') + ref to bet for revshare
+ALTER TABLE affiliate_commissions
+  ADD COLUMN IF NOT EXISTS type VARCHAR(32) NOT NULL DEFAULT 'deposit';
+ALTER TABLE affiliate_commissions
+  ADD COLUMN IF NOT EXISTS bet_id INT REFERENCES bets(id) ON DELETE SET NULL;
+CREATE INDEX IF NOT EXISTS idx_aff_comm_bet ON affiliate_commissions(bet_id);
+CREATE INDEX IF NOT EXISTS idx_aff_comm_type ON affiliate_commissions(type);
+
 --  Support Tickets ———————————————————————
 CREATE TABLE IF NOT EXISTS support_tickets (
   id            SERIAL PRIMARY KEY,
@@ -288,7 +296,16 @@ CREATE TABLE IF NOT EXISTS provider_images (
 INSERT INTO platform_settings (key, value) VALUES
   ('active_theme', 'default'),
   ('site_name', 'VemNaBet'),
-  ('maintenance_mode', '0')
+  ('maintenance_mode', '0'),
+  ('aff_default_commission', '10'),
+  ('aff_min_deposit', '2000'),
+  ('aff_cookie_days', '30'),
+  ('aff_auto_approve', '1'),
+  ('aff_referral_bonus', '5000'),
+  ('aff_max_affiliates', '0'),
+  ('aff_min_withdrawal', '5000'),
+  ('aff_revshare_enabled', '0'),
+  ('aff_revshare_pct', '5')
 ON CONFLICT (key) DO NOTHING;
 
 -- Default themes

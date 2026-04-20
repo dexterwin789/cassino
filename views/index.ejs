@@ -736,8 +736,21 @@
               </div>
               <div style="flex:1">
                 <h3 style="color:var(--text);margin:0 0 6px;font-size:16px;font-weight:800">Indique um amigo e ganhe dinheiro</h3>
-                <p style="color:var(--text-muted);margin:0 0 8px;font-size:13px;line-height:1.5">Cada indicação válida rende <strong style="color:#25D366">R$ 50,00</strong> de saldo real na sua conta na VemNaBet.</p>
-                <p style="color:var(--text-muted);margin:0;font-size:12px;font-style:italic;opacity:.7">Para liberar seu valor, basta que o amigo indicado gire R$ 250,00 em jogos selecionados da PG Soft.</p>
+                <p style="color:var(--text-muted);margin:0 0 8px;font-size:13px;line-height:1.5">
+                  Cada indicação válida rende
+                  <strong style="color:#25D366">
+                    <%
+                      var _bonusCents = (typeof affiliateSettings !== 'undefined' && affiliateSettings.referralBonusCents) || 5000;
+                      var _bonusR = (_bonusCents/100).toFixed(2).replace('.',',').replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+                    %>R$ <%= _bonusR %>
+                  </strong>
+                  de saldo real na sua conta na VemNaBet.
+                </p>
+                <% if (typeof affiliateSettings !== 'undefined' && affiliateSettings.commissionPct) { %>
+                  <p style="color:var(--text-muted);margin:0;font-size:12px;line-height:1.5">
+                    Mais <strong style="color:#25D366"><%= affiliateSettings.commissionPct %>%</strong> de comissão em cada depósito do indicado<% if (affiliateSettings.revshareEnabled && affiliateSettings.revsharePct > 0) { %>, e <strong style="color:#FFD700"><%= affiliateSettings.revsharePct %>%</strong> de cada aposta perdida por ele<% } %>.
+                  </p>
+                <% } %>
               </div>
               <a href="#" class="indique-eligible-btn">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
@@ -770,8 +783,14 @@
                 <button class="indique-period" data-period="yesterday">Somente ontem</button>
                 <button class="indique-period" data-period="today">Somente hoje</button>
               </div>
-              <div class="indique-empty-msg">
+              <div class="indique-empty-msg" id="indiqueEmptyMsg">
                 Você ainda não indicou ninguém!
+              </div>
+              <div id="indiqueLeadsList" style="display:none"></div>
+              <div style="text-align:center;margin-top:14px">
+                <a href="/dashboard/referrals" style="color:#25D366;font-size:12px;font-weight:700;text-decoration:none;letter-spacing:.3px">
+                  VER PÁGINA COMPLETA →
+                </a>
               </div>
             </div>
           </div>
@@ -1289,5 +1308,5 @@
 <!-- ==================== TOAST ==================== -->
 <div class="toast-container" id="toastContainer"></div>
 
-<script src="/public/js/script.js"></script>
+<script src="/public/js/script.js?v=20260420f"></script>
 <%- include('partials/foot') %>

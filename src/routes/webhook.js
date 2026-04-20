@@ -89,8 +89,8 @@ router.post('/blackcat', async (req, res) => {
             );
             if (!exists.rows.length) {
               await client.query(
-                `INSERT INTO affiliate_commissions (affiliate_id, referred_user_id, transaction_id, amount_cents, status)
-                 VALUES ($1, $2, $3, $4, 'pending')`,
+                `INSERT INTO affiliate_commissions (affiliate_id, referred_user_id, transaction_id, amount_cents, status, type)
+                 VALUES ($1, $2, $3, $4, 'pending', 'deposit')`,
                 [aff.id, tx.user_id, tx.id, commAmt]
               );
             }

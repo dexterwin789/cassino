@@ -739,4 +739,41 @@ router.get('/diag/playfivers', async (req, res) => {
   }
 });
 
+// GET /api/referrals/leads — homepage widget list
+router.get('/referrals/leads', requireUser, async (req, res) => {
+  try {
+    const uid = req.session.user.id;
+    const period = (req.query.period || 'all').toString();
+    let dateFilter = '';
+    if (period === 'today') dateFilter = "AND u.created_at >= CURRENT_DATE";
+    else if (period === 'yesterday') dateFilter = "AND u.created_at >= CURRENT_DATE - INTERVAL '1 day' AND u.created_at < CURRENT_DATE";
+    else if (period === '7d') dateFilter = "AND u.created_at >= NOW() - INTERVAL '7 days'";
+    else if (period === '30d') dateFilter = "AND u.created_at >= NOW() - INTERVAL '30 days'";
+    else if (period === '90d') dateFilter = "AND u.created_at >= NOW() - INTERVAL '90 days'";
+
+    const r = await query(`
+      SELECT u.id, u.username, u.name, u.created_at,
+        COALESCE((SELECT SUM(amount_cents) FROM transactions WHERE user_id = u.id AND status = 'paid' AND type IN ('deposit','pix_in')), 0) AS deposited_cents,
+        COALESCE((SELECT COUNT(*) FROM bets WHERE user_id = u.id), 0) AS bets_count
+      FROM users u
+      WHERE u.referred_by = $1 ${dateFilter}
+      ORDER BY u.created_at DESC
+      LIMIT 50
+    `, [uid]);
+
+    const leads = r.rows.map(x => ({
+      id: x.id,
+      username: x.username,
+      name: x.name,
+      created_at: x.created_at,
+      deposited_cents: parseInt(x.deposited_cents || 0),
+      bets_count: parseInt(x.bets_count || 0)
+    }));
+    res.json({ ok: true, leads });
+  } catch (err) {
+    console.error('[API LEADS]', err);
+    res.status(500).json({ ok: false, msg: 'Erro' });
+  }
+});
+
 module.exports = router;

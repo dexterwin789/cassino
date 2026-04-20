@@ -12,7 +12,7 @@
     </div>
     <div class="adm-setting-card">
       <label>Depósito Mín. p/ Comissão (R$)</label>
-      <input type="text" id="affMinDeposit" class="brl-mask-reais" value="" data-initial="<%= (typeof affSettings !== 'undefined' && affSettings.aff_min_deposit) || '20' %>" min="0">
+      <input type="text" id="affMinDeposit" class="brl-mask-reais" value="" data-initial-cents="<%= (typeof affSettings !== 'undefined' && affSettings.aff_min_deposit) || '2000' %>" min="0">
     </div>
     <div class="adm-setting-card">
       <label>Cookie (dias)</label>
@@ -27,7 +27,7 @@
     </div>
     <div class="adm-setting-card">
       <label>Bônus por Indicação (R$)</label>
-      <input type="text" id="affReferralBonus" class="brl-mask-reais" value="" data-initial="<%= (typeof affSettings !== 'undefined' && affSettings.aff_referral_bonus) || '50' %>" min="0">
+      <input type="text" id="affReferralBonus" class="brl-mask-reais" value="" data-initial-cents="<%= (typeof affSettings !== 'undefined' && affSettings.aff_referral_bonus) || '5000' %>" min="0">
     </div>
     <div class="adm-setting-card">
       <label>Máx. Afiliados</label>
@@ -35,10 +35,34 @@
     </div>
     <div class="adm-setting-card">
       <label>Saque Mínimo (R$)</label>
-      <input type="text" id="affMinWithdrawal" class="brl-mask-reais" value="" data-initial="<%= (typeof affSettings !== 'undefined' && affSettings.aff_min_withdrawal) || '50' %>" min="0">
+      <input type="text" id="affMinWithdrawal" class="brl-mask-reais" value="" data-initial-cents="<%= (typeof affSettings !== 'undefined' && affSettings.aff_min_withdrawal) || '5000' %>" min="0">
     </div>
   </div>
   <button class="adm-btn primary" id="btnSaveAffSettings" style="margin-top:16px;">Salvar Configurações</button>
+</div>
+
+<!-- ── RevShare ── -->
+<div class="adm-page-card" style="margin-bottom:24px;">
+  <div class="adm-page-head">
+    <div>
+      <h3>RevShare (Comissão sobre perdas)</h3>
+      <p class="adm-muted">Afiliado recebe % de cada aposta que o usuário indicado perder. Ative e defina a porcentagem.</p>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;margin-top:16px;">
+    <div class="adm-setting-card">
+      <label>Ativar RevShare</label>
+      <select id="affRevshareEnabled">
+        <option value="1" <%= (typeof affSettings !== 'undefined' && affSettings.aff_revshare_enabled === '1') ? 'selected' : '' %>>Sim</option>
+        <option value="0" <%= (typeof affSettings === 'undefined' || affSettings.aff_revshare_enabled !== '1') ? 'selected' : '' %>>Não</option>
+      </select>
+    </div>
+    <div class="adm-setting-card">
+      <label>Percentual RevShare (%)</label>
+      <input type="number" id="affRevsharePct" value="<%= (typeof affSettings !== 'undefined' && affSettings.aff_revshare_pct) || '5' %>" min="0" max="100" step="0.5">
+    </div>
+  </div>
+  <button class="adm-btn primary" id="btnSaveRevshare" style="margin-top:16px;">Salvar RevShare</button>
 </div>
 
 <!-- ── Lista de Afiliados ── -->
@@ -88,10 +112,15 @@ function formatReais(val) {
   var n = parseFloat(val || 0);
   return 'R$ ' + n.toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 }
-// Init masks and set initial values
+// Init masks and set initial values (stored as CENTS in DB, display as REAIS)
 document.querySelectorAll('.brl-mask-reais').forEach(function(el) {
   brlMaskReais(el);
-  if (el.dataset.initial) el.value = formatReais(el.dataset.initial);
+  if (el.dataset.initialCents) {
+    var reais = (parseInt(el.dataset.initialCents, 10) || 0) / 100;
+    el.value = formatReais(reais);
+  } else if (el.dataset.initial) {
+    el.value = formatReais(el.dataset.initial);
+  }
 });
 
 document.getElementById('btnSaveAffSettings')?.addEventListener('click', async function() {
@@ -103,12 +132,12 @@ document.getElementById('btnSaveAffSettings')?.addEventListener('click', async f
       body: JSON.stringify({
         settings: {
           aff_default_commission: document.getElementById('affDefaultCommission').value,
-          aff_min_deposit: parseReais(document.getElementById('affMinDeposit').value),
+          aff_min_deposit: Math.round(parseReais(document.getElementById('affMinDeposit').value) * 100),
           aff_cookie_days: document.getElementById('affCookieDays').value,
           aff_auto_approve: document.getElementById('affAutoApprove').value,
-          aff_referral_bonus: parseReais(document.getElementById('affReferralBonus').value),
+          aff_referral_bonus: Math.round(parseReais(document.getElementById('affReferralBonus').value) * 100),
           aff_max_affiliates: document.getElementById('affMaxAffiliates').value,
-          aff_min_withdrawal: parseReais(document.getElementById('affMinWithdrawal').value)
+          aff_min_withdrawal: Math.round(parseReais(document.getElementById('affMinWithdrawal').value) * 100)
         }
       }),
       credentials: 'same-origin'
@@ -118,6 +147,27 @@ document.getElementById('btnSaveAffSettings')?.addEventListener('click', async f
     else alert(d.msg || 'Erro');
   } catch { alert('Erro de rede.'); }
   btn.disabled = false; btn.textContent = 'Salvar Configurações';
+});
+
+document.getElementById('btnSaveRevshare')?.addEventListener('click', async function() {
+  var btn = this; btn.disabled = true; btn.textContent = 'Salvando...';
+  try {
+    var r = await fetch('/admin/api/affiliate-settings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        settings: {
+          aff_revshare_enabled: document.getElementById('affRevshareEnabled').value,
+          aff_revshare_pct: document.getElementById('affRevsharePct').value
+        }
+      }),
+      credentials: 'same-origin'
+    });
+    var d = await r.json();
+    if (d.ok) alert('RevShare salvo!');
+    else alert(d.msg || 'Erro');
+  } catch { alert('Erro de rede.'); }
+  btn.disabled = false; btn.textContent = 'Salvar RevShare';
 });
 </script>
 <%- include('layout-foot') %>

@@ -123,15 +123,99 @@ router.post('/security/password', async (req, res) => {
 router.get('/referrals', async (req, res) => {
   try {
     const user = req.session.user;
-    const countR = await query('SELECT COUNT(*) AS c FROM users WHERE referred_by = $1', [user.id]);
     const baseUrl = process.env.BASE_URL || (process.env.NODE_ENV === 'production' ? 'https://vemnabet.bet' : 'http://localhost:3000');
 
+    // Load settings
+    const setR = await query(
+      `SELECT key, value FROM platform_settings
+       WHERE key IN ('aff_referral_bonus','aff_default_commission','aff_min_deposit','aff_revshare_enabled','aff_revshare_pct')`
+    );
+    const s = {};
+    setR.rows.forEach(r => { s[r.key] = r.value; });
+    const referralBonusCents = parseInt(s.aff_referral_bonus || '5000', 10);
+    const minDepositCents = parseInt(s.aff_min_deposit || '2000', 10);
+    const defaultCommissionPct = parseFloat(s.aff_default_commission || '10');
+    const revshareEnabled = s.aff_revshare_enabled === '1';
+    const revsharePct = parseFloat(s.aff_revshare_pct || '0');
+
+    // Ensure affiliate row exists
+    let affR = await query('SELECT id, code, commission_pct, total_earned_cents FROM affiliates WHERE user_id = $1', [user.id]);
+    if (!affR.rows.length) {
+      const code = ('VNB' + user.id + Math.random().toString(36).slice(2, 6)).toUpperCase();
+      await query(
+        `INSERT INTO affiliates (user_id, code, commission_pct, is_active) VALUES ($1, $2, $3, TRUE)
+         ON CONFLICT (user_id) DO NOTHING`,
+        [user.id, code, defaultCommissionPct]
+      );
+      affR = await query('SELECT id, code, commission_pct, total_earned_cents FROM affiliates WHERE user_id = $1', [user.id]);
+    }
+    const affiliate = affR.rows[0];
+
+    // Leads list
+    const leadsR = await query(`
+      SELECT u.id, u.username, u.name, u.email, u.created_at,
+        COALESCE((SELECT SUM(amount_cents) FROM transactions WHERE user_id = u.id AND status = 'paid' AND type IN ('deposit','pix_in')), 0) AS deposited_cents,
+        COALESCE((SELECT COUNT(*) FROM bets WHERE user_id = u.id), 0) AS bets_count,
+        COALESCE((SELECT SUM(amount_cents) FROM bets WHERE user_id = u.id AND status = 'lost'), 0) AS lost_cents,
+        COALESCE((SELECT SUM(amount_cents) FROM affiliate_commissions WHERE referred_user_id = u.id AND affiliate_id = $2), 0) AS earned_cents
+      FROM users u
+      WHERE u.referred_by = $1
+      ORDER BY u.created_at DESC
+      LIMIT 200
+    `, [user.id, affiliate.id]);
+    const leads = leadsR.rows.map(r => ({
+      id: r.id,
+      username: r.username,
+      name: r.name,
+      createdAt: r.created_at,
+      depositedCents: parseInt(r.deposited_cents || 0),
+      betsCount: parseInt(r.bets_count || 0),
+      lostCents: parseInt(r.lost_cents || 0),
+      earnedCents: parseInt(r.earned_cents || 0)
+    }));
+
+    // Stats
+    const statsR = await query(`
+      SELECT
+        COUNT(*) FILTER (WHERE type = 'deposit') AS deposit_count,
+        COUNT(*) FILTER (WHERE type = 'revshare') AS revshare_count,
+        COALESCE(SUM(amount_cents) FILTER (WHERE status = 'paid'), 0) AS paid_cents,
+        COALESCE(SUM(amount_cents) FILTER (WHERE status = 'pending'), 0) AS pending_cents,
+        COALESCE(SUM(amount_cents) FILTER (WHERE type = 'deposit'), 0) AS deposit_cents,
+        COALESCE(SUM(amount_cents) FILTER (WHERE type = 'revshare'), 0) AS revshare_cents
+      FROM affiliate_commissions
+      WHERE affiliate_id = $1
+    `, [affiliate.id]);
+    const stats = statsR.rows[0];
+
+    const leadsWithDeposit = leads.filter(l => l.depositedCents > 0).length;
+    const totalDepositsByLeadsCents = leads.reduce((a, l) => a + l.depositedCents, 0);
+
     res.render('user/referrals', {
-      title: 'Indicações',
+      title: 'Indique e Ganhe',
       page: 'referrals',
       u: user,
-      referralCount: parseInt(countR.rows[0].c),
-      referralLink: `${baseUrl}/?ref=${user.id}`
+      referralCount: leads.length,
+      referralLink: `${baseUrl}/?ref=${user.id}`,
+      affiliate,
+      leads,
+      stats: {
+        leadsTotal: leads.length,
+        leadsWithDeposit,
+        totalDepositsByLeadsCents,
+        paidCents: parseInt(stats.paid_cents || 0),
+        pendingCents: parseInt(stats.pending_cents || 0),
+        depositCents: parseInt(stats.deposit_cents || 0),
+        revshareCents: parseInt(stats.revshare_cents || 0)
+      },
+      settings: {
+        referralBonusCents,
+        minDepositCents,
+        defaultCommissionPct,
+        revshareEnabled,
+        revsharePct,
+        affiliateCommissionPct: parseFloat(affiliate.commission_pct)
+      }
     });
   } catch (err) {
     console.error('[REFERRALS]', err);

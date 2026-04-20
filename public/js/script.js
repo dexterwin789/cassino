@@ -2563,7 +2563,67 @@ document.querySelectorAll('.indique-period').forEach(function(btn) {
   btn.addEventListener('click', function() {
     document.querySelectorAll('.indique-period').forEach(function(b) { b.classList.remove('active'); });
     btn.classList.add('active');
+    loadIndiqueLeads(btn.dataset.period || 'all');
   });
+});
+
+function brlFmt(cents) {
+  var n = (parseInt(cents || 0, 10) / 100);
+  return 'R$ ' + n.toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+}
+function fmtDateShort(d) {
+  if (!d) return '—';
+  var dt = new Date(d);
+  var dd = String(dt.getDate()).padStart(2, '0');
+  var mm = String(dt.getMonth() + 1).padStart(2, '0');
+  return dd + '/' + mm + '/' + dt.getFullYear();
+}
+
+function loadIndiqueLeads(period) {
+  var list = document.getElementById('indiqueLeadsList');
+  var empty = document.getElementById('indiqueEmptyMsg');
+  if (!list) return;
+  fetch('/api/referrals/leads?period=' + encodeURIComponent(period || 'all'), { credentials: 'same-origin' })
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      if (!d.ok) return;
+      var leads = d.leads || [];
+      if (!leads.length) {
+        if (empty) empty.style.display = '';
+        list.style.display = 'none';
+        list.innerHTML = '';
+        return;
+      }
+      if (empty) empty.style.display = 'none';
+      list.style.display = '';
+      var rows = leads.map(function(l) {
+        var badge = l.deposited_cents > 0
+          ? '<span style="padding:2px 8px;border-radius:8px;background:rgba(37,211,102,.15);color:#25D366;font-size:10px;font-weight:700">ATIVO</span>'
+          : '<span style="padding:2px 8px;border-radius:8px;background:rgba(255,255,255,.06);color:var(--text-muted);font-size:10px">LEAD</span>';
+        var depositedHtml = l.deposited_cents > 0
+          ? '<span style="color:#25D366;font-weight:600">' + brlFmt(l.deposited_cents) + '</span>'
+          : '<span style="color:var(--text-muted)">—</span>';
+        return '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 8px;border-bottom:1px solid rgba(255,255,255,.05)">'
+             + '<div style="flex:1;min-width:0">'
+             +   '<div style="color:var(--text);font-weight:700;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + (l.username || '') + '</div>'
+             +   '<div style="color:var(--text-muted);font-size:11px">' + fmtDateShort(l.created_at) + ' · ' + (l.bets_count || 0) + ' apostas</div>'
+             + '</div>'
+             + '<div style="text-align:right">'
+             +   '<div style="font-size:12px">' + depositedHtml + '</div>'
+             +   '<div style="margin-top:3px">' + badge + '</div>'
+             + '</div>'
+             + '</div>';
+      }).join('');
+      list.innerHTML = rows;
+    })
+    .catch(function() {});
+}
+
+// Auto-load leads when wallet panel is active
+document.addEventListener('DOMContentLoaded', function() {
+  if (document.getElementById('indiqueLeadsList')) {
+    loadIndiqueLeads('all');
+  }
 });
 
 // Prêmios tabs

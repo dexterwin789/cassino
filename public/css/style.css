@@ -1348,8 +1348,11 @@ body.search-lock{overflow:hidden!important}
   padding-bottom:24px;
 }
 .footer-brand{display:flex;flex-direction:column;gap:12px}
-.footer-logo-img{height:22px;width:auto;max-width:140px;object-fit:contain}
-@media (max-width:600px){.footer-logo-img{height:16px;max-width:110px}}
+.footer-logo-img{height:48px;width:auto;object-fit:contain}
+@media (max-width:600px){
+  .footer-brand{align-items:flex-start;padding-left:0;margin-left:0}
+  .footer-logo-img{height:48px;margin-left:0}
+}
 .footer-social{display:flex;gap:14px;justify-content:space-between;max-width:220px}
 .footer-social a{
   color:var(--text-muted);transition:all .2s;

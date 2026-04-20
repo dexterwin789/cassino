@@ -153,16 +153,29 @@ async function handleTransaction(req, res) {
     );
 
     // Also add to bets table for the dashboard
+    let insertedBetId = null;
+    let insertedBetStatus = null;
     if (betCents > 0 || winCents > 0) {
       const betStatus = winCents > betCents ? 'won' : (winCents > 0 ? 'partial' : 'lost');
-      await client.query(
-        `INSERT INTO bets (user_id, game_id, round_id, amount_cents, payout_cents, status, created_at) VALUES ($1, $2, $3, $4, $5, $6, NOW())
-         ON CONFLICT DO NOTHING`,
-        [user.id, gameId, round_id ? parseInt(round_id) || 0 : 0, betCents, winCents, betStatus]
-      ).catch(() => {}); // Non-critical
+      insertedBetStatus = betStatus;
+      try {
+        const betIns = await client.query(
+          `INSERT INTO bets (user_id, game_id, round_id, amount_cents, payout_cents, status, created_at) VALUES ($1, $2, $3, $4, $5, $6, NOW())
+           ON CONFLICT DO NOTHING RETURNING id`,
+          [user.id, gameId, round_id ? parseInt(round_id) || 0 : 0, betCents, winCents, betStatus]
+        );
+        if (betIns.rows[0]) insertedBetId = betIns.rows[0].id;
+      } catch {}
     }
 
     await client.query('COMMIT');
+
+    // RevShare: commission on lost bets (fire-and-forget, after commit)
+    if (insertedBetId && insertedBetStatus === 'lost' && betCents > 0) {
+      creditRevshareCommission(user.id, insertedBetId, betCents).catch(err => {
+        console.error('[REVSHARE]', err.message);
+      });
+    }
 
     res.json({ balance: parseFloat((newBalance / 100).toFixed(2)), msg: '' });
   } catch (err) {
@@ -172,6 +185,37 @@ async function handleTransaction(req, res) {
   } finally {
     client.release();
   }
+}
+
+// ----- RevShare: credit commission to affiliate when indicated user LOSES a bet
+async function creditRevshareCommission(userId, betId, betAmountCents) {
+  // Check if revshare is enabled
+  const setR = await query(
+    `SELECT key, value FROM platform_settings WHERE key IN ('aff_revshare_enabled','aff_revshare_pct')`
+  );
+  const s = {};
+  setR.rows.forEach(r => { s[r.key] = r.value; });
+  if (s.aff_revshare_enabled !== '1') return;
+  const pct = parseFloat(s.aff_revshare_pct || '0');
+  if (!pct || pct <= 0) return;
+
+  // Find this user's referrer via affiliates table
+  const userR = await query('SELECT referred_by FROM users WHERE id = $1', [userId]);
+  const referrerId = userR.rows[0]?.referred_by;
+  if (!referrerId) return;
+
+  const affR = await query('SELECT id FROM affiliates WHERE user_id = $1 AND is_active = TRUE LIMIT 1', [referrerId]);
+  const affiliateId = affR.rows[0]?.id;
+  if (!affiliateId) return;
+
+  const commissionCents = Math.round(betAmountCents * pct / 100);
+  if (commissionCents <= 0) return;
+
+  await query(
+    `INSERT INTO affiliate_commissions (affiliate_id, referred_user_id, bet_id, amount_cents, status, type, created_at)
+     VALUES ($1, $2, $3, $4, 'pending', 'revshare', NOW())`,
+    [affiliateId, userId, betId, commissionCents]
+  );
 }
 
 module.exports = router;

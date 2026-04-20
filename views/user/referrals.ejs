@@ -1,3 +1,177 @@
+<%- include('layout-head', { title: 'Indique e Ganhe', page: 'referrals', u }) %>
+
+<%
+function brl(cents){
+  var n = (parseInt(cents||0,10) / 100);
+  return 'R$ ' + n.toFixed(2).replace('.',',').replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+}
+function fmtDate(d){
+  if(!d) return '—';
+  var dt = new Date(d);
+  return dt.toLocaleDateString('pt-BR') + ' ' + dt.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+}
+%>
+
+<!-- HERO / Link -->
+<div class="ud-card ud-referral-hero">
+  <div class="ud-referral-glow"></div>
+  <div class="ud-card-header">
+    <svg width="18" height="18" fill="none" stroke="var(--ud-green1)" stroke-width="2" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+    <span>Seu Link de Indicação</span>
+  </div>
+  <p class="ud-referral-desc">
+    Cada indicação válida rende <strong style="color:#25D366"><%= brl(settings.referralBonusCents) %></strong> de bônus pra você.
+    Além disso, você ganha <strong style="color:#25D366"><%= settings.affiliateCommissionPct %>%</strong> sobre cada depósito dos seus indicados.
+    <% if (settings.revshareEnabled) { %>
+      E mais: <strong style="color:#FFD700"><%= settings.revsharePct %>%</strong> de <u>cada aposta que seu indicado perder</u> vai pra sua conta.
+    <% } %>
+  </p>
+  <div class="ud-agent-row">
+    <code class="ud-agent-link" id="refLink"><%= referralLink %></code>
+    <button class="ud-btn-copy" onclick="navigator.clipboard.writeText(document.getElementById('refLink').textContent);this.textContent='Copiado!';setTimeout(()=>this.textContent='Copiar',1500)">Copiar</button>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="ud-stats-grid cols-2" style="margin-top:16px">
+  <div class="ud-stat-card green">
+    <div class="ud-stat-icon">
+      <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    </div>
+    <div class="ud-stat-data">
+      <span class="ud-stat-label">Leads (cadastros)</span>
+      <span class="ud-stat-value"><%= stats.leadsTotal %></span>
+    </div>
+  </div>
+  <div class="ud-stat-card blue">
+    <div class="ud-stat-icon">
+      <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"/><path d="M4 6v12c0 1.1.9 2 2 2h14v-4"/><path d="M18 12a2 2 0 0 0-2 2c0 1.1.9 2 2 2h4v-4h-4z"/></svg>
+    </div>
+    <div class="ud-stat-data">
+      <span class="ud-stat-label">Leads que depositaram</span>
+      <span class="ud-stat-value"><%= stats.leadsWithDeposit %></span>
+    </div>
+  </div>
+</div>
+
+<div class="ud-stats-grid cols-2" style="margin-top:12px">
+  <div class="ud-stat-card">
+    <div class="ud-stat-icon" style="background:rgba(37,211,102,.12);color:#25D366">
+      <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+    </div>
+    <div class="ud-stat-data">
+      <span class="ud-stat-label">Comissões (pagas)</span>
+      <span class="ud-stat-value"><%= brl(stats.paidCents) %></span>
+    </div>
+  </div>
+  <div class="ud-stat-card">
+    <div class="ud-stat-icon" style="background:rgba(255,215,0,.12);color:#FFD700">
+      <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    </div>
+    <div class="ud-stat-data">
+      <span class="ud-stat-label">Pendente</span>
+      <span class="ud-stat-value"><%= brl(stats.pendingCents) %></span>
+    </div>
+  </div>
+</div>
+
+<!-- COMO FUNCIONA -->
+<div class="ud-card" style="margin-top:16px">
+  <div class="ud-card-header">
+    <svg width="18" height="18" fill="none" stroke="var(--ud-accent)" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    <span>Como funciona o sistema de afiliados</span>
+  </div>
+  <div class="ud-steps">
+    <div class="ud-step">
+      <div class="ud-step-num">1</div>
+      <div class="ud-step-text">
+        <strong>Compartilhe seu link exclusivo</strong>
+        <p>Envie pra amigos, grupos e redes sociais. Todo cadastro feito pelo seu link entra como seu lead.</p>
+      </div>
+    </div>
+    <div class="ud-step">
+      <div class="ud-step-num">2</div>
+      <div class="ud-step-text">
+        <strong>Ganhe bônus por cada cadastro qualificado</strong>
+        <p>Quando o indicado depositar a partir de <strong><%= brl(settings.minDepositCents) %></strong>, você recebe <strong><%= brl(settings.referralBonusCents) %></strong> de bônus.</p>
+      </div>
+    </div>
+    <div class="ud-step">
+      <div class="ud-step-num">3</div>
+      <div class="ud-step-text">
+        <strong>Receba <%= settings.affiliateCommissionPct %>% de cada depósito</strong>
+        <p>A cada depósito aprovado do seu indicado, você ganha <strong><%= settings.affiliateCommissionPct %>%</strong> em comissão direta na sua conta.</p>
+      </div>
+    </div>
+    <% if (settings.revshareEnabled) { %>
+    <div class="ud-step" style="border-left:3px solid #FFD700;padding-left:14px">
+      <div class="ud-step-num" style="background:linear-gradient(135deg,#FFD700,#FFA500);color:#1a1a1a">4</div>
+      <div class="ud-step-text">
+        <strong>RevShare: <%= settings.revsharePct %>% de cada aposta perdida</strong>
+        <p>Quando um usuário indicado por você perde uma aposta, <strong><%= settings.revsharePct %>%</strong> do valor apostado vai pra sua conta automaticamente.</p>
+      </div>
+    </div>
+    <% } %>
+  </div>
+</div>
+
+<!-- LEADS LIST -->
+<div class="ud-card" style="margin-top:16px">
+  <div class="ud-card-header">
+    <svg width="18" height="18" fill="none" stroke="var(--ud-green1)" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+    <span>Minhas Indicações (<%= leads.length %>)</span>
+  </div>
+
+  <% if (!leads.length) { %>
+    <div style="padding:32px 16px;text-align:center;color:var(--ud-text-muted)">
+      Você ainda não indicou ninguém. Compartilhe seu link e comece a ganhar!
+    </div>
+  <% } else { %>
+    <div style="overflow-x:auto;margin-top:8px">
+      <table class="ud-referrals-table" style="width:100%;border-collapse:collapse;font-size:13px">
+        <thead>
+          <tr style="text-align:left;color:var(--ud-text-muted);border-bottom:1px solid rgba(255,255,255,.06)">
+            <th style="padding:10px 8px;font-weight:600">Usuário</th>
+            <th style="padding:10px 8px;font-weight:600">Cadastro</th>
+            <th style="padding:10px 8px;font-weight:600;text-align:right">Depositou</th>
+            <th style="padding:10px 8px;font-weight:600;text-align:right">Apostas</th>
+            <th style="padding:10px 8px;font-weight:600;text-align:right">Você ganhou</th>
+            <th style="padding:10px 8px;font-weight:600;text-align:center">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% leads.forEach(function(l){ %>
+            <tr style="border-bottom:1px solid rgba(255,255,255,.04)">
+              <td style="padding:10px 8px">
+                <div style="display:flex;flex-direction:column">
+                  <strong style="color:var(--ud-text)"><%= l.username %></strong>
+                  <% if (l.name) { %><span style="color:var(--ud-text-muted);font-size:11px"><%= l.name %></span><% } %>
+                </div>
+              </td>
+              <td style="padding:10px 8px;color:var(--ud-text-muted);font-size:12px"><%= fmtDate(l.createdAt) %></td>
+              <td style="padding:10px 8px;text-align:right;<%= l.depositedCents>0 ? 'color:#25D366;font-weight:600' : 'color:var(--ud-text-muted)' %>">
+                <%= l.depositedCents > 0 ? brl(l.depositedCents) : '—' %>
+              </td>
+              <td style="padding:10px 8px;text-align:right;color:var(--ud-text)"><%= l.betsCount %></td>
+              <td style="padding:10px 8px;text-align:right;<%= l.earnedCents>0 ? 'color:#FFD700;font-weight:700' : 'color:var(--ud-text-muted)' %>">
+                <%= l.earnedCents > 0 ? brl(l.earnedCents) : '—' %>
+              </td>
+              <td style="padding:10px 8px;text-align:center">
+                <% if (l.depositedCents > 0) { %>
+                  <span style="padding:3px 10px;border-radius:10px;background:rgba(37,211,102,.15);color:#25D366;font-size:11px;font-weight:600">Ativo</span>
+                <% } else { %>
+                  <span style="padding:3px 10px;border-radius:10px;background:rgba(255,255,255,.06);color:var(--ud-text-muted);font-size:11px">Lead</span>
+                <% } %>
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</div>
+
+<%- include('layout-foot') %>
 <%- include('layout-head', { title: 'Indicações', page: 'referrals', u }) %>
 
 <!-- Referral Link -->

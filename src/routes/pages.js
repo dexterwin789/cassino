@@ -8,11 +8,26 @@ router.get('/', async (req, res) => {
     const bannersR = await query('SELECT id, image_url, link_url FROM banners WHERE is_active = TRUE ORDER BY sort_order, id');
     const provImgR = await query('SELECT provider_name, image_url FROM provider_images WHERE is_active = TRUE ORDER BY sort_order, id');
 
+    // Affiliate settings for homepage wallet panel
+    const setR = await query(
+      `SELECT key, value FROM platform_settings WHERE key IN ('aff_referral_bonus','aff_default_commission','aff_min_deposit','aff_revshare_enabled','aff_revshare_pct')`
+    );
+    const s = {};
+    setR.rows.forEach(r => { s[r.key] = r.value; });
+    const affiliateSettings = {
+      referralBonusCents: parseInt(s.aff_referral_bonus || '5000', 10),
+      minDepositCents: parseInt(s.aff_min_deposit || '2000', 10),
+      commissionPct: parseFloat(s.aff_default_commission || '10'),
+      revshareEnabled: s.aff_revshare_enabled === '1',
+      revsharePct: parseFloat(s.aff_revshare_pct || '0')
+    };
+
     res.render('index', {
       title: 'Cassino',
       games: gamesR.rows,
       banners: bannersR.rows,
-      providerImages: provImgR.rows
+      providerImages: provImgR.rows,
+      affiliateSettings
     });
   } catch (err) {
     console.error('[INDEX]', err);
