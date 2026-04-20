@@ -9,10 +9,23 @@ const { pool } = require('./src/config/database');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Security
+// Security — allow being embedded in straplay iframe
 app.use(helmet({
-  contentSecurityPolicy: false,
-  crossOriginEmbedderPolicy: false
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'", 'https:', 'data:', "'unsafe-inline'", "'unsafe-eval'"],
+      'frame-ancestors': [
+        "'self'",
+        'https://straplay.com',
+        'https://*.straplay.com',
+        'https://straplay-production.up.railway.app',
+        'https://*.up.railway.app'
+      ]
+    }
+  },
+  crossOriginEmbedderPolicy: false,
+  crossOriginResourcePolicy: { policy: 'cross-origin' },
+  frameguard: false
 }));
 
 // Body parsing
@@ -32,7 +45,7 @@ app.use(session({
     maxAge: 30 * 24 * 60 * 60 * 1000,
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax'
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
   }
 }));
 
