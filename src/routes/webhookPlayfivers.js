@@ -189,12 +189,15 @@ async function handleTransaction(req, res) {
 
 // ----- RevShare: credit commission to affiliate when indicated user LOSES a bet
 async function creditRevshareCommission(userId, betId, betAmountCents) {
-  // Check if revshare is enabled
+  // Check commission model + revshare settings
   const setR = await query(
-    `SELECT key, value FROM platform_settings WHERE key IN ('aff_revshare_enabled','aff_revshare_pct')`
+    `SELECT key, value FROM platform_settings WHERE key IN ('aff_revshare_enabled','aff_revshare_pct','aff_commission_type')`
   );
   const s = {};
   setR.rows.forEach(r => { s[r.key] = r.value; });
+  const mode = (s.aff_commission_type || 'revshare').toLowerCase();
+  // Only pay revshare when model is 'revshare' AND explicit enable flag is on
+  if (mode !== 'revshare') return;
   if (s.aff_revshare_enabled !== '1') return;
   const pct = parseFloat(s.aff_revshare_pct || '0');
   if (!pct || pct <= 0) return;

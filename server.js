@@ -43,16 +43,40 @@ app.use(session({
     maxAge: 30 * 24 * 60 * 60 * 1000,
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    // Share session across app.vemnabet.bet (straplay) and vemnabet.bet
+    domain: process.env.NODE_ENV === 'production' ? '.vemnabet.bet' : undefined
   }
 }));
 
-// Capture ?ref= from any URL → store in session (expires with session cookie)
+// ── Referral capture middleware ─────────────────────────────
+// Captures ?ref=<code|id> from URL (works across vemnabet.bet and
+// app.vemnabet.bet) and persists it in session.pendingRef + a
+// cross-subdomain cookie. Register picks it up automatically.
 app.use((req, res, next) => {
-  const ref = (req.query && req.query.ref) ? String(req.query.ref).trim().slice(0, 64) : null;
-  if (ref && req.session) {
-    req.session.pendingRef = ref;
-  }
+  try {
+    const ref = (req.query && req.query.ref ? String(req.query.ref) : '').trim();
+    if (ref && /^[A-Za-z0-9_-]{1,64}$/.test(ref)) {
+      if (req.session) req.session.pendingRef = ref;
+      // Cookie scoped to the parent domain so app.* and root share it
+      const isProd = process.env.NODE_ENV === 'production';
+      const cookieParts = [
+        `vnb_ref=${encodeURIComponent(ref)}`,
+        'Path=/',
+        `Max-Age=${30 * 24 * 60 * 60}`,
+        'SameSite=Lax'
+      ];
+      if (isProd) { cookieParts.push('Domain=.vemnabet.bet'); cookieParts.push('Secure'); }
+      res.setHeader('Set-Cookie', cookieParts.join('; '));
+    } else if (req.session && !req.session.pendingRef && req.headers.cookie) {
+      // Fallback: pick up vnb_ref cookie set by the subdomain tracker
+      const m = req.headers.cookie.match(/(?:^|;\s*)vnb_ref=([^;]+)/);
+      if (m) {
+        const c = decodeURIComponent(m[1]);
+        if (/^[A-Za-z0-9_-]{1,64}$/.test(c)) req.session.pendingRef = c;
+      }
+    }
+  } catch (e) { /* non-fatal */ }
   next();
 });
 

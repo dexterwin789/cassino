@@ -63,10 +63,15 @@ router.post('/blackcat', async (req, res) => {
       [parseInt(tx.amount_cents), tx.user_id]
     );
 
-    // ── Affiliate commission ─────────────────────
-    // If this user was referred by an affiliate and deposit meets min threshold,
-    // create commission row + bump affiliate total_earned_cents.
+    // ── Affiliate commission (CPA model only) ─────────────────────
+    // If commission_type='revshare', deposit-based commissions are skipped
+    // and the affiliate earns only via RevShare on bet losses.
     try {
+      const modeR = await client.query("SELECT value FROM platform_settings WHERE key = 'aff_commission_type' LIMIT 1");
+      const commMode = (modeR.rows[0]?.value || 'revshare').toLowerCase();
+      if (commMode !== 'cpa') {
+        // RevShare mode — skip deposit commission
+      } else {
       const refR = await client.query('SELECT referred_by FROM users WHERE id = $1', [tx.user_id]);
       const referredBy = refR.rows[0]?.referred_by;
       if (referredBy) {
@@ -76,26 +81,28 @@ router.post('/blackcat', async (req, res) => {
         );
         const aff = affR.rows[0];
         if (aff && aff.is_active) {
-          // Load min deposit
-          const setR = await client.query("SELECT value FROM platform_settings WHERE key = 'aff_min_deposit' LIMIT 1");
-          const minDep = parseInt(setR.rows[0]?.value || '0', 10);
+          // Load min deposit + flat bonus
+          const setR = await client.query("SELECT key, value FROM platform_settings WHERE key IN ('aff_min_deposit','aff_referral_bonus')");
+          const sMap = {}; setR.rows.forEach(r => { sMap[r.key] = r.value; });
+          const minDep = parseInt(sMap.aff_min_deposit || '0', 10);
+          const flatBonus = parseInt(sMap.aff_referral_bonus || '0', 10);
           const amtCents = parseInt(tx.amount_cents);
           if (!minDep || amtCents >= minDep) {
-            const commAmt = Math.floor(amtCents * (parseFloat(aff.commission_pct) / 100));
-            // Only create if not already exists for this transaction
-            const exists = await client.query(
-              'SELECT id FROM affiliate_commissions WHERE transaction_id = $1 LIMIT 1',
-              [tx.id]
+            // CPA: pay flat bonus once per referred user (on first qualifying deposit)
+            const already = await client.query(
+              "SELECT id FROM affiliate_commissions WHERE affiliate_id = $1 AND referred_user_id = $2 AND type = 'deposit' LIMIT 1",
+              [aff.id, tx.user_id]
             );
-            if (!exists.rows.length) {
+            if (!already.rows.length && flatBonus > 0) {
               await client.query(
                 `INSERT INTO affiliate_commissions (affiliate_id, referred_user_id, transaction_id, amount_cents, status, type)
                  VALUES ($1, $2, $3, $4, 'pending', 'deposit')`,
-                [aff.id, tx.user_id, tx.id, commAmt]
+                [aff.id, tx.user_id, tx.id, flatBonus]
               );
             }
           }
         }
+      }
       }
     } catch (affErr) {
       console.error('[WEBHOOK][AFF]', affErr);

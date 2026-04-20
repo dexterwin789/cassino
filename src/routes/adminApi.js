@@ -792,7 +792,7 @@ router.get('/affiliate-settings', async (req, res) => {
 
 router.post('/affiliate-settings', async (req, res) => {
   try {
-    const allowedKeys = ['aff_default_commission', 'aff_min_deposit', 'aff_cookie_days', 'aff_auto_approve', 'aff_referral_bonus', 'aff_max_affiliates', 'aff_min_withdrawal', 'aff_revshare_enabled', 'aff_revshare_pct'];
+    const allowedKeys = ['aff_default_commission', 'aff_min_deposit', 'aff_cookie_days', 'aff_auto_approve', 'aff_referral_bonus', 'aff_max_affiliates', 'aff_min_withdrawal', 'aff_revshare_enabled', 'aff_revshare_pct', 'aff_commission_type'];
     const { settings } = req.body;
     if (!settings || typeof settings !== 'object') return res.status(400).json({ ok: false, msg: 'Dados inválidos.' });
     for (const [key, value] of Object.entries(settings)) {

@@ -1,5 +1,37 @@
 <%- include('layout-head', { title: 'Afiliados', page: 'affiliates' }) %>
 
+<!-- ── Modelo de Comissionamento ── -->
+<div class="adm-page-card" style="margin-bottom:24px;">
+  <div class="adm-page-head">
+    <div>
+      <h3>Modelo de Comissionamento</h3>
+      <p class="adm-muted">Escolha como o afiliado é remunerado. Apenas <strong>um</strong> modelo fica ativo por vez.</p>
+    </div>
+  </div>
+  <% var _commType = (typeof affSettings !== 'undefined' && affSettings.aff_commission_type) || 'revshare'; %>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-top:16px;">
+    <label class="adm-setting-card" style="cursor:pointer;<%= _commType === 'revshare' ? 'border-color:#25D366;background:rgba(37,211,102,.06);' : '' %>">
+      <div style="display:flex;align-items:flex-start;gap:10px">
+        <input type="radio" name="affCommissionType" value="revshare" <%= _commType === 'revshare' ? 'checked' : '' %> style="margin-top:4px">
+        <div>
+          <div style="font-weight:700;color:#25D366">RevShare (recomendado)</div>
+          <div class="adm-muted" style="font-size:12px;margin-top:4px">Afiliado ganha um <strong>%</strong> recorrente sobre a movimentação do indicado. Pagamento contínuo.</div>
+        </div>
+      </div>
+    </label>
+    <label class="adm-setting-card" style="cursor:pointer;<%= _commType === 'cpa' ? 'border-color:#FFD700;background:rgba(255,215,0,.06);' : '' %>">
+      <div style="display:flex;align-items:flex-start;gap:10px">
+        <input type="radio" name="affCommissionType" value="cpa" <%= _commType === 'cpa' ? 'checked' : '' %> style="margin-top:4px">
+        <div>
+          <div style="font-weight:700;color:#FFD700">CPA (Bônus Fixo)</div>
+          <div class="adm-muted" style="font-size:12px;margin-top:4px">Afiliado recebe um <strong>valor fixo</strong> por cada indicado que cumpre o depósito mínimo. Pagamento único.</div>
+        </div>
+      </div>
+    </label>
+  </div>
+  <button class="adm-btn primary" id="btnSaveCommType" style="margin-top:16px;">Salvar Modelo</button>
+</div>
+
 <!-- ── Configurações de Afiliados ── -->
 <div class="adm-page-card" style="margin-bottom:24px;">
   <div class="adm-page-head">
@@ -45,8 +77,8 @@
 <div class="adm-page-card" style="margin-bottom:24px;">
   <div class="adm-page-head">
     <div>
-      <h3>RevShare (Comissão sobre perdas)</h3>
-      <p class="adm-muted">Afiliado recebe % de cada aposta que o usuário indicado perder. Ative e defina a porcentagem.</p>
+      <h3>Percentual de RevShare</h3>
+      <p class="adm-muted">Percentual que o afiliado recebe sobre a movimentação do indicado (aplicado apenas quando o modelo ativo é RevShare).</p>
     </div>
   </div>
   <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;margin-top:16px;">
@@ -121,6 +153,24 @@ document.querySelectorAll('.brl-mask-reais').forEach(function(el) {
   } else if (el.dataset.initial) {
     el.value = formatReais(el.dataset.initial);
   }
+});
+
+document.getElementById('btnSaveCommType')?.addEventListener('click', async function() {
+  var btn = this; btn.disabled = true; btn.textContent = 'Salvando...';
+  var sel = document.querySelector('input[name="affCommissionType"]:checked');
+  var val = sel ? sel.value : 'revshare';
+  try {
+    var r = await fetch('/admin/api/affiliate-settings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ settings: { aff_commission_type: val } }),
+      credentials: 'same-origin'
+    });
+    var d = await r.json();
+    if (d.ok) { alert('Modelo salvo! ' + (val === 'revshare' ? 'RevShare ativo.' : 'CPA ativo.')); location.reload(); }
+    else alert(d.msg || 'Erro');
+  } catch { alert('Erro de rede.'); }
+  btn.disabled = false; btn.textContent = 'Salvar Modelo';
 });
 
 document.getElementById('btnSaveAffSettings')?.addEventListener('click', async function() {

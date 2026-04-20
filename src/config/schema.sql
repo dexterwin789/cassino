@@ -304,8 +304,9 @@ INSERT INTO platform_settings (key, value) VALUES
   ('aff_referral_bonus', '5000'),
   ('aff_max_affiliates', '0'),
   ('aff_min_withdrawal', '5000'),
-  ('aff_revshare_enabled', '0'),
-  ('aff_revshare_pct', '5')
+  ('aff_revshare_enabled', '1'),
+  ('aff_revshare_pct', '50'),
+  ('aff_commission_type', 'revshare')
 ON CONFLICT (key) DO NOTHING;
 
 -- Default themes
