@@ -34,6 +34,11 @@ app.use(express.urlencoded({ extended: true }));
 // (custom domain goes Cloudflare → Railway → App = 2 hops)
 app.set('trust proxy', true);
 
+// Session cookie config — production on Railway/Cloudflare always HTTPS,
+// so use secure+sameSite:none+domain=.vemnabet.bet whenever not running local dev.
+// Local dev (localhost) → sameSite:lax, no secure, no domain.
+const IS_PROD = process.env.NODE_ENV === 'production' || !!process.env.RAILWAY_ENVIRONMENT || !!process.env.RAILWAY_PROJECT_ID;
+
 // Sessions
 app.use(session({
   store: new PgSession({ pool, tableName: 'sessions', createTableIfMissing: true }),
@@ -43,10 +48,10 @@ app.use(session({
   cookie: {
     maxAge: 30 * 24 * 60 * 60 * 1000,
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    secure: IS_PROD,
+    sameSite: IS_PROD ? 'none' : 'lax',
     // Share session across app.vemnabet.bet (straplay) and vemnabet.bet
-    domain: process.env.NODE_ENV === 'production' ? '.vemnabet.bet' : undefined
+    domain: IS_PROD ? '.vemnabet.bet' : undefined
   }
 }));
 
@@ -60,15 +65,15 @@ app.use((req, res, next) => {
     if (ref && /^[A-Za-z0-9_-]{1,64}$/.test(ref)) {
       if (req.session) req.session.pendingRef = ref;
       // Cookie scoped to the parent domain so app.* and root share it
-      const isProd = process.env.NODE_ENV === 'production';
       const cookieParts = [
         `vnb_ref=${encodeURIComponent(ref)}`,
         'Path=/',
         `Max-Age=${30 * 24 * 60 * 60}`,
         'SameSite=Lax'
       ];
-      if (isProd) { cookieParts.push('Domain=.vemnabet.bet'); cookieParts.push('Secure'); }
-      res.setHeader('Set-Cookie', cookieParts.join('; '));
+      if (IS_PROD) { cookieParts.push('Domain=.vemnabet.bet'); cookieParts.push('Secure'); }
+      // Use append so we don't clobber session Set-Cookie already queued by express-session
+      res.append('Set-Cookie', cookieParts.join('; '));
     } else if (req.session && !req.session.pendingRef && req.headers.cookie) {
       // Fallback: pick up vnb_ref cookie set by the subdomain tracker
       const m = req.headers.cookie.match(/(?:^|;\s*)vnb_ref=([^;]+)/);
@@ -87,6 +92,19 @@ app.set('views', path.join(__dirname, 'views'));
 
 // Static files
 app.use('/public', express.static(path.join(__dirname, 'public')));
+
+// Prevent Cloudflare/edge from caching HTML + API responses (logged-in state must not be cached)
+app.use((req, res, next) => {
+  if (req.path.startsWith('/public/') || req.path.startsWith('/assets/') ||
+      /\.(css|js|png|jpg|jpeg|gif|webp|svg|ico|woff2?|ttf|eot)$/i.test(req.path)) {
+    return next(); // let static assets cache normally
+  }
+  res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+  res.set('CDN-Cache-Control', 'no-store');
+  res.set('Cloudflare-CDN-Cache-Control', 'no-store');
+  res.set('Vary', 'Cookie');
+  next();
+});
 
 // Theme middleware — injects full theme object into all views
 app.use(async (req, res, next) => {
