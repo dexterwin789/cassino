@@ -915,7 +915,30 @@ router.get('/referrals/leads', requireUser, async (req, res) => {
   }
 });
 
-// GET /api/affiliate/me — returns affiliate code + stats for current user
+module.exports = router;
+// GET /api/affiliate/commissions — detailed commission log for current user
+router.get('/affiliate/commissions', requireUser, async (req, res) => {
+  try {
+    const uid = req.session.user.id;
+    const limit = Math.min(Math.max(parseInt(req.query.limit) || 50, 1), 200);
+    const affR = await query('SELECT id FROM affiliates WHERE user_id = $1 LIMIT 1', [uid]);
+    if (!affR.rows.length) return res.json({ ok: true, rows: [] });
+    const r = await query(`
+      SELECT ac.id, ac.amount_cents, ac.status, ac.type, ac.bet_id, ac.created_at,
+             u.username AS from_user
+      FROM affiliate_commissions ac
+      LEFT JOIN users u ON u.id = ac.referred_user_id
+      WHERE ac.affiliate_id = $1
+      ORDER BY ac.created_at DESC
+      LIMIT $2
+    `, [affR.rows[0].id, limit]);
+    res.json({ ok: true, rows: r.rows });
+  } catch (err) {
+    console.error('[AFF COMMISSIONS]', err);
+    res.status(500).json({ ok: false, msg: 'Erro' });
+  }
+});
+
 router.get('/affiliate/me', requireUser, async (req, res) => {
   try {
     const uid = req.session.user.id;

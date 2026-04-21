@@ -936,6 +936,41 @@ router.post('/affiliates/:id/toggle', async (req, res) => {
   }
 });
 
+// ─── Affiliate Commissions Log ────────────────────
+router.get('/affiliate-commissions', async (req, res) => {
+  try {
+    const limit = Math.min(Math.max(parseInt(req.query.limit) || 50, 1), 500);
+    const page = Math.max(parseInt(req.query.page) || 1, 1);
+    const offset = (page - 1) * limit;
+    const status = (req.query.status || '').trim();
+    const type = (req.query.type || '').trim();
+    const where = [];
+    const params = [];
+    let i = 1;
+    if (status) { where.push(`ac.status = $${i++}`); params.push(status); }
+    if (type) { where.push(`ac.type = $${i++}`); params.push(type); }
+    const wSql = where.length ? 'WHERE ' + where.join(' AND ') : '';
+    const countR = await query(`SELECT COUNT(*)::int AS c FROM affiliate_commissions ac ${wSql}`, params);
+    const r = await query(`
+      SELECT ac.id, ac.amount_cents, ac.status, ac.type, ac.bet_id, ac.created_at,
+             a.id AS affiliate_id, a.code AS affiliate_code,
+             ref.id AS referrer_user_id, ref.username AS referrer_username,
+             u.id AS referred_user_id, u.username AS referred_username
+      FROM affiliate_commissions ac
+      JOIN affiliates a ON a.id = ac.affiliate_id
+      JOIN users ref ON ref.id = a.user_id
+      LEFT JOIN users u ON u.id = ac.referred_user_id
+      ${wSql}
+      ORDER BY ac.created_at DESC
+      LIMIT ${limit} OFFSET ${offset}
+    `, params);
+    res.json({ ok: true, rows: r.rows, total: countR.rows[0].c, page, limit });
+  } catch (err) {
+    console.error('[ADMIN COMMISSIONS]', err);
+    res.status(500).json({ ok: false, msg: 'Erro.' });
+  }
+});
+
 // ─── Support Tickets ──────────────────────────────
 
 router.get('/support', async (req, res) => {

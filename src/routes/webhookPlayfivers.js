@@ -219,17 +219,69 @@ async function creditRevshareCommission(userId, betId, houseProfitCents) {
   const commissionCents = Math.round(houseProfitCents * pct / 100);
   if (commissionCents <= 0) return;
 
-  await query(
-    `INSERT INTO affiliate_commissions (affiliate_id, referred_user_id, bet_id, amount_cents, status, type, created_at)
-     VALUES ($1, $2, $3, $4, 'pending', 'revshare', NOW())`,
-    [affiliateId, userId, betId, commissionCents]
-  );
+  // Atomic: insert commission (paid), credit referrer wallet, create transaction, notify
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
 
-  // Atualiza total earned do afiliado (best-effort)
-  await query(
-    `UPDATE affiliates SET total_earned_cents = COALESCE(total_earned_cents,0) + $1 WHERE id = $2`,
-    [commissionCents, affiliateId]
-  ).catch(() => {});
+    // 1) Insert commission ALREADY as paid (auto-credit)
+    const cIns = await client.query(
+      `INSERT INTO affiliate_commissions (affiliate_id, referred_user_id, bet_id, amount_cents, status, type, created_at)
+       VALUES ($1, $2, $3, $4, 'paid', 'revshare', NOW()) RETURNING id`,
+      [affiliateId, userId, betId, commissionCents]
+    );
+    const commissionId = cIns.rows[0].id;
+
+    // 2) Credit referrer's wallet (create if missing)
+    await client.query(
+      `INSERT INTO wallets (user_id, balance_cents, updated_at)
+       VALUES ($1, $2, NOW())
+       ON CONFLICT (user_id) DO UPDATE SET balance_cents = wallets.balance_cents + EXCLUDED.balance_cents, updated_at = NOW()`,
+      [referrerId, commissionCents]
+    );
+
+    // 3) Log transaction
+    const payload = JSON.stringify({
+      bet_id: betId,
+      referred_user_id: userId,
+      affiliate_id: affiliateId,
+      commission_id: commissionId,
+      pct: pct
+    });
+    await client.query(
+      `INSERT INTO transactions (user_id, type, status, amount_cents, provider, payload_json, created_at, updated_at)
+       VALUES ($1, 'commission', 'paid', $2, 'revshare', $3::jsonb, NOW(), NOW())`,
+      [referrerId, commissionCents, payload]
+    );
+
+    // 4) Update affiliate total earned
+    await client.query(
+      `UPDATE affiliates SET total_earned_cents = COALESCE(total_earned_cents,0) + $1 WHERE id = $2`,
+      [commissionCents, affiliateId]
+    );
+
+    await client.query('COMMIT');
+  } catch (err) {
+    await client.query('ROLLBACK').catch(() => {});
+    console.error('[REVSHARE COMMIT]', err);
+    client.release();
+    return;
+  }
+  client.release();
+
+  // 5) Notify referrer (best-effort, outside txn)
+  try {
+    const valueBrl = (commissionCents / 100).toFixed(2).replace('.', ',');
+    await query(
+      `INSERT INTO notifications (user_id, tipo, titulo, mensagem, link)
+       VALUES ($1, 'commission', 'Nova comissão RevShare!', $2, $3)`,
+      [
+        referrerId,
+        `Você recebeu R$ ${valueBrl} de comissão pela perda de um indicado.`,
+        '/user/referrals'
+      ]
+    );
+  } catch (_) {}
 }
 
 module.exports = router;

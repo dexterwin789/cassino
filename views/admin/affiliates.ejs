@@ -223,6 +223,48 @@
   .aff-model-card input[type="radio"] { cursor: pointer; }
 </style>
 
+<!-- ═══ LOG DE COMISSÕES ═══ -->
+<div class="adm-page-card" style="margin-top:24px">
+  <div class="adm-page-head">
+    <div>
+      <h3 style="display:flex;align-items:center;gap:10px;">
+        <span style="display:inline-grid;place-items:center;width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,rgba(255,215,0,.2),rgba(255,215,0,.05));border:1px solid rgba(255,215,0,.3);">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFD700" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        </span>
+        Log de Comissões
+      </h3>
+      <p class="adm-muted">Histórico de comissões creditadas para afiliados</p>
+    </div>
+    <button class="adm-btn" id="btnReloadCommissions">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px;vertical-align:-2px"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+      Atualizar
+    </button>
+  </div>
+  <div class="adm-toolbar">
+    <div class="adm-field"><label>Status</label>
+      <select id="commFilterStatus">
+        <option value="">Todos</option>
+        <option value="paid">Creditado</option>
+        <option value="pending">Pendente</option>
+      </select>
+    </div>
+    <div class="adm-field"><label>Tipo</label>
+      <select id="commFilterType">
+        <option value="">Todos</option>
+        <option value="revshare">RevShare</option>
+        <option value="cpa">CPA</option>
+        <option value="deposit">Depósito</option>
+      </select>
+    </div>
+  </div>
+  <div class="adm-table-wrap">
+    <table class="adm-table">
+      <thead><tr><th>ID</th><th>Data</th><th>Afiliado</th><th>Código</th><th>Indicado</th><th>Tipo</th><th style="text-align:right">Valor</th><th>Status</th><th>Bet ID</th></tr></thead>
+      <tbody id="commissionsBody"><tr><td colspan="9" style="text-align:center;padding:24px;color:var(--adm-muted)">Carregando...</td></tr></tbody>
+    </table>
+  </div>
+</div>
+
 <script src="/public/js/admin.js" defer></script>
 <script>
 function brlMaskReais(input) {
@@ -316,5 +358,50 @@ document.getElementById('btnSaveRevshare')?.addEventListener('click', async func
   } catch { alert('Erro de rede.'); }
   btn.disabled = false; btn.textContent = 'Salvar RevShare';
 });
+
+// Commission log
+(function(){
+  function fmtBrlCents(c){ var n=(parseInt(c||0,10)/100); return 'R$ '+n.toFixed(2).replace('.',',').replace(/\B(?=(\d{3})+(?!\d))/g,'.'); }
+  function fmtDt(d){ if(!d) return '—'; var x=new Date(d); return x.toLocaleDateString('pt-BR')+' '+x.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}); }
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]; }); }
+  function loadCommissions(){
+    var body = document.getElementById('commissionsBody');
+    var st = document.getElementById('commFilterStatus').value;
+    var tp = document.getElementById('commFilterType').value;
+    body.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:24px;color:var(--adm-muted)">Carregando...</td></tr>';
+    var qs = 'limit=100';
+    if (st) qs += '&status=' + encodeURIComponent(st);
+    if (tp) qs += '&type=' + encodeURIComponent(tp);
+    fetch('/admin/api/affiliate-commissions?' + qs, { credentials:'same-origin', cache:'no-store' })
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        if(!d || !d.ok){ body.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:24px;color:#ef4444">Erro ao carregar.</td></tr>'; return; }
+        var rows = d.rows || [];
+        if(!rows.length){ body.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:24px;color:var(--adm-muted)">Nenhuma comissão encontrada.</td></tr>'; return; }
+        body.innerHTML = rows.map(function(c){
+          var paid = c.status === 'paid';
+          var statusBadge = '<span style="padding:3px 10px;border-radius:10px;font-size:11px;font-weight:600;'
+            + (paid ? 'background:rgba(37,211,102,.15);color:#25D366' : 'background:rgba(249,115,22,.15);color:#F97316')
+            + '">'+(paid?'Creditado':'Pendente')+'</span>';
+          return '<tr>'
+            + '<td>'+c.id+'</td>'
+            + '<td>'+fmtDt(c.created_at)+'</td>'
+            + '<td>'+esc(c.referrer_username||'—')+'</td>'
+            + '<td><code>'+esc(c.affiliate_code||'—')+'</code></td>'
+            + '<td>'+esc(c.referred_username||'—')+'</td>'
+            + '<td style="text-transform:uppercase;font-size:11px">'+esc(c.type||'—')+'</td>'
+            + '<td style="text-align:right;color:#FFD700;font-weight:700">'+fmtBrlCents(c.amount_cents)+'</td>'
+            + '<td>'+statusBadge+'</td>'
+            + '<td style="color:var(--adm-muted);font-size:11px">'+(c.bet_id||'—')+'</td>'
+            + '</tr>';
+        }).join('');
+      })
+      .catch(function(){ body.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:24px;color:#ef4444">Erro de rede.</td></tr>'; });
+  }
+  document.getElementById('btnReloadCommissions')?.addEventListener('click', loadCommissions);
+  document.getElementById('commFilterStatus')?.addEventListener('change', loadCommissions);
+  document.getElementById('commFilterType')?.addEventListener('change', loadCommissions);
+  loadCommissions();
+})();
 </script>
 <%- include('layout-foot') %>

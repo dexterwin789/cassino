@@ -2780,10 +2780,13 @@ function loadBets(kind, period) {
     .then(function(d) {
       var rows = (d && d.rows) || [];
       if (count) count.textContent = rows.length + ' registro' + (rows.length === 1 ? '' : 's');
+      var pgEl = document.getElementById(pgId);
+      // Sports pagination is ALWAYS visible (per product requirement)
+      if (pgEl && k === 'sport') pgEl.style.display = '';
       if (!rows.length) {
         tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--text-muted)">Não há informações para exibir.</td></tr>';
-        var pgEl = document.getElementById(pgId);
-        if (pgEl) pgEl.style.display = 'none';
+        if (pgEl && k !== 'sport') pgEl.style.display = 'none';
+        if (_betPgs[k]) _betPgs[k].setItems([]);
         return;
       }
       if (!_betPgs[k] && window.VNBPagination) {
