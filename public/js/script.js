@@ -669,7 +669,7 @@ if (sidebarOverlay) sidebarOverlay.addEventListener('click', function() {
   if (sidebarOverlay) sidebarOverlay.classList.remove('active');
 });
 
-/* Bottom nav Menu button ‚¬ opens sidebar on mobile */
+/* Bottom nav Menu button -> opens sidebar on mobile */
 var bnavMenu = document.getElementById('bnav-menu');
 if (bnavMenu) bnavMenu.addEventListener('click', function(e) {
   e.preventDefault();
@@ -978,7 +978,7 @@ if (dropdownLogout) dropdownLogout.addEventListener('click', function(e) {
     .catch(function() { window.location.reload(); });
 });
 
-// Dropdown Menu ‚¬ toggles sidebar (same as bars)
+// Dropdown Menu -> toggles sidebar (same as bars)
 var dropdownMenu = document.getElementById('dropdownMenu');
 if (dropdownMenu) dropdownMenu.addEventListener('click', function(e) {
   e.preventDefault();
@@ -991,7 +991,7 @@ if (dropdownMenu) dropdownMenu.addEventListener('click', function(e) {
   }
 });
 
-// Dropdown Wallet ‚¬ open wallet section with saldo sub-menu
+// Dropdown Wallet -> open wallet section with saldo sub-menu
 var dropdownWallet = document.getElementById('dropdownWallet');
 if (dropdownWallet) dropdownWallet.addEventListener('click', function(e) {
   e.preventDefault();
@@ -1535,7 +1535,7 @@ Object.keys(dropdownPanelMap).forEach(function(id) {
   }
 });
 
-// Logo click ‚¬ back to home
+// Logo click -> back to home
 var topbarLogo = document.querySelector('.topbar-logo');
 if (topbarLogo) {
   topbarLogo.addEventListener('click', function(e) {
@@ -1686,7 +1686,7 @@ function startGanhosScroll() {
   }, 2500);
 }
 
-/* ========== ÃÆ’Ã…Â¡LTIMAS APOSTAS RENDER + VERTICAL SCROLL ========== */
+/* ========== ULTIMAS APOSTAS RENDER + VERTICAL SCROLL ========== */
 var apostasInterval = null;
 
 function generateAposta() {
@@ -1712,7 +1712,7 @@ function apostaRowHTML(a) {
     '</div>' +
     '<div class="aposta-values">' +
       '<span class="aposta-bet">' + a.bet + '</span>' +
-      '<span class="aposta-arrow">‚¬</span>' +
+      '<span class="aposta-arrow">→</span>' +
       '<span class="aposta-win">' + a.win + '</span>' +
     '</div>' +
     '<span class="aposta-chevron">›</span>' +
@@ -2261,7 +2261,7 @@ function loadTransactions() {
     .then(function(j) {
       if (!j.ok || !j.rows.length) {
         body.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--text-muted)">Nenhuma transação encontrada.</td></tr>';
-        if (count) count.textContent = '0 transaçÃÆ’Ã‚Âµes';
+        if (count) count.textContent = '0 transações';
         return;
       }
       body.innerHTML = '';
@@ -2283,9 +2283,9 @@ function loadTransactions() {
           '<td style="font-size:12px;color:var(--text-muted)">' + dt + '</td>';
         body.appendChild(tr);
       });
-      if (count) count.textContent = 'Mostrando ' + j.rows.length + ' transaç' + (j.rows.length > 1 ? 'ÃÆ’Ã‚Âµes' : 'ão');
+      if (count) count.textContent = 'Mostrando ' + j.rows.length + ' transaç' + (j.rows.length > 1 ? 'ões' : 'ão');
     }).catch(function() {
-      body.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px">Erro ao carregar transaçÃÆ’Ã‚Âµes.</td></tr>';
+      body.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px">Erro ao carregar transações.</td></tr>';
     });
 }
 
@@ -2363,7 +2363,7 @@ function applySacarPixMask(mask) {
   key.addEventListener('input', sacarPixMaskHandler);
 }
 
-// Sacar PIX type change ‚¬ update mask and pre-fill
+// Sacar PIX type change -> update mask and pre-fill
 var sacarPixTypeEl = document.getElementById('sacarPixType');
 if (sacarPixTypeEl) {
   sacarPixTypeEl.addEventListener('change', function() {
@@ -2442,6 +2442,12 @@ function renderNotifications(notifications) {
   if (emptyBanner) emptyBanner.style.display = unreadNotifs.length === 0 ? '' : 'none';
   if (markAll) markAll.style.display = unreadNotifs.length > 0 ? 'inline-block' : 'none';
   if (showReadBtn) showReadBtn.style.display = readNotifs.length > 0 ? '' : 'none';
+
+  // Se não há não-lidas mas há lidas, já mostra lidas por padrão
+  if (unreadNotifs.length === 0 && readNotifs.length > 0) {
+    _notifShowRead = true;
+    if (showReadBtn) showReadBtn.textContent = 'Ocultar notificações lidas';
+  }
 
   _applyNotifFilter();
 }
@@ -2540,7 +2546,7 @@ function stopNotifPolling() {
   if (_notifPollId) { clearInterval(_notifPollId); _notifPollId = null; }
 }
 
-// Topbar bell ‚¬ open notif panel
+// Topbar bell -> open notif panel
 var topbarNotifBtn = document.getElementById('topbarNotif');
 if (topbarNotifBtn) topbarNotifBtn.addEventListener('click', function(e) {
   e.preventDefault();
@@ -2548,7 +2554,7 @@ if (topbarNotifBtn) topbarNotifBtn.addEventListener('click', function(e) {
   showWalletSection('notif');
   loadNotifications();
 });
-// Sidebar bell ‚¬ open notif panel
+// Sidebar bell -> open notif panel
 var sidebarNotifBtn = document.getElementById('sidebarNotifBtn');
 if (sidebarNotifBtn) sidebarNotifBtn.addEventListener('click', function(e) {
   e.preventDefault();
