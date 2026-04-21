@@ -579,9 +579,12 @@ router.get('/user/transactions', requireUser, async (req, res) => {
   try {
     const type = req.query.type || 'all';
     const period = req.query.period || 'total';
+    // Timezone-aware filters (America/Sao_Paulo). Server runs UTC but users are BR.
+    const brToday = "((NOW() AT TIME ZONE 'America/Sao_Paulo')::date)";
+    const brDate = (col) => `((${col} AT TIME ZONE 'America/Sao_Paulo')::date)`;
     let dateFilter = '';
-    if (period === 'today') dateFilter = "AND t.created_at >= CURRENT_DATE";
-    else if (period === 'yesterday') dateFilter = "AND t.created_at >= CURRENT_DATE - INTERVAL '1 day' AND t.created_at < CURRENT_DATE";
+    if (period === 'today') dateFilter = `AND ${brDate('t.created_at')} = ${brToday}`;
+    else if (period === 'yesterday') dateFilter = `AND ${brDate('t.created_at')} = ${brToday} - INTERVAL '1 day'`;
     else if (period === '7d') dateFilter = "AND t.created_at >= NOW() - INTERVAL '7 days'";
     else if (period === '30d') dateFilter = "AND t.created_at >= NOW() - INTERVAL '30 days'";
     else if (period === '90d') dateFilter = "AND t.created_at >= NOW() - INTERVAL '90 days'";
@@ -745,9 +748,11 @@ router.get('/user/bets', requireUser, async (req, res) => {
     const uid = req.session.user.id;
     const period = (req.query.period || 'total').toString();
     const kind = (req.query.kind || 'casino').toString();
+    const brToday = "((NOW() AT TIME ZONE 'America/Sao_Paulo')::date)";
+    const brDate = (col) => `((${col} AT TIME ZONE 'America/Sao_Paulo')::date)`;
     let dateFilter = '';
-    if (period === 'today') dateFilter = "AND b.created_at >= CURRENT_DATE";
-    else if (period === 'yesterday') dateFilter = "AND b.created_at >= CURRENT_DATE - INTERVAL '1 day' AND b.created_at < CURRENT_DATE";
+    if (period === 'today') dateFilter = `AND ${brDate('b.created_at')} = ${brToday}`;
+    else if (period === 'yesterday') dateFilter = `AND ${brDate('b.created_at')} = ${brToday} - INTERVAL '1 day'`;
     else if (period === '7d') dateFilter = "AND b.created_at >= NOW() - INTERVAL '7 days'";
     else if (period === '30d') dateFilter = "AND b.created_at >= NOW() - INTERVAL '30 days'";
     else if (period === '90d') dateFilter = "AND b.created_at >= NOW() - INTERVAL '90 days'";
@@ -779,9 +784,11 @@ router.get('/user/statement', requireUser, async (req, res) => {
   try {
     const uid = req.session.user.id;
     const period = (req.query.period || 'total').toString();
+    const brToday = "((NOW() AT TIME ZONE 'America/Sao_Paulo')::date)";
+    const brDate = (col) => `((${col} AT TIME ZONE 'America/Sao_Paulo')::date)`;
     const dateExpr = (col) => {
-      if (period === 'today') return `AND ${col} >= CURRENT_DATE`;
-      if (period === 'yesterday') return `AND ${col} >= CURRENT_DATE - INTERVAL '1 day' AND ${col} < CURRENT_DATE`;
+      if (period === 'today') return `AND ${brDate(col)} = ${brToday}`;
+      if (period === 'yesterday') return `AND ${brDate(col)} = ${brToday} - INTERVAL '1 day'`;
       if (period === '7d') return `AND ${col} >= NOW() - INTERVAL '7 days'`;
       if (period === '30d') return `AND ${col} >= NOW() - INTERVAL '30 days'`;
       if (period === '90d') return `AND ${col} >= NOW() - INTERVAL '90 days'`;
@@ -857,9 +864,11 @@ router.get('/referrals/leads', requireUser, async (req, res) => {
   try {
     const uid = req.session.user.id;
     const period = (req.query.period || 'all').toString();
+    const brToday = "((NOW() AT TIME ZONE 'America/Sao_Paulo')::date)";
+    const brDate = (col) => `((${col} AT TIME ZONE 'America/Sao_Paulo')::date)`;
     let dateFilter = '';
-    if (period === 'today') dateFilter = "AND u.created_at >= CURRENT_DATE";
-    else if (period === 'yesterday') dateFilter = "AND u.created_at >= CURRENT_DATE - INTERVAL '1 day' AND u.created_at < CURRENT_DATE";
+    if (period === 'today') dateFilter = `AND ${brDate('u.created_at')} = ${brToday}`;
+    else if (period === 'yesterday') dateFilter = `AND ${brDate('u.created_at')} = ${brToday} - INTERVAL '1 day'`;
     else if (period === '7d') dateFilter = "AND u.created_at >= NOW() - INTERVAL '7 days'";
     else if (period === '30d') dateFilter = "AND u.created_at >= NOW() - INTERVAL '30 days'";
     else if (period === '90d') dateFilter = "AND u.created_at >= NOW() - INTERVAL '90 days'";
