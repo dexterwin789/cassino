@@ -170,11 +170,15 @@ async function handleTransaction(req, res) {
 
     await client.query('COMMIT');
 
-    // RevShare: commission on lost bets (fire-and-forget, after commit)
-    if (insertedBetId && insertedBetStatus === 'lost' && betCents > 0) {
-      creditRevshareCommission(user.id, insertedBetId, betCents).catch(err => {
-        console.error('[REVSHARE]', err.message);
-      });
+    // RevShare: commission on house net profit (bet - payout). Fires whenever
+    // house profited on this bet (fully lost OR partially recovered).
+    if (insertedBetId && betCents > 0) {
+      const houseProfitCents = betCents - (winCents || 0);
+      if (houseProfitCents > 0) {
+        creditRevshareCommission(user.id, insertedBetId, houseProfitCents).catch(err => {
+          console.error('[REVSHARE]', err.message);
+        });
+      }
     }
 
     res.json({ balance: parseFloat((newBalance / 100).toFixed(2)), msg: '' });
@@ -187,8 +191,9 @@ async function handleTransaction(req, res) {
   }
 }
 
-// ----- RevShare: credit commission to affiliate when indicated user LOSES a bet
-async function creditRevshareCommission(userId, betId, betAmountCents) {
+// ----- RevShare: credit commission to affiliate based on HOUSE NET PROFIT
+// Param houseProfitCents = bet_amount - payout (must already be > 0 when called)
+async function creditRevshareCommission(userId, betId, houseProfitCents) {
   // Check commission model + revshare settings
   const setR = await query(
     `SELECT key, value FROM platform_settings WHERE key IN ('aff_revshare_enabled','aff_revshare_pct','aff_commission_type')`
@@ -211,7 +216,7 @@ async function creditRevshareCommission(userId, betId, betAmountCents) {
   const affiliateId = affR.rows[0]?.id;
   if (!affiliateId) return;
 
-  const commissionCents = Math.round(betAmountCents * pct / 100);
+  const commissionCents = Math.round(houseProfitCents * pct / 100);
   if (commissionCents <= 0) return;
 
   await query(
@@ -219,6 +224,12 @@ async function creditRevshareCommission(userId, betId, betAmountCents) {
      VALUES ($1, $2, $3, $4, 'pending', 'revshare', NOW())`,
     [affiliateId, userId, betId, commissionCents]
   );
+
+  // Atualiza total earned do afiliado (best-effort)
+  await query(
+    `UPDATE affiliates SET total_earned_cents = COALESCE(total_earned_cents,0) + $1 WHERE id = $2`,
+    [commissionCents, affiliateId]
+  ).catch(() => {});
 }
 
 module.exports = router;

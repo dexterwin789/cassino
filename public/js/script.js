@@ -2250,6 +2250,33 @@ function loadWithdrawals() {
 /* ========== TRANSACTION HISTORY ========== */
 var histCurrentType = 'all';
 var histCurrentPeriod = 'total';
+var _histTransPg = null;
+
+function _renderHistTransRows(rows) {
+  var body = document.getElementById('histTransBody');
+  if (!body) return;
+  if (!rows.length) {
+    body.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--text-muted)">Nenhuma transação encontrada.</td></tr>';
+    return;
+  }
+  body.innerHTML = rows.map(function(tx) {
+    var d = new Date(tx.created_at);
+    var dt = d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    var typeCls = 'tx-type tx-type-' + tx.type;
+    var typeLabel = tx.type === 'deposit' ? 'Depósito' : tx.type === 'withdrawal' ? 'Saque' : (tx.type === 'bonus' ? 'Bônus' : tx.type);
+    var statusCls = 'tx-status tx-status-' + tx.status;
+    var statusLabel = tx.status === 'paid' ? 'Pago' : tx.status === 'pending' ? 'Pendente' : tx.status === 'approved' ? 'Aprovado' : tx.status === 'failed' ? 'Falhou' : tx.status === 'rejected' ? 'Rejeitado' : tx.status;
+    var amt = (parseInt(tx.amount_cents) / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+    return '<tr style="cursor:pointer">'
+      + '<td><span class="' + typeCls + '">' + typeLabel + '</span></td>'
+      + '<td style="font-size:12px;color:var(--text-muted)">#' + tx.id + '</td>'
+      + '<td style="font-size:12px">' + (tx.provider || '—') + '</td>'
+      + '<td style="font-weight:700">R$ ' + amt + '</td>'
+      + '<td><span class="' + statusCls + '">' + statusLabel + '</span></td>'
+      + '<td style="font-size:12px;color:var(--text-muted)">' + dt + '</td>'
+      + '</tr>';
+  }).join('');
+}
 
 function loadTransactions() {
   var body = document.getElementById('histTransBody');
@@ -2259,31 +2286,23 @@ function loadTransactions() {
   fetch('/api/user/transactions?type=' + encodeURIComponent(histCurrentType) + '&period=' + encodeURIComponent(histCurrentPeriod), { credentials: 'include' })
     .then(function(r) { return r.json(); })
     .then(function(j) {
-      if (!j.ok || !j.rows.length) {
+      var rows = (j && j.ok && j.rows) || [];
+      if (count) count.textContent = rows.length + ' transaç' + (rows.length === 1 ? 'ão' : 'ões');
+      if (!rows.length) {
         body.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--text-muted)">Nenhuma transação encontrada.</td></tr>';
-        if (count) count.textContent = '0 transações';
+        var pg = document.getElementById('histTransPagination');
+        if (pg) pg.style.display = 'none';
         return;
       }
-      body.innerHTML = '';
-      j.rows.forEach(function(tx) {
-        var d = new Date(tx.created_at);
-        var dt = d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-        var typeCls = 'tx-type tx-type-' + tx.type;
-        var typeLabel = tx.type === 'deposit' ? 'Depósito' : tx.type === 'withdrawal' ? 'Saque' : tx.type;
-        var statusCls = 'tx-status tx-status-' + tx.status;
-        var statusLabel = tx.status === 'paid' ? 'Pago' : tx.status === 'pending' ? 'Pendente' : tx.status === 'approved' ? 'Aprovado' : tx.status === 'failed' ? 'Falhou' : tx.status === 'rejected' ? 'Rejeitado' : tx.status;
-        var amt = (parseInt(tx.amount_cents) / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
-        var tr = document.createElement('tr');
-        tr.style.cursor = 'pointer';
-        tr.innerHTML = '<td><span class="' + typeCls + '">' + typeLabel + '</span></td>' +
-          '<td style="font-size:12px;color:var(--text-muted)">#' + tx.id + '</td>' +
-          '<td style="font-size:12px">' + (tx.provider || '—') + '</td>' +
-          '<td style="font-weight:700">R$ ' + amt + '</td>' +
-          '<td><span class="' + statusCls + '">' + statusLabel + '</span></td>' +
-          '<td style="font-size:12px;color:var(--text-muted)">' + dt + '</td>';
-        body.appendChild(tr);
-      });
-      if (count) count.textContent = 'Mostrando ' + j.rows.length + ' transaç' + (j.rows.length > 1 ? 'ões' : 'ão');
+      if (!_histTransPg && window.VNBPagination) {
+        _histTransPg = window.VNBPagination.create({
+          containerId: 'histTransPagination',
+          pageSize: 10,
+          onChange: function(st) { _renderHistTransRows(st.pageItems); }
+        });
+      }
+      if (_histTransPg) _histTransPg.setItems(rows);
+      else _renderHistTransRows(rows.slice(0, 10));
     }).catch(function() {
       body.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px">Erro ao carregar transações.</td></tr>';
     });
@@ -2569,12 +2588,23 @@ function setupIndiqueLink() {
   var shareBtn = document.getElementById('indiqueShareBtn');
   if (!input) return;
 
-  // Generate referral link from user session
-  var userId = document.getElementById('walletUserId');
-  var uid = userId ? userId.textContent.trim() : '';
-  if (uid) {
-    input.value = window.location.origin + '/?ref=' + uid;
-  }
+  // Fetch real affiliate code from backend (creates on-demand if missing)
+  fetch('/api/affiliate/me', { credentials: 'include', cache: 'no-store' })
+    .then(function(r) { return r.ok ? r.json() : null; })
+    .then(function(j) {
+      if (j && j.ok && j.code) {
+        input.value = window.location.origin + '/?ref=' + encodeURIComponent(j.code);
+      } else {
+        var userId = document.getElementById('walletUserId');
+        var uid = userId ? userId.textContent.trim() : '';
+        if (uid) input.value = window.location.origin + '/?ref=' + uid;
+      }
+    })
+    .catch(function() {
+      var userId = document.getElementById('walletUserId');
+      var uid = userId ? userId.textContent.trim() : '';
+      if (uid) input.value = window.location.origin + '/?ref=' + uid;
+    });
 
   if (copyBtn) {
     copyBtn.addEventListener('click', function() {

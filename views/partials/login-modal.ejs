@@ -1,4 +1,4 @@
-<!-- LOGIN MODAL -->
+Ôªø<!-- LOGIN MODAL -->
 <div class="login-overlay" id="loginModal">
   <div class="login-modal">
     <div class="login-left">
@@ -11,7 +11,7 @@
           <span>Precisa de<br>Ajuda?</span>
         </button>
         <div class="login-topbar-right">
-          <span class="login-topbar-line">N„o tem uma conta?</span>
+          <span class="login-topbar-line">N√£o tem uma conta?</span>
           <a href="#" class="login-link" id="loginGoRegister">Crie uma conta aqui</a>
         </div>
         <button class="login-close" id="loginClose" type="button">
@@ -49,7 +49,7 @@
   </div>
 </div>
 
-<!-- ¬¬¬¬¬ REGISTER MODAL ¬¬¬¬¬ -->
+<!-- √Ç√Ç√Ç√Ç√Ç REGISTER MODAL √Ç√Ç√Ç√Ç√Ç -->
 <div class="login-overlay" id="registerModal">
   <div class="login-modal">
     <div class="login-left">
@@ -62,8 +62,8 @@
           <span>Precisa de<br>Ajuda?</span>
         </button>
         <div class="login-topbar-right">
-          <span class="login-topbar-line">J· tem uma conta?</span>
-          <a href="#" class="login-link" id="regGoLogin">FaÁa login aqui</a>
+          <span class="login-topbar-line">J√° tem uma conta?</span>
+          <a href="#" class="login-link" id="regGoLogin">Fa√ßa login aqui</a>
         </div>
         <button class="login-close" id="registerClose" type="button">
           <img src="/public/img/novo/modal2.svg" width="24" height="24" alt="Fechar">
@@ -143,7 +143,7 @@
             <!-- Checkbox -->
             <label class="reg-check">
               <input type="checkbox" id="regTerms" name="terms">
-              <span>Confirmo que <strong><u>tenho mais de 18 anos</u></strong> e aceito os <a href="#" class="login-link">Termos e CondiÁıes</a> e a <a href="#" class="login-link">PolÌtica de Privacidade</a>.</span>
+              <span>Confirmo que <strong><u>tenho mais de 18 anos</u></strong> e aceito os <a href="#" class="login-link">Termos e Condi√ß√µes</a> e a <a href="#" class="login-link">Pol√≠tica de Privacidade</a>.</span>
             </label>
 
             <!-- Submit -->
@@ -155,7 +155,7 @@
   </div>
 </div>
 
-<!-- ¬¬¬¬¬ DEPOSIT MODAL ¬¬¬¬¬ -->
+<!-- √Ç√Ç√Ç√Ç√Ç DEPOSIT MODAL √Ç√Ç√Ç√Ç√Ç -->
 <div class="dep-overlay" id="depositModal">
   <div class="dep-modal">
     <!-- Banner -->
@@ -173,7 +173,7 @@
       </button>
       <div class="dep-header-text">
         <strong>Depositar</strong>
-        <span>Adicione saldo Õ† sua conta</span>
+        <span>Adicione saldo √ç¬† sua conta</span>
       </div>
     </div>
 
@@ -189,8 +189,8 @@
         </div>
       </div>
 
-      <!-- MÈtodo -->
-      <div class="dep-payment-label">MÈtodo de Pagamento</div>
+      <!-- M√©todo -->
+      <div class="dep-payment-label">M√©todo de Pagamento</div>
       <div class="dep-payment-method" id="depPaymentName">PAYBROKERS</div>
 
       <!-- Valor -->
@@ -207,7 +207,7 @@
       <div class="dep-values-grid">
         <button class="dep-val-btn" type="button" data-value="50"><span class="dep-val-text">R$ 50</span></button>
         <button class="dep-val-btn" type="button" data-value="100">
-          <span class="dep-badge">SUPER HOT ??</span>
+          <span class="dep-badge">SUPER HOT üî•</span>
           <span class="dep-val-text">R$ 100</span>
         </button>
         <button class="dep-val-btn" type="button" data-value="150"><span class="dep-val-text">R$ 150</span></button>
@@ -249,10 +249,10 @@
         <div class="dep-qr-code-wrap">
           <input type="text" class="dep-qr-code" id="depQrCode" readonly>
         </div>
-        <button class="dep-qr-copy-btn" id="depQrCopyBtn" type="button">Copiar CÛdigo "copia e cola"</button>
+        <button class="dep-qr-copy-btn" id="depQrCopyBtn" type="button">Copiar C√≥digo "copia e cola"</button>
       </div>
       <div class="dep-qr-countdown">
-        <span class="dep-qr-countdown-label">O tempo para vocÍ pagar acaba em:</span>
+        <span class="dep-qr-countdown-label">O tempo para voc√™ pagar acaba em:</span>
         <span class="dep-qr-countdown-time" id="depQrCountdown">05:00</span>
         <div class="dep-qr-countdown-bar"><div class="dep-qr-countdown-fill" id="depQrCountdownFill"></div></div>
       </div>
@@ -379,11 +379,11 @@
 
   setupEyeToggle(document.getElementById('regTogglePw'), regPasswordInput);
 
-  /* Validate CPF ô spinner ô check API ô show fields */
+  /* Validate CPF ‚Ñ¢ spinner ‚Ñ¢ check API ‚Ñ¢ show fields */
   if (regValidateBtn) regValidateBtn.addEventListener('click', function() {
     var cpf = (regCpf.value || '').replace(/\D/g, '');
     if (cpf.length !== 11) {
-      if (typeof showToast === 'function') showToast('Digite um CPF v·lido com 11 dÌgitos', 'error');
+      if (typeof showToast === 'function') showToast('Digite um CPF v√°lido com 11 d√≠gitos', 'error');
       return;
     }
     regValidateBtn.querySelector('.reg-validate-text').style.display = 'none';
@@ -396,7 +396,7 @@
       .then(function(r) { return r.json().catch(function() { return {}; }); })
       .then(function(data) {
         if (data.exists) {
-          if (typeof showToast === 'function') showToast('CPF j· cadastrado. FaÁa login.', 'error');
+          if (typeof showToast === 'function') showToast('CPF j√° cadastrado. Fa√ßa login.', 'error');
           regCpf.disabled = false;
           regValidateBtn.querySelector('.reg-validate-text').style.display = '';
           regValidateBtn.querySelector('.reg-validate-spinner').style.display = 'none';
@@ -656,20 +656,20 @@
     var code = depQrCode ? depQrCode.value : '';
     if (code && navigator.clipboard) {
       navigator.clipboard.writeText(code).then(function() {
-        if (typeof showToast === 'function') showToast('CÛdigo PIX copiado!', 'success');
+        if (typeof showToast === 'function') showToast('C√≥digo PIX copiado!', 'success');
       });
     }
   });
 
-  /* DEPOSITAR button ó loading animation then API call */
+  /* DEPOSITAR button ‚Äî loading animation then API call */
   if (depSubmitBtn) depSubmitBtn.addEventListener('click', function() {
     var val = depValueInput ? depValueInput.value : '';
     if (!val || isNaN(val) || +val <= 0) {
-      if (typeof showToast === 'function') showToast('Digite um valor v·lido', 'error');
+      if (typeof showToast === 'function') showToast('Digite um valor v√°lido', 'error');
       return;
     }
     if (+val < 30) {
-      if (typeof showToast === 'function') showToast('Valor mÌnimo: R$ 30', 'error');
+      if (typeof showToast === 'function') showToast('Valor m√≠nimo: R$ 30', 'error');
       return;
     }
     depSubmitBtn.disabled = true;
@@ -691,7 +691,7 @@
     }).catch(function() {
       depSubmitBtn.disabled = false;
       depSubmitBtn.textContent = 'DEPOSITAR';
-      if (typeof showToast === 'function') showToast('Erro de conex„o', 'error');
+      if (typeof showToast === 'function') showToast('Erro de conex√£o', 'error');
     });
   });
 

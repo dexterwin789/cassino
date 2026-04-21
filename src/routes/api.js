@@ -915,4 +915,56 @@ router.get('/referrals/leads', requireUser, async (req, res) => {
   }
 });
 
+// GET /api/affiliate/me — returns affiliate code + stats for current user
+router.get('/affiliate/me', requireUser, async (req, res) => {
+  try {
+    const uid = req.session.user.id;
+    let r = await query(
+      `SELECT id, code, commission_pct, total_earned_cents, is_active
+       FROM affiliates WHERE user_id = $1 LIMIT 1`, [uid]
+    );
+    // Auto-criar registro de afiliado se não existir
+    if (!r.rows.length) {
+      const code = 'VNB' + uid + Math.random().toString(36).slice(2, 6).toUpperCase();
+      const pctR = await query(`SELECT value FROM platform_settings WHERE key = 'aff_revshare_pct' LIMIT 1`);
+      const pct = parseFloat(pctR.rows[0]?.value || '50');
+      r = await query(
+        `INSERT INTO affiliates (user_id, code, commission_pct, total_earned_cents, is_active, created_at)
+         VALUES ($1, $2, $3, 0, true, NOW()) RETURNING id, code, commission_pct, total_earned_cents, is_active`,
+        [uid, code, pct]
+      );
+    }
+    const aff = r.rows[0];
+    // Stats agregadas
+    const stats = await query(
+      `SELECT
+        (SELECT COUNT(*)::int FROM users WHERE referred_by = $1) AS total_leads,
+        (SELECT COUNT(*)::int FROM users u WHERE u.referred_by = $1
+           AND EXISTS (SELECT 1 FROM transactions t WHERE t.user_id = u.id AND t.status='paid' AND t.type IN ('deposit','pix_in'))
+        ) AS active_leads,
+        (SELECT COALESCE(SUM(amount_cents),0) FROM affiliate_commissions WHERE affiliate_id = $2) AS total_commission,
+        (SELECT COALESCE(SUM(amount_cents),0) FROM affiliate_commissions WHERE affiliate_id = $2 AND status = 'paid') AS paid_commission,
+        (SELECT COALESCE(SUM(amount_cents),0) FROM affiliate_commissions WHERE affiliate_id = $2 AND status = 'pending') AS pending_commission`,
+      [uid, aff.id]
+    );
+    res.json({
+      ok: true,
+      code: aff.code,
+      commission_pct: parseFloat(aff.commission_pct),
+      is_active: aff.is_active,
+      total_earned_cents: parseInt(aff.total_earned_cents || 0),
+      stats: {
+        total_leads: stats.rows[0].total_leads,
+        active_leads: stats.rows[0].active_leads,
+        total_commission_cents: parseInt(stats.rows[0].total_commission),
+        paid_commission_cents: parseInt(stats.rows[0].paid_commission),
+        pending_commission_cents: parseInt(stats.rows[0].pending_commission)
+      }
+    });
+  } catch (err) {
+    console.error('[AFF ME]', err);
+    res.status(500).json({ ok: false, msg: 'Erro' });
+  }
+});
+
 module.exports = router;
