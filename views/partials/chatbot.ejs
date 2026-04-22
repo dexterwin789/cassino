@@ -1,0 +1,59 @@
+<%# ═════════ CHATBOT WIDGET ═════════ %>
+<div id="cbRoot" class="cb-root" data-cb-open="false">
+  <!-- FLOATING BUBBLE -->
+  <button id="cbBubble" class="cb-bubble" aria-label="Abrir chat de suporte">
+    <span class="cb-bubble-icon">
+      <svg class="cb-ic-chat" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+      </svg>
+      <svg class="cb-ic-close" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">
+        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </span>
+    <span class="cb-bubble-pulse"></span>
+    <span class="cb-bubble-badge" id="cbBadge" style="display:none">1</span>
+  </button>
+
+  <!-- CHAT WINDOW -->
+  <div id="cbWindow" class="cb-window" aria-live="polite">
+    <div class="cb-header">
+      <div class="cb-header-left">
+        <div class="cb-avatar">
+          <div class="cb-avatar-ring"></div>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="#0a1e10"><path d="M12 2C6.48 2 2 6.48 2 12c0 1.54.36 2.98.97 4.29L1 23l6.71-1.97C9.02 21.64 10.46 22 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2zm-1 5h2v6h-2zm0 8h2v2h-2z"/></svg>
+        </div>
+        <div>
+          <div class="cb-header-name">
+            Bet <span class="cb-online">● online</span>
+          </div>
+          <div class="cb-header-sub">Assistente virtual VemNaBet</div>
+        </div>
+      </div>
+      <button class="cb-close" id="cbClose" aria-label="Fechar">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <div class="cb-messages" id="cbMessages"></div>
+
+    <div class="cb-quick" id="cbQuick"></div>
+
+    <!-- Escalation form (hidden by default) -->
+    <div class="cb-escalate" id="cbEscalate" style="display:none">
+      <div class="cb-escalate-title">Fale com um atendente</div>
+      <% if (!(typeof user !== 'undefined' && user)) { %>
+        <input type="text" id="cbEscName" placeholder="Seu nome" maxlength="64">
+        <input type="email" id="cbEscEmail" placeholder="Seu email" maxlength="128">
+      <% } %>
+      <textarea id="cbEscMessage" placeholder="Descreva seu problema..." maxlength="2000" rows="3"></textarea>
+      <div class="cb-escalate-actions">
+        <button class="cb-btn cb-btn-ghost" id="cbEscCancel">Cancelar</button>
+        <button class="cb-btn cb-btn-primary" id="cbEscSubmit">Enviar chamado</button>
+      </div>
+    </div>
+
+    <div class="cb-footer">
+      <span>Powered by <strong>VemNaBet AI</strong></span>
+    </div>
+  </div>
+</div>

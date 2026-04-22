@@ -1,0 +1,365 @@
+/* Affiliate v3 — frontend controller (vanilla JS) */
+(function () {
+  'use strict';
+
+  const root = document.querySelector('[data-aff3]');
+  if (!root) return;
+
+  const state = {
+    period: 'today',
+    from: '',
+    to: '',
+    iperiod: 'all',
+    ifrom: '',
+    ito: '',
+    ipage: 1,
+    affCode: '',
+    available: 0
+  };
+
+  const fmtBRL = (cents) => 'R$ ' + ((parseInt(cents) || 0) / 100).toFixed(2).replace('.', ',');
+  const api = async (path, opts) => {
+    opts = opts || {};
+    opts.headers = Object.assign({ 'Content-Type': 'application/json' }, opts.headers || {});
+    opts.credentials = 'same-origin';
+    const r = await fetch(path, opts);
+    return r.json();
+  };
+
+  const qs = (sel) => root.querySelector(sel);
+  const qsa = (sel) => root.querySelectorAll(sel);
+
+  const toast = (msg, type) => {
+    if (typeof window.showToast === 'function') window.showToast(msg, type || 'info');
+    else alert(msg);
+  };
+
+  // ═════════ TABS ═════════
+  qsa('[data-aff3-tab]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tab = btn.dataset.aff3Tab;
+      qsa('[data-aff3-tab]').forEach(b => b.classList.toggle('active', b === btn));
+      qsa('[data-aff3-pane]').forEach(p => p.classList.toggle('active', p.dataset.aff3Pane === tab));
+      if (tab === 'links') loadLinks();
+      if (tab === 'indicados') loadIndicados();
+      if (tab === 'saques') loadSaques();
+    });
+  });
+
+  // ═════════ DASHBOARD ═════════
+  async function loadDashboard() {
+    try {
+      const q = new URLSearchParams({ period: state.period });
+      if (state.period === 'custom' && state.from && state.to) {
+        q.set('from', state.from); q.set('to', state.to);
+      }
+      const d = await api('/api/affiliate/dashboard?' + q.toString());
+      if (!d.ok) return;
+
+      state.affCode = d.code || '';
+      const baseUrl = (window.location.origin + '/?ref=' + d.code);
+      const inp = qs('#aff3LinkInput');
+      if (inp) inp.value = baseUrl;
+      const sub = qs('#aff3SubaffLink');
+      if (sub) sub.value = window.location.origin + '/?subaff=' + d.code;
+
+      const model = (d.model || 'revshare').toUpperCase();
+      const pct = d.pct || 50;
+      const badge = qs('#aff3ModelBadge');
+      if (badge) badge.textContent = model === 'CPA' ? ('CPA R$ ' + pct) : ('REV ' + pct + '%');
+
+      const m = d.metrics || {};
+      const setTxt = (key, val) => { const el = root.querySelector(`[data-aff3-metric="${key}"]`); if (el) el.textContent = val; };
+      setTxt('visits', m.visits || 0);
+      setTxt('signups', m.signups || 0);
+      setTxt('ftd_qty', m.ftd_qty || 0);
+      setTxt('qftd_qty', m.qftd_qty || 0);
+      setTxt('ftd_qty_b', m.ftd_qty || 0);
+      setTxt('qftd_qty_b', m.qftd_qty || 0);
+      setTxt('dep_qty', m.dep_qty || 0);
+      setTxt('dep_tot', fmtBRL(m.dep_tot));
+      setTxt('wd_qty', m.wd_qty || 0);
+      setTxt('wd_tot', fmtBRL(m.wd_tot));
+      setTxt('ftd_tot', fmtBRL(m.ftd_tot));
+      setTxt('qftd_tot', fmtBRL(m.qftd_tot));
+      setTxt('rev_pending', fmtBRL(m.rev_pending));
+      setTxt('rev_period', fmtBRL(m.rev_period));
+      setTxt('rev_paid_total', fmtBRL(m.rev_paid_total));
+
+      state.available = m.available_cents || 0;
+      const av = qs('#aff3Available'); if (av) av.textContent = fmtBRL(state.available);
+      const po = qs('#aff3PaidOut'); if (po) po.textContent = fmtBRL(m.paid_out_cents);
+
+      loadSubaffiliates();
+    } catch (e) { console.error('[aff3] dashboard', e); }
+  }
+
+  async function loadSubaffiliates() {
+    try {
+      const d = await api('/api/affiliate/subaffiliates');
+      const list = qs('#aff3SubaffList');
+      if (!list) return;
+      if (!d.ok || !d.subs.length) {
+        list.innerHTML = `<div class="aff3-empty">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.4"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <div>Você ainda não tem subafiliados cadastrados</div>
+        </div>`;
+        return;
+      }
+      list.innerHTML = '<div class="aff3-table-wrap"><table class="aff3-table"><thead><tr><th>Afiliado</th><th>Email</th><th>Nível</th><th>Indicados</th><th>Comissões</th><th>Desde</th></tr></thead><tbody>' +
+        d.subs.map(s => `<tr>
+          <td><strong>${escapeHtml(s.username || '—')}</strong></td>
+          <td>${escapeHtml(s.email || '—')}</td>
+          <td><span class="aff3-lvl-badge aff3-lvl-badge-l2">L${s.level || 2}</span></td>
+          <td>${s.leads || 0}</td>
+          <td><strong style="color:var(--aff3-green1)">${fmtBRL(s.commissions)}</strong></td>
+          <td>${new Date(s.created_at).toLocaleDateString('pt-BR')}</td>
+        </tr>`).join('') + '</tbody></table></div>';
+    } catch (e) { console.error('[aff3] subaff', e); }
+  }
+
+  // Period controls (dashboard)
+  qsa('[data-aff3-period]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const p = btn.dataset.aff3Period;
+      qsa('[data-aff3-period]').forEach(b => b.classList.toggle('active', b === btn));
+      const range = qs('#aff3CustomRange');
+      if (p === 'custom') { if (range) range.style.display = 'flex'; return; }
+      if (range) range.style.display = 'none';
+      state.period = p;
+      loadDashboard();
+    });
+  });
+  const applyR = qs('#aff3ApplyRange');
+  if (applyR) applyR.addEventListener('click', () => {
+    state.period = 'custom';
+    state.from = qs('#aff3DateFrom').value;
+    state.to = qs('#aff3DateTo').value;
+    if (!state.from || !state.to) return toast('Selecione data inicial e final', 'error');
+    // Limit 3 months
+    const diff = (new Date(state.to) - new Date(state.from)) / (1000 * 60 * 60 * 24);
+    if (diff > 92) return toast('Período máximo: 3 meses', 'error');
+    loadDashboard();
+  });
+
+  // Copy link buttons
+  const copyBtn = qs('#aff3CopyBtn');
+  if (copyBtn) copyBtn.addEventListener('click', () => {
+    const inp = qs('#aff3LinkInput');
+    if (!inp || !inp.value) return;
+    navigator.clipboard.writeText(inp.value).then(() => toast('Link copiado!', 'success'));
+  });
+  const shareBtn = qs('#aff3ShareBtn');
+  if (shareBtn) shareBtn.addEventListener('click', () => {
+    const inp = qs('#aff3LinkInput'); if (!inp) return;
+    if (navigator.share) {
+      navigator.share({ title: 'VemNaBet', text: 'Cadastre-se na VemNaBet com meu link!', url: inp.value });
+    } else {
+      navigator.clipboard.writeText(inp.value).then(() => toast('Link copiado para compartilhar!', 'success'));
+    }
+  });
+  const subCopy = qs('#aff3SubaffCopy');
+  if (subCopy) subCopy.addEventListener('click', () => {
+    const inp = qs('#aff3SubaffLink');
+    if (!inp || !inp.value) return;
+    navigator.clipboard.writeText(inp.value).then(() => toast('Link de convite copiado!', 'success'));
+  });
+
+  // ═════════ LINKS ═════════
+  async function loadLinks() {
+    const d = await api('/api/affiliate/links');
+    const list = qs('#aff3LinksList');
+    if (!list) return;
+    if (!d.ok || !d.links.length) {
+      list.innerHTML = '<div class="aff3-empty"><div>Nenhum link de campanha criado ainda.</div></div>';
+      return;
+    }
+    list.innerHTML = d.links.map(l => {
+      const url = window.location.origin + '/?ref=' + l.code;
+      return `<div class="aff3-link-item" data-link-id="${l.id}">
+        <div class="aff3-link-item-head">
+          <div class="aff3-link-item-name">${escapeHtml(l.name)}</div>
+          <div style="display:flex;gap:6px;align-items:center">
+            <span class="aff3-link-item-code">${escapeHtml(l.code)}</span>
+            <button class="aff3-btn aff3-btn-ghost aff3-btn-sm" data-aff3-copy-link="${escapeAttr(url)}">Copiar</button>
+            <button class="aff3-btn aff3-btn-danger aff3-btn-sm" data-aff3-del-link="${l.id}">Excluir</button>
+          </div>
+        </div>
+        <div class="aff3-link-item-url">${escapeHtml(url)}</div>
+        <div class="aff3-link-item-stats">
+          <div class="aff3-link-stat"><strong>${l.clicks || 0}</strong> cliques</div>
+          <div class="aff3-link-stat"><strong>${l.signups || 0}</strong> cadastros</div>
+          <div class="aff3-link-stat"><strong>${l.deposits || 0}</strong> depósitos</div>
+          <div class="aff3-link-stat">criado em ${new Date(l.created_at).toLocaleDateString('pt-BR')}</div>
+        </div>
+      </div>`;
+    }).join('');
+    // wire copy/delete
+    list.querySelectorAll('[data-aff3-copy-link]').forEach(b => {
+      b.addEventListener('click', () => navigator.clipboard.writeText(b.dataset.aff3CopyLink).then(() => toast('Link copiado!', 'success')));
+    });
+    list.querySelectorAll('[data-aff3-del-link]').forEach(b => {
+      b.addEventListener('click', async () => {
+        if (!confirm('Excluir este link? Os cliques registrados serão perdidos.')) return;
+        const r = await api('/api/affiliate/links/' + b.dataset.aff3DelLink, { method: 'DELETE' });
+        if (r.ok) { toast('Link excluído', 'success'); loadLinks(); } else toast(r.msg || 'Erro', 'error');
+      });
+    });
+  }
+
+  const linkForm = qs('#aff3LinkForm');
+  if (linkForm) linkForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const name = qs('#aff3LinkName').value.trim();
+    const code = qs('#aff3LinkCode').value.trim();
+    if (!name) return toast('Informe um nome', 'error');
+    const r = await api('/api/affiliate/links', { method: 'POST', body: JSON.stringify({ name, code }) });
+    if (r.ok) {
+      toast('Link criado!', 'success');
+      qs('#aff3LinkName').value = ''; qs('#aff3LinkCode').value = '';
+      loadLinks();
+    } else toast(r.msg || 'Erro', 'error');
+  });
+
+  // ═════════ INDICADOS ═════════
+  async function loadIndicados() {
+    const q = new URLSearchParams({ period: state.iperiod, page: state.ipage, per_page: 20 });
+    if (state.iperiod === 'custom') { q.set('from', state.ifrom); q.set('to', state.ito); }
+    const d = await api('/api/affiliate/indicados?' + q.toString());
+    if (!d.ok) return;
+
+    const s = d.summary || {};
+    const setI = (k, v) => { const el = root.querySelector(`[data-aff3-imetric="${k}"]`); if (el) el.textContent = v; };
+    setI('total', s.total_leads || 0);
+    setI('deps', s.with_deposit || 0);
+    setI('bonus', fmtBRL(s.bonus_paid_cents));
+    setI('revshare', fmtBRL(s.revshare_total_cents));
+    setI('total_comm', fmtBRL(s.total_commission_cents));
+
+    const body = qs('#aff3IBody');
+    if (!d.rows.length) {
+      body.innerHTML = '<tr><td colspan="8" class="aff3-empty-row">Nenhum indicado no período selecionado.</td></tr>';
+    } else {
+      body.innerHTML = d.rows.map(r => `<tr>
+        <td><strong>${escapeHtml(r.username || '—')}</strong></td>
+        <td>${escapeHtml(r.email || '—')}</td>
+        <td>${new Date(r.created_at).toLocaleDateString('pt-BR')}</td>
+        <td>${fmtBRL(r.cpa)}</td>
+        <td>${fmtBRL(r.revshare)}</td>
+        <td style="color:var(--aff3-green1)">${fmtBRL(r.deposits)}</td>
+        <td style="color:#f87171">${fmtBRL(r.withdrawals)}</td>
+        <td><strong>${fmtBRL(r.total_commission)}</strong></td>
+      </tr>`).join('');
+    }
+    renderPagination(d.pagination);
+  }
+
+  function renderPagination(p) {
+    const el = qs('#aff3IPagination');
+    if (!el || !p || p.pages <= 1) { if (el) el.innerHTML = ''; return; }
+    const cur = p.page, max = p.pages;
+    let html = `<button class="aff3-page" ${cur <= 1 ? 'disabled' : ''} data-ipage="${cur - 1}">‹</button>`;
+    const start = Math.max(1, cur - 2), end = Math.min(max, cur + 2);
+    if (start > 1) html += `<button class="aff3-page" data-ipage="1">1</button>` + (start > 2 ? '<span class="aff3-page" style="border:none;background:none">…</span>' : '');
+    for (let i = start; i <= end; i++) html += `<button class="aff3-page ${i === cur ? 'active' : ''}" data-ipage="${i}">${i}</button>`;
+    if (end < max) html += (end < max - 1 ? '<span class="aff3-page" style="border:none;background:none">…</span>' : '') + `<button class="aff3-page" data-ipage="${max}">${max}</button>`;
+    html += `<button class="aff3-page" ${cur >= max ? 'disabled' : ''} data-ipage="${cur + 1}">›</button>`;
+    el.innerHTML = html;
+    el.querySelectorAll('[data-ipage]').forEach(b => b.addEventListener('click', () => {
+      state.ipage = parseInt(b.dataset.ipage); loadIndicados();
+    }));
+  }
+
+  qsa('[data-aff3-iperiod]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const p = btn.dataset.aff3Iperiod;
+      qsa('[data-aff3-iperiod]').forEach(b => b.classList.toggle('active', b === btn));
+      const range = qs('#aff3ICustomRange');
+      if (p === 'custom') { if (range) range.style.display = 'flex'; return; }
+      if (range) range.style.display = 'none';
+      state.iperiod = p; state.ipage = 1;
+      loadIndicados();
+    });
+  });
+  const iApply = qs('#aff3IApply');
+  if (iApply) iApply.addEventListener('click', () => {
+    state.iperiod = 'custom';
+    state.ifrom = qs('#aff3IDateFrom').value;
+    state.ito = qs('#aff3IDateTo').value;
+    if (!state.ifrom || !state.ito) return toast('Selecione as datas', 'error');
+    const diff = (new Date(state.ito) - new Date(state.ifrom)) / (1000 * 60 * 60 * 24);
+    if (diff > 92) return toast('Período máximo: 3 meses', 'error');
+    state.ipage = 1; loadIndicados();
+  });
+
+  // ═════════ SAQUES ═════════
+  async function loadSaques() {
+    const d = await api('/api/affiliate/withdrawals');
+    const body = qs('#aff3WdBody');
+    if (!body) return;
+    if (!d.ok || !d.rows.length) {
+      body.innerHTML = '<tr><td colspan="5" class="aff3-empty-row">Nenhum saque solicitado ainda.</td></tr>';
+    } else {
+      body.innerHTML = d.rows.map(r => {
+        const st = r.status || 'pending';
+        const stLabel = st === 'paid' || st === 'completed' ? 'Pago' : st === 'rejected' ? 'Recusado' : 'Pendente';
+        const stCls = st === 'paid' || st === 'completed' ? 'aff3-badge-paid' : st === 'rejected' ? 'aff3-badge-rejected' : 'aff3-badge-pending';
+        return `<tr>
+          <td>${new Date(r.requested_at).toLocaleString('pt-BR')}</td>
+          <td><strong>${fmtBRL(r.amount_cents)}</strong></td>
+          <td>${escapeHtml(r.pix_type || '')} — ${escapeHtml(r.pix_key || '')}</td>
+          <td><span class="aff3-badge ${stCls}">${stLabel}</span></td>
+          <td>${r.paid_at ? new Date(r.paid_at).toLocaleString('pt-BR') : '—'}</td>
+        </tr>`;
+      }).join('');
+    }
+  }
+
+  const wdForm = qs('#aff3WdForm');
+  if (wdForm) wdForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const raw = qs('#aff3WdAmount').value.replace(/[^\d,]/g, '').replace(',', '.');
+    const cents = Math.round(parseFloat(raw || '0') * 100);
+    const pixType = qs('#aff3WdPixType').value;
+    const pixKey = qs('#aff3WdPixKey').value.trim();
+    if (cents < 5000) return toast('Valor mínimo: R$ 50,00', 'error');
+    if (cents > state.available) return toast('Saldo insuficiente. Disponível: ' + fmtBRL(state.available), 'error');
+    if (!pixKey) return toast('Informe a chave PIX', 'error');
+
+    const r = await api('/api/affiliate/withdrawals', {
+      method: 'POST',
+      body: JSON.stringify({ amount_cents: cents, pix_type: pixType, pix_key: pixKey })
+    });
+    if (r.ok) {
+      toast('Saque solicitado com sucesso!', 'success');
+      qs('#aff3WdAmount').value = ''; qs('#aff3WdPixKey').value = '';
+      loadDashboard(); loadSaques();
+    } else toast(r.msg || 'Erro ao solicitar saque', 'error');
+  });
+
+  // ═════════ HELPERS ═════════
+  function escapeHtml(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+  }
+  function escapeAttr(s) { return escapeHtml(s).replace(/"/g, '&quot;'); }
+
+  // ═════════ INIT ═════════
+  // Load on panel open (deferred until wallet panel Indique is shown)
+  let loaded = false;
+  const tryLoad = () => {
+    const panel = document.getElementById('walletPanelIndique');
+    if (!panel) return;
+    const visible = panel.offsetParent !== null;
+    if (visible && !loaded) { loaded = true; loadDashboard(); }
+  };
+  // Observe wallet panel visibility changes
+  if (window.MutationObserver) {
+    const panel = document.getElementById('walletPanelIndique');
+    if (panel) {
+      new MutationObserver(tryLoad).observe(panel, { attributes: true, attributeFilter: ['style', 'class'] });
+    }
+  }
+  document.addEventListener('click', tryLoad);
+  setTimeout(tryLoad, 500);
+  setTimeout(tryLoad, 2000);
+})();

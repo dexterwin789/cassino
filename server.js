@@ -74,6 +74,30 @@ app.use((req, res, next) => {
       if (IS_PROD) { cookieParts.push('Domain=.vemnabet.bet'); cookieParts.push('Secure'); }
       // Use append so we don't clobber session Set-Cookie already queued by express-session
       res.append('Set-Cookie', cookieParts.join('; '));
+      // Fire-and-forget visit tracking (dedup: 1 visit per session, best-effort)
+      if (req.session && !req.session.refVisitLogged) {
+        req.session.refVisitLogged = true;
+        (async () => {
+          try {
+            const pool = require('./src/config/database');
+            // Try link code first, fall back to affiliate code
+            const link = await pool.query('SELECT id, affiliate_id FROM affiliate_links WHERE code = $1 LIMIT 1', [ref]);
+            let affId = null, linkId = null;
+            if (link.rows.length) { linkId = link.rows[0].id; affId = link.rows[0].affiliate_id; }
+            else {
+              const a = await pool.query('SELECT id FROM affiliates WHERE code = $1 LIMIT 1', [ref]);
+              if (a.rows.length) affId = a.rows[0].id;
+            }
+            if (affId) {
+              const ip = (req.headers['x-forwarded-for'] || req.socket.remoteAddress || '').toString().split(',')[0].trim();
+              const ua = (req.headers['user-agent'] || '').toString().slice(0, 500);
+              await pool.query('INSERT INTO affiliate_visits (affiliate_id, link_id, ip, user_agent) VALUES ($1, $2, $3, $4)', [affId, linkId, ip, ua]);
+              await pool.query('UPDATE affiliates SET visits_total = visits_total + 1 WHERE id = $1', [affId]);
+              if (linkId) await pool.query('UPDATE affiliate_links SET clicks = clicks + 1 WHERE id = $1', [linkId]);
+            }
+          } catch (_) { /* non-fatal */ }
+        })();
+      }
     } else if (req.session && !req.session.pendingRef && req.headers.cookie) {
       // Fallback: pick up vnb_ref cookie set by the subdomain tracker
       const m = req.headers.cookie.match(/(?:^|;\s*)vnb_ref=([^;]+)/);
@@ -387,6 +411,69 @@ async function autoMigrate() {
       `);
       console.log('[MIGRATE] Notifications seeded for user 24 ');
     }
+
+    // ——— Affiliate v3: multiple links + withdrawals + levels —————
+    await addCol('affiliates', 'parent_id', 'INT REFERENCES affiliates(id) ON DELETE SET NULL');
+    await addCol('affiliates', 'level', 'INT NOT NULL DEFAULT 1');
+    await addCol('affiliates', 'visits_total', 'BIGINT NOT NULL DEFAULT 0');
+    await addCol('affiliates', 'model', "VARCHAR(16) NOT NULL DEFAULT 'revshare'");
+    await addCol('affiliates', 'cpa_amount_cents', 'BIGINT NOT NULL DEFAULT 0');
+    await pool.query(`CREATE TABLE IF NOT EXISTS affiliate_links (
+      id           SERIAL PRIMARY KEY,
+      affiliate_id INT NOT NULL REFERENCES affiliates(id) ON DELETE CASCADE,
+      name         VARCHAR(128) NOT NULL,
+      code         VARCHAR(64) NOT NULL UNIQUE,
+      clicks       BIGINT NOT NULL DEFAULT 0,
+      signups      BIGINT NOT NULL DEFAULT 0,
+      deposits     BIGINT NOT NULL DEFAULT 0,
+      is_active    BOOLEAN NOT NULL DEFAULT TRUE,
+      created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )`);
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_aff_links_aff ON affiliate_links(affiliate_id)`);
+    await pool.query(`CREATE TABLE IF NOT EXISTS affiliate_withdrawals (
+      id           SERIAL PRIMARY KEY,
+      affiliate_id INT NOT NULL REFERENCES affiliates(id) ON DELETE CASCADE,
+      user_id      INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      amount_cents BIGINT NOT NULL DEFAULT 0,
+      pix_type     VARCHAR(16),
+      pix_key      VARCHAR(255),
+      status       VARCHAR(32) NOT NULL DEFAULT 'pending',
+      notes        TEXT,
+      requested_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      paid_at      TIMESTAMPTZ
+    )`);
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_aff_wd_user ON affiliate_withdrawals(user_id)`);
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_aff_wd_status ON affiliate_withdrawals(status)`);
+    await pool.query(`CREATE TABLE IF NOT EXISTS affiliate_visits (
+      id           SERIAL PRIMARY KEY,
+      affiliate_id INT REFERENCES affiliates(id) ON DELETE CASCADE,
+      link_id      INT REFERENCES affiliate_links(id) ON DELETE SET NULL,
+      ip           VARCHAR(64),
+      user_agent   TEXT,
+      created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )`);
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_aff_visits_aff ON affiliate_visits(affiliate_id)`);
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_aff_visits_created ON affiliate_visits(created_at)`);
+
+    // ——— Chatbot sessions (for analytics / escalation) ——————————
+    await pool.query(`CREATE TABLE IF NOT EXISTS chat_sessions (
+      id           SERIAL PRIMARY KEY,
+      user_id      INT REFERENCES users(id) ON DELETE SET NULL,
+      session_key  VARCHAR(64) NOT NULL UNIQUE,
+      escalated    BOOLEAN NOT NULL DEFAULT FALSE,
+      ticket_id    INT,
+      created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )`);
+    await pool.query(`CREATE TABLE IF NOT EXISTS chat_messages (
+      id           SERIAL PRIMARY KEY,
+      session_id   INT NOT NULL REFERENCES chat_sessions(id) ON DELETE CASCADE,
+      sender       VARCHAR(16) NOT NULL DEFAULT 'user',
+      intent       VARCHAR(64),
+      message      TEXT NOT NULL,
+      created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )`);
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_chat_msg_sess ON chat_messages(session_id)`);
 
     // ——— Dedup: deactivate duplicate games (keep synced version) —————
     const dedupResult = await pool.query(`

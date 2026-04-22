@@ -733,63 +733,354 @@
           </div>
           <!-- INDIQUE E GANHE -->
           <div class="wallet-panel" id="walletPanelIndique">
-            <div class="wallet-panel-title">INDIQUE UM AMIGO E GANHE DINHEIRO</div>
-            <!-- Banner -->
-            <div class="indique-banner">
-              <img src="/public/img/novo/indique.avif" alt="Indique e Ganhe">
-            </div>
-            <!-- Description -->
-            <div class="indique-desc">
-              <div class="indique-desc-icon">
-                <svg width="24" height="24" viewBox="0 0 576 512" fill="#25D366"><path d="M444.4 310.4l-72.12 68.07c-3.49 3.291-8.607 4.191-13.01 2.299C354.9 378.9 352 374.6 352 369.8v-36.14H224v36.14c0 4.795-2.857 9.135-7.262 11.03c-4.406 1.895-9.523 .9941-13.01-2.297L131.6 310.4c-4.805-4.535-4.805-12.94 0-17.47L203.7 224.9C207.2 221.6 212.3 220.7 216.7 222.6C221.1 224.5 224 228.8 224 233.6v35.99h128V233.6c0-4.793 2.857-9.135 7.262-11.03c4.406-1.895 9.523-.9941 13.01 2.299l72.12 68.07C449.2 297.5 449.2 305.9 444.4 310.4z" opacity="0.9"/><path d="M96 128c35.38 0 64-28.62 64-64S131.4 0 96 0S32 28.62 32 64S60.63 128 96 128zM128 160H64C28.65 160 0 188.7 0 224v96c0 17.67 14.33 32 31.1 32L32 480c0 17.67 14.33 32 32 32h64c17.67 0 32-14.33 32-32v-96.39l-50.36-47.53C100.1 327.9 96 316.2 96 304.1c0-12.16 4.971-23.83 13.64-32.01l72.13-68.08c1.65-1.555 3.773-2.311 5.611-3.578C177.1 176.8 155 160 128 160zM480 128c35.38 0 64-28.62 64-64s-28.62-64-64-64s-64 28.62-64 64S444.6 128 480 128zM512 160h-64c-26.1 0-49.98 16.77-59.38 40.42c1.842 1.271 3.969 2.027 5.623 3.588l72.12 68.06C475 280.2 480 291.9 480 304.1c.002 12.16-4.969 23.83-13.64 32.01L416 383.6V480c0 17.67 14.33 32 32 32h64c17.67 0 32-14.33 32-32v-128c17.67 0 32-14.33 32-32V224C576 188.7 547.3 160 512 160z" opacity="0.4"/></svg>
+            <div class="aff3-root" data-aff3>
+              <!-- HEADER -->
+              <div class="aff3-header">
+                <div class="aff3-header-left">
+                  <div class="aff3-title">
+                    <span class="aff3-title-icon">
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    </span>
+                    INDIQUE E GANHE
+                  </div>
+                  <div class="aff3-subtitle">Painel do Afiliado — ganhe comissões vitalícias</div>
+                </div>
+                <div class="aff3-header-right">
+                  <div class="aff3-badge-model">
+                    <span class="aff3-badge-label">Acordo atual</span>
+                    <strong id="aff3ModelBadge">REV 50%</strong>
+                  </div>
+                </div>
               </div>
-              <div style="flex:1">
-                <h3 style="color:var(--text);margin:0 0 6px;font-size:16px;font-weight:800">Indique e ganhe 50% de comissão vitalícia</h3>
-                <p style="color:var(--text-muted);margin:0 0 8px;font-size:13px;line-height:1.5">
-                  Compartilhe seu link exclusivo e receba
-                  <strong style="color:#25D366">50%</strong>
-                  de comissão recorrente sobre a movimentação dos seus indicados na VemNaBet.
-                </p>
-                <p style="color:var(--text-muted);margin:0;font-size:12px;line-height:1.5">
-                  Quanto mais ativos os seus indicados, maior o seu ganho — sem limite de indicações, sem prazo de validade.
-                </p>
-              </div>
-              <a href="#" class="indique-eligible-btn">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-                Ver jogos elegíveis
-              </a>
-            </div>
-            <!-- Referral link -->
-            <div class="indique-link-section">
-              <div class="indique-link-row">
-                <input type="text" class="indique-link-input" id="indiqueLinkInput" readonly value="">
-                <button class="indique-copy-btn" id="indiqueCopyBtn" title="Copiar link">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-                  Copiar link
+
+              <!-- TABS -->
+              <div class="aff3-tabs">
+                <button class="aff3-tab active" data-aff3-tab="dashboard">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+                  Dashboard
                 </button>
-                <button class="indique-share-btn" id="indiqueShareBtn" title="Compartilhar">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                <button class="aff3-tab" data-aff3-tab="links">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                  Links
+                </button>
+                <button class="aff3-tab" data-aff3-tab="indicados">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg>
+                  Indicados
+                </button>
+                <button class="aff3-tab" data-aff3-tab="saques">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                  Saques
                 </button>
               </div>
-            </div>
-            <!-- Indicações -->
-            <div class="indique-history">
-              <div class="indique-history-header">
-                <h3 style="color:var(--text);margin:0;font-size:13px;font-weight:800;letter-spacing:.5px">MINHAS INDICAÇÕES:</h3>
+
+              <!-- ═══════════════ DASHBOARD ═══════════════ -->
+              <div class="aff3-pane active" data-aff3-pane="dashboard">
+                <!-- Link + Período -->
+                <div class="aff3-row aff3-link-row">
+                  <div class="aff3-link-card">
+                    <div class="aff3-link-card-label">
+                      <span class="aff3-dot"></span>
+                      Seu link de afiliado <span class="aff3-lvl-badge">L1</span>
+                    </div>
+                    <div class="aff3-link-input-wrap">
+                      <input type="text" id="aff3LinkInput" class="aff3-link-input" readonly>
+                      <button class="aff3-btn aff3-btn-primary" id="aff3CopyBtn" title="Copiar link">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                        Copiar
+                      </button>
+                      <button class="aff3-btn aff3-btn-ghost" id="aff3ShareBtn" title="Compartilhar">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Period filter -->
+                <div class="aff3-period-filters">
+                  <button class="aff3-period active" data-aff3-period="today">Hoje</button>
+                  <button class="aff3-period" data-aff3-period="yesterday">Ontem</button>
+                  <button class="aff3-period" data-aff3-period="week">Últimos 7 dias</button>
+                  <button class="aff3-period" data-aff3-period="month">Mês atual</button>
+                  <button class="aff3-period aff3-period-custom" data-aff3-period="custom">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    Personalizado
+                  </button>
+                  <div class="aff3-range" id="aff3CustomRange" style="display:none">
+                    <input type="date" id="aff3DateFrom" class="aff3-date">
+                    <span style="color:var(--text-muted)">até</span>
+                    <input type="date" id="aff3DateTo" class="aff3-date">
+                    <button class="aff3-btn aff3-btn-primary aff3-btn-sm" id="aff3ApplyRange">Aplicar</button>
+                  </div>
+                </div>
+
+                <!-- 4 small metric cards -->
+                <div class="aff3-metrics-grid aff3-grid-4">
+                  <div class="aff3-metric">
+                    <div class="aff3-metric-icon aff3-ic-visits">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    </div>
+                    <div class="aff3-metric-body">
+                      <div class="aff3-metric-label">Visitas</div>
+                      <div class="aff3-metric-value" data-aff3-metric="visits">0</div>
+                    </div>
+                  </div>
+                  <div class="aff3-metric">
+                    <div class="aff3-metric-icon aff3-ic-signups">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+                    </div>
+                    <div class="aff3-metric-body">
+                      <div class="aff3-metric-label">Cadastros</div>
+                      <div class="aff3-metric-value" data-aff3-metric="signups">0</div>
+                    </div>
+                  </div>
+                  <div class="aff3-metric">
+                    <div class="aff3-metric-icon aff3-ic-ftd">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+                    </div>
+                    <div class="aff3-metric-body">
+                      <div class="aff3-metric-label">FTDs</div>
+                      <div class="aff3-metric-value" data-aff3-metric="ftd_qty">0</div>
+                    </div>
+                  </div>
+                  <div class="aff3-metric">
+                    <div class="aff3-metric-icon aff3-ic-qftd">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    </div>
+                    <div class="aff3-metric-body">
+                      <div class="aff3-metric-label">QFTDs <span class="aff3-hint" title="FTDs qualificados (≥ R$30)">?</span></div>
+                      <div class="aff3-metric-value" data-aff3-metric="qftd_qty">0</div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 4 big cards with qty + total -->
+                <div class="aff3-metrics-grid aff3-grid-4">
+                  <div class="aff3-bigcard aff3-bigcard-deposit">
+                    <div class="aff3-bigcard-head">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+                      <span>Depósitos</span>
+                    </div>
+                    <div class="aff3-bigcard-qty" data-aff3-metric="dep_qty">0</div>
+                    <div class="aff3-bigcard-total" data-aff3-metric="dep_tot">R$ 0,00</div>
+                  </div>
+                  <div class="aff3-bigcard aff3-bigcard-withdraw">
+                    <div class="aff3-bigcard-head">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                      <span>Saques</span>
+                    </div>
+                    <div class="aff3-bigcard-qty" data-aff3-metric="wd_qty">0</div>
+                    <div class="aff3-bigcard-total" data-aff3-metric="wd_tot">R$ 0,00</div>
+                  </div>
+                  <div class="aff3-bigcard aff3-bigcard-ftd">
+                    <div class="aff3-bigcard-head">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg>
+                      <span>FTDs total</span>
+                    </div>
+                    <div class="aff3-bigcard-qty" data-aff3-metric="ftd_qty_b">0</div>
+                    <div class="aff3-bigcard-total" data-aff3-metric="ftd_tot">R$ 0,00</div>
+                  </div>
+                  <div class="aff3-bigcard aff3-bigcard-qftd">
+                    <div class="aff3-bigcard-head">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                      <span>QFTDs total</span>
+                    </div>
+                    <div class="aff3-bigcard-qty" data-aff3-metric="qftd_qty_b">0</div>
+                    <div class="aff3-bigcard-total" data-aff3-metric="qftd_tot">R$ 0,00</div>
+                  </div>
+                </div>
+
+                <!-- 3 highlight cards -->
+                <div class="aff3-metrics-grid aff3-grid-3">
+                  <div class="aff3-highcard">
+                    <div class="aff3-highcard-label">SALDO PENDENTE</div>
+                    <div class="aff3-highcard-val" data-aff3-metric="rev_pending">R$ 0,00</div>
+                    <div class="aff3-highcard-sub">Aguardando liberação</div>
+                  </div>
+                  <div class="aff3-highcard aff3-highcard-accent">
+                    <div class="aff3-highcard-label">REVSHARE DO PERÍODO</div>
+                    <div class="aff3-highcard-val" data-aff3-metric="rev_period">R$ 0,00</div>
+                    <div class="aff3-highcard-sub">Comissões acumuladas</div>
+                  </div>
+                  <div class="aff3-highcard">
+                    <div class="aff3-highcard-label">REVSHARE PAGO TOTAL</div>
+                    <div class="aff3-highcard-val" data-aff3-metric="rev_paid_total">R$ 0,00</div>
+                    <div class="aff3-highcard-sub">Total histórico pago</div>
+                  </div>
+                </div>
+
+                <!-- Meus subafiliados -->
+                <div class="aff3-section">
+                  <div class="aff3-section-title">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    Meus Subafiliados
+                    <span class="aff3-lvl-badge aff3-lvl-badge-l2">L2</span>
+                  </div>
+                  <div class="aff3-subaff-invite">
+                    <div class="aff3-subaff-invite-text">
+                      Convide outros afiliados e ganhe <strong>10% sobre as comissões deles</strong> (nível L2). Compartilhe seu link de convite:
+                    </div>
+                    <div class="aff3-link-input-wrap">
+                      <input type="text" id="aff3SubaffLink" class="aff3-link-input" readonly>
+                      <button class="aff3-btn aff3-btn-primary aff3-btn-sm" id="aff3SubaffCopy">Copiar</button>
+                    </div>
+                  </div>
+                  <div class="aff3-subaff-list" id="aff3SubaffList">
+                    <div class="aff3-empty">
+                      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.4"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                      <div>Você ainda não tem subafiliados cadastrados</div>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div class="indique-period-tabs" style="margin-bottom:16px">
-                <button class="indique-period active" data-period="all">Período total</button>
-                <button class="indique-period" data-period="90d">Últimos 90 dias</button>
-                <button class="indique-period" data-period="30d">Últimos 30 dias</button>
-                <button class="indique-period" data-period="7d">Últimos 7 dias</button>
-                <button class="indique-period" data-period="yesterday">Somente ontem</button>
-                <button class="indique-period" data-period="today">Somente hoje</button>
+
+              <!-- ═══════════════ LINKS ═══════════════ -->
+              <div class="aff3-pane" data-aff3-pane="links">
+                <div class="aff3-section">
+                  <div class="aff3-section-title">Criar novo link de campanha</div>
+                  <form class="aff3-form aff3-links-form" id="aff3LinkForm">
+                    <div class="aff3-form-row">
+                      <div class="aff3-form-group">
+                        <label>Nome da campanha</label>
+                        <input type="text" id="aff3LinkName" placeholder="Ex: Instagram Stories" maxlength="64" required>
+                      </div>
+                      <div class="aff3-form-group">
+                        <label>Código personalizado (opcional)</label>
+                        <input type="text" id="aff3LinkCode" placeholder="ex: insta-stories" maxlength="32" pattern="[a-zA-Z0-9_-]*">
+                      </div>
+                      <button type="submit" class="aff3-btn aff3-btn-primary">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+                        Criar Link
+                      </button>
+                    </div>
+                  </form>
+                </div>
+                <div class="aff3-section">
+                  <div class="aff3-section-title">Seus links ativos</div>
+                  <div class="aff3-links-list" id="aff3LinksList"></div>
+                </div>
               </div>
-              <div class="indique-empty-msg" id="indiqueEmptyMsg">
-                Você ainda não indicou ninguém!
+
+              <!-- ═══════════════ INDICADOS ═══════════════ -->
+              <div class="aff3-pane" data-aff3-pane="indicados">
+                <!-- Period filter -->
+                <div class="aff3-period-filters">
+                  <button class="aff3-period active" data-aff3-iperiod="all">Todos</button>
+                  <button class="aff3-period" data-aff3-iperiod="today">Hoje</button>
+                  <button class="aff3-period" data-aff3-iperiod="yesterday">Ontem</button>
+                  <button class="aff3-period" data-aff3-iperiod="7d">7 dias</button>
+                  <button class="aff3-period" data-aff3-iperiod="month">Mês atual</button>
+                  <button class="aff3-period aff3-period-custom" data-aff3-iperiod="custom">Personalizado</button>
+                  <div class="aff3-range" id="aff3ICustomRange" style="display:none">
+                    <input type="date" id="aff3IDateFrom" class="aff3-date">
+                    <span style="color:var(--text-muted)">até</span>
+                    <input type="date" id="aff3IDateTo" class="aff3-date">
+                    <button class="aff3-btn aff3-btn-primary aff3-btn-sm" id="aff3IApply">Aplicar</button>
+                  </div>
+                </div>
+
+                <!-- 5 metric cards -->
+                <div class="aff3-metrics-grid aff3-grid-5">
+                  <div class="aff3-metric aff3-metric-slim">
+                    <div class="aff3-metric-label">Total Indicados</div>
+                    <div class="aff3-metric-value" data-aff3-imetric="total">0</div>
+                  </div>
+                  <div class="aff3-metric aff3-metric-slim">
+                    <div class="aff3-metric-label">Com Depósito</div>
+                    <div class="aff3-metric-value" data-aff3-imetric="deps">0</div>
+                  </div>
+                  <div class="aff3-metric aff3-metric-slim">
+                    <div class="aff3-metric-label">Bônus Pagos</div>
+                    <div class="aff3-metric-value" data-aff3-imetric="bonus">R$ 0,00</div>
+                  </div>
+                  <div class="aff3-metric aff3-metric-slim">
+                    <div class="aff3-metric-label">RevShare Total</div>
+                    <div class="aff3-metric-value" data-aff3-imetric="revshare">R$ 0,00</div>
+                  </div>
+                  <div class="aff3-metric aff3-metric-slim">
+                    <div class="aff3-metric-label">Total Comissões</div>
+                    <div class="aff3-metric-value" data-aff3-imetric="total_comm">R$ 0,00</div>
+                  </div>
+                </div>
+
+                <!-- Table -->
+                <div class="aff3-table-wrap">
+                  <table class="aff3-table" id="aff3ITable">
+                    <thead>
+                      <tr>
+                        <th>Usuário</th>
+                        <th>Email</th>
+                        <th>Cadastro</th>
+                        <th>CPA</th>
+                        <th>RevShare</th>
+                        <th>Depósitos</th>
+                        <th>Saques</th>
+                        <th>Total</th>
+                      </tr>
+                    </thead>
+                    <tbody id="aff3IBody">
+                      <tr><td colspan="8" class="aff3-empty-row">Carregando...</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div class="aff3-pagination" id="aff3IPagination"></div>
               </div>
-              <div id="indiqueLeadsList" style="display:none"></div>
-              <div id="indiqueLeadsPagination" style="display:none"></div>
+
+              <!-- ═══════════════ SAQUES ═══════════════ -->
+              <div class="aff3-pane" data-aff3-pane="saques">
+                <div class="aff3-row aff3-grid-2">
+                  <div class="aff3-balance-card">
+                    <div class="aff3-balance-label">Saldo disponível para saque</div>
+                    <div class="aff3-balance-val" id="aff3Available">R$ 0,00</div>
+                    <div class="aff3-balance-sub">Total pago histórico: <strong id="aff3PaidOut">R$ 0,00</strong></div>
+                  </div>
+                  <form class="aff3-withdraw-form" id="aff3WdForm">
+                    <div class="aff3-section-title">Solicitar saque</div>
+                    <div class="aff3-form-group">
+                      <label>Valor (R$)</label>
+                      <input type="text" id="aff3WdAmount" placeholder="50,00" class="brl-mask" required>
+                      <div class="aff3-form-hint">Mínimo R$ 50,00</div>
+                    </div>
+                    <div class="aff3-form-row">
+                      <div class="aff3-form-group">
+                        <label>Tipo de chave PIX</label>
+                        <select id="aff3WdPixType">
+                          <option value="cpf">CPF</option>
+                          <option value="email">E-mail</option>
+                          <option value="telefone">Telefone</option>
+                          <option value="aleatoria">Aleatória</option>
+                        </select>
+                      </div>
+                      <div class="aff3-form-group">
+                        <label>Chave PIX</label>
+                        <input type="text" id="aff3WdPixKey" required>
+                      </div>
+                    </div>
+                    <button type="submit" class="aff3-btn aff3-btn-primary aff3-btn-lg">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                      Solicitar Saque
+                    </button>
+                  </form>
+                </div>
+                <div class="aff3-section">
+                  <div class="aff3-section-title">Histórico de saques</div>
+                  <div class="aff3-table-wrap">
+                    <table class="aff3-table">
+                      <thead>
+                        <tr>
+                          <th>Data</th>
+                          <th>Valor</th>
+                          <th>Chave PIX</th>
+                          <th>Status</th>
+                          <th>Pago em</th>
+                        </tr>
+                      </thead>
+                      <tbody id="aff3WdBody">
+                        <tr><td colspan="5" class="aff3-empty-row">Carregando...</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
           <!-- PRÊMIOS E RECOMPENSAS -->
