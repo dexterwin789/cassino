@@ -40,15 +40,94 @@ function daysAgoISO(d) {
 (async () => {
   const client = await pool.connect();
   try {
-    console.log('[seed] conectado ao banco. Procurando afiliados com leads...');
+    const TARGET_USER_ID = parseInt(process.env.TARGET_USER_ID || '24');
+    console.log(`[seed] conectado ao banco. Alvo: user_id=${TARGET_USER_ID}`);
 
-    // Afiliados ativos que têm ao menos 1 lead
+    // Garante afiliado para user alvo
+    let affR = await client.query('SELECT id, code, commission_pct FROM affiliates WHERE user_id=$1', [TARGET_USER_ID]);
+    if (!affR.rowCount) {
+      const code = 'VNB' + TARGET_USER_ID + Math.random().toString(36).slice(2, 6).toUpperCase();
+      affR = await client.query(
+        `INSERT INTO affiliates (user_id, code, commission_pct, total_earned_cents, is_active, level, model, created_at)
+         VALUES ($1, $2, 50, 0, TRUE, 1, 'revshare', NOW()) RETURNING id, code, commission_pct`,
+        [TARGET_USER_ID, code]
+      );
+      console.log(`[seed] Afiliado criado: ${code}`);
+    }
+    const parentAff = affR.rows[0];
+
+    // ── 0. Cria subafiliados L2 (3) com leads próprios e comissões
+    const subsCnt = await client.query('SELECT COUNT(*)::int AS c FROM affiliates WHERE parent_id=$1', [parentAff.id]);
+    if (subsCnt.rows[0].c < 3) {
+      const toCreate = 3 - subsCnt.rows[0].c;
+      console.log(`[seed] Criando ${toCreate} subafiliados L2...`);
+      for (let i = 0; i < toCreate; i++) {
+        const uname = 'subaff_' + Math.random().toString(36).slice(2, 7);
+        const email = uname + '@vemnabet.bet';
+        const userR = await client.query(
+          `INSERT INTO users (username, email, password_hash, created_at)
+           VALUES ($1, $2, 'seeded-no-login', NOW() - INTERVAL '${randInt(10, 80)} days')
+           RETURNING id`,
+          [uname, email]
+        );
+        const subUid = userR.rows[0].id;
+        const code = 'VNB' + subUid + Math.random().toString(36).slice(2, 6).toUpperCase();
+        const subAff = await client.query(
+          `INSERT INTO affiliates (user_id, code, commission_pct, is_active, level, parent_id, model, created_at)
+           VALUES ($1, $2, 10, TRUE, 2, $3, 'revshare', NOW() - INTERVAL '${randInt(10, 70)} days') RETURNING id`,
+          [subUid, code, parentAff.id]
+        );
+        const subAffId = subAff.rows[0].id;
+        // Cada subafiliado tem 3-6 leads próprios
+        const nLeads = randInt(3, 6);
+        for (let k = 0; k < nLeads; k++) {
+          const luname = 'sublead_' + Math.random().toString(36).slice(2, 7);
+          const lemail = luname + '@test.com';
+          const leadR = await client.query(
+            `INSERT INTO users (username, email, password_hash, referred_by, created_at)
+             VALUES ($1, $2, 'seeded', $3, NOW() - INTERVAL '${randInt(3, 60)} days') RETURNING id`,
+            [luname, lemail, subUid]
+          );
+          const leadId = leadR.rows[0].id;
+          // 1-3 depósitos por lead + comissões na subaff
+          const deps = randInt(1, 3);
+          for (let d = 0; d < deps; d++) {
+            const amount = pick([3000, 5000, 10000, 15000, 20000]);
+            const createdAt = daysAgoISO(randInt(1, 50));
+            const txR = await client.query(
+              `INSERT INTO transactions (user_id, type, amount_cents, status, provider, provider_ref, created_at, updated_at)
+               VALUES ($1, 'deposit', $2, 'paid', 'seed', $3, $4, $4) RETURNING id`,
+              [leadId, amount, 'seed-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8), createdAt]
+            );
+            // Sub afiliado recebe 50% (revshare próprio)
+            const subComm = Math.round(amount * 0.5);
+            await client.query(
+              `INSERT INTO affiliate_commissions (affiliate_id, referred_user_id, transaction_id, type, amount_cents, status, created_at)
+               VALUES ($1, $2, $3, 'revshare', $4, 'paid', $5)`,
+              [subAffId, leadId, txR.rows[0].id, subComm, createdAt]
+            );
+            // Parent recebe 10% override (L2 → L1)
+            const overr = Math.round(amount * 0.10);
+            await client.query(
+              `INSERT INTO affiliate_commissions (affiliate_id, referred_user_id, transaction_id, type, amount_cents, status, created_at)
+               VALUES ($1, $2, $3, 'revshare', $4, 'paid', $5)`,
+              [parentAff.id, leadId, txR.rows[0].id, overr, createdAt]
+            );
+          }
+        }
+        console.log(`  + subaff ${uname} criado com ${nLeads} leads + depósitos + comissões`);
+      }
+    } else {
+      console.log('[seed] Já existem 3+ subafiliados L2, pulando criação.');
+    }
+
+    // Afiliados ativos que têm ao menos 1 lead (para alimentar histórico)
     const affs = await client.query(`
       SELECT a.id AS aff_id, a.user_id, a.code, a.commission_pct
       FROM affiliates a
       WHERE EXISTS (SELECT 1 FROM users u WHERE u.referred_by = a.user_id)
     `);
-    console.log(`[seed] ${affs.rowCount} afiliado(s) com leads encontrado(s).`);
+    console.log(`[seed] ${affs.rowCount} afiliado(s) com leads no total — alimentando métricas...`);
 
     for (const aff of affs.rows) {
       const affId = aff.aff_id;

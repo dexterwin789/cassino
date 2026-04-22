@@ -6,10 +6,10 @@
   if (!root) return;
 
   const state = {
-    period: 'today',
+    period: 'month',
     from: '',
     to: '',
-    iperiod: 'all',
+    iperiod: 'month',
     ifrom: '',
     ito: '',
     ipage: 1,
@@ -261,15 +261,17 @@
 
   function renderPagerGeneric(el, p, onGo) {
     if (!el) return;
-    if (!p || p.pages <= 1) { el.innerHTML = ''; return; }
-    const cur = p.page, max = p.pages;
+    if (!p || p.total == null) { el.innerHTML = ''; return; }
+    const cur = p.page, max = Math.max(1, p.pages), total = p.total;
+    const info = `<span class="aff3-page-info">Página <strong>${cur}</strong> de <strong>${max}</strong> · ${total} registro${total === 1 ? '' : 's'}</span>`;
+    if (max <= 1) { el.innerHTML = info; return; }
     let html = `<button class="aff3-page" ${cur <= 1 ? 'disabled' : ''} data-pg="${cur - 1}">‹</button>`;
     const start = Math.max(1, cur - 2), end = Math.min(max, cur + 2);
-    if (start > 1) html += `<button class="aff3-page" data-pg="1">1</button>` + (start > 2 ? '<span class="aff3-page" style="border:none;background:none">…</span>' : '');
+    if (start > 1) html += `<button class="aff3-page" data-pg="1">1</button>` + (start > 2 ? '<span class="aff3-page-dots">…</span>' : '');
     for (let i = start; i <= end; i++) html += `<button class="aff3-page ${i === cur ? 'active' : ''}" data-pg="${i}">${i}</button>`;
-    if (end < max) html += (end < max - 1 ? '<span class="aff3-page" style="border:none;background:none">…</span>' : '') + `<button class="aff3-page" data-pg="${max}">${max}</button>`;
+    if (end < max) html += (end < max - 1 ? '<span class="aff3-page-dots">…</span>' : '') + `<button class="aff3-page" data-pg="${max}">${max}</button>`;
     html += `<button class="aff3-page" ${cur >= max ? 'disabled' : ''} data-pg="${cur + 1}">›</button>`;
-    el.innerHTML = html;
+    el.innerHTML = info + '<div class="aff3-page-nums">' + html + '</div>';
     el.querySelectorAll('[data-pg]').forEach(b => b.addEventListener('click', () => onGo(parseInt(b.dataset.pg))));
   }
 
