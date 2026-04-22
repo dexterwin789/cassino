@@ -153,10 +153,12 @@ ul{list-style:none}
 /* Notification */
 .topbar-notif{
   position:relative;background:transparent;border:none;cursor:pointer;
-  padding:6px;display:flex;align-items:center;
+  padding:6px;display:flex;align-items:center;justify-content:center;
+  color:#fff;
 }
-.topbar-notif img{filter:brightness(0) invert(1);opacity:.7;transition:.2s}
-.topbar-notif:hover img{opacity:1}
+.topbar-notif img,.topbar-notif svg{filter:none;opacity:.85;transition:.2s;color:currentColor}
+.topbar-notif img{filter:brightness(0) invert(1);opacity:.7}
+.topbar-notif:hover img,.topbar-notif:hover svg{opacity:1}
 .topbar-notif-badge{
   position:absolute;top:0;right:0;
   background:#ef4444;color:#fff;
@@ -2766,7 +2768,7 @@ body.search-lock{overflow:hidden!important}
   .btn-register,.btn-login{padding:6px 12px;font-size:11px;white-space:nowrap}
   .topbar-logged{gap:5px;flex-shrink:0;flex-wrap:nowrap}
   .topbar-notif{padding:4px}
-  .topbar-notif img{width:14px;height:14px}
+  .topbar-notif img,.topbar-notif svg{width:16px;height:16px}
   .topbar-logged .btn-deposit{padding:5px 10px;font-size:10px;white-space:nowrap}
   .topbar-balance-btn{padding:5px 8px;font-size:11px}
   .topbar-balance-refresh{padding:5px 6px}
@@ -2923,7 +2925,7 @@ body.search-lock{overflow:hidden!important}
   .topbar-user-btn{width:26px;height:26px}
   .topbar-user-avatar{width:22px;height:22px}
   .topbar-notif{padding:3px}
-  .topbar-notif img{width:12px;height:12px}
+  .topbar-notif img,.topbar-notif svg{width:14px;height:14px}
   .logo-img{height:26px;width:auto;max-width:140px}
   .btn-register,.btn-login{padding:4px 8px;font-size:9px}
   .ganhos-trophy-card{flex:0 0 54px;height:66px;padding:4px 3px}
@@ -3175,6 +3177,7 @@ html[data-theme="light"] {
 /* Icons: dark filter on light bg */
 html[data-theme="light"] .bars-toggle img{filter:brightness(0) saturate(100%);opacity:.7}
 html[data-theme="light"] .topbar-notif img{filter:brightness(0) saturate(100%);opacity:.7}
+html[data-theme="light"] .topbar-notif svg{color:#0b1221;opacity:.8}
 html[data-theme="light"] .topbar-balance-refresh img{filter:brightness(0) saturate(100%);opacity:.6}
 html[data-theme="light"] .topbar-dropdown-nav a img{filter:brightness(0) saturate(100%);opacity:.5}
 html[data-theme="light"] .dropdown-theme-row img{filter:brightness(0) saturate(100%)}

@@ -16,7 +16,13 @@
   --aff3-dim: #64748b;
   color: var(--aff3-text);
   font-family: inherit;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden; /* confine inner overflow-x children */
+  box-sizing: border-box;
 }
+.aff3-root *, .aff3-root *::before, .aff3-root *::after { box-sizing: border-box; }
+.aff3-pane { max-width: 100%; }
 
 /* ═════════ HEADER ═════════ */
 .aff3-header {
@@ -47,11 +53,19 @@
 }
 .aff3-subtitle { color: var(--aff3-muted); font-size: 12px; font-weight: 500; }
 .aff3-badge-model {
-  display: flex; flex-direction: column; align-items: flex-end; gap: 2px;
+  display: flex; flex-direction: row; align-items: center; gap: 12px;
   padding: 10px 14px; border-radius: 12px;
   background: rgba(0, 0, 0, 0.35); border: 1px solid var(--aff3-border-strong);
   backdrop-filter: blur(10px); position: relative; z-index: 1;
 }
+.aff3-badge-icon {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0;
+  background: linear-gradient(135deg, var(--aff3-green1), var(--aff3-green3));
+  color: #06110a;
+  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.35), inset 0 1px 0 rgba(255,255,255,.2);
+}
+.aff3-badge-texts { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; line-height: 1.1; }
 .aff3-badge-label { font-size: 10px; color: var(--aff3-muted); text-transform: uppercase; letter-spacing: 1px; }
 .aff3-badge-model strong { font-size: 15px; color: var(--aff3-green1); font-weight: 800; }
 
@@ -365,8 +379,13 @@
 .aff3-table-wrap {
   border-radius: 12px; overflow-x: auto;
   background: rgba(0, 0, 0, 0.2); border: 1px solid var(--aff3-border);
+  -webkit-overflow-scrolling: touch;
+  max-width: 100%;
+  scrollbar-width: thin;
 }
-.aff3-table { width: 100%; border-collapse: collapse; min-width: 700px; }
+.aff3-table-wrap::-webkit-scrollbar { height: 8px; }
+.aff3-table-wrap::-webkit-scrollbar-thumb { background: var(--aff3-border-strong); border-radius: 4px; }
+.aff3-table { width: 100%; border-collapse: collapse; min-width: 760px; }
 .aff3-table thead th {
   padding: 12px 14px; text-align: left;
   font-size: 10px; font-weight: 800; color: var(--aff3-muted); text-transform: uppercase; letter-spacing: 0.8px;

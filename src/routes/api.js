@@ -1207,18 +1207,26 @@ router.delete('/affiliate/links/:id', requireUser, async (req, res) => {
   }
 });
 
-// GET /api/affiliate/subaffiliates
+// GET /api/affiliate/subaffiliates?page=&per_page=
 router.get('/affiliate/subaffiliates', requireUser, async (req, res) => {
   try {
     const aff = await ensureAffiliate(req.session.user.id);
+    const page = Math.max(parseInt(req.query.page) || 1, 1);
+    const perPage = Math.min(Math.max(parseInt(req.query.per_page) || 10, 5), 100);
+    const offset = (page - 1) * perPage;
+    const cnt = await query('SELECT COUNT(*)::int AS c FROM affiliates WHERE parent_id = $1', [aff.id]);
+    const total = cnt.rows[0].c;
     const r = await query(`
       SELECT a.id, a.code, a.level, a.created_at, u.username, u.email,
         COALESCE((SELECT COUNT(*)::int FROM users WHERE referred_by = a.user_id), 0) AS leads,
         COALESCE((SELECT SUM(amount_cents) FROM affiliate_commissions WHERE affiliate_id = a.id), 0) AS commissions
       FROM affiliates a JOIN users u ON u.id = a.user_id
       WHERE a.parent_id = $1
-      ORDER BY a.created_at DESC`, [aff.id]);
-    res.json({ ok: true, subs: r.rows, invite_code: aff.code });
+      ORDER BY a.created_at DESC LIMIT $2 OFFSET $3`, [aff.id, perPage, offset]);
+    res.json({
+      ok: true, subs: r.rows, invite_code: aff.code,
+      pagination: { total, page, per_page: perPage, pages: Math.max(1, Math.ceil(total / perPage)) }
+    });
   } catch (err) {
     console.error('[AFF SUBS]', err);
     res.status(500).json({ ok: false, msg: 'Erro' });

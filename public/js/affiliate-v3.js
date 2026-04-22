@@ -13,8 +13,8 @@
     ifrom: '',
     ito: '',
     ipage: 1,
-    affCode: '',
-    available: 0
+    spage: 1,
+    affCode: ''
   };
 
   const fmtBRL = (cents) => 'R$ ' + ((parseInt(cents) || 0) / 100).toFixed(2).replace('.', ',');
@@ -42,7 +42,6 @@
       qsa('[data-aff3-pane]').forEach(p => p.classList.toggle('active', p.dataset.aff3Pane === tab));
       if (tab === 'links') loadLinks();
       if (tab === 'indicados') loadIndicados();
-      if (tab === 'saques') loadSaques();
     });
   });
 
@@ -86,24 +85,23 @@
       setTxt('rev_period', fmtBRL(m.rev_period));
       setTxt('rev_paid_total', fmtBRL(m.rev_paid_total));
 
-      state.available = m.available_cents || 0;
-      const av = qs('#aff3Available'); if (av) av.textContent = fmtBRL(state.available);
-      const po = qs('#aff3PaidOut'); if (po) po.textContent = fmtBRL(m.paid_out_cents);
-
       loadSubaffiliates();
     } catch (e) { console.error('[aff3] dashboard', e); }
   }
 
   async function loadSubaffiliates() {
     try {
-      const d = await api('/api/affiliate/subaffiliates');
+      const q = new URLSearchParams({ page: state.spage, per_page: 10 });
+      const d = await api('/api/affiliate/subaffiliates?' + q.toString());
       const list = qs('#aff3SubaffList');
+      const pag = qs('#aff3SubaffPagination');
       if (!list) return;
-      if (!d.ok || !d.subs.length) {
+      if (!d.ok || !d.subs || !d.subs.length) {
         list.innerHTML = `<div class="aff3-empty">
           <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.4"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
           <div>Você ainda não tem subafiliados cadastrados</div>
         </div>`;
+        if (pag) pag.innerHTML = '';
         return;
       }
       list.innerHTML = '<div class="aff3-table-wrap"><table class="aff3-table"><thead><tr><th>Afiliado</th><th>Email</th><th>Nível</th><th>Indicados</th><th>Comissões</th><th>Desde</th></tr></thead><tbody>' +
@@ -115,6 +113,7 @@
           <td><strong style="color:var(--aff3-green1)">${fmtBRL(s.commissions)}</strong></td>
           <td>${new Date(s.created_at).toLocaleDateString('pt-BR')}</td>
         </tr>`).join('') + '</tbody></table></div>';
+      renderPagerGeneric(pag, d.pagination, (p) => { state.spage = p; loadSubaffiliates(); });
     } catch (e) { console.error('[aff3] subaff', e); }
   }
 
@@ -126,19 +125,21 @@
       const range = qs('#aff3CustomRange');
       if (p === 'custom') { if (range) range.style.display = 'flex'; return; }
       if (range) range.style.display = 'none';
-      state.period = p;
+      state.period = p; state.from = ''; state.to = '';
       loadDashboard();
     });
   });
   const applyR = qs('#aff3ApplyRange');
-  if (applyR) applyR.addEventListener('click', () => {
-    state.period = 'custom';
-    state.from = qs('#aff3DateFrom').value;
-    state.to = qs('#aff3DateTo').value;
-    if (!state.from || !state.to) return toast('Selecione data inicial e final', 'error');
-    // Limit 3 months
-    const diff = (new Date(state.to) - new Date(state.from)) / (1000 * 60 * 60 * 24);
+  if (applyR) applyR.addEventListener('click', (e) => {
+    e.preventDefault();
+    const f = qs('#aff3DateFrom').value, t = qs('#aff3DateTo').value;
+    if (!f || !t) return toast('Selecione data inicial e final', 'error');
+    const d1 = new Date(f), d2 = new Date(t);
+    if (isNaN(d1) || isNaN(d2)) return toast('Datas inválidas', 'error');
+    if (d2 < d1) return toast('Data final deve ser maior que a inicial', 'error');
+    const diff = (d2 - d1) / 86400000;
     if (diff > 92) return toast('Período máximo: 3 meses', 'error');
+    state.period = 'custom'; state.from = f; state.to = t;
     loadDashboard();
   });
 
@@ -255,19 +256,21 @@
   }
 
   function renderPagination(p) {
-    const el = qs('#aff3IPagination');
-    if (!el || !p || p.pages <= 1) { if (el) el.innerHTML = ''; return; }
+    renderPagerGeneric(qs('#aff3IPagination'), p, (i) => { state.ipage = i; loadIndicados(); });
+  }
+
+  function renderPagerGeneric(el, p, onGo) {
+    if (!el) return;
+    if (!p || p.pages <= 1) { el.innerHTML = ''; return; }
     const cur = p.page, max = p.pages;
-    let html = `<button class="aff3-page" ${cur <= 1 ? 'disabled' : ''} data-ipage="${cur - 1}">‹</button>`;
+    let html = `<button class="aff3-page" ${cur <= 1 ? 'disabled' : ''} data-pg="${cur - 1}">‹</button>`;
     const start = Math.max(1, cur - 2), end = Math.min(max, cur + 2);
-    if (start > 1) html += `<button class="aff3-page" data-ipage="1">1</button>` + (start > 2 ? '<span class="aff3-page" style="border:none;background:none">…</span>' : '');
-    for (let i = start; i <= end; i++) html += `<button class="aff3-page ${i === cur ? 'active' : ''}" data-ipage="${i}">${i}</button>`;
-    if (end < max) html += (end < max - 1 ? '<span class="aff3-page" style="border:none;background:none">…</span>' : '') + `<button class="aff3-page" data-ipage="${max}">${max}</button>`;
-    html += `<button class="aff3-page" ${cur >= max ? 'disabled' : ''} data-ipage="${cur + 1}">›</button>`;
+    if (start > 1) html += `<button class="aff3-page" data-pg="1">1</button>` + (start > 2 ? '<span class="aff3-page" style="border:none;background:none">…</span>' : '');
+    for (let i = start; i <= end; i++) html += `<button class="aff3-page ${i === cur ? 'active' : ''}" data-pg="${i}">${i}</button>`;
+    if (end < max) html += (end < max - 1 ? '<span class="aff3-page" style="border:none;background:none">…</span>' : '') + `<button class="aff3-page" data-pg="${max}">${max}</button>`;
+    html += `<button class="aff3-page" ${cur >= max ? 'disabled' : ''} data-pg="${cur + 1}">›</button>`;
     el.innerHTML = html;
-    el.querySelectorAll('[data-ipage]').forEach(b => b.addEventListener('click', () => {
-      state.ipage = parseInt(b.dataset.ipage); loadIndicados();
-    }));
+    el.querySelectorAll('[data-pg]').forEach(b => b.addEventListener('click', () => onGo(parseInt(b.dataset.pg))));
   }
 
   qsa('[data-aff3-iperiod]').forEach(btn => {
@@ -277,65 +280,25 @@
       const range = qs('#aff3ICustomRange');
       if (p === 'custom') { if (range) range.style.display = 'flex'; return; }
       if (range) range.style.display = 'none';
-      state.iperiod = p; state.ipage = 1;
+      state.iperiod = p; state.ifrom = ''; state.ito = ''; state.ipage = 1;
       loadIndicados();
     });
   });
   const iApply = qs('#aff3IApply');
-  if (iApply) iApply.addEventListener('click', () => {
-    state.iperiod = 'custom';
-    state.ifrom = qs('#aff3IDateFrom').value;
-    state.ito = qs('#aff3IDateTo').value;
-    if (!state.ifrom || !state.ito) return toast('Selecione as datas', 'error');
-    const diff = (new Date(state.ito) - new Date(state.ifrom)) / (1000 * 60 * 60 * 24);
-    if (diff > 92) return toast('Período máximo: 3 meses', 'error');
-    state.ipage = 1; loadIndicados();
-  });
-
-  // ═════════ SAQUES ═════════
-  async function loadSaques() {
-    const d = await api('/api/affiliate/withdrawals');
-    const body = qs('#aff3WdBody');
-    if (!body) return;
-    if (!d.ok || !d.rows.length) {
-      body.innerHTML = '<tr><td colspan="5" class="aff3-empty-row">Nenhum saque solicitado ainda.</td></tr>';
-    } else {
-      body.innerHTML = d.rows.map(r => {
-        const st = r.status || 'pending';
-        const stLabel = st === 'paid' || st === 'completed' ? 'Pago' : st === 'rejected' ? 'Recusado' : 'Pendente';
-        const stCls = st === 'paid' || st === 'completed' ? 'aff3-badge-paid' : st === 'rejected' ? 'aff3-badge-rejected' : 'aff3-badge-pending';
-        return `<tr>
-          <td>${new Date(r.requested_at).toLocaleString('pt-BR')}</td>
-          <td><strong>${fmtBRL(r.amount_cents)}</strong></td>
-          <td>${escapeHtml(r.pix_type || '')} — ${escapeHtml(r.pix_key || '')}</td>
-          <td><span class="aff3-badge ${stCls}">${stLabel}</span></td>
-          <td>${r.paid_at ? new Date(r.paid_at).toLocaleString('pt-BR') : '—'}</td>
-        </tr>`;
-      }).join('');
-    }
-  }
-
-  const wdForm = qs('#aff3WdForm');
-  if (wdForm) wdForm.addEventListener('submit', async (e) => {
+  if (iApply) iApply.addEventListener('click', (e) => {
     e.preventDefault();
-    const raw = qs('#aff3WdAmount').value.replace(/[^\d,]/g, '').replace(',', '.');
-    const cents = Math.round(parseFloat(raw || '0') * 100);
-    const pixType = qs('#aff3WdPixType').value;
-    const pixKey = qs('#aff3WdPixKey').value.trim();
-    if (cents < 5000) return toast('Valor mínimo: R$ 50,00', 'error');
-    if (cents > state.available) return toast('Saldo insuficiente. Disponível: ' + fmtBRL(state.available), 'error');
-    if (!pixKey) return toast('Informe a chave PIX', 'error');
-
-    const r = await api('/api/affiliate/withdrawals', {
-      method: 'POST',
-      body: JSON.stringify({ amount_cents: cents, pix_type: pixType, pix_key: pixKey })
-    });
-    if (r.ok) {
-      toast('Saque solicitado com sucesso!', 'success');
-      qs('#aff3WdAmount').value = ''; qs('#aff3WdPixKey').value = '';
-      loadDashboard(); loadSaques();
-    } else toast(r.msg || 'Erro ao solicitar saque', 'error');
+    const f = qs('#aff3IDateFrom').value, t = qs('#aff3IDateTo').value;
+    if (!f || !t) return toast('Selecione as datas', 'error');
+    const d1 = new Date(f), d2 = new Date(t);
+    if (isNaN(d1) || isNaN(d2)) return toast('Datas inválidas', 'error');
+    if (d2 < d1) return toast('Data final deve ser maior que a inicial', 'error');
+    const diff = (d2 - d1) / 86400000;
+    if (diff > 92) return toast('Período máximo: 3 meses', 'error');
+    state.iperiod = 'custom'; state.ifrom = f; state.ito = t; state.ipage = 1;
+    loadIndicados();
   });
+
+  // ═════════ SAQUES (removido — agora via suporte) ═════════
 
   // ═════════ HELPERS ═════════
   function escapeHtml(s) {

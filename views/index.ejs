@@ -747,8 +747,13 @@
                 </div>
                 <div class="aff3-header-right">
                   <div class="aff3-badge-model">
-                    <span class="aff3-badge-label">Acordo atual</span>
-                    <strong id="aff3ModelBadge">REV 50%</strong>
+                    <span class="aff3-badge-icon" aria-hidden="true">
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v6"/><path d="M6 12a6 6 0 0 0 12 0V8H6v4z"/><path d="M8 22h8"/><path d="M12 18v4"/><path d="M18 8h1a3 3 0 0 1 0 6h-1"/><path d="M6 8H5a3 3 0 0 0 0 6h1"/></svg>
+                    </span>
+                    <div class="aff3-badge-texts">
+                      <span class="aff3-badge-label">Acordo atual</span>
+                      <strong id="aff3ModelBadge">REV 50%</strong>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -766,10 +771,6 @@
                 <button class="aff3-tab" data-aff3-tab="indicados">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg>
                   Indicados
-                </button>
-                <button class="aff3-tab" data-aff3-tab="saques">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
-                  Saques
                 </button>
               </div>
 
@@ -930,6 +931,7 @@
                       <div>Você ainda não tem subafiliados cadastrados</div>
                     </div>
                   </div>
+                  <div class="aff3-pagination" id="aff3SubaffPagination"></div>
                 </div>
               </div>
 
@@ -1025,62 +1027,7 @@
                 <div class="aff3-pagination" id="aff3IPagination"></div>
               </div>
 
-              <!-- ═══════════════ SAQUES ═══════════════ -->
-              <div class="aff3-pane" data-aff3-pane="saques">
-                <div class="aff3-row aff3-grid-2">
-                  <div class="aff3-balance-card">
-                    <div class="aff3-balance-label">Saldo disponível para saque</div>
-                    <div class="aff3-balance-val" id="aff3Available">R$ 0,00</div>
-                    <div class="aff3-balance-sub">Total pago histórico: <strong id="aff3PaidOut">R$ 0,00</strong></div>
-                  </div>
-                  <form class="aff3-withdraw-form" id="aff3WdForm">
-                    <div class="aff3-section-title">Solicitar saque</div>
-                    <div class="aff3-form-group">
-                      <label>Valor (R$)</label>
-                      <input type="text" id="aff3WdAmount" placeholder="50,00" class="brl-mask" required>
-                      <div class="aff3-form-hint">Mínimo R$ 50,00</div>
-                    </div>
-                    <div class="aff3-form-row">
-                      <div class="aff3-form-group">
-                        <label>Tipo de chave PIX</label>
-                        <select id="aff3WdPixType">
-                          <option value="cpf">CPF</option>
-                          <option value="email">E-mail</option>
-                          <option value="telefone">Telefone</option>
-                          <option value="aleatoria">Aleatória</option>
-                        </select>
-                      </div>
-                      <div class="aff3-form-group">
-                        <label>Chave PIX</label>
-                        <input type="text" id="aff3WdPixKey" required>
-                      </div>
-                    </div>
-                    <button type="submit" class="aff3-btn aff3-btn-primary aff3-btn-lg">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-                      Solicitar Saque
-                    </button>
-                  </form>
-                </div>
-                <div class="aff3-section">
-                  <div class="aff3-section-title">Histórico de saques</div>
-                  <div class="aff3-table-wrap">
-                    <table class="aff3-table">
-                      <thead>
-                        <tr>
-                          <th>Data</th>
-                          <th>Valor</th>
-                          <th>Chave PIX</th>
-                          <th>Status</th>
-                          <th>Pago em</th>
-                        </tr>
-                      </thead>
-                      <tbody id="aff3WdBody">
-                        <tr><td colspan="5" class="aff3-empty-row">Carregando...</td></tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
+              <!-- (Aba de Saques removida — solicitações agora via suporte) -->
             </div>
           </div>
           <!-- PRÊMIOS E RECOMPENSAS -->
