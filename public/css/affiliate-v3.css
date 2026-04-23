@@ -382,15 +382,15 @@
   -webkit-overflow-scrolling: touch;
   max-width: 100%;
   scrollbar-width: thin;
-  scrollbar-color: var(--aff3-green1) rgba(255,255,255,0.04);
+  scrollbar-color: var(--aff3-border-strong) transparent;
 }
-.aff3-table-wrap::-webkit-scrollbar { height: 8px; width: 8px; }
-.aff3-table-wrap::-webkit-scrollbar-track { background: rgba(255,255,255,0.03); border-radius: 4px; }
+.aff3-table-wrap::-webkit-scrollbar { height: 6px; width: 6px; }
+.aff3-table-wrap::-webkit-scrollbar-track { background: transparent; border-radius: 3px; }
 .aff3-table-wrap::-webkit-scrollbar-thumb {
-  background: linear-gradient(135deg, var(--aff3-green1), var(--aff3-green3));
-  border-radius: 4px;
+  background: var(--aff3-border-strong);
+  border-radius: 3px;
 }
-.aff3-table-wrap::-webkit-scrollbar-thumb:hover { background: var(--aff3-green1); }
+.aff3-table-wrap::-webkit-scrollbar-thumb:hover { background: var(--aff3-muted); }
 .aff3-table { width: 100%; border-collapse: collapse; min-width: 640px; }
 .aff3-table thead th {
   padding: 8px 10px; text-align: left;
@@ -435,6 +435,10 @@
 }
 .aff3-page-pp-select:hover, .aff3-page-pp-select:focus {
   border-color: var(--aff3-green1); outline: none;
+}
+.aff3-page-pp-select option {
+  background: #0f172a; color: #fff;
+  font-weight: 600;
 }
 .aff3-page-nums { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; }
 .aff3-page-dots { padding: 0 6px; color: var(--aff3-muted); font-weight: 800; align-self: center; }
@@ -483,3 +487,49 @@
   .aff3-range { flex-wrap: wrap; margin-left: 0; padding-left: 0; border-left: none; width: 100%; margin-top: 6px; }
   .aff3-balance-val { font-size: 24px; }
 }
+
+/* ═══════════════════ LIGHT THEME ═══════════════════ */
+[data-theme="light"] .aff3-root {
+  --aff3-bg: rgba(0, 0, 0, 0.02);
+  --aff3-card: #ffffff;
+  --aff3-card-hover: #f8fafc;
+  --aff3-border: rgba(0, 0, 0, 0.08);
+  --aff3-border-strong: rgba(0, 0, 0, 0.16);
+  --aff3-text: #1a1a2e;
+  --aff3-muted: #64748b;
+  --aff3-dim: #94a3b8;
+}
+[data-theme="light"] .aff3-table-wrap { background: #f8fafc; }
+[data-theme="light"] .aff3-table thead th { background: rgba(0, 0, 0, 0.03); }
+[data-theme="light"] .aff3-table tbody tr:hover { background: rgba(0, 0, 0, 0.02); }
+[data-theme="light"] .aff3-pagination { background: #f8fafc; }
+[data-theme="light"] .aff3-page.active { color: #fff; }
+[data-theme="light"] .aff3-page-pp-select option { background: #fff; color: #1a1a2e; }
+[data-theme="light"] .aff3-balance-card {
+  background: linear-gradient(135deg, rgba(37, 211, 102, 0.12), rgba(26, 158, 76, 0.04));
+  border-color: rgba(26, 158, 76, 0.25);
+}
+[data-theme="light"] .aff3-subaff-invite { background: #f8fafc; }
+[data-theme="light"] .aff3-lvl-badge-l2 { background: rgba(26, 158, 76, 0.1); color: #1A9E4C; }
+[data-theme="light"] .aff3-empty { color: #64748b; }
+[data-theme="light"] .aff3-highcard {
+  background: linear-gradient(135deg, #fff, #f8fafc);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+[data-theme="light"] .aff3-section { background: #fff; border-color: rgba(0, 0, 0, 0.06); }
+[data-theme="light"] .aff3-period { border-color: rgba(0, 0, 0, 0.1); color: #64748b; background: #fff; }
+[data-theme="light"] .aff3-period.active { border-color: #1A9E4C; color: #1A9E4C; background: rgba(26, 158, 76, 0.06); }
+[data-theme="light"] .aff3-tab { color: #64748b; }
+[data-theme="light"] .aff3-tab.active { color: #1A9E4C; }
+[data-theme="light"] .aff3-link-input { background: #f8fafc; color: #1a1a2e; }
+[data-theme="light"] .aff3-link-item { background: #fff; border-color: rgba(0, 0, 0, 0.08); }
+[data-theme="light"] .aff3-link-item-url { background: #f8fafc; color: #475569; }
+[data-theme="light"] .aff3-form-group input,
+[data-theme="light"] .aff3-form-group select {
+  background: #fff; color: #1a1a2e; border-color: rgba(0, 0, 0, 0.1);
+}
+[data-theme="light"] .aff3-table-wrap { scrollbar-color: rgba(0, 0, 0, 0.2) transparent; }
+[data-theme="light"] .aff3-table-wrap::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.2); }
+[data-theme="light"] .aff3-table-wrap::-webkit-scrollbar-thumb:hover { background: rgba(0, 0, 0, 0.35); }
+[data-theme="light"] .aff3-btn-ghost { color: #475569; border-color: rgba(0, 0, 0, 0.1); }
+[data-theme="light"] .aff3-btn-ghost:hover { background: #f1f5f9; }
