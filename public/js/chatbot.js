@@ -33,7 +33,9 @@
   closeBtn.addEventListener('click', toggle);
 
   // Wire any element with [data-cb-open] attribute
+  // IMPORTANT: skip clicks that originate from inside #cbRoot itself (prevents close→reopen loop)
   document.addEventListener('click', function(e) {
+    if (e.target.closest('#cbRoot')) return;
     var t = e.target.closest('[data-cb-open]');
     if (!t) return;
     e.preventDefault();

@@ -17,7 +17,14 @@
       </div>
       <div class="login-body">
         <div class="login-logo">
-          <img src="/public/img/novo/logo.png" alt="VemNaBet" style="height:44px;width:auto;max-width:240px;object-fit:contain">
+          <% if (locals.logoDark && locals.logoLight) { %>
+            <img src="<%= logoDark %>" alt="VemNaBet" style="height:44px;width:auto;max-width:240px;object-fit:contain" class="logo-dark-only">
+            <img src="<%= logoLight %>" alt="VemNaBet" style="height:44px;width:auto;max-width:240px;object-fit:contain" class="logo-light-only">
+          <% } else if (locals.logoDark) { %>
+            <img src="<%= logoDark %>" alt="VemNaBet" style="height:44px;width:auto;max-width:240px;object-fit:contain">
+          <% } else { %>
+            <img src="/public/img/novo/logo.png" alt="VemNaBet" style="height:44px;width:auto;max-width:240px;object-fit:contain">
+          <% } %>
         </div>
         <form class="login-form" id="loginForm" autocomplete="off">
           <div class="login-field">
@@ -60,7 +67,14 @@
       </div>
       <div class="login-body">
         <div class="login-logo" style="padding:32px 0 20px">
-          <img src="/public/img/novo/logo.png" alt="VemNaBet" style="height:44px;width:auto;max-width:240px;object-fit:contain">
+          <% if (locals.logoDark && locals.logoLight) { %>
+            <img src="<%= logoDark %>" alt="VemNaBet" style="height:44px;width:auto;max-width:240px;object-fit:contain" class="logo-dark-only">
+            <img src="<%= logoLight %>" alt="VemNaBet" style="height:44px;width:auto;max-width:240px;object-fit:contain" class="logo-light-only">
+          <% } else if (locals.logoDark) { %>
+            <img src="<%= logoDark %>" alt="VemNaBet" style="height:44px;width:auto;max-width:240px;object-fit:contain">
+          <% } else { %>
+            <img src="/public/img/novo/logo.png" alt="VemNaBet" style="height:44px;width:auto;max-width:240px;object-fit:contain">
+          <% } %>
         </div>
         <div style="text-align:center;margin-bottom:20px">
           <h3 style="font-size:18px;font-weight:700;color:#fff;margin:0 0 6px">Crie sua conta</h3>
@@ -150,7 +164,7 @@
   <div class="dep-modal">
     <!-- Banner -->
     <div class="dep-banner">
-      <img src="/public/img/banner1.avif" alt="" class="dep-banner-img">
+      <img src="/public/img/novo/bannermodalcompra.jfif" alt="" class="dep-banner-img">
       <button class="dep-banner-close" id="depBannerClose" type="button">
         <img src="/public/img/novo/fecharbanner.svg" width="19" height="19" alt="Fechar">
       </button>
