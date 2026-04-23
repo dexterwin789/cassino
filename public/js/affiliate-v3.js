@@ -433,15 +433,24 @@
   let domState = { code: '', token: '', loaded: false };
 
   async function loadDomains() {
+    // Render snippets immediately with placeholder so user never sees "Carregando..." forever
+    renderDomainSnippets();
     try {
       const d = await api('/api/affiliate/domains');
-      if (!d.ok) return toast(d.msg || 'Erro ao carregar domínios', 'error');
+      if (!d || !d.ok) {
+        renderDomainSnippets();
+        return toast((d && d.msg) || 'Erro ao carregar domínios', 'error');
+      }
       domState.code = d.code || '';
       domState.token = d.token || '';
       domState.loaded = true;
       renderDomainsList(d.domains || []);
       renderDomainSnippets();
-    } catch (e) { console.error('[aff3] domains', e); }
+    } catch (e) {
+      console.error('[aff3] domains', e);
+      renderDomainSnippets();
+      toast('Falha ao carregar domínios', 'error');
+    }
   }
 
   function renderDomainsList(list) {
@@ -477,10 +486,16 @@
   }
 
   function renderDomainSnippets() {
-    if (!domState.token) return;
-    const url = 'https://app.vemnabet.bet/r/' + domState.token;
     const phpEl = document.getElementById('aff3DomSnippetPhp');
     const htmlEl = document.getElementById('aff3DomSnippetHtml');
+    if (!phpEl && !htmlEl) return;
+    if (!domState.token) {
+      const placeholder = '// Seu snippet aparecerá aqui assim que carregar...';
+      if (phpEl) phpEl.textContent = placeholder;
+      if (htmlEl) htmlEl.textContent = placeholder;
+      return;
+    }
+    const url = 'https://app.vemnabet.bet/r/' + domState.token;
     if (phpEl) phpEl.textContent =
       '<?php\n' +
       'header(\'Location: ' + url + '\', true, 302);\n' +
