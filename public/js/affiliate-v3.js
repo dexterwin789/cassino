@@ -461,21 +461,17 @@
       return;
     }
     host.innerHTML = list.map(d => {
-      const statusClass = d.status === 'active' ? 'active' : (d.status === 'pending' ? 'pending' : 'error');
-      const modeTxt = d.mode === 'snippet' ? 'Snippet' : 'CNAME';
+      const statusClass = 'active';
       const destTxt = d.destination === 'cassino' ? 'Landing' : 'App';
-      const statusLabel = d.status === 'active' ? 'Ativo' : (d.status === 'pending' ? 'Pendente' : 'Erro');
       return '<div class="aff3-dom-item">' +
         '<div class="aff3-dom-item-main">' +
           '<div class="aff3-dom-item-domain">' + escapeHtml(d.domain) + '</div>' +
           '<div class="aff3-dom-item-meta">' +
-            '<span class="aff3-dom-tag">' + modeTxt + '</span>' +
             '<span class="aff3-dom-tag">→ ' + destTxt + '</span>' +
-            '<span class="aff3-dom-status aff3-dom-status-' + statusClass + '">' + statusLabel + '</span>' +
+            '<span class="aff3-dom-status aff3-dom-status-' + statusClass + '">Ativo</span>' +
           '</div>' +
         '</div>' +
         '<div class="aff3-dom-item-actions">' +
-          (d.mode === 'cname' ? '<button class="aff3-btn aff3-btn-ghost aff3-btn-sm" data-aff3-dom-verify="' + d.id + '">Verificar</button>' : '') +
           '<button class="aff3-btn aff3-btn-ghost aff3-btn-sm" data-aff3-dom-test="' + escapeAttr(d.domain) + '" title="Testar">Abrir</button>' +
           '<button class="aff3-btn aff3-btn-danger aff3-btn-sm" data-aff3-dom-del="' + d.id + '" title="Remover">' +
             '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>' +
@@ -487,25 +483,16 @@
 
   function renderDomainSnippets() {
     const phpEl = document.getElementById('aff3DomSnippetPhp');
-    const htmlEl = document.getElementById('aff3DomSnippetHtml');
-    if (!phpEl && !htmlEl) return;
+    if (!phpEl) return;
     if (!domState.token) {
-      const placeholder = '// Seu snippet aparecerá aqui assim que carregar...';
-      if (phpEl) phpEl.textContent = placeholder;
-      if (htmlEl) htmlEl.textContent = placeholder;
+      phpEl.textContent = 'Cadastre um domínio acima para gerar o snippet.';
       return;
     }
     const url = 'https://app.vemnabet.bet/r/' + domState.token;
-    if (phpEl) phpEl.textContent =
+    phpEl.textContent =
       '<?php\n' +
       'header(\'Location: ' + url + '\', true, 302);\n' +
       'exit;';
-    if (htmlEl) htmlEl.textContent =
-      '<!DOCTYPE html><html><head>\n' +
-      '<meta charset="utf-8">\n' +
-      '<meta http-equiv="refresh" content="0;url=' + url + '">\n' +
-      '<script>location.replace(' + JSON.stringify(url) + ')</script>\n' +
-      '</head><body></body></html>';
   }
 
   // Form submit
@@ -514,7 +501,6 @@
     if (!form) return;
     ev.preventDefault();
     const input = document.getElementById('aff3DomInput');
-    const modeSel = document.getElementById('aff3DomMode');
     const destSel = document.getElementById('aff3DomDest');
     const domain = (input.value || '').trim();
     if (!domain) return toast('Informe um domínio', 'error');
@@ -523,7 +509,7 @@
     try {
       const r = await api('/api/affiliate/domains', {
         method: 'POST',
-        body: JSON.stringify({ domain, mode: modeSel.value, destination: destSel.value })
+        body: JSON.stringify({ domain, mode: 'snippet', destination: destSel.value })
       });
       if (!r.ok) return toast(r.msg || 'Erro ao cadastrar', 'error');
       toast('Domínio cadastrado!', 'success');
