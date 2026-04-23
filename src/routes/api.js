@@ -1676,4 +1676,181 @@ router.options('/public/useful-links', (req, res) => {
   res.status(204).end();
 });
 
+// ═══════════════════════════════════════════════════════════════════
+// CUSTOM AFFILIATE DOMAINS
+// Cada afiliado pode cadastrar domínios próprios. Quando o visitante
+// acessa, o Host é resolvido → ref → redirect camuflado pro app OU
+// serve a landing do cassino com ref setado.
+// ═══════════════════════════════════════════════════════════════════
+const { signRef } = require('../utils/refToken');
+
+function normalizeDomain(raw) {
+  if (!raw) return null;
+  let s = String(raw).trim().toLowerCase();
+  s = s.replace(/^https?:\/\//, '').replace(/\/.*$/, '').replace(/:\d+$/, '');
+  // reject obvious junk
+  if (!s || s.length > 253) return null;
+  // only a–z 0–9 . - (hostname chars)
+  if (!/^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$/.test(s)) return null;
+  return s;
+}
+const FORBIDDEN_DOMAINS = new Set([
+  'vemnabet.bet', 'www.vemnabet.bet', 'app.vemnabet.bet', 'api.vemnabet.bet',
+  'localhost', '127.0.0.1',
+  'cassino-production-1faa.up.railway.app',
+  'straplay-production.up.railway.app'
+]);
+
+// GET /api/affiliate/domains — list
+router.get('/affiliate/domains', requireUser, async (req, res) => {
+  try {
+    const aff = await ensureAffiliate(req.session.user.id);
+    const r = await query(
+      `SELECT id, domain, mode, destination, status, created_at, last_checked_at
+       FROM affiliate_domains WHERE affiliate_id = $1 ORDER BY id DESC`,
+      [aff.id]
+    );
+    res.json({ ok: true, domains: r.rows, code: aff.code, token: signRef(aff.code) });
+  } catch (err) {
+    console.error('[AFF DOM GET]', err);
+    res.status(500).json({ ok: false, msg: 'Erro' });
+  }
+});
+
+// POST /api/affiliate/domains — create
+// body: { domain, mode: 'cname'|'snippet', destination: 'app'|'cassino' }
+router.post('/affiliate/domains', requireUser, async (req, res) => {
+  try {
+    const aff = await ensureAffiliate(req.session.user.id);
+    const domain = normalizeDomain(req.body.domain);
+    if (!domain) return res.status(400).json({ ok: false, msg: 'Domínio inválido. Use ex: meusite.com ou www.meusite.com' });
+    if (FORBIDDEN_DOMAINS.has(domain) || /\.up\.railway\.app$/.test(domain))
+      return res.status(400).json({ ok: false, msg: 'Este domínio não pode ser usado.' });
+    const mode = ['cname', 'snippet'].includes(req.body.mode) ? req.body.mode : 'cname';
+    const destination = ['app', 'cassino'].includes(req.body.destination) ? req.body.destination : 'app';
+
+    // enforce per-affiliate cap (5)
+    const count = await query('SELECT COUNT(*)::int AS c FROM affiliate_domains WHERE affiliate_id = $1', [aff.id]);
+    if (count.rows[0].c >= 5) return res.status(400).json({ ok: false, msg: 'Limite de 5 domínios por afiliado.' });
+
+    // unique check
+    const exists = await query('SELECT affiliate_id FROM affiliate_domains WHERE LOWER(domain) = $1 LIMIT 1', [domain]);
+    if (exists.rows.length) {
+      if (exists.rows[0].affiliate_id === aff.id)
+        return res.status(409).json({ ok: false, msg: 'Você já cadastrou este domínio.' });
+      return res.status(409).json({ ok: false, msg: 'Este domínio já está em uso por outro afiliado.' });
+    }
+
+    // Status inicial: 'snippet' = active imediatamente (redirect local não depende de DNS).
+    // 'cname' = pending até o DNS do afiliado apontar.
+    const initialStatus = mode === 'snippet' ? 'active' : 'pending';
+
+    const ins = await query(
+      `INSERT INTO affiliate_domains (affiliate_id, domain, mode, destination, status)
+       VALUES ($1, $2, $3, $4, $5)
+       RETURNING id, domain, mode, destination, status, created_at, last_checked_at`,
+      [aff.id, domain, mode, destination, initialStatus]
+    );
+    res.json({ ok: true, msg: 'Domínio cadastrado', domain: ins.rows[0] });
+  } catch (err) {
+    console.error('[AFF DOM POST]', err);
+    res.status(500).json({ ok: false, msg: 'Erro ao cadastrar domínio' });
+  }
+});
+
+// DELETE /api/affiliate/domains/:id
+router.delete('/affiliate/domains/:id', requireUser, async (req, res) => {
+  try {
+    const aff = await ensureAffiliate(req.session.user.id);
+    const id = parseInt(req.params.id, 10);
+    if (!id) return res.status(400).json({ ok: false, msg: 'ID inválido' });
+    const r = await query('DELETE FROM affiliate_domains WHERE id = $1 AND affiliate_id = $2', [id, aff.id]);
+    if (!r.rowCount) return res.status(404).json({ ok: false, msg: 'Não encontrado' });
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('[AFF DOM DEL]', err);
+    res.status(500).json({ ok: false, msg: 'Erro' });
+  }
+});
+
+// POST /api/affiliate/domains/:id/verify — DNS lookup p/ promover de pending→active
+router.post('/affiliate/domains/:id/verify', requireUser, async (req, res) => {
+  try {
+    const aff = await ensureAffiliate(req.session.user.id);
+    const id = parseInt(req.params.id, 10);
+    if (!id) return res.status(400).json({ ok: false, msg: 'ID inválido' });
+    const r = await query(
+      'SELECT id, domain, mode FROM affiliate_domains WHERE id = $1 AND affiliate_id = $2 LIMIT 1',
+      [id, aff.id]
+    );
+    if (!r.rows.length) return res.status(404).json({ ok: false, msg: 'Não encontrado' });
+    const row = r.rows[0];
+    if (row.mode === 'snippet') {
+      await query(`UPDATE affiliate_domains SET status='active', last_checked_at=NOW() WHERE id=$1`, [row.id]);
+      return res.json({ ok: true, status: 'active', msg: 'Modo snippet ativo.' });
+    }
+    // mode = 'cname' → resolve DNS
+    const dns = require('dns').promises;
+    let active = false;
+    let detail = '';
+    try {
+      // Try CNAME chain first
+      try {
+        const cnames = await dns.resolveCname(row.domain);
+        if (cnames && cnames.some(c => /(^|\.)(vemnabet\.bet|up\.railway\.app)$/i.test(c))) active = true;
+        detail = 'CNAME: ' + (cnames || []).join(', ');
+      } catch {/* no CNAME */}
+      if (!active) {
+        // Fallback: A record matches Railway edge? Skip for simplicity.
+        // Try ANAME-style: resolve host's IPv4 + compare with vemnabet.bet
+        try {
+          const [theirs, ours] = await Promise.all([
+            dns.resolve4(row.domain).catch(() => []),
+            dns.resolve4('vemnabet.bet').catch(() => [])
+          ]);
+          if (theirs.length && ours.length && theirs.some(ip => ours.includes(ip))) active = true;
+          detail += ' | A: ' + theirs.join(',');
+        } catch {/* ignore */}
+      }
+    } catch (e) { detail = e.message; }
+
+    const newStatus = active ? 'active' : 'pending';
+    await query(`UPDATE affiliate_domains SET status=$1, last_checked_at=NOW() WHERE id=$2`, [newStatus, row.id]);
+    res.json({ ok: true, status: newStatus, detail, msg: active ? 'Domínio ativo!' : 'DNS ainda não propagado. Tente novamente em alguns minutos.' });
+  } catch (err) {
+    console.error('[AFF DOM VERIFY]', err);
+    res.status(500).json({ ok: false, msg: 'Erro ao verificar' });
+  }
+});
+
+// GET /api/public/resolve-domain?host=meusite.com  → { ok, ref, destination }
+// Consumido pelo straplay para resolver CNAMEs apontados para app.vemnabet.bet.
+router.get('/public/resolve-domain', async (req, res) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  res.setHeader('Cache-Control', 'public, max-age=120');
+  try {
+    let host = (req.query.host || '').toString().trim().toLowerCase().split(':')[0];
+    if (!host || host.length > 253) return res.json({ ok: true, ref: null });
+    const r = await query(
+      `SELECT a.code, d.destination FROM affiliate_domains d
+       JOIN affiliates a ON a.id = d.affiliate_id
+       WHERE LOWER(d.domain) = $1 AND d.status IN ('active','pending') AND a.is_active = TRUE
+       LIMIT 1`,
+      [host]
+    );
+    if (!r.rows.length) return res.json({ ok: true, ref: null });
+    const ref = r.rows[0].code;
+    res.json({ ok: true, ref, destination: r.rows[0].destination || 'app', token: signRef(ref) });
+  } catch (err) {
+    console.error('[PUB RESOLVE-DOMAIN]', err);
+    res.status(500).json({ ok: false, msg: 'Erro' });
+  }
+});
+router.options('/public/resolve-domain', (_req, res) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  res.status(204).end();
+});
+
 module.exports = router;

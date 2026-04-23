@@ -767,6 +767,10 @@
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
                   Links Úteis
                 </button>
+                <button class="aff3-tab" data-aff3-tab="domains">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                  Domínios
+                </button>
               </div>
 
               <!-- ═══════════════ DASHBOARD ═══════════════ -->
@@ -1066,7 +1070,83 @@
                 </div>
               </div>
 
-              <!-- (Aba de Saques removida — solicitações agora via suporte) -->
+              <!-- ═══════════════ DOMÍNIOS CUSTOMIZADOS ═══════════════ -->
+              <div class="aff3-pane" data-aff3-pane="domains">
+                <div class="aff3-section">
+                  <div class="aff3-section-title">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                    Domínios Customizados
+                  </div>
+                  <div class="aff3-dom-intro">
+                    Cadastre até <strong>5 domínios</strong> que carregam seu código de afiliado automaticamente. Quando alguém acessar pelo seu domínio, o ref fica invisível na URL (camuflado) mas é rastreado normalmente.
+                  </div>
+
+                  <!-- ADD DOMAIN FORM -->
+                  <form class="aff3-dom-form" id="aff3DomForm">
+                    <div class="aff3-dom-field">
+                      <label>Domínio</label>
+                      <input type="text" id="aff3DomInput" placeholder="www.meusite.com" maxlength="253" required>
+                    </div>
+                    <div class="aff3-dom-field">
+                      <label>Modo</label>
+                      <select id="aff3DomMode">
+                        <option value="cname">CNAME/Cloudflare (apontar DNS)</option>
+                        <option value="snippet">Hospedagem própria (snippet)</option>
+                      </select>
+                    </div>
+                    <div class="aff3-dom-field">
+                      <label>Destino</label>
+                      <select id="aff3DomDest">
+                        <option value="app">App (jogos)</option>
+                        <option value="cassino">Landing (cadastro)</option>
+                      </select>
+                    </div>
+                    <button type="submit" class="aff3-btn aff3-btn-primary">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+                      Adicionar
+                    </button>
+                  </form>
+
+                  <!-- HELP BOXES -->
+                  <div class="aff3-dom-help-grid">
+                    <div class="aff3-dom-help">
+                      <div class="aff3-dom-help-title">
+                        <span class="aff3-dom-badge aff3-dom-badge-cname">1</span> CNAME (Cloudflare/DNS)
+                      </div>
+                      <ol>
+                        <li>No seu painel DNS (Cloudflare, Registro.br, etc), crie um registro:<br>
+                          <code>CNAME  www  →  app.vemnabet.bet</code>
+                        </li>
+                        <li>Ative o proxy (nuvem laranja) para ter SSL automático.</li>
+                        <li>Clique em <strong>Verificar</strong> abaixo. Pode levar alguns minutos para propagar.</li>
+                      </ol>
+                    </div>
+                    <div class="aff3-dom-help">
+                      <div class="aff3-dom-help-title">
+                        <span class="aff3-dom-badge aff3-dom-badge-snippet">2</span> Hospedagem própria (snippet)
+                      </div>
+                      <p>Se você já tem um site (WordPress, Hostinger, etc.), basta colar um dos snippets abaixo no <code>index</code> da pasta raiz — qualquer visita é redirecionada pro app com o código <strong>invisível</strong> na URL.</p>
+                      <div class="aff3-dom-snippets">
+                        <div class="aff3-dom-snippet-block">
+                          <div class="aff3-dom-snippet-label">index.php</div>
+                          <pre id="aff3DomSnippetPhp">Carregando…</pre>
+                          <button type="button" class="aff3-btn aff3-btn-ghost aff3-btn-sm" data-copy="#aff3DomSnippetPhp">Copiar</button>
+                        </div>
+                        <div class="aff3-dom-snippet-block">
+                          <div class="aff3-dom-snippet-label">index.html</div>
+                          <pre id="aff3DomSnippetHtml">Carregando…</pre>
+                          <button type="button" class="aff3-btn aff3-btn-ghost aff3-btn-sm" data-copy="#aff3DomSnippetHtml">Copiar</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- DOMAINS LIST -->
+                  <div class="aff3-dom-list" id="aff3DomList">
+                    <div class="aff3-dom-empty">Nenhum domínio cadastrado ainda.</div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
           <!-- PRÊMIOS E RECOMPENSAS -->

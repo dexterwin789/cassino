@@ -45,6 +45,7 @@
       if (tab === 'links') loadLinks();
       if (tab === 'indicados') loadIndicados();
       if (tab === 'useful') loadUsefulLinks();
+      if (tab === 'domains') loadDomains();
     });
   });
 
@@ -426,6 +427,140 @@
     if (saveBtn) { ev.preventDefault(); saveUsefulSlot(saveBtn.closest('.aff3-useful-card')); return; }
     const clearBtn = ev.target.closest('.aff3-useful-clear');
     if (clearBtn) { ev.preventDefault(); clearUsefulSlot(clearBtn.closest('.aff3-useful-card')); return; }
+  });
+
+  // ═════════ DOMÍNIOS CUSTOMIZADOS ═════════
+  let domState = { code: '', token: '', loaded: false };
+
+  async function loadDomains() {
+    try {
+      const d = await api('/api/affiliate/domains');
+      if (!d.ok) return toast(d.msg || 'Erro ao carregar domínios', 'error');
+      domState.code = d.code || '';
+      domState.token = d.token || '';
+      domState.loaded = true;
+      renderDomainsList(d.domains || []);
+      renderDomainSnippets();
+    } catch (e) { console.error('[aff3] domains', e); }
+  }
+
+  function renderDomainsList(list) {
+    const host = document.getElementById('aff3DomList');
+    if (!host) return;
+    if (!list.length) {
+      host.innerHTML = '<div class="aff3-dom-empty">Nenhum domínio cadastrado ainda.</div>';
+      return;
+    }
+    host.innerHTML = list.map(d => {
+      const statusClass = d.status === 'active' ? 'active' : (d.status === 'pending' ? 'pending' : 'error');
+      const modeTxt = d.mode === 'snippet' ? 'Snippet' : 'CNAME';
+      const destTxt = d.destination === 'cassino' ? 'Landing' : 'App';
+      const statusLabel = d.status === 'active' ? 'Ativo' : (d.status === 'pending' ? 'Pendente' : 'Erro');
+      return '<div class="aff3-dom-item">' +
+        '<div class="aff3-dom-item-main">' +
+          '<div class="aff3-dom-item-domain">' + escapeHtml(d.domain) + '</div>' +
+          '<div class="aff3-dom-item-meta">' +
+            '<span class="aff3-dom-tag">' + modeTxt + '</span>' +
+            '<span class="aff3-dom-tag">→ ' + destTxt + '</span>' +
+            '<span class="aff3-dom-status aff3-dom-status-' + statusClass + '">' + statusLabel + '</span>' +
+          '</div>' +
+        '</div>' +
+        '<div class="aff3-dom-item-actions">' +
+          (d.mode === 'cname' ? '<button class="aff3-btn aff3-btn-ghost aff3-btn-sm" data-aff3-dom-verify="' + d.id + '">Verificar</button>' : '') +
+          '<button class="aff3-btn aff3-btn-ghost aff3-btn-sm" data-aff3-dom-test="' + escapeAttr(d.domain) + '" title="Testar">Abrir</button>' +
+          '<button class="aff3-btn aff3-btn-danger aff3-btn-sm" data-aff3-dom-del="' + d.id + '" title="Remover">' +
+            '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>' +
+          '</button>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  function renderDomainSnippets() {
+    if (!domState.token) return;
+    const url = 'https://app.vemnabet.bet/r/' + domState.token;
+    const phpEl = document.getElementById('aff3DomSnippetPhp');
+    const htmlEl = document.getElementById('aff3DomSnippetHtml');
+    if (phpEl) phpEl.textContent =
+      '<?php\n' +
+      'header(\'Location: ' + url + '\', true, 302);\n' +
+      'exit;';
+    if (htmlEl) htmlEl.textContent =
+      '<!DOCTYPE html><html><head>\n' +
+      '<meta charset="utf-8">\n' +
+      '<meta http-equiv="refresh" content="0;url=' + url + '">\n' +
+      '<script>location.replace(' + JSON.stringify(url) + ')</script>\n' +
+      '</head><body></body></html>';
+  }
+
+  // Form submit
+  document.addEventListener('submit', async (ev) => {
+    const form = ev.target.closest('#aff3DomForm');
+    if (!form) return;
+    ev.preventDefault();
+    const input = document.getElementById('aff3DomInput');
+    const modeSel = document.getElementById('aff3DomMode');
+    const destSel = document.getElementById('aff3DomDest');
+    const domain = (input.value || '').trim();
+    if (!domain) return toast('Informe um domínio', 'error');
+    const btn = form.querySelector('button[type="submit"]');
+    if (btn) { btn.disabled = true; }
+    try {
+      const r = await api('/api/affiliate/domains', {
+        method: 'POST',
+        body: JSON.stringify({ domain, mode: modeSel.value, destination: destSel.value })
+      });
+      if (!r.ok) return toast(r.msg || 'Erro ao cadastrar', 'error');
+      toast('Domínio cadastrado!', 'success');
+      input.value = '';
+      loadDomains();
+    } catch (e) { toast('Erro ao cadastrar', 'error'); }
+    finally { if (btn) btn.disabled = false; }
+  });
+
+  // Click delegation (verify / delete / test / copy)
+  root.addEventListener('click', async (ev) => {
+    const vBtn = ev.target.closest('[data-aff3-dom-verify]');
+    if (vBtn) {
+      ev.preventDefault();
+      const id = vBtn.getAttribute('data-aff3-dom-verify');
+      vBtn.disabled = true; vBtn.textContent = 'Verificando...';
+      try {
+        const r = await api('/api/affiliate/domains/' + id + '/verify', { method: 'POST' });
+        toast(r.msg || (r.ok ? 'OK' : 'Erro'), r.ok && r.status === 'active' ? 'success' : 'info');
+        loadDomains();
+      } catch { toast('Erro', 'error'); }
+      return;
+    }
+    const dBtn = ev.target.closest('[data-aff3-dom-del]');
+    if (dBtn) {
+      ev.preventDefault();
+      if (!confirm('Remover este domínio?')) return;
+      const id = dBtn.getAttribute('data-aff3-dom-del');
+      const r = await api('/api/affiliate/domains/' + id, { method: 'DELETE' });
+      if (!r.ok) return toast(r.msg || 'Erro', 'error');
+      toast('Domínio removido', 'success');
+      loadDomains();
+      return;
+    }
+    const tBtn = ev.target.closest('[data-aff3-dom-test]');
+    if (tBtn) {
+      ev.preventDefault();
+      const host = tBtn.getAttribute('data-aff3-dom-test');
+      window.open('https://' + host + '/', '_blank', 'noopener');
+      return;
+    }
+    const cBtn = ev.target.closest('[data-copy]');
+    if (cBtn) {
+      ev.preventDefault();
+      const sel = cBtn.getAttribute('data-copy');
+      const src = document.querySelector(sel);
+      if (src) {
+        try { await navigator.clipboard.writeText(src.textContent || ''); toast('Copiado!', 'success'); }
+        catch { toast('Não foi possível copiar', 'error'); }
+      }
+      return;
+    }
   });
 
   // ═════════ HELPERS ═════════

@@ -180,6 +180,107 @@ app.use(async (req, res, next) => {
   next();
 });
 
+// ── Custom affiliate domains: host → ref resolution (5min in-memory LRU) ──
+const { signRef: _signRef, verifyRef: _verifyRef } = require('./src/utils/refToken');
+const KNOWN_HOSTS = new Set([
+  'vemnabet.bet', 'www.vemnabet.bet', 'app.vemnabet.bet',
+  'cassino-production-1faa.up.railway.app',
+  'straplay-production.up.railway.app',
+  'localhost', '127.0.0.1'
+]);
+const _domainCache = new Map(); // host → { ref, destination, expires }
+function _cacheGet(host) {
+  const v = _domainCache.get(host);
+  if (!v) return undefined;
+  if (v.expires < Date.now()) { _domainCache.delete(host); return undefined; }
+  return v;
+}
+function _cacheSet(host, data) {
+  if (_domainCache.size > 500) _domainCache.clear();
+  _domainCache.set(host, Object.assign({ expires: Date.now() + 5 * 60 * 1000 }, data));
+}
+
+async function resolveCustomHost(host) {
+  if (!host) return null;
+  host = host.toLowerCase().split(':')[0];
+  if (KNOWN_HOSTS.has(host) || /\.up\.railway\.app$/.test(host)) return null;
+  const cached = _cacheGet(host);
+  if (cached !== undefined) return cached.ref ? cached : null;
+  try {
+    const r = await pool.query(
+      `SELECT a.code, d.destination FROM affiliate_domains d
+       JOIN affiliates a ON a.id = d.affiliate_id
+       WHERE LOWER(d.domain) = $1 AND d.status IN ('active','pending') AND a.is_active = TRUE
+       LIMIT 1`,
+      [host]
+    );
+    if (!r.rows.length) { _cacheSet(host, { ref: null, destination: null }); return null; }
+    const data = { ref: r.rows[0].code, destination: r.rows[0].destination || 'app' };
+    _cacheSet(host, data);
+    return data;
+  } catch (e) {
+    console.error('[custom-domain resolve]', e.message);
+    return null;
+  }
+}
+
+// Middleware: if request arrives on a registered custom domain → handle it
+app.use(async (req, res, next) => {
+  const host = (req.headers.host || '').toLowerCase().split(':')[0];
+  // Skip /health, /api/webhook*, /public/*, static assets — never custom-domain-handled
+  if (!host ||
+      req.path === '/health' || req.path === '/healthz' ||
+      req.path.startsWith('/api/webhook') ||
+      req.path.startsWith('/webhook') ||
+      req.path.startsWith('/public/') ||
+      req.path.startsWith('/assets/')) return next();
+
+  const d = await resolveCustomHost(host);
+  if (!d || !d.ref) return next();
+
+  // Attach ref to the request/session for any downstream logic
+  req.affiliateRef = d.ref;
+  if (req.session && !req.session.pendingRef) req.session.pendingRef = d.ref;
+
+  // /r/:token, /api/* calls on custom domain → pass through (cookie fallback)
+  if (req.path.startsWith('/r/') || req.path.startsWith('/api/')) return next();
+
+  // destination=app → camouflaged 302 to app.vemnabet.bet/r/<token>
+  if (d.destination === 'app') {
+    const token = _signRef(d.ref);
+    if (!token) return next();
+    return res.redirect(302, 'https://app.vemnabet.bet/r/' + encodeURIComponent(token));
+  }
+
+  // destination=cassino → serve landing with ref cookie
+  const parts = [
+    `vnb_ref=${encodeURIComponent(d.ref)}`,
+    'Path=/',
+    `Max-Age=${30 * 24 * 60 * 60}`,
+    'SameSite=Lax'
+  ];
+  if (IS_PROD) parts.push('Secure');
+  res.append('Set-Cookie', parts.join('; '));
+  return next();
+});
+
+// /r/:token — HMAC-signed token carrying an affiliate ref code.
+// Sets cookie scoped to .vemnabet.bet and 302s to "/", camouflando o código.
+app.get('/r/:token', (req, res) => {
+  const ref = _verifyRef(req.params.token);
+  if (!ref) return res.redirect(302, '/');
+  const parts = [
+    `vnb_ref=${encodeURIComponent(ref)}`,
+    'Path=/',
+    `Max-Age=${30 * 24 * 60 * 60}`,
+    'SameSite=Lax'
+  ];
+  if (IS_PROD) { parts.push('Domain=.vemnabet.bet'); parts.push('Secure'); }
+  res.append('Set-Cookie', parts.join('; '));
+  if (req.session) req.session.pendingRef = ref;
+  return res.redirect(302, '/');
+});
+
 // Routes
 app.use('/', require('./src/routes/pages'));
 app.use('/api', require('./src/routes/api'));
@@ -468,6 +569,24 @@ async function autoMigrate() {
       updated_at   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
       PRIMARY KEY (affiliate_id, slot)
     )`);
+
+    // ——— Per-affiliate custom domains (ref resolved by Host header) ———————
+    // mode: 'cname'    → afiliado apontou CNAME para vemnabet.bet/app.vemnabet.bet
+    //       'snippet'  → afiliado hospeda o próprio site e usa um snippet que redireciona
+    // destination: 'app' (default) → redireciona para https://app.vemnabet.bet
+    //              'cassino'       → serve a landing de vemnabet.bet com ref setado
+    await pool.query(`CREATE TABLE IF NOT EXISTS affiliate_domains (
+      id             SERIAL PRIMARY KEY,
+      affiliate_id   INT NOT NULL REFERENCES affiliates(id) ON DELETE CASCADE,
+      domain         VARCHAR(253) NOT NULL,
+      mode           VARCHAR(16) NOT NULL DEFAULT 'cname',
+      destination    VARCHAR(16) NOT NULL DEFAULT 'app',
+      status         VARCHAR(16) NOT NULL DEFAULT 'pending',
+      last_checked_at TIMESTAMPTZ,
+      created_at     TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )`);
+    await pool.query(`CREATE UNIQUE INDEX IF NOT EXISTS uq_aff_domains_domain ON affiliate_domains (LOWER(domain))`);
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_aff_domains_aff ON affiliate_domains (affiliate_id)`);
 
     // ——— Chatbot sessions (for analytics / escalation) ——————————
     await pool.query(`CREATE TABLE IF NOT EXISTS chat_sessions (
