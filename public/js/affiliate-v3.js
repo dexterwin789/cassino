@@ -44,6 +44,7 @@
       qsa('[data-aff3-pane]').forEach(p => p.classList.toggle('active', p.dataset.aff3Pane === tab));
       if (tab === 'links') loadLinks();
       if (tab === 'indicados') loadIndicados();
+      if (tab === 'useful') loadUsefulLinks();
     });
   });
 
@@ -310,6 +311,122 @@
   });
 
   // ═════════ SAQUES (removido — agora via suporte) ═════════
+
+  // ═════════ LINKS ÚTEIS (4 banners) ═════════
+  const MAX_IMAGE_BYTES = 4 * 1024 * 1024; // 4MB
+
+  function setSlotUI(card, data) {
+    const img = card.querySelector('.aff3-useful-img');
+    const empty = card.querySelector('.aff3-useful-empty');
+    const titleIn = card.querySelector('.aff3-useful-title');
+    const urlIn = card.querySelector('.aff3-useful-url');
+    if (data && data.image_url) {
+      img.src = data.image_url;
+      img.hidden = false;
+      if (empty) empty.style.display = 'none';
+    } else {
+      img.removeAttribute('src');
+      img.hidden = true;
+      if (empty) empty.style.display = '';
+    }
+    titleIn.value = (data && data.title) || '';
+    urlIn.value = (data && data.target_url) || '';
+    card.dataset.pendingImage = '';
+  }
+
+  async function loadUsefulLinks() {
+    try {
+      const d = await api('/api/affiliate/useful-links');
+      if (!d.ok) return toast(d.msg || 'Erro ao carregar', 'error');
+      const slots = d.slots || [];
+      qsa('.aff3-useful-card').forEach(card => {
+        const slot = parseInt(card.dataset.uslot, 10);
+        const s = slots.find(x => x.slot === slot) || null;
+        setSlotUI(card, s);
+      });
+    } catch (e) { console.error('[aff3] useful', e); }
+  }
+
+  function fileToDataUrl(file) {
+    return new Promise((resolve, reject) => {
+      const fr = new FileReader();
+      fr.onload = () => resolve(fr.result);
+      fr.onerror = reject;
+      fr.readAsDataURL(file);
+    });
+  }
+
+  async function saveUsefulSlot(card) {
+    const slot = parseInt(card.dataset.uslot, 10);
+    const titleIn = card.querySelector('.aff3-useful-title');
+    const urlIn = card.querySelector('.aff3-useful-url');
+    const img = card.querySelector('.aff3-useful-img');
+    const pending = card.dataset.pendingImage || '';
+    const existingSrc = img && !img.hidden ? img.getAttribute('src') : '';
+    const imageUrl = pending || existingSrc || null;
+    const targetUrl = (urlIn.value || '').trim();
+    if (!imageUrl) return toast('Selecione uma imagem para este slot', 'error');
+    if (!targetUrl) return toast('Informe o link de destino', 'error');
+    if (!/^https?:\/\//i.test(targetUrl)) return toast('Link deve começar com http:// ou https://', 'error');
+    const saveBtn = card.querySelector('.aff3-useful-save');
+    if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = 'Salvando...'; }
+    try {
+      const r = await api('/api/affiliate/useful-links', {
+        method: 'POST',
+        body: JSON.stringify({
+          slot,
+          image_url: imageUrl,
+          target_url: targetUrl,
+          title: (titleIn.value || '').trim()
+        })
+      });
+      if (!r.ok) return toast(r.msg || 'Erro ao salvar', 'error');
+      toast('Banner salvo!', 'success');
+      // refresh this slot with authoritative data
+      setSlotUI(card, r.slot);
+    } catch (e) {
+      console.error('[aff3] useful save', e);
+      toast('Erro ao salvar', 'error');
+    } finally {
+      if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = 'Salvar'; }
+    }
+  }
+
+  async function clearUsefulSlot(card) {
+    const slot = parseInt(card.dataset.uslot, 10);
+    if (!confirm('Limpar este banner? Ele sumirá dos apps com seu código.')) return;
+    const r = await api('/api/affiliate/useful-links/' + slot, { method: 'DELETE' });
+    if (!r.ok) return toast(r.msg || 'Erro', 'error');
+    setSlotUI(card, null);
+    toast('Slot limpo', 'success');
+  }
+
+  // Delegated events — wired once
+  root.addEventListener('change', async (ev) => {
+    const fileInput = ev.target.closest('.aff3-useful-upload input[type="file"]');
+    if (!fileInput) return;
+    const card = fileInput.closest('.aff3-useful-card');
+    if (!card) return;
+    const f = fileInput.files && fileInput.files[0];
+    if (!f) return;
+    if (!/^image\/(png|jpe?g|webp)$/i.test(f.type)) return toast('Formato inválido (PNG/JPG/WEBP)', 'error');
+    if (f.size > MAX_IMAGE_BYTES) return toast('Imagem maior que 4MB', 'error');
+    try {
+      const dataUrl = await fileToDataUrl(f);
+      card.dataset.pendingImage = dataUrl;
+      const img = card.querySelector('.aff3-useful-img');
+      const empty = card.querySelector('.aff3-useful-empty');
+      img.src = dataUrl; img.hidden = false;
+      if (empty) empty.style.display = 'none';
+    } catch (e) { toast('Erro ao ler imagem', 'error'); }
+    fileInput.value = '';
+  });
+  root.addEventListener('click', (ev) => {
+    const saveBtn = ev.target.closest('.aff3-useful-save');
+    if (saveBtn) { ev.preventDefault(); saveUsefulSlot(saveBtn.closest('.aff3-useful-card')); return; }
+    const clearBtn = ev.target.closest('.aff3-useful-clear');
+    if (clearBtn) { ev.preventDefault(); clearUsefulSlot(clearBtn.closest('.aff3-useful-card')); return; }
+  });
 
   // ═════════ HELPERS ═════════
   function escapeHtml(s) {

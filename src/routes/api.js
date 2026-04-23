@@ -1552,4 +1552,128 @@ router.post('/chat/escalate', async (req, res) => {
   }
 });
 
+// ═════════ AFFILIATE USEFUL LINKS (4 slots) ═════════
+// URL validation (http/https + safe chars)
+function validTargetUrl(u) {
+  if (!u) return true; // empty allowed (clearing)
+  const s = String(u).trim();
+  if (s.length > 2048) return false;
+  return /^https?:\/\/[^\s<>"']+$/i.test(s);
+}
+// Accept either https image URL or data:image/* base64 (≤ ~4MB)
+function validImageUrl(u) {
+  if (!u) return true;
+  const s = String(u);
+  if (s.length > 6000000) return false; // ~4.5MB binary
+  if (/^https?:\/\/[^\s<>"']+$/i.test(s)) return true;
+  if (/^data:image\/(png|jpe?g|webp|gif);base64,[A-Za-z0-9+/=]+$/i.test(s)) return true;
+  return false;
+}
+
+function emptySlots() {
+  return [1, 2, 3, 4].map(slot => ({ slot, image_url: null, target_url: null, title: null }));
+}
+function mergeSlots(rows) {
+  const out = emptySlots();
+  (rows || []).forEach(r => {
+    const i = (parseInt(r.slot, 10) || 0) - 1;
+    if (i >= 0 && i < 4) out[i] = { slot: r.slot, image_url: r.image_url, target_url: r.target_url, title: r.title || null };
+  });
+  return out;
+}
+
+// GET /api/affiliate/useful-links — owner view (always returns 4 slots)
+router.get('/affiliate/useful-links', requireUser, async (req, res) => {
+  try {
+    const aff = await ensureAffiliate(req.session.user.id);
+    const r = await query(
+      'SELECT slot, image_url, target_url, title FROM affiliate_useful_links WHERE affiliate_id = $1 ORDER BY slot',
+      [aff.id]
+    );
+    res.json({ ok: true, slots: mergeSlots(r.rows), code: aff.code });
+  } catch (err) {
+    console.error('[AFF UL GET]', err);
+    res.status(500).json({ ok: false, msg: 'Erro' });
+  }
+});
+
+// POST /api/affiliate/useful-links — upsert a single slot
+// body: { slot: 1-4, image_url: string|null, target_url: string|null, title: string|null }
+router.post('/affiliate/useful-links', requireUser, async (req, res) => {
+  try {
+    const aff = await ensureAffiliate(req.session.user.id);
+    const slot = parseInt(req.body.slot, 10);
+    if (!(slot >= 1 && slot <= 4)) return res.status(400).json({ ok: false, msg: 'Slot inválido (1-4)' });
+    const imageUrl = req.body.image_url == null ? null : String(req.body.image_url).trim() || null;
+    const targetUrl = req.body.target_url == null ? null : String(req.body.target_url).trim() || null;
+    const title = req.body.title == null ? null : String(req.body.title).trim().slice(0, 120) || null;
+    if (!validImageUrl(imageUrl)) return res.status(400).json({ ok: false, msg: 'Imagem inválida (envie PNG/JPG/WEBP até 4MB)' });
+    if (!validTargetUrl(targetUrl)) return res.status(400).json({ ok: false, msg: 'URL de destino inválida (use http:// ou https://)' });
+    await query(
+      `INSERT INTO affiliate_useful_links (affiliate_id, slot, image_url, target_url, title, updated_at)
+       VALUES ($1, $2, $3, $4, $5, NOW())
+       ON CONFLICT (affiliate_id, slot) DO UPDATE
+       SET image_url = EXCLUDED.image_url,
+           target_url = EXCLUDED.target_url,
+           title = EXCLUDED.title,
+           updated_at = NOW()`,
+      [aff.id, slot, imageUrl, targetUrl, title]
+    );
+    res.json({ ok: true, msg: 'Salvo', slot: { slot, image_url: imageUrl, target_url: targetUrl, title } });
+  } catch (err) {
+    console.error('[AFF UL POST]', err);
+    res.status(500).json({ ok: false, msg: 'Erro ao salvar' });
+  }
+});
+
+// DELETE /api/affiliate/useful-links/:slot — clear a slot
+router.delete('/affiliate/useful-links/:slot', requireUser, async (req, res) => {
+  try {
+    const aff = await ensureAffiliate(req.session.user.id);
+    const slot = parseInt(req.params.slot, 10);
+    if (!(slot >= 1 && slot <= 4)) return res.status(400).json({ ok: false, msg: 'Slot inválido' });
+    await query('DELETE FROM affiliate_useful_links WHERE affiliate_id = $1 AND slot = $2', [aff.id, slot]);
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('[AFF UL DEL]', err);
+    res.status(500).json({ ok: false, msg: 'Erro' });
+  }
+});
+
+// GET /api/public/useful-links?ref=CODE — public (no auth), CORS open, consumed by external app
+router.get('/public/useful-links', async (req, res) => {
+  // CORS (any origin — public data)
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  res.setHeader('Cache-Control', 'public, max-age=60');
+  try {
+    const ref = (req.query.ref || '').toString().trim();
+    if (!ref || !/^[A-Za-z0-9_-]{1,64}$/.test(ref)) {
+      return res.json({ ok: true, slots: emptySlots() });
+    }
+    // Resolve ref → affiliate_id (link code first, then affiliate code)
+    let affId = null;
+    const link = await query('SELECT affiliate_id FROM affiliate_links WHERE code = $1 LIMIT 1', [ref]);
+    if (link.rows.length) affId = link.rows[0].affiliate_id;
+    else {
+      const a = await query('SELECT id FROM affiliates WHERE code = $1 AND is_active = TRUE LIMIT 1', [ref]);
+      if (a.rows.length) affId = a.rows[0].id;
+    }
+    if (!affId) return res.json({ ok: true, slots: emptySlots() });
+    const r = await query(
+      'SELECT slot, image_url, target_url, title FROM affiliate_useful_links WHERE affiliate_id = $1 ORDER BY slot',
+      [affId]
+    );
+    res.json({ ok: true, ref, slots: mergeSlots(r.rows) });
+  } catch (err) {
+    console.error('[PUB UL]', err);
+    res.status(500).json({ ok: false, msg: 'Erro', slots: emptySlots() });
+  }
+});
+router.options('/public/useful-links', (req, res) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  res.status(204).end();
+});
+
 module.exports = router;

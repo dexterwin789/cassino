@@ -763,6 +763,10 @@
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg>
                   Indicados
                 </button>
+                <button class="aff3-tab" data-aff3-tab="useful">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                  Links Úteis
+                </button>
               </div>
 
               <!-- ═══════════════ DASHBOARD ═══════════════ -->
@@ -1016,6 +1020,50 @@
                   </table>
                 </div>
                 <div class="aff3-pagination" id="aff3IPagination"></div>
+              </div>
+
+              <!-- ═══════════════ LINKS ÚTEIS (4 banners para o app) ═══════════════ -->
+              <div class="aff3-pane" data-aff3-pane="useful">
+                <div class="aff3-section">
+                  <div class="aff3-section-title">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                    Banners "Links Úteis" do App
+                  </div>
+                  <div class="aff3-useful-intro">
+                    Cadastre até <strong>4 banners</strong> (imagem + link) que aparecerão na seção <em>Links Úteis</em> do app para quem acessar com o seu código de afiliado.
+                    Formatos aceitos: PNG, JPG ou WEBP — até 4MB. Proporção recomendada: <strong>4:3</strong>.
+                  </div>
+                  <div class="aff3-useful-grid" id="aff3UsefulGrid">
+                    <% for (var i = 1; i <= 4; i++) { %>
+                    <div class="aff3-useful-card" data-uslot="<%= i %>">
+                      <div class="aff3-useful-preview">
+                        <div class="aff3-useful-empty">
+                          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                          <div>Slot <%= i %></div>
+                        </div>
+                        <img class="aff3-useful-img" alt="" hidden>
+                      </div>
+                      <div class="aff3-useful-body">
+                        <label class="aff3-useful-label">Título <span style="opacity:.6">(opcional)</span></label>
+                        <input type="text" class="aff3-useful-title" placeholder="Ex: Grupo VIP" maxlength="120">
+                        <label class="aff3-useful-label">Link de destino</label>
+                        <input type="url" class="aff3-useful-url" placeholder="https://t.me/seugrupo" maxlength="2048">
+                        <div class="aff3-useful-actions">
+                          <label class="aff3-btn aff3-btn-ghost aff3-btn-sm aff3-useful-upload">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                            Imagem
+                            <input type="file" accept="image/png,image/jpeg,image/webp" hidden>
+                          </label>
+                          <button type="button" class="aff3-btn aff3-btn-primary aff3-btn-sm aff3-useful-save">Salvar</button>
+                          <button type="button" class="aff3-btn aff3-btn-danger aff3-btn-sm aff3-useful-clear" title="Limpar slot">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                    <% } %>
+                  </div>
+                </div>
               </div>
 
               <!-- (Aba de Saques removida — solicitações agora via suporte) -->

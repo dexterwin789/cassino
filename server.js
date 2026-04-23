@@ -458,6 +458,17 @@ async function autoMigrate() {
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_aff_visits_aff ON affiliate_visits(affiliate_id)`);
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_aff_visits_created ON affiliate_visits(created_at)`);
 
+    // ——— Per-affiliate "Links Úteis" (4 image+url slots rendered by external app) ——
+    await pool.query(`CREATE TABLE IF NOT EXISTS affiliate_useful_links (
+      affiliate_id INT NOT NULL REFERENCES affiliates(id) ON DELETE CASCADE,
+      slot         SMALLINT NOT NULL CHECK (slot BETWEEN 1 AND 4),
+      image_url    TEXT,
+      target_url   TEXT,
+      title        VARCHAR(120),
+      updated_at   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      PRIMARY KEY (affiliate_id, slot)
+    )`);
+
     // ——— Chatbot sessions (for analytics / escalation) ——————————
     await pool.query(`CREATE TABLE IF NOT EXISTS chat_sessions (
       id           SERIAL PRIMARY KEY,
