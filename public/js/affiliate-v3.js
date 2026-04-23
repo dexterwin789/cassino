@@ -13,7 +13,9 @@
     ifrom: '',
     ito: '',
     ipage: 1,
+    iperpage: 5,
     spage: 1,
+    sperpage: 5,
     affCode: ''
   };
 
@@ -91,7 +93,7 @@
 
   async function loadSubaffiliates() {
     try {
-      const q = new URLSearchParams({ page: state.spage, per_page: 10 });
+      const q = new URLSearchParams({ page: state.spage, per_page: state.sperpage });
       const d = await api('/api/affiliate/subaffiliates?' + q.toString());
       const list = qs('#aff3SubaffList');
       const pag = qs('#aff3SubaffPagination');
@@ -113,7 +115,7 @@
           <td><strong style="color:var(--aff3-green1)">${fmtBRL(s.commissions)}</strong></td>
           <td>${new Date(s.created_at).toLocaleDateString('pt-BR')}</td>
         </tr>`).join('') + '</tbody></table></div>';
-      renderPagerGeneric(pag, d.pagination, (p) => { state.spage = p; loadSubaffiliates(); });
+      renderPagerGeneric(pag, d.pagination, (p) => { state.spage = p; loadSubaffiliates(); }, state.sperpage, (n) => { state.sperpage = n; state.spage = 1; loadSubaffiliates(); });
     } catch (e) { console.error('[aff3] subaff', e); }
   }
 
@@ -224,7 +226,7 @@
 
   // ═════════ INDICADOS ═════════
   async function loadIndicados() {
-    const q = new URLSearchParams({ period: state.iperiod, page: state.ipage, per_page: 20 });
+    const q = new URLSearchParams({ period: state.iperiod, page: state.ipage, per_page: state.iperpage });
     if (state.iperiod === 'custom') { q.set('from', state.ifrom); q.set('to', state.ito); }
     const d = await api('/api/affiliate/indicados?' + q.toString());
     if (!d.ok) return;
@@ -256,23 +258,30 @@
   }
 
   function renderPagination(p) {
-    renderPagerGeneric(qs('#aff3IPagination'), p, (i) => { state.ipage = i; loadIndicados(); });
+    renderPagerGeneric(qs('#aff3IPagination'), p, (i) => { state.ipage = i; loadIndicados(); }, state.iperpage, (n) => { state.iperpage = n; state.ipage = 1; loadIndicados(); });
   }
 
-  function renderPagerGeneric(el, p, onGo) {
+  function renderPagerGeneric(el, p, onGo, curPerPage, onPerPage) {
     if (!el) return;
     if (!p || p.total == null) { el.innerHTML = ''; return; }
     const cur = p.page, max = Math.max(1, p.pages), total = p.total;
     const info = `<span class="aff3-page-info">Página <strong>${cur}</strong> de <strong>${max}</strong> · ${total} registro${total === 1 ? '' : 's'}</span>`;
-    if (max <= 1) { el.innerHTML = info; return; }
-    let html = `<button class="aff3-page" ${cur <= 1 ? 'disabled' : ''} data-pg="${cur - 1}">‹</button>`;
-    const start = Math.max(1, cur - 2), end = Math.min(max, cur + 2);
-    if (start > 1) html += `<button class="aff3-page" data-pg="1">1</button>` + (start > 2 ? '<span class="aff3-page-dots">…</span>' : '');
-    for (let i = start; i <= end; i++) html += `<button class="aff3-page ${i === cur ? 'active' : ''}" data-pg="${i}">${i}</button>`;
-    if (end < max) html += (end < max - 1 ? '<span class="aff3-page-dots">…</span>' : '') + `<button class="aff3-page" data-pg="${max}">${max}</button>`;
-    html += `<button class="aff3-page" ${cur >= max ? 'disabled' : ''} data-pg="${cur + 1}">›</button>`;
-    el.innerHTML = info + '<div class="aff3-page-nums">' + html + '</div>';
+    const sizes = [5, 10, 20];
+    const ppCur = curPerPage || 5;
+    const pp = onPerPage ? `<div class="aff3-page-pp"><label>Por página</label><select class="aff3-page-pp-select">${sizes.map(n => `<option value="${n}"${n === ppCur ? ' selected' : ''}>${n}</option>`).join('')}</select></div>` : '';
+    let navHtml = '';
+    if (max > 1) {
+      navHtml += `<button class="aff3-page" ${cur <= 1 ? 'disabled' : ''} data-pg="${cur - 1}">‹</button>`;
+      const start = Math.max(1, cur - 2), end = Math.min(max, cur + 2);
+      if (start > 1) navHtml += `<button class="aff3-page" data-pg="1">1</button>` + (start > 2 ? '<span class="aff3-page-dots">…</span>' : '');
+      for (let i = start; i <= end; i++) navHtml += `<button class="aff3-page ${i === cur ? 'active' : ''}" data-pg="${i}">${i}</button>`;
+      if (end < max) navHtml += (end < max - 1 ? '<span class="aff3-page-dots">…</span>' : '') + `<button class="aff3-page" data-pg="${max}">${max}</button>`;
+      navHtml += `<button class="aff3-page" ${cur >= max ? 'disabled' : ''} data-pg="${cur + 1}">›</button>`;
+    }
+    el.innerHTML = info + pp + (navHtml ? '<div class="aff3-page-nums">' + navHtml + '</div>' : '');
     el.querySelectorAll('[data-pg]').forEach(b => b.addEventListener('click', () => onGo(parseInt(b.dataset.pg))));
+    const sel = el.querySelector('.aff3-page-pp-select');
+    if (sel && onPerPage) sel.addEventListener('change', () => onPerPage(parseInt(sel.value, 10)));
   }
 
   qsa('[data-aff3-iperiod]').forEach(btn => {

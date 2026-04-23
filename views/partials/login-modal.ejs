@@ -164,7 +164,8 @@
   <div class="dep-modal">
     <!-- Banner -->
     <div class="dep-banner">
-      <img src="/public/img/novo/bannermodalcompra.jfif" alt="" class="dep-banner-img">
+      <% var _depBan = (locals.banners || []).find(function(b){ return b.id === 25; }) || null; %>
+      <img src="<%= _depBan && _depBan.image_url ? _depBan.image_url : '/public/img/novo/bannermodalcompra.jfif' %>" alt="" class="dep-banner-img">
       <button class="dep-banner-close" id="depBannerClose" type="button">
         <img src="/public/img/novo/fecharbanner.svg" width="19" height="19" alt="Fechar">
       </button>
