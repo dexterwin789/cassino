@@ -250,10 +250,11 @@
 
 /* ═════════ MOBILE ═════════ */
 @media (max-width: 480px) {
-  .cb-root { bottom: 16px; right: 16px; }
+  /* bottom-nav is 64px tall — push bubble above it + 12px gap */
+  .cb-root { bottom: 80px; right: 14px; }
   .cb-window {
     right: -8px; width: calc(100vw - 32px);
-    bottom: 78px; height: calc(100vh - 120px); max-height: 80vh;
+    bottom: 78px; height: calc(100vh - 180px); max-height: 75vh;
   }
-  .cb-bubble { width: 56px; height: 56px; }
+  .cb-bubble { width: 52px; height: 52px; }
 }
