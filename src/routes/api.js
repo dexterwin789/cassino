@@ -427,8 +427,8 @@ router.post('/user/upload-avatar', requireUser, async (req, res) => {
   try {
     const { avatar_url } = req.body;
     if (!avatar_url) return res.status(400).json({ ok: false, msg: 'Nenhuma imagem enviada.' });
-    // Validate it's a data URI (base64 image) and limit size (~2MB in base64)
-    if (!avatar_url.startsWith('data:image/') || avatar_url.length > 2800000) {
+    // Validate it's a data URI (base64 image). ~33% overhead, 12MB chars ≈ 9MB binary
+    if (!avatar_url.startsWith('data:image/') || avatar_url.length > 12000000) {
       return res.status(400).json({ ok: false, msg: 'Imagem inválida ou muito grande.' });
     }
     await query('UPDATE users SET avatar_url = $1, updated_at = NOW() WHERE id = $2', [avatar_url, req.session.user.id]);

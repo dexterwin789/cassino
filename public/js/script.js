@@ -2013,7 +2013,7 @@ if (acctPhotoInput) {
     var file = e.target.files[0];
     if (!file) return;
     if (!file.type.startsWith('image/')) { showToast('Selecione uma imagem válida.', 'error'); return; }
-    if (file.size > 2 * 1024 * 1024) { showToast('Imagem muito grande (máx 2MB).', 'error'); return; }
+    if (file.size > 8 * 1024 * 1024) { showToast('Imagem muito grande (máx 8MB).', 'error'); return; }
     var reader = new FileReader();
     reader.onload = function(ev) {
       var src = ev.target.result;

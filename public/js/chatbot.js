@@ -25,8 +25,27 @@
       if (!historyLoaded) { historyLoaded = true; startGreeting(); }
     }
   }
+  function openChat() {
+    if (root.getAttribute('data-cb-open') !== 'true') toggle();
+  }
+  window.openChatbot = openChat;
   bubble.addEventListener('click', toggle);
   closeBtn.addEventListener('click', toggle);
+
+  // Wire any element with [data-cb-open] attribute
+  document.addEventListener('click', function(e) {
+    var t = e.target.closest('[data-cb-open]');
+    if (!t) return;
+    e.preventDefault();
+    // Close any open login/register/deposit modal first so chatbot is visible
+    try {
+      if (typeof window.closeLoginModal === 'function') window.closeLoginModal();
+      if (typeof window.closeRegisterModal === 'function') window.closeRegisterModal();
+    } catch (_) {}
+    document.querySelectorAll('.login-overlay.open').forEach(function(o){ o.classList.remove('open'); });
+    document.body.style.overflow = '';
+    openChat();
+  });
 
   function escapeHtml(s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
