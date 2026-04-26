@@ -3,6 +3,7 @@ const { query } = require('../config/database');
 const { requireAdmin } = require('../middleware/auth');
 const fetch = require('node-fetch');
 const multer = require('multer');
+const { normalizeAffiliateCareerTiers } = require('../utils/affiliateCareer');
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 2 * 1024 * 1024 } });
 
 router.use(requireAdmin);
@@ -792,7 +793,7 @@ router.get('/affiliate-settings', async (req, res) => {
 
 router.post('/affiliate-settings', async (req, res) => {
   try {
-    const allowedKeys = ['aff_default_commission', 'aff_min_deposit', 'aff_cookie_days', 'aff_auto_approve', 'aff_referral_bonus', 'aff_max_affiliates', 'aff_min_withdrawal', 'aff_payment_interval_days', 'aff_revshare_enabled', 'aff_revshare_pct', 'aff_commission_type'];
+    const allowedKeys = ['aff_default_commission', 'aff_min_deposit', 'aff_cookie_days', 'aff_auto_approve', 'aff_referral_bonus', 'aff_max_affiliates', 'aff_min_withdrawal', 'aff_payment_interval_days', 'aff_career_tiers', 'aff_revshare_enabled', 'aff_revshare_pct', 'aff_commission_type'];
     const { settings } = req.body;
     if (!settings || typeof settings !== 'object') return res.status(400).json({ ok: false, msg: 'Dados inválidos.' });
     for (const [key, value] of Object.entries(settings)) {
@@ -801,6 +802,9 @@ router.post('/affiliate-settings', async (req, res) => {
       if (key === 'aff_payment_interval_days') {
         const days = parseInt(value, 10);
         finalValue = [10, 15].includes(days) ? String(days) : '15';
+      }
+      if (key === 'aff_career_tiers') {
+        finalValue = JSON.stringify(normalizeAffiliateCareerTiers(value));
       }
       await query(
         'INSERT INTO platform_settings (key, value) VALUES ($1, $2) ON CONFLICT (key) DO UPDATE SET value = $2',

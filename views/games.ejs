@@ -45,12 +45,12 @@
           <a href="/" class="archive-back" title="Voltar">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 8 8 12 12 16"/><line x1="16" y1="12" x2="8" y2="12"/></svg>
           </a>
-          <span class="archive-title" id="archiveTitle">Todos os jogos de cassino</span>
+          <span class="archive-title" id="archiveTitle"><%= filterLabel || 'Todos os jogos de cassino' %></span>
         </div>
         <div class="archive-bar-right">
           <div class="archive-search-box">
             <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input type="text" id="archiveSearch" placeholder="Pesquise um jogo..." autocomplete="off">
+            <input type="text" id="archiveSearch" placeholder="Pesquise um jogo..." autocomplete="off" value="<%= typeof currentSearch !== 'undefined' ? currentSearch : '' %>">
           </div>
           <div class="archive-provider-wrap">
             <button class="archive-provider-btn" id="providerBtn">Provedores: <span id="providerLabel">Todos</span></button>
@@ -58,7 +58,7 @@
               <% if (typeof providers !== 'undefined') { %>
                 <% providers.forEach(function(p) { %>
                 <label class="archive-provider-item">
-                  <input type="checkbox" value="<%= p %>" class="provider-check"> <%= p %>
+                  <input type="checkbox" value="<%= p %>" class="provider-check" <%= currentProvider && String(currentProvider).toLowerCase() === String(p).toLowerCase() ? 'checked' : '' %>> <%= p %>
                 </label>
                 <% }); %>
               <% } %>
@@ -70,7 +70,7 @@
               <% if (typeof categories !== 'undefined') { %>
                 <% categories.forEach(function(c) { %>
                 <label class="archive-provider-item">
-                  <input type="checkbox" value="<%= c %>" class="category-check"> <%= c %>
+                  <input type="checkbox" value="<%= c %>" class="category-check" <%= currentCategory && String(currentCategory).toLowerCase() === String(c).toLowerCase() ? 'checked' : '' %>> <%= c === 'live' ? 'Cassino ao vivo' : (c === 'slots' ? 'Jogos Slots' : c) %>
                 </label>
                 <% }); %>
               <% } %>
@@ -135,8 +135,8 @@
   var PAGE_SIZE = 24;
   var shown = 0;
   var filtered = allGames.slice();
-  var activeProviders = [];
-  var activeCategories = [];
+  var activeProviders = <%- JSON.stringify(currentProvider ? [currentProvider] : []) %>;
+  var activeCategories = <%- JSON.stringify(currentCategory ? [currentCategory] : []) %>;
 
   var grid = document.getElementById('archiveGrid');
   var footer = document.getElementById('archiveFooter');
@@ -149,6 +149,20 @@
   var categoryBtn = document.getElementById('categoryBtn');
   var categoryDropdown = document.getElementById('categoryDropdown');
   var categoryLabel = document.getElementById('categoryLabel');
+
+  function gameMatchesCategory(g, category) {
+    var wanted = String(category || '').toLowerCase();
+    var cat = String(g.category || '').toLowerCase();
+    var provider = String(g.provider || '').toLowerCase();
+    var name = String(g.game_name || '').toLowerCase();
+    var isLive = provider.indexOf('live') !== -1 || ['live', 'ao vivo', 'ao-vivo', 'casino_live', 'cassino-ao-vivo'].indexOf(cat) !== -1 || name.indexOf('live casino') !== -1;
+    if (wanted === 'live' || wanted === 'ao-vivo' || wanted === 'cassino-ao-vivo') return isLive;
+    if (wanted === 'slots' || wanted === 'slot') return cat === 'slots' && !isLive;
+    if (wanted === 'pg') return provider.indexOf('pg soft') !== -1 || provider === 'pg' || provider === 'pgsoft';
+    if (wanted === 'crash') return (cat === 'crash' || /aviator|spaceman|crash/.test(name)) && !isLive;
+    if (wanted === 'mines') return (cat === 'mines' || name.indexOf('mine') !== -1) && !isLive;
+    return cat === wanted;
+  }
 
   function cardHTML(g) {
     if (!g.image_url) return '';
@@ -176,10 +190,9 @@
       }
       // Category filter
       if (activeCategories.length > 0) {
-        var cat = (g.category || '').toLowerCase();
         var match2 = false;
         for (var j = 0; j < activeCategories.length; j++) {
-          if (cat === activeCategories[j].toLowerCase()) { match2 = true; break; }
+          if (gameMatchesCategory(g, activeCategories[j])) { match2 = true; break; }
         }
         if (!match2) return false;
       }
@@ -211,6 +224,8 @@
   }
 
   // Init
+  if (providerLabel) providerLabel.textContent = activeProviders.length ? activeProviders.join(', ') : 'Todos';
+  if (categoryLabel) categoryLabel.textContent = activeCategories.length ? activeCategories.map(function(c) { return c === 'live' ? 'Cassino ao vivo' : (c === 'slots' ? 'Jogos Slots' : c); }).join(', ') : 'Todos';
   applyFilters();
 
   // Load more

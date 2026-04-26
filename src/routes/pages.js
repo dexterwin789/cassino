@@ -1,5 +1,6 @@
-﻿const router = require('express').Router();
+const router = require('express').Router();
 const { query } = require('../config/database');
+const { categoryCondition, categoryLabel } = require('../utils/gameCategories');
 
 // Main page
 router.get('/', async (req, res) => {
@@ -42,6 +43,7 @@ router.get('/games', async (req, res) => {
   try {
     const provider = req.query.provider || '';
     const category = req.query.category || '';
+    const search = (req.query.search || req.query.q || '').toString().trim();
     let sql = 'SELECT id, game_code, game_name, image_url, provider, category, is_featured, featured_order FROM games WHERE is_active = TRUE';
     const params = [];
     if (provider) {
@@ -49,8 +51,11 @@ router.get('/games', async (req, res) => {
       sql += ' AND LOWER(provider) = LOWER($' + params.length + ')';
     }
     if (category) {
-      params.push(category);
-      sql += ' AND LOWER(category) = LOWER($' + params.length + ')';
+      sql += categoryCondition(category, params);
+    }
+    if (search) {
+      params.push('%' + search + '%');
+      sql += ' AND (game_name ILIKE $' + params.length + ' OR game_code ILIKE $' + params.length + ' OR provider ILIKE $' + params.length + ' OR category ILIKE $' + params.length + ')';
     }
     sql += ' ORDER BY is_featured DESC NULLS LAST, featured_order ASC NULLS LAST, sort_order, id DESC';
     const gamesR = await query(sql, params);
@@ -60,17 +65,21 @@ router.get('/games', async (req, res) => {
 
     let filterLabel = 'Todos os Jogos';
     if (provider) filterLabel = 'Jogos da ' + provider.toUpperCase();
-    else if (category) filterLabel = 'Jogos de ' + category;
+    else if (category) filterLabel = categoryLabel(category);
+    if (search) filterLabel = filterLabel + ' - ' + search;
+    const categorySet = new Set(['slots', 'live']);
+    categoriesR.rows.forEach(r => { if (r.category) categorySet.add(r.category); });
 
     res.render('games', {
       title: filterLabel + ' — VemNaBet',
       games: gamesR.rows,
       banners: bannersR.rows,
       providers: providersR.rows.map(r => r.provider),
-      categories: categoriesR.rows.map(r => r.category),
+      categories: Array.from(categorySet),
       filterLabel: filterLabel,
       currentProvider: provider,
-      currentCategory: category
+      currentCategory: category,
+      currentSearch: search
     });
   } catch (err) {
     console.error('[GAMES]', err);

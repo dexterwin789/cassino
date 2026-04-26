@@ -3,6 +3,8 @@ const bcrypt = require('bcrypt');
 const { query, pool } = require('../config/database');
 const { requireUser } = require('../middleware/auth');
 const { createSale } = require('../services/blackcat');
+const { DEFAULT_AFFILIATE_CAREER_TIERS, normalizeAffiliateCareerTiers } = require('../utils/affiliateCareer');
+const { categoryCondition } = require('../utils/gameCategories');
 
 // ─── Auth ─────────────────────────────────────────
 
@@ -282,8 +284,7 @@ router.get('/games', async (req, res) => {
     const params = [];
 
     if (cat) {
-      sql += ' AND category = $1';
-      params.push(cat);
+      sql += categoryCondition(cat, params);
     }
 
     sql += ' ORDER BY is_featured DESC NULLS LAST, featured_order ASC NULLS LAST, sort_order, id DESC';
@@ -1059,20 +1060,19 @@ async function getAffiliatePayoutWindow(affiliateId, intervalDays) {
   };
 }
 
-const AFFILIATE_CAREER_TIERS = [
-  { level: 1, name: 'Iniciante', activeLeads: 0, commissionCents: 0, reward: 'Comece validando seus primeiros indicados ativos.' },
-  { level: 2, name: 'Bronze', activeLeads: 3, commissionCents: 35000, reward: 'Meta inicial: 3 ativos e R$ 350,00 em comissões pagas.' },
-  { level: 3, name: 'Prata', activeLeads: 10, commissionCents: 150000, reward: 'Construa recorrência com 10 ativos e R$ 1.500,00 pagos.' },
-  { level: 4, name: 'Ouro', activeLeads: 25, commissionCents: 500000, reward: 'Escala forte: 25 ativos e R$ 5.000,00 pagos.' },
-  { level: 5, name: 'Diamante', activeLeads: 50, commissionCents: 1500000, reward: 'Topo do plano: 50 ativos e R$ 15.000,00 pagos.' }
-];
+async function getAffiliateCareerTiers() {
+  const r = await query("SELECT value FROM platform_settings WHERE key = 'aff_career_tiers' LIMIT 1");
+  return normalizeAffiliateCareerTiers(r.rows[0]?.value);
+}
 
-function buildAffiliateCareer(activeLeads, paidCommissionCents) {
-  let current = AFFILIATE_CAREER_TIERS[0];
-  for (const tier of AFFILIATE_CAREER_TIERS) {
+function buildAffiliateCareer(activeLeads, paidCommissionCents, rawTiers = DEFAULT_AFFILIATE_CAREER_TIERS) {
+  const tiers = normalizeAffiliateCareerTiers(rawTiers);
+  let current = tiers[0];
+  for (const tier of tiers) {
     if (activeLeads >= tier.activeLeads && paidCommissionCents >= tier.commissionCents) current = tier;
   }
-  const next = AFFILIATE_CAREER_TIERS.find(tier => tier.level === current.level + 1) || null;
+  const currentIndex = tiers.findIndex(tier => tier.level === current.level);
+  const next = tiers[currentIndex + 1] || null;
   const activeProgress = next ? Math.min(100, Math.floor((activeLeads / Math.max(next.activeLeads, 1)) * 100)) : 100;
   const commissionProgress = next ? Math.min(100, Math.floor((paidCommissionCents / Math.max(next.commissionCents, 1)) * 100)) : 100;
   return {
@@ -1083,7 +1083,7 @@ function buildAffiliateCareer(activeLeads, paidCommissionCents) {
     paid_commission_cents: paidCommissionCents,
     missing_active_leads: next ? Math.max(0, next.activeLeads - activeLeads) : 0,
     missing_commission_cents: next ? Math.max(0, next.commissionCents - paidCommissionCents) : 0,
-    tiers: AFFILIATE_CAREER_TIERS
+    tiers
   };
 }
 
@@ -1203,9 +1203,11 @@ router.get('/affiliate/dashboard', requireUser, async (req, res) => {
       WHERE u.referred_by = $1
     `, [uid, aff.id]);
     const careerRow = careerR.rows[0] || {};
+    const careerTiers = await getAffiliateCareerTiers();
     const career = buildAffiliateCareer(
       parseInt(careerRow.active_leads || 0),
-      parseInt(careerRow.paid_commission || 0)
+      parseInt(careerRow.paid_commission || 0),
+      careerTiers
     );
     if (career.current.level !== parseInt(aff.level || 1, 10)) {
       await query('UPDATE affiliates SET level=$1 WHERE id=$2', [career.current.level, aff.id]);

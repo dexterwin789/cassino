@@ -305,6 +305,7 @@ INSERT INTO platform_settings (key, value) VALUES
   ('aff_max_affiliates', '0'),
   ('aff_min_withdrawal', '35000'),
   ('aff_payment_interval_days', '15'),
+  ('aff_career_tiers', '[{"level":1,"name":"Iniciante","activeLeads":0,"commissionCents":0,"reward":"Comece validando seus primeiros indicados ativos."},{"level":2,"name":"Bronze","activeLeads":3,"commissionCents":35000,"reward":"Meta inicial: 3 ativos e R$ 350,00 em comissoes pagas."},{"level":3,"name":"Prata","activeLeads":10,"commissionCents":150000,"reward":"Construa recorrencia com 10 ativos e R$ 1.500,00 pagos."},{"level":4,"name":"Ouro","activeLeads":25,"commissionCents":500000,"reward":"Escala forte: 25 ativos e R$ 5.000,00 pagos."},{"level":5,"name":"Diamante","activeLeads":50,"commissionCents":1500000,"reward":"Topo do plano: 50 ativos e R$ 15.000,00 pagos."}]'),
   ('aff_revshare_enabled', '1'),
   ('aff_revshare_pct', '50'),
   ('aff_commission_type', 'revshare')

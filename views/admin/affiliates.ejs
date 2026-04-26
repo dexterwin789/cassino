@@ -2,6 +2,7 @@
 
 <% var _commType = (typeof affSettings !== 'undefined' && affSettings.aff_commission_type) || 'revshare'; %>
 <% var _stats = (typeof affStats !== 'undefined') ? affStats : { total:0, active:0, totalEarned:0, pendingCommissions:0, totalLeads:0 }; %>
+<% var _careerTiers = (typeof careerTiers !== 'undefined' && careerTiers && careerTiers.length) ? careerTiers : []; %>
 <%
   function _brl(cents){
     var n = (parseInt(cents || 0, 10)) / 100;
@@ -170,13 +171,22 @@
       <p class="adm-muted">Metas automáticas exibidas no painel do afiliado para incentivar cadastros ativos e comissão recorrente.</p>
     </div>
   </div>
-  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-top:20px;">
-    <div class="adm-setting-card"><label>Iniciante</label><div style="color:#fff;font-weight:800;margin-top:6px;">Entrada</div><p class="adm-muted" style="font-size:12px;line-height:1.45;margin:8px 0 0;">Primeiros indicados e validação do link.</p></div>
-    <div class="adm-setting-card"><label>Bronze</label><div style="color:#fff;font-weight:800;margin-top:6px;">3 ativos + R$ 350</div><p class="adm-muted" style="font-size:12px;line-height:1.45;margin:8px 0 0;">Primeira meta alinhada ao saque mínimo.</p></div>
-    <div class="adm-setting-card"><label>Prata</label><div style="color:#fff;font-weight:800;margin-top:6px;">10 ativos + R$ 1.500</div><p class="adm-muted" style="font-size:12px;line-height:1.45;margin:8px 0 0;">Foco em recorrência e base real.</p></div>
-    <div class="adm-setting-card"><label>Ouro</label><div style="color:#fff;font-weight:800;margin-top:6px;">25 ativos + R$ 5.000</div><p class="adm-muted" style="font-size:12px;line-height:1.45;margin:8px 0 0;">Afiliado de escala comercial.</p></div>
-    <div class="adm-setting-card"><label>Diamante</label><div style="color:#fff;font-weight:800;margin-top:6px;">50 ativos + R$ 15.000</div><p class="adm-muted" style="font-size:12px;line-height:1.45;margin:8px 0 0;">Topo de performance do programa.</p></div>
+  <div id="careerTiersEditor" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-top:20px;">
+    <% _careerTiers.forEach(function(tier) { %>
+    <div class="adm-setting-card" data-career-tier>
+      <input type="hidden" data-career-level value="<%= tier.level %>">
+      <label>Nível <%= tier.level %></label>
+      <input type="text" data-career-name value="<%= tier.name %>" maxlength="40" style="margin-top:8px;font-weight:700;">
+      <label style="margin-top:12px;display:block;">Indicados ativos</label>
+      <input type="number" data-career-active value="<%= tier.activeLeads %>" min="0" step="1">
+      <label style="margin-top:12px;display:block;">Comissão paga acumulada</label>
+      <input type="text" class="brl-mask-reais" data-career-commission value="" data-initial-cents="<%= tier.commissionCents %>">
+      <label style="margin-top:12px;display:block;">Mensagem da meta</label>
+      <textarea data-career-reward maxlength="180" style="width:100%;min-height:72px;margin-top:6px;border-radius:12px;border:1px solid var(--adm-border);background:var(--adm-input);color:var(--adm-text);padding:10px;resize:vertical;"><%= tier.reward %></textarea>
+    </div>
+    <% }); %>
   </div>
+  <button class="adm-btn primary" id="btnSaveCareerPlan" style="margin-top:20px;">Salvar Plano de Carreira</button>
 </div>
 
 <!-- ═══ REVSHARE ═══ -->
@@ -312,6 +322,17 @@ function formatReais(val) {
   var n = parseFloat(val || 0);
   return 'R$ ' + n.toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 }
+function getCareerTiersPayload() {
+  return Array.from(document.querySelectorAll('[data-career-tier]')).map(function(card, idx) {
+    return {
+      level: parseInt(card.querySelector('[data-career-level]')?.value || idx + 1, 10) || idx + 1,
+      name: (card.querySelector('[data-career-name]')?.value || '').trim(),
+      activeLeads: Math.max(0, parseInt(card.querySelector('[data-career-active]')?.value || '0', 10) || 0),
+      commissionCents: Math.max(0, Math.round(parseReais(card.querySelector('[data-career-commission]')?.value || '') * 100)),
+      reward: (card.querySelector('[data-career-reward]')?.value || '').trim()
+    };
+  });
+}
 document.querySelectorAll('.brl-mask-reais').forEach(function(el) {
   brlMaskReais(el);
   if (el.dataset.initialCents) {
@@ -365,6 +386,22 @@ document.getElementById('btnSaveAffSettings')?.addEventListener('click', async f
     else alert(d.msg || 'Erro');
   } catch { alert('Erro de rede.'); }
   btn.disabled = false; btn.textContent = 'Salvar Configurações';
+});
+
+document.getElementById('btnSaveCareerPlan')?.addEventListener('click', async function() {
+  var btn = this; btn.disabled = true; btn.textContent = 'Salvando...';
+  try {
+    var r = await fetch('/admin/api/affiliate-settings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ settings: { aff_career_tiers: getCareerTiersPayload() } }),
+      credentials: 'same-origin'
+    });
+    var d = await r.json();
+    if (d.ok) alert('Plano de carreira salvo!');
+    else alert(d.msg || 'Erro');
+  } catch { alert('Erro de rede.'); }
+  btn.disabled = false; btn.textContent = 'Salvar Plano de Carreira';
 });
 
 document.getElementById('btnSaveRevshare')?.addEventListener('click', async function() {

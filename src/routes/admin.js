@@ -2,6 +2,7 @@ const router = require('express').Router();
 const bcrypt = require('bcrypt');
 const { query } = require('../config/database');
 const { requireAdmin } = require('../middleware/auth');
+const { normalizeAffiliateCareerTiers } = require('../utils/affiliateCareer');
 
 // ─── Admin Auth Pages ─────────────────────────────
 
@@ -117,7 +118,8 @@ router.get('/affiliates', requireAdmin, async (req, res) => {
       totalLeads: Number(row.leads || 0)
     };
   } catch (e) { /* tables may not exist yet */ }
-  res.render('admin/affiliates', { title: 'Afiliados', admin: req.session.admin, affSettings, affStats });
+  const careerTiers = normalizeAffiliateCareerTiers(affSettings.aff_career_tiers);
+  res.render('admin/affiliates', { title: 'Afiliados', admin: req.session.admin, affSettings, affStats, careerTiers });
 });
 
 router.get('/support', requireAdmin, (req, res) => {
