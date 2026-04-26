@@ -792,14 +792,19 @@ router.get('/affiliate-settings', async (req, res) => {
 
 router.post('/affiliate-settings', async (req, res) => {
   try {
-    const allowedKeys = ['aff_default_commission', 'aff_min_deposit', 'aff_cookie_days', 'aff_auto_approve', 'aff_referral_bonus', 'aff_max_affiliates', 'aff_min_withdrawal', 'aff_revshare_enabled', 'aff_revshare_pct', 'aff_commission_type'];
+    const allowedKeys = ['aff_default_commission', 'aff_min_deposit', 'aff_cookie_days', 'aff_auto_approve', 'aff_referral_bonus', 'aff_max_affiliates', 'aff_min_withdrawal', 'aff_payment_interval_days', 'aff_revshare_enabled', 'aff_revshare_pct', 'aff_commission_type'];
     const { settings } = req.body;
     if (!settings || typeof settings !== 'object') return res.status(400).json({ ok: false, msg: 'Dados inválidos.' });
     for (const [key, value] of Object.entries(settings)) {
       if (!allowedKeys.includes(key)) continue;
+      let finalValue = value;
+      if (key === 'aff_payment_interval_days') {
+        const days = parseInt(value, 10);
+        finalValue = [10, 15].includes(days) ? String(days) : '15';
+      }
       await query(
         'INSERT INTO platform_settings (key, value) VALUES ($1, $2) ON CONFLICT (key) DO UPDATE SET value = $2',
-        [key, String(value)]
+        [key, String(finalValue)]
       );
     }
     res.json({ ok: true, msg: 'Configurações de afiliados salvas.' });

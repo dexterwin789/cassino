@@ -350,6 +350,8 @@ function renderHomeFiltered() {
     return 0;
   });
 
+  sorted = sorted.filter(function(g) { return !isGameInCategory(g, 'live'); });
+
   // Filter by provider
   if (homeActiveProvider) {
     homeFilteredGames = sorted.filter(function(g) {
@@ -358,7 +360,7 @@ function renderHomeFiltered() {
     if (title) title.textContent = 'Jogos da ' + homeActiveProvider;
   } else {
     homeFilteredGames = sorted;
-    if (title) title.textContent = 'Todos os Jogos';
+    if (title) title.textContent = 'Slots e outros jogos';
   }
 
   homeShown = 0;
@@ -381,7 +383,7 @@ function buildHomeProviderDropdown() {
   if (!dd) return;
   // Extract unique providers
   var provs = {};
-  allGames.forEach(function(g) { if (g.provider) provs[g.provider.toUpperCase()] = g.provider; });
+  allGames.forEach(function(g) { if (g.provider && !isGameInCategory(g, 'live')) provs[g.provider.toUpperCase()] = g.provider; });
   var sorted = Object.keys(provs).sort();
 
   // Keep the "Todos" radio that's already in the HTML
@@ -425,15 +427,23 @@ function renderAllSections() {
   renderTop10(hot);
   buildHomeProviderDropdown();
   renderHomeFiltered();
+  renderCategorySection('slots', 'slotsGamesScroll');
   renderCategorySection('live', 'liveGamesScroll');
   renderCategorySection('crash', 'crashGamesScroll');
+}
+
+function isGameInCategory(game, category) {
+  var wanted = String(category || '').toLowerCase();
+  return String(game.category || '').toLowerCase().split(/[|,;]/).map(function(c) {
+    return c.trim();
+  }).indexOf(wanted) !== -1;
 }
 
 function renderCategorySection(category, containerId) {
   var el = document.getElementById(containerId);
   if (!el) return;
   var games = allGames.filter(function(g) {
-    return (g.category || '').toLowerCase() === category.toLowerCase();
+    return isGameInCategory(g, category);
   });
   if (!games.length) { el.closest('.game-section').style.display = 'none'; return; }
   el.innerHTML = games.map(function(g) { return gameCardHTML(g); }).join('');

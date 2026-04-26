@@ -1026,6 +1026,67 @@ async function ensureAffiliate(uid) {
   return r.rows[0];
 }
 
+async function getAffiliatePayoutSettings() {
+  const r = await query(`
+    SELECT key, value FROM platform_settings
+    WHERE key IN ('aff_min_withdrawal', 'aff_payment_interval_days')
+  `);
+  const settings = {};
+  r.rows.forEach(row => { settings[row.key] = row.value; });
+  const minWithdrawalCents = Math.max(parseInt(settings.aff_min_withdrawal || '35000', 10) || 35000, 0);
+  const intervalRaw = parseInt(settings.aff_payment_interval_days || '15', 10);
+  return {
+    minWithdrawalCents,
+    paymentIntervalDays: [10, 15].includes(intervalRaw) ? intervalRaw : 15
+  };
+}
+
+async function getAffiliatePayoutWindow(affiliateId, intervalDays) {
+  const r = await query(`
+    SELECT requested_at
+    FROM affiliate_withdrawals
+    WHERE affiliate_id = $1 AND status IN ('pending', 'approved', 'paid', 'completed')
+    ORDER BY requested_at DESC
+    LIMIT 1
+  `, [affiliateId]);
+  if (!r.rows.length) return { canWithdrawByCycle: true, nextPayoutAt: null, lastRequestAt: null };
+  const lastRequestAt = new Date(r.rows[0].requested_at);
+  const nextPayoutAt = new Date(lastRequestAt.getTime() + intervalDays * 24 * 60 * 60 * 1000);
+  return {
+    canWithdrawByCycle: Date.now() >= nextPayoutAt.getTime(),
+    nextPayoutAt: nextPayoutAt.toISOString(),
+    lastRequestAt: lastRequestAt.toISOString()
+  };
+}
+
+const AFFILIATE_CAREER_TIERS = [
+  { level: 1, name: 'Iniciante', activeLeads: 0, commissionCents: 0, reward: 'Comece validando seus primeiros indicados ativos.' },
+  { level: 2, name: 'Bronze', activeLeads: 3, commissionCents: 35000, reward: 'Meta inicial: 3 ativos e R$ 350,00 em comissões pagas.' },
+  { level: 3, name: 'Prata', activeLeads: 10, commissionCents: 150000, reward: 'Construa recorrência com 10 ativos e R$ 1.500,00 pagos.' },
+  { level: 4, name: 'Ouro', activeLeads: 25, commissionCents: 500000, reward: 'Escala forte: 25 ativos e R$ 5.000,00 pagos.' },
+  { level: 5, name: 'Diamante', activeLeads: 50, commissionCents: 1500000, reward: 'Topo do plano: 50 ativos e R$ 15.000,00 pagos.' }
+];
+
+function buildAffiliateCareer(activeLeads, paidCommissionCents) {
+  let current = AFFILIATE_CAREER_TIERS[0];
+  for (const tier of AFFILIATE_CAREER_TIERS) {
+    if (activeLeads >= tier.activeLeads && paidCommissionCents >= tier.commissionCents) current = tier;
+  }
+  const next = AFFILIATE_CAREER_TIERS.find(tier => tier.level === current.level + 1) || null;
+  const activeProgress = next ? Math.min(100, Math.floor((activeLeads / Math.max(next.activeLeads, 1)) * 100)) : 100;
+  const commissionProgress = next ? Math.min(100, Math.floor((paidCommissionCents / Math.max(next.commissionCents, 1)) * 100)) : 100;
+  return {
+    current,
+    next,
+    progress_pct: next ? Math.min(activeProgress, commissionProgress) : 100,
+    active_leads: activeLeads,
+    paid_commission_cents: paidCommissionCents,
+    missing_active_leads: next ? Math.max(0, next.activeLeads - activeLeads) : 0,
+    missing_commission_cents: next ? Math.max(0, next.commissionCents - paidCommissionCents) : 0,
+    tiers: AFFILIATE_CAREER_TIERS
+  };
+}
+
 // GET /api/affiliate/dashboard?period=today|yesterday|week|month|custom&from=&to=
 router.get('/affiliate/dashboard', requireUser, async (req, res) => {
   try {
@@ -1121,14 +1182,38 @@ router.get('/affiliate/dashboard', requireUser, async (req, res) => {
     const pctR = await query("SELECT value FROM platform_settings WHERE key = 'aff_revshare_pct' LIMIT 1");
 
     // Saque disponível = pendente + paid não sacado (approx: total - já sacado)
-    const wdR = await query('SELECT COALESCE(SUM(amount_cents),0) AS paid_out FROM affiliate_withdrawals WHERE affiliate_id=$1 AND status IN (\'paid\',\'approved\',\'completed\')', [aff.id]);
+    const wdR = await query('SELECT COALESCE(SUM(amount_cents),0) AS paid_out FROM affiliate_withdrawals WHERE affiliate_id=$1 AND status IN (\'pending\',\'paid\',\'approved\',\'completed\')', [aff.id]);
     const paidOut = parseInt(wdR.rows[0].paid_out || 0);
     const totalPaid = parseInt(row.rev_paid_total || 0);
     const available = Math.max(0, totalPaid - paidOut);
+    const payoutSettings = await getAffiliatePayoutSettings();
+    const payoutWindow = await getAffiliatePayoutWindow(aff.id, payoutSettings.paymentIntervalDays);
+    const careerR = await query(`
+      SELECT
+        COUNT(*) FILTER (WHERE EXISTS (
+          SELECT 1 FROM transactions t
+          WHERE t.user_id = u.id AND t.status = 'paid' AND t.type IN ('deposit','pix_in')
+        ))::int AS active_leads,
+        COALESCE(SUM((
+          SELECT SUM(t.amount_cents) FROM transactions t
+          WHERE t.user_id = u.id AND t.status = 'paid' AND t.type IN ('deposit','pix_in')
+        )),0) AS deposit_volume,
+        COALESCE((SELECT SUM(amount_cents) FROM affiliate_commissions WHERE affiliate_id = $2 AND status = 'paid'),0) AS paid_commission
+      FROM users u
+      WHERE u.referred_by = $1
+    `, [uid, aff.id]);
+    const careerRow = careerR.rows[0] || {};
+    const career = buildAffiliateCareer(
+      parseInt(careerRow.active_leads || 0),
+      parseInt(careerRow.paid_commission || 0)
+    );
+    if (career.current.level !== parseInt(aff.level || 1, 10)) {
+      await query('UPDATE affiliates SET level=$1 WHERE id=$2', [career.current.level, aff.id]);
+    }
 
     res.json({
       ok: true,
-      code: aff.code, level: aff.level || 1,
+      code: aff.code, level: career.current.level,
       model: modelR.rows[0]?.value || aff.model || 'revshare',
       pct: parseFloat(pctR.rows[0]?.value || aff.commission_pct || 50),
       metrics: {
@@ -1143,7 +1228,16 @@ router.get('/affiliate/dashboard', requireUser, async (req, res) => {
         rev_paid_total: parseInt(row.rev_paid_total || 0),
         available_cents: available,
         paid_out_cents: paidOut
-      }
+      },
+      payout: {
+        min_withdrawal_cents: payoutSettings.minWithdrawalCents,
+        payment_interval_days: payoutSettings.paymentIntervalDays,
+        can_withdraw_by_cycle: payoutWindow.canWithdrawByCycle,
+        next_payout_at: payoutWindow.nextPayoutAt,
+        last_request_at: payoutWindow.lastRequestAt,
+        can_request_now: available >= payoutSettings.minWithdrawalCents && payoutWindow.canWithdrawByCycle
+      },
+      career: Object.assign(career, { deposit_volume_cents: parseInt(careerRow.deposit_volume || 0) })
     });
   } catch (err) {
     console.error('[AFF DASHBOARD]', err);
@@ -1319,10 +1413,19 @@ router.post('/affiliate/withdrawals', requireUser, async (req, res) => {
     const uid = req.session.user.id;
     const aff = await ensureAffiliate(uid);
     const amount = parseInt(req.body.amount_cents || 0);
-    if (!amount || amount < 5000) return res.status(400).json({ ok: false, msg: 'Valor mínimo R$ 50,00' });
+    const payoutSettings = await getAffiliatePayoutSettings();
+    if (!amount || amount < payoutSettings.minWithdrawalCents) {
+      return res.status(400).json({ ok: false, msg: 'Valor mínimo para saque de afiliado: R$ ' + (payoutSettings.minWithdrawalCents / 100).toFixed(2).replace('.', ',') });
+    }
     const pixType = (req.body.pix_type || '').toString().slice(0, 16);
     const pixKey = (req.body.pix_key || '').toString().slice(0, 255);
     if (!pixKey) return res.status(400).json({ ok: false, msg: 'Informe a chave PIX' });
+
+    const payoutWindow = await getAffiliatePayoutWindow(aff.id, payoutSettings.paymentIntervalDays);
+    if (!payoutWindow.canWithdrawByCycle) {
+      const date = new Date(payoutWindow.nextPayoutAt).toLocaleDateString('pt-BR');
+      return res.status(400).json({ ok: false, msg: 'Seu próximo saque de afiliado libera em ' + date + ' (ciclo de ' + payoutSettings.paymentIntervalDays + ' dias).' });
+    }
 
     const balR = await query(`
       SELECT COALESCE((SELECT SUM(amount_cents) FROM affiliate_commissions WHERE affiliate_id=$1 AND status='paid'),0) -

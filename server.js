@@ -311,6 +311,19 @@ async function autoMigrate() {
     await pool.query(sql);
     console.log('[MIGRATE] Schema applied.');
 
+    await pool.query(`
+      UPDATE platform_settings
+      SET value = '35000'
+      WHERE key = 'aff_min_withdrawal' AND COALESCE(NULLIF(value, ''), '5000') = '5000'
+        AND NOT EXISTS (SELECT 1 FROM platform_settings WHERE key = 'migration_aff_min_withdrawal_350')
+    `);
+    await pool.query(`
+      INSERT INTO platform_settings (key, value) VALUES
+        ('aff_min_withdrawal', '35000'),
+        ('aff_payment_interval_days', '15'),
+        ('migration_aff_min_withdrawal_350', '1')
+      ON CONFLICT (key) DO NOTHING
+    `);
     // Add columns if missing (safe migrations)
     const addCol = async (table, col, type) => {
       try { await pool.query(`ALTER TABLE ${table} ADD COLUMN IF NOT EXISTS ${col} ${type}`); } catch(e) {}

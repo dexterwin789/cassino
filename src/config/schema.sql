@@ -303,7 +303,8 @@ INSERT INTO platform_settings (key, value) VALUES
   ('aff_auto_approve', '1'),
   ('aff_referral_bonus', '5000'),
   ('aff_max_affiliates', '0'),
-  ('aff_min_withdrawal', '5000'),
+  ('aff_min_withdrawal', '35000'),
+  ('aff_payment_interval_days', '15'),
   ('aff_revshare_enabled', '1'),
   ('aff_revshare_pct', '50'),
   ('aff_commission_type', 'revshare')

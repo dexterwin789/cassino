@@ -20,6 +20,12 @@
   };
 
   const fmtBRL = (cents) => 'R$ ' + ((parseInt(cents) || 0) / 100).toFixed(2).replace('.', ',');
+  const fmtDate = (value) => value ? new Date(value).toLocaleDateString('pt-BR') : '';
+  const parseBRLCents = (value) => {
+    const normalized = String(value || '').replace(/\s/g, '').replace(/R\$/i, '').replace(/\./g, '').replace(',', '.');
+    const amount = parseFloat(normalized);
+    return Number.isFinite(amount) ? Math.round(amount * 100) : 0;
+  };
   const api = async (path, opts) => {
     opts = opts || {};
     opts.headers = Object.assign({ 'Content-Type': 'application/json' }, opts.headers || {});
@@ -88,9 +94,73 @@
       setTxt('rev_pending', fmtBRL(m.rev_pending));
       setTxt('rev_period', fmtBRL(m.rev_period));
       setTxt('rev_paid_total', fmtBRL(m.rev_paid_total));
+      setTxt('available_cents', fmtBRL(m.available_cents));
+
+      renderPayout(d.payout || {}, m);
+      renderCareer(d.career || {});
+      loadWithdrawals();
 
       loadSubaffiliates();
     } catch (e) { console.error('[aff3] dashboard', e); }
+  }
+
+  function renderPayout(payout, metrics) {
+    const min = payout.min_withdrawal_cents || 35000;
+    const interval = payout.payment_interval_days || 15;
+    const available = metrics.available_cents || 0;
+    const minEl = qs('#aff3MinWithdrawal');
+    const cycleEl = qs('#aff3PayoutCycle');
+    const nextEl = qs('#aff3NextPayout');
+    const btn = qs('#aff3WithdrawBtn');
+    if (minEl) minEl.textContent = fmtBRL(min);
+    if (cycleEl) cycleEl.textContent = interval + ' dias';
+    if (nextEl) {
+      if (!payout.can_withdraw_by_cycle && payout.next_payout_at) nextEl.textContent = 'Próximo saque em ' + fmtDate(payout.next_payout_at);
+      else if (available < min) nextEl.textContent = 'Aguardando saldo mínimo';
+      else nextEl.textContent = 'Disponível agora';
+    }
+    if (btn) btn.disabled = !(payout.can_request_now || (available >= min && payout.can_withdraw_by_cycle !== false));
+  }
+
+  function renderCareer(career) {
+    const current = career.current || { level: 1, name: 'Iniciante', reward: 'Ative seus primeiros indicados para avançar.' };
+    const next = career.next || null;
+    const progress = Math.max(0, Math.min(100, parseInt(career.progress_pct || 0, 10)));
+    const set = (id, value) => { const el = qs('#' + id); if (el) el.textContent = value; };
+    set('aff3CareerLevel', 'L' + current.level);
+    set('aff3CareerTitle', current.name || 'Iniciante');
+    set('aff3CareerCopy', current.reward || 'Continue aumentando sua base ativa.');
+    set('aff3CareerProgressLabel', progress + '%');
+    const bar = qs('#aff3CareerProgress');
+    if (bar) bar.style.width = progress + '%';
+    if (next) {
+      set('aff3CareerNext', next.name);
+      set('aff3CareerActiveGoal', (career.missing_active_leads || 0) + ' ativo' + ((career.missing_active_leads || 0) === 1 ? '' : 's') + ' restante' + ((career.missing_active_leads || 0) === 1 ? '' : 's'));
+      set('aff3CareerCommissionGoal', fmtBRL(career.missing_commission_cents || 0) + ' restantes');
+    } else {
+      set('aff3CareerNext', 'Topo alcançado');
+      set('aff3CareerActiveGoal', 'Meta máxima concluída');
+      set('aff3CareerCommissionGoal', 'Plano diamante ativo');
+    }
+    const tiersEl = qs('#aff3CareerTiers');
+    if (tiersEl && career.tiers) {
+      tiersEl.innerHTML = career.tiers.map(tier => '<div class="aff3-career-tier' + (tier.level <= current.level ? ' active' : '') + '"><strong>L' + tier.level + '</strong><span>' + escapeHtml(tier.name) + '</span></div>').join('');
+    }
+  }
+
+  async function loadWithdrawals() {
+    const list = qs('#aff3WithdrawList');
+    if (!list) return;
+    try {
+      const d = await api('/api/affiliate/withdrawals');
+      const rows = (d.rows || []).slice(0, 5);
+      if (!d.ok || !rows.length) {
+        list.innerHTML = '<div class="aff3-empty" style="padding:12px">Nenhum saque afiliado solicitado ainda.</div>';
+        return;
+      }
+      const labels = { pending: 'Pendente', approved: 'Aprovado', paid: 'Pago', completed: 'Concluído', rejected: 'Recusado' };
+      list.innerHTML = rows.map(row => '<div class="aff3-withdraw-item"><div><strong>' + fmtBRL(row.amount_cents) + '</strong><div>' + escapeHtml((row.pix_type || '').toUpperCase()) + ' · ' + fmtDate(row.requested_at) + '</div></div><span class="aff3-withdraw-status">' + escapeHtml(labels[row.status] || row.status || 'Pendente') + '</span></div>').join('');
+    } catch (e) { console.error('[aff3] withdrawals', e); }
   }
 
   async function loadSubaffiliates() {
@@ -168,6 +238,37 @@
     const inp = qs('#aff3SubaffLink');
     if (!inp || !inp.value) return;
     navigator.clipboard.writeText(inp.value).then(() => toast('Link de convite copiado!', 'success'));
+  });
+
+  const withdrawForm = qs('#aff3WithdrawForm');
+  if (withdrawForm) withdrawForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const amountInput = qs('#aff3WithdrawAmount');
+    const pixTypeInput = qs('#aff3WithdrawPixType');
+    const pixKeyInput = qs('#aff3WithdrawPixKey');
+    const amount = parseBRLCents(amountInput ? amountInput.value : '');
+    const pixType = pixTypeInput ? pixTypeInput.value : 'cpf';
+    const pixKey = (pixKeyInput ? pixKeyInput.value : '').trim();
+    if (!amount) return toast('Informe o valor do saque.', 'error');
+    if (!pixKey) return toast('Informe a chave PIX.', 'error');
+    const btn = qs('#aff3WithdrawBtn');
+    if (btn) { btn.disabled = true; btn.textContent = 'Solicitando...'; }
+    try {
+      const r = await api('/api/affiliate/withdrawals', {
+        method: 'POST',
+        body: JSON.stringify({ amount_cents: amount, pix_type: pixType, pix_key: pixKey })
+      });
+      if (r.ok) {
+        toast('Saque afiliado solicitado!', 'success');
+        if (amountInput) amountInput.value = '';
+        loadDashboard();
+      } else {
+        toast(r.msg || 'Erro ao solicitar saque.', 'error');
+      }
+    } catch (err) {
+      toast('Erro de rede ao solicitar saque.', 'error');
+    }
+    if (btn) { btn.disabled = false; btn.textContent = 'Solicitar saque'; }
   });
 
   // ═════════ LINKS ═════════

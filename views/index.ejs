@@ -135,7 +135,7 @@
         <div class="cat-icon-circle"><img src="/public/img/aviator.png" width="60" height="60" alt="Aviator"></div>
         <span>Aviator</span>
       </a>
-      <a href="/games" class="cat-icon-item">
+      <a href="/games?category=slots" class="cat-icon-item">
         <div class="cat-icon-circle"><img src="/public/img/cartas_svg.svg" width="60" height="60" alt="Slots"></div>
         <span>Slots</span>
       </a>
@@ -229,6 +229,11 @@
       </div>
     </section>
 
+    <!-- Jogos Slots -->
+    <section class="game-section">
+      <div class="section-header"><h2>Jogos Slots</h2><a href="/games?category=slots" class="see-all">Ver todos</a></div>
+      <div class="category-games-scroll" id="slotsGamesScroll"></div>
+    </section>
     <!-- Cassino ao Vivo -->
     <section class="game-section">
       <div class="section-header"><h2>Cassino ao Vivo</h2><a href="/games?category=live" class="see-all">Ver todos</a></div>
@@ -294,7 +299,7 @@
     <!-- Provider Filter + Dynamic Games Grid -->
     <section class="game-section">
       <div class="section-header" style="flex-wrap:wrap;gap:10px">
-        <h2 id="providerSectionTitle">Todos os Jogos</h2>
+        <h2 id="providerSectionTitle">Slots e outros jogos</h2>
         <div style="display:flex;gap:8px;align-items:center;margin-left:auto">
           <div class="home-provider-wrap">
             <button class="archive-provider-btn" id="homeProviderBtn">
@@ -908,6 +913,64 @@
                   </div>
                 </div>
 
+                <div class="aff3-section aff3-career-section">
+                  <div class="aff3-section-title">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3 6 6 .9-4.5 4.4 1.1 6.3L12 16.6 6.4 19.6l1.1-6.3L3 8.9 9 8l3-6z"/></svg>
+                    Plano de Carreira
+                    <span class="aff3-lvl-badge" id="aff3CareerLevel">Iniciante</span>
+                  </div>
+                  <div class="aff3-career-grid">
+                    <div class="aff3-career-main">
+                      <div class="aff3-career-eyebrow">Nível atual</div>
+                      <div class="aff3-career-title" id="aff3CareerTitle">Iniciante</div>
+                      <div class="aff3-career-copy" id="aff3CareerCopy">Ative seus primeiros indicados para avançar.</div>
+                      <div class="aff3-career-progress-wrap">
+                        <div class="aff3-career-progress"><span id="aff3CareerProgress" style="width:0%"></span></div>
+                        <strong id="aff3CareerProgressLabel">0%</strong>
+                      </div>
+                    </div>
+                    <div class="aff3-career-next">
+                      <div class="aff3-career-eyebrow">Próximo nível</div>
+                      <div class="aff3-career-title aff3-career-title-sm" id="aff3CareerNext">Bronze</div>
+                      <div class="aff3-career-goals">
+                        <span id="aff3CareerActiveGoal">0 ativos restantes</span>
+                        <span id="aff3CareerCommissionGoal">R$ 0,00 restantes</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="aff3-career-tiers" id="aff3CareerTiers"></div>
+                </div>
+
+                <div class="aff3-section aff3-payout-section">
+                  <div class="aff3-section-title">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+                    Saque de Afiliado
+                  </div>
+                  <div class="aff3-payout-grid">
+                    <div class="aff3-payout-card">
+                      <div class="aff3-highcard-label">Disponível para saque</div>
+                      <div class="aff3-highcard-val" data-aff3-metric="available_cents">R$ 0,00</div>
+                      <div class="aff3-highcard-sub">Mínimo: <span id="aff3MinWithdrawal">R$ 350,00</span></div>
+                    </div>
+                    <div class="aff3-payout-card">
+                      <div class="aff3-highcard-label">Ciclo configurado</div>
+                      <div class="aff3-highcard-val" id="aff3PayoutCycle">15 dias</div>
+                      <div class="aff3-highcard-sub" id="aff3NextPayout">Disponível agora</div>
+                    </div>
+                  </div>
+                  <form class="aff3-withdraw-form" id="aff3WithdrawForm">
+                    <input type="text" id="aff3WithdrawAmount" class="aff3-input" placeholder="Valor do saque em R$">
+                    <select id="aff3WithdrawPixType" class="aff3-input">
+                      <option value="cpf">CPF</option>
+                      <option value="email">E-mail</option>
+                      <option value="phone">Telefone</option>
+                      <option value="random">Chave aleatória</option>
+                    </select>
+                    <input type="text" id="aff3WithdrawPixKey" class="aff3-input" placeholder="Chave PIX">
+                    <button class="aff3-btn aff3-btn-primary" id="aff3WithdrawBtn" type="submit">Solicitar saque</button>
+                  </form>
+                  <div class="aff3-withdraw-list" id="aff3WithdrawList"></div>
+                </div>
                 <!-- Meus subafiliados -->
                 <div class="aff3-section">
                   <div class="aff3-section-title">
@@ -1645,5 +1708,5 @@
 <div class="toast-container" id="toastContainer"></div>
 
 <script src="/public/js/pagination.js?v=20260421d"></script>
-<script src="/public/js/script.js?v=20260421d"></script>
+<script src="/public/js/script.js?v=20260426a"></script>
 <%- include('partials/foot') %>
