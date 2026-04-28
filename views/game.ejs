@@ -27,6 +27,8 @@
   body.vnb-embed-game .gp-hero-content { min-height:100vh !important; padding:20px !important; align-items:center !important; justify-content:center !important; }
   body.vnb-embed-game .gp-hero-image { width:min(220px, 42vw) !important; max-width:220px !important; }
   body.vnb-embed-game .gp-hero-actions { max-width:420px !important; text-align:center !important; }
+  body.vnb-embed-game:not(.is-logged) .is-logged-el { display:none !important; }
+  body.vnb-embed-game.is-logged .is-guest-el { display:none !important; }
   body.vnb-embed-game .gp-game-iframe { width:100% !important; height:100vh !important; border:0 !important; border-radius:0 !important; }
   body.vnb-embed-game .gp-playing .gp-hero-content { padding:0 !important; }
 </style>
@@ -283,6 +285,34 @@
   var gameCode = '<%= game.game_code %>';
   var gameParams = new URLSearchParams(window.location.search);
   var autoPlayGame = gameParams.get('autoplay') === '1';
+  var isEmbedGame = gameParams.get('embed') === '1';
+
+  if (isEmbedGame) {
+    fetch('/api/me', { credentials: 'include', cache: 'no-store' })
+      .then(function(res) { return res.json().catch(function() { return null; }); })
+      .then(function(j) {
+        var logged = !!(j && j.ok && j.logged);
+        document.body.classList.toggle('is-logged', logged);
+        document.body.classList.toggle('is-guest', !logged);
+      })
+      .catch(function() {
+        document.body.classList.remove('is-logged');
+        document.body.classList.add('is-guest');
+      });
+  }
+
+  function runAutoPlayWhenLogged() {
+    var tries = 0;
+    var timer = setInterval(function() {
+      tries += 1;
+      if (document.body.classList.contains('is-logged')) {
+        clearInterval(timer);
+        playBtn.click();
+      } else if (document.body.classList.contains('is-guest') || tries >= 20) {
+        clearInterval(timer);
+      }
+    }, 250);
+  }
 
   if (playBtn) {
     playBtn.addEventListener('click', function() {
@@ -320,9 +350,7 @@
       });
     });
 
-    if (autoPlayGame) {
-      setTimeout(function() { playBtn.click(); }, 700);
-    }
+    if (autoPlayGame) runAutoPlayWhenLogged();
   }
 
 })();
