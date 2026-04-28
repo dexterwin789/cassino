@@ -1,5 +1,36 @@
 ﻿<%- include('partials/head') %>
 
+<script>
+  (function () {
+    try {
+      if (new URLSearchParams(window.location.search).get('embed') === '1') {
+        document.body.classList.add('vnb-embed-game');
+      }
+    } catch (e) {}
+  })();
+</script>
+<style>
+  body.vnb-embed-game { background:#050505; overflow:hidden; }
+  body.vnb-embed-game .preloader,
+  body.vnb-embed-game .topbar,
+  body.vnb-embed-game .sidebar,
+  body.vnb-embed-game .bottom-nav,
+  body.vnb-embed-game .sidebar-overlay,
+  body.vnb-embed-game .gp-info-bar,
+  body.vnb-embed-game .gp-stats,
+  body.vnb-embed-game .game-section,
+  body.vnb-embed-game footer { display:none !important; }
+  body.vnb-embed-game .app-layout,
+  body.vnb-embed-game .main-content,
+  body.vnb-embed-game .main-container { width:100% !important; max-width:none !important; min-height:100vh !important; margin:0 !important; padding:0 !important; }
+  body.vnb-embed-game .gp-hero { width:100% !important; min-height:100vh !important; height:100vh !important; margin:0 !important; border-radius:0 !important; }
+  body.vnb-embed-game .gp-hero-content { min-height:100vh !important; padding:20px !important; align-items:center !important; justify-content:center !important; }
+  body.vnb-embed-game .gp-hero-image { width:min(220px, 42vw) !important; max-width:220px !important; }
+  body.vnb-embed-game .gp-hero-actions { max-width:420px !important; text-align:center !important; }
+  body.vnb-embed-game .gp-game-iframe { width:100% !important; height:100vh !important; border:0 !important; border-radius:0 !important; }
+  body.vnb-embed-game .gp-playing .gp-hero-content { padding:0 !important; }
+</style>
+
 <%- include('partials/topbar') %>
 
 <div class="app-layout" id="appLayout">
