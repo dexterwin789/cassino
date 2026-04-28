@@ -64,6 +64,11 @@ CREATE TABLE IF NOT EXISTS games (
   created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 CREATE INDEX IF NOT EXISTS idx_games_provider ON games(provider);
+ALTER TABLE games ADD COLUMN IF NOT EXISTS is_featured BOOLEAN DEFAULT FALSE;
+ALTER TABLE games ADD COLUMN IF NOT EXISTS featured_order INT DEFAULT 0;
+ALTER TABLE games ADD COLUMN IF NOT EXISTS pf_game_code VARCHAR(128);
+ALTER TABLE games ADD COLUMN IF NOT EXISTS pf_provider VARCHAR(128);
+ALTER TABLE games ADD COLUMN IF NOT EXISTS game_original BOOLEAN DEFAULT FALSE;
 
 CREATE TABLE IF NOT EXISTS themes (
   id          SERIAL PRIMARY KEY,
@@ -133,6 +138,11 @@ CREATE TABLE IF NOT EXISTS affiliates (
   created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 CREATE INDEX IF NOT EXISTS idx_affiliates_code ON affiliates(code);
+ALTER TABLE affiliates ADD COLUMN IF NOT EXISTS parent_id INT REFERENCES affiliates(id) ON DELETE SET NULL;
+ALTER TABLE affiliates ADD COLUMN IF NOT EXISTS level INT NOT NULL DEFAULT 1;
+ALTER TABLE affiliates ADD COLUMN IF NOT EXISTS visits_total BIGINT NOT NULL DEFAULT 0;
+ALTER TABLE affiliates ADD COLUMN IF NOT EXISTS model VARCHAR(16) NOT NULL DEFAULT 'revshare';
+ALTER TABLE affiliates ADD COLUMN IF NOT EXISTS cpa_amount_cents BIGINT NOT NULL DEFAULT 0;
 
 --  Affiliate Commissions —————————————————
 CREATE TABLE IF NOT EXISTS affiliate_commissions (
@@ -151,6 +161,8 @@ ALTER TABLE affiliate_commissions
   ADD COLUMN IF NOT EXISTS type VARCHAR(32) NOT NULL DEFAULT 'deposit';
 ALTER TABLE affiliate_commissions
   ADD COLUMN IF NOT EXISTS bet_id INT REFERENCES bets(id) ON DELETE SET NULL;
+ALTER TABLE affiliate_commissions
+  ADD COLUMN IF NOT EXISTS metadata_json JSONB DEFAULT '{}'::jsonb;
 CREATE INDEX IF NOT EXISTS idx_aff_comm_bet ON affiliate_commissions(bet_id);
 CREATE INDEX IF NOT EXISTS idx_aff_comm_type ON affiliate_commissions(type);
 
@@ -297,10 +309,12 @@ INSERT INTO platform_settings (key, value) VALUES
   ('active_theme', 'default'),
   ('site_name', 'VemNaBet'),
   ('maintenance_mode', '0'),
+  ('min_deposit', '2000'),
+  ('min_withdrawal', '5000'),
   ('aff_default_commission', '10'),
   ('aff_min_deposit', '2000'),
   ('aff_cookie_days', '30'),
-  ('aff_auto_approve', '1'),
+  ('aff_auto_approve', '0'),
   ('aff_referral_bonus', '5000'),
   ('aff_max_affiliates', '0'),
   ('aff_min_withdrawal', '35000'),

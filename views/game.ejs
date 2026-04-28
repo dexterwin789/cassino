@@ -1,5 +1,7 @@
 ﻿<%- include('partials/head') %>
 
+<% var isFrenchRoulette = game.game_code === 'oficial-pragmatic-live-pp-28401' || String(game.pf_game_code || '') === '28401'; %>
+
 <%- include('partials/topbar') %>
 
 <div class="app-layout" id="appLayout">
@@ -58,6 +60,29 @@
           </button>
         </div>
       </section>
+
+      <% if (isFrenchRoulette) { %>
+      <section class="gp-signals" id="gpRouletteSignals">
+        <div class="gp-signals-head">
+          <div>
+            <span class="gp-signals-kicker">Sinais em tempo real</span>
+            <h2>French Roulette</h2>
+          </div>
+          <button class="gp-signals-refresh" id="gpSignalsRefresh" type="button">Atualizar</button>
+        </div>
+        <div class="gp-signals-grid">
+          <div class="gp-signals-main">
+            <span class="gp-signals-label">Números do sinal</span>
+            <div class="gp-signal-numbers" id="gpSignalNumbers"><span>Carregando...</span></div>
+            <p class="gp-signals-note" id="gpSignalsMsg">Buscando últimas jogadas reais do provedor.</p>
+          </div>
+          <div class="gp-signal-stat green"><strong id="gpSignalGreens">0</strong><span>Greens</span></div>
+          <div class="gp-signal-stat red"><strong id="gpSignalReds">0</strong><span>Reds</span></div>
+          <div class="gp-signal-stat"><strong id="gpSignalRate">0%</strong><span>Assertividade</span></div>
+        </div>
+        <div class="gp-signals-history" id="gpSignalsHistory"></div>
+      </section>
+      <% } %>
 
       <!-- Stats Section -->
       <section class="gp-stats">
@@ -250,6 +275,51 @@
   var heroImage = document.getElementById('gpHeroImage');
   var playArea = document.getElementById('gpPlayArea');
   var gameCode = '<%= game.game_code %>';
+
+  <% if (isFrenchRoulette) { %>
+  var signalsRefresh = document.getElementById('gpSignalsRefresh');
+  var signalNumbers = document.getElementById('gpSignalNumbers');
+  var signalsMsg = document.getElementById('gpSignalsMsg');
+  var signalsHistory = document.getElementById('gpSignalsHistory');
+  var signalGreens = document.getElementById('gpSignalGreens');
+  var signalReds = document.getElementById('gpSignalReds');
+  var signalRate = document.getElementById('gpSignalRate');
+
+  function renderRouletteNumbers(el, numbers, emptyText) {
+    if (!el) return;
+    if (!numbers || !numbers.length) {
+      el.innerHTML = '<span>' + (emptyText || 'Sem dados reais ainda') + '</span>';
+      return;
+    }
+    el.innerHTML = numbers.map(function(n) { return '<b>' + n + '</b>'; }).join('');
+  }
+
+  function loadRouletteSignals() {
+    if (signalsRefresh) signalsRefresh.disabled = true;
+    fetch('/api/roulette/french/signals', { credentials: 'include' })
+      .then(function(r) { return r.json(); })
+      .then(function(j) {
+        if (!j.ok) throw new Error(j.msg || 'Erro ao carregar sinais');
+        renderRouletteNumbers(signalNumbers, j.current_signal || [], 'Aguardando jogadas reais');
+        var stats = j.stats || {};
+        if (signalGreens) signalGreens.textContent = stats.greens || 0;
+        if (signalReds) signalReds.textContent = stats.reds || 0;
+        if (signalRate) signalRate.textContent = (stats.hit_rate || 0) + '%';
+        if (signalsMsg) signalsMsg.textContent = j.msg || ('Baseado em ' + ((j.history || []).length) + ' últimas jogadas reais encontradas.');
+        if (signalsHistory) {
+          var nums = (j.history || []).slice(0, 16).map(function(row) { return row.number; });
+          signalsHistory.innerHTML = '<span>Últimos números</span><div class="gp-signal-numbers small">' + (nums.length ? nums.map(function(n) { return '<b>' + n + '</b>'; }).join('') : '<em>Sem histórico real disponível</em>') + '</div>';
+        }
+      })
+      .catch(function(err) {
+        if (signalsMsg) signalsMsg.textContent = err.message || 'Não foi possível carregar os sinais agora.';
+        renderRouletteNumbers(signalNumbers, [], 'Sem dados reais agora');
+      })
+      .finally(function() { if (signalsRefresh) signalsRefresh.disabled = false; });
+  }
+  if (signalsRefresh) signalsRefresh.addEventListener('click', loadRouletteSignals);
+  loadRouletteSignals();
+  <% } %>
 
   if (playBtn) {
     playBtn.addEventListener('click', function() {

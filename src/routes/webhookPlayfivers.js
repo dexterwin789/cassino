@@ -212,8 +212,9 @@ async function creditRevshareCommission(userId, betId, houseProfitCents) {
   const referrerId = userR.rows[0]?.referred_by;
   if (!referrerId) return;
 
-  const affR = await query('SELECT id FROM affiliates WHERE user_id = $1 AND is_active = TRUE LIMIT 1', [referrerId]);
+  const affR = await query('SELECT id, parent_id FROM affiliates WHERE user_id = $1 AND is_active = TRUE LIMIT 1', [referrerId]);
   const affiliateId = affR.rows[0]?.id;
+  const parentAffiliateId = affR.rows[0]?.parent_id || null;
   if (!affiliateId) return;
 
   const commissionCents = Math.round(houseProfitCents * pct / 100);
@@ -225,12 +226,36 @@ async function creditRevshareCommission(userId, betId, houseProfitCents) {
     await client.query('BEGIN');
 
     // 1) Insert commission ALREADY as paid (auto-credit)
+    const directMeta = JSON.stringify({ level: 1, house_profit_cents: houseProfitCents, pct });
     const cIns = await client.query(
-      `INSERT INTO affiliate_commissions (affiliate_id, referred_user_id, bet_id, amount_cents, status, type, created_at)
-       VALUES ($1, $2, $3, $4, 'paid', 'revshare', NOW()) RETURNING id`,
-      [affiliateId, userId, betId, commissionCents]
+      `INSERT INTO affiliate_commissions (affiliate_id, referred_user_id, bet_id, amount_cents, status, type, metadata_json, created_at)
+       VALUES ($1, $2, $3, $4, 'paid', 'revshare', $5::jsonb, NOW()) RETURNING id`,
+      [affiliateId, userId, betId, commissionCents, directMeta]
     );
     const commissionId = cIns.rows[0].id;
+
+    let l2 = null;
+    if (parentAffiliateId) {
+      const parentR = await client.query('SELECT a.id, a.user_id FROM affiliates a WHERE a.id = $1 AND a.is_active = TRUE LIMIT 1', [parentAffiliateId]);
+      const parent = parentR.rows[0] || null;
+      const l2Cents = Math.round(commissionCents * 0.10);
+      if (parent && l2Cents > 0) {
+        const l2Meta = JSON.stringify({
+          level: 2,
+          pct: 10,
+          source_affiliate_id: affiliateId,
+          direct_commission_id: commissionId,
+          base_commission_cents: commissionCents,
+          house_profit_cents: houseProfitCents
+        });
+        const l2Ins = await client.query(
+          `INSERT INTO affiliate_commissions (affiliate_id, referred_user_id, bet_id, amount_cents, status, type, metadata_json, created_at)
+           VALUES ($1, $2, $3, $4, 'paid', 'revshare_l2', $5::jsonb, NOW()) RETURNING id`,
+          [parent.id, userId, betId, l2Cents, l2Meta]
+        );
+        l2 = { affiliateId: parent.id, userId: parent.user_id, amountCents: l2Cents, commissionId: l2Ins.rows[0].id, meta: l2Meta };
+      }
+    }
 
     // 2) Credit referrer's wallet (create if missing)
     await client.query(
@@ -253,6 +278,24 @@ async function creditRevshareCommission(userId, betId, houseProfitCents) {
        VALUES ($1, 'commission', 'paid', $2, 'revshare', $3::jsonb, NOW(), NOW())`,
       [referrerId, commissionCents, payload]
     );
+
+    if (l2) {
+      await client.query(
+        `INSERT INTO wallets (user_id, balance_cents, updated_at)
+         VALUES ($1, $2, NOW())
+         ON CONFLICT (user_id) DO UPDATE SET balance_cents = wallets.balance_cents + EXCLUDED.balance_cents, updated_at = NOW()`,
+        [l2.userId, l2.amountCents]
+      );
+      await client.query(
+        `INSERT INTO transactions (user_id, type, status, amount_cents, provider, payload_json, created_at, updated_at)
+         VALUES ($1, 'commission', 'paid', $2, 'revshare_l2', $3::jsonb, NOW(), NOW())`,
+        [l2.userId, l2.amountCents, l2.meta]
+      );
+      await client.query(
+        `UPDATE affiliates SET total_earned_cents = COALESCE(total_earned_cents,0) + $1 WHERE id = $2`,
+        [l2.amountCents, l2.affiliateId]
+      );
+    }
 
     // 4) Update affiliate total earned
     await client.query(

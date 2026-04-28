@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="/public/css/style.css?v=20260423b" />
   <link rel="stylesheet" href="/public/css/theme.css?v=20260423b" />
   <link rel="stylesheet" href="/public/css/pagination.css?v=20260423b" />
-  <link rel="stylesheet" href="/public/css/affiliate-v3.css?v=20260426a" />
+  <link rel="stylesheet" href="/public/css/affiliate-v3.css?v=20260428a" />
   <link rel="stylesheet" href="/public/css/chatbot.css?v=20260423b" />
   <% if (typeof extraCss !== 'undefined' && extraCss) { %>
     <% extraCss.forEach(function(css) { %>
@@ -36,6 +36,10 @@
   <% } %>
   <script>
     window.VNB_BONUS_ENABLED = <%= (typeof bonusEnabled !== 'undefined' && bonusEnabled) ? 'true' : 'false' %>;
+    window.VNB_LIMITS = {
+      minDepositCents: <%= typeof minDepositCents !== 'undefined' ? parseInt(minDepositCents || 2000, 10) : 2000 %>,
+      minWithdrawalCents: <%= typeof minWithdrawalCents !== 'undefined' ? parseInt(minWithdrawalCents || 5000, 10) : 5000 %>
+    };
   </script>
 </head>
 <body>

@@ -64,7 +64,7 @@ app.use(session({
 // cross-subdomain cookie. Register picks it up automatically.
 app.use((req, res, next) => {
   try {
-    const ref = (req.query && req.query.ref ? String(req.query.ref) : '').trim();
+    const ref = (req.query && (req.query.ref || req.query.subaff) ? String(req.query.ref || req.query.subaff) : '').trim();
     if (ref && /^[A-Za-z0-9_-]{1,64}$/.test(ref)) {
       if (req.session) req.session.pendingRef = ref;
       // Cookie scoped to the parent domain so app.* and root share it
@@ -153,7 +153,7 @@ app.use(async (req, res, next) => {
     res.locals.sportsEnabled = sportsR.rows[0]?.value === '1';
 
     // Logo settings
-    const logoR = await pool.query("SELECT key, value FROM platform_settings WHERE key IN ('logo_dark', 'logo_light', 'promo_banner_1', 'promo_banner_2', 'promo_banner_3', 'promo_banner_1_link', 'promo_banner_2_link', 'promo_banner_3_link', 'side_banner_1', 'side_banner_2', 'side_banner_1_link', 'side_banner_2_link')");
+    const logoR = await pool.query("SELECT key, value FROM platform_settings WHERE key IN ('logo_dark', 'logo_light', 'promo_banner_1', 'promo_banner_2', 'promo_banner_3', 'promo_banner_1_link', 'promo_banner_2_link', 'promo_banner_3_link', 'side_banner_1', 'side_banner_2', 'side_banner_1_link', 'side_banner_2_link', 'min_deposit', 'min_withdrawal')");
     const pset = {};
     logoR.rows.forEach(r => { pset[r.key] = r.value; });
     res.locals.logoDark = pset.logo_dark || '';
@@ -168,6 +168,8 @@ app.use(async (req, res, next) => {
     res.locals.sideBanner2 = pset.side_banner_2 || '';
     res.locals.sideBanner1Link = pset.side_banner_1_link || '#';
     res.locals.sideBanner2Link = pset.side_banner_2_link || '#';
+    res.locals.minDepositCents = parseInt(pset.min_deposit || '2000', 10) || 2000;
+    res.locals.minWithdrawalCents = parseInt(pset.min_withdrawal || '5000', 10) || 5000;
   } catch {
     res.locals.activeTheme = 'default';
     res.locals.theme = null;
@@ -175,6 +177,8 @@ app.use(async (req, res, next) => {
     res.locals.sportsEnabled = false;
     res.locals.logoDark = '';
     res.locals.logoLight = '';
+    res.locals.minDepositCents = 2000;
+    res.locals.minWithdrawalCents = 5000;
   }
   res.locals.user = req.session.user || null;
   next();
@@ -324,6 +328,30 @@ async function autoMigrate() {
         ('migration_aff_min_withdrawal_350', '1')
       ON CONFLICT (key) DO NOTHING
     `);
+    await pool.query(`
+      INSERT INTO platform_settings (key, value) VALUES
+        ('min_deposit', '2000'),
+        ('min_withdrawal', '5000'),
+        ('aff_auto_approve', '0'),
+        ('migration_finance_manual_affiliates_20260428', '1')
+      ON CONFLICT (key) DO NOTHING
+    `);
+    await pool.query(`
+      UPDATE platform_settings
+      SET value = CASE key
+        WHEN 'min_deposit' THEN '2000'
+        WHEN 'min_withdrawal' THEN '5000'
+        WHEN 'aff_auto_approve' THEN '0'
+        ELSE value
+      END
+      WHERE key IN ('min_deposit', 'min_withdrawal', 'aff_auto_approve')
+        AND NOT EXISTS (SELECT 1 FROM platform_settings WHERE key = 'migration_finance_manual_affiliates_applied_20260428')
+    `);
+    await pool.query(`
+      INSERT INTO platform_settings (key, value)
+      VALUES ('migration_finance_manual_affiliates_applied_20260428', '1')
+      ON CONFLICT (key) DO NOTHING
+    `);
     // Add columns if missing (safe migrations)
     const addCol = async (table, col, type) => {
       try { await pool.query(`ALTER TABLE ${table} ADD COLUMN IF NOT EXISTS ${col} ${type}`); } catch(e) {}
@@ -340,6 +368,7 @@ async function autoMigrate() {
     await addCol('users', 'kyc_status', "VARCHAR(16) DEFAULT 'pending'");
     await addCol('users', 'kyc_notes', 'TEXT');
     await addCol('users', 'block_reason', 'TEXT');
+    await addCol('affiliate_commissions', 'metadata_json', "JSONB DEFAULT '{}'::jsonb");
 
     // Top 10 featured games
     await addCol('games', 'is_featured', 'BOOLEAN DEFAULT FALSE');
@@ -600,6 +629,30 @@ async function autoMigrate() {
     )`);
     await pool.query(`CREATE UNIQUE INDEX IF NOT EXISTS uq_aff_domains_domain ON affiliate_domains (LOWER(domain))`);
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_aff_domains_aff ON affiliate_domains (affiliate_id)`);
+
+    await pool.query(`
+      INSERT INTO games (game_code, game_name, image_url, provider, category, sort_order, is_active, pf_game_code, pf_provider, game_original, is_featured, featured_order)
+      VALUES ('oficial-pragmatic-live-pp-28401', 'French Roulette', '/public/img/novo/roleta_svg.svg', 'Oficial Pragmatic Live PP', 'live', -100, TRUE, '28401', 'Oficial Pragmatic Live PP', TRUE, TRUE, 1)
+      ON CONFLICT (game_code) DO UPDATE SET
+        game_name = EXCLUDED.game_name,
+        image_url = COALESCE(NULLIF(games.image_url, ''), EXCLUDED.image_url),
+        provider = COALESCE(NULLIF(games.provider, ''), EXCLUDED.provider),
+        category = 'live',
+        sort_order = LEAST(COALESCE(games.sort_order, 0), -100),
+        is_active = TRUE,
+        pf_game_code = COALESCE(NULLIF(games.pf_game_code, ''), EXCLUDED.pf_game_code),
+        pf_provider = COALESCE(NULLIF(games.pf_provider, ''), EXCLUDED.pf_provider),
+        game_original = TRUE,
+        is_featured = TRUE,
+        featured_order = 1
+    `);
+    await pool.query(`
+      UPDATE games
+      SET sort_order = -100,
+          is_featured = TRUE,
+          featured_order = 1
+      WHERE game_code = 'oficial-pragmatic-live-pp-28401' OR pf_game_code = '28401'
+    `);
 
     // ——— Chatbot sessions (for analytics / escalation) ——————————
     await pool.query(`CREATE TABLE IF NOT EXISTS chat_sessions (

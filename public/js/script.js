@@ -1,6 +1,31 @@
 ﻿/* /cassino/public/js/script.js — VemNaBet Desktop Layout */
 
 var allGames = [];
+window.VNB_IS_AFFILIATE = false;
+if (document.body) document.body.classList.add('not-affiliate');
+
+function vnbMoney(cents) {
+  var n = (parseInt(cents || 0, 10) || 0) / 100;
+  return 'R$ ' + n.toFixed(2).replace('.', ',');
+}
+
+function vnbMinWithdrawalBRL() {
+  return (window.VNB_LIMITS && window.VNB_LIMITS.minWithdrawalCents) ? (window.VNB_LIMITS.minWithdrawalCents / 100) : 50;
+}
+
+function setAffiliateAccess(active) {
+  window.VNB_IS_AFFILIATE = !!active;
+  if (document.body) {
+    document.body.classList.toggle('is-affiliate', !!active);
+    document.body.classList.toggle('not-affiliate', !active);
+  }
+}
+
+function canUseAffiliatePanel() {
+  if (window.VNB_IS_AFFILIATE) return true;
+  if (typeof showToast === 'function') showToast('Indique e Ganhe será liberado quando o admin ativar sua conta de afiliado.', 'info');
+  return false;
+}
 
 /* ========== GAME CARDS ========== */
 function gameCardHTML(game) {
@@ -774,6 +799,7 @@ function updateAuthState() {
       var logged = !!(j && j.ok && j.logged);
       document.body.classList.toggle('is-logged', logged);
       document.body.classList.toggle('is-guest', !logged);
+      setAffiliateAccess(logged && j.affiliate && j.affiliate.is_active === true);
       if (logged) {
         refreshWalletUI();
         // Ensure login timer persists across deploys
@@ -909,6 +935,7 @@ function updateAuthState() {
     }).catch(function() {
       document.body.classList.add('is-guest');
       document.body.classList.remove('is-logged');
+      setAffiliateAccess(false);
     });
 }
 
@@ -1059,6 +1086,7 @@ function startWatchPayment(txId) {
 
 /* ========== WALLET SECTION (show/hide home) ========== */
 function showWalletSection(panel) {
+  if (panel === 'indique' && !canUseAffiliatePanel()) return;
   // If not on home page, redirect to home with panel param
   if (!document.getElementById('homeContent')) {
     window.location.href = '/?panel=' + encodeURIComponent(panel);
@@ -1244,6 +1272,7 @@ document.querySelectorAll('#walletMainMenu .wallet-nav-item[data-panel]').forEac
     e.preventDefault();
     var hasSubmenu = item.getAttribute('data-has-submenu');
     var panel = item.getAttribute('data-panel');
+    if (panel === 'indique' && !canUseAffiliatePanel()) return;
     // Tema — do nothing (toggle buttons handle it inline)
     if (panel === 'tema') return;
     if (hasSubmenu === 'true') {
@@ -1307,6 +1336,7 @@ document.querySelectorAll('#walletSubMenu .wallet-nav-item[data-panel]').forEach
     document.querySelectorAll('#walletSubMenu .wallet-nav-item').forEach(function(n) { n.classList.remove('active'); });
     item.classList.add('active');
     var panel = item.getAttribute('data-panel');
+    if (panel === 'indique' && !canUseAffiliatePanel()) return;
     document.querySelectorAll('.wallet-panel').forEach(function(p) { p.classList.remove('active'); });
     var target = document.getElementById('walletPanel' + panel.charAt(0).toUpperCase() + panel.slice(1));
     if (target) target.classList.add('active');
@@ -2202,7 +2232,8 @@ function submitWithdrawal() {
   if (!pixKey || !pixKey.value.trim()) { showToast('Informe a chave PIX.', 'error'); return; }
   if (!amountEl || !amountEl.value.trim()) { showToast('Informe o valor.', 'error'); return; }
   var amount = parseBrl(amountEl.value);
-  if (amount < 10) { showToast('Valor mínimo: R$ 10,00', 'error'); return; }
+  var minWithdrawal = vnbMinWithdrawalBRL();
+  if (amount < minWithdrawal) { showToast('Valor mínimo: ' + vnbMoney(minWithdrawal * 100), 'error'); return; }
 
   fetch('/api/withdrawal/create', {
     method: 'POST', credentials: 'include',
@@ -2587,23 +2618,28 @@ function setupIndiqueLink() {
   var copyBtn = document.getElementById('indiqueCopyBtn');
   var shareBtn = document.getElementById('indiqueShareBtn');
   if (!input) return;
+  if (!window.VNB_IS_AFFILIATE) {
+    input.value = 'Acesso liberado manualmente pelo admin';
+    if (copyBtn) copyBtn.disabled = true;
+    if (shareBtn) shareBtn.disabled = true;
+    return;
+  }
 
-  // Fetch real affiliate code from backend (creates on-demand if missing)
+  if (copyBtn) copyBtn.disabled = false;
+  if (shareBtn) shareBtn.disabled = false;
+
+  // Fetch real affiliate code from backend
   fetch('/api/affiliate/me', { credentials: 'include', cache: 'no-store' })
     .then(function(r) { return r.ok ? r.json() : null; })
     .then(function(j) {
       if (j && j.ok && j.code) {
         input.value = window.location.origin + '/?ref=' + encodeURIComponent(j.code);
       } else {
-        var userId = document.getElementById('walletUserId');
-        var uid = userId ? userId.textContent.trim() : '';
-        if (uid) input.value = window.location.origin + '/?ref=' + uid;
+        input.value = 'Acesso de afiliado pendente';
       }
     })
     .catch(function() {
-      var userId = document.getElementById('walletUserId');
-      var uid = userId ? userId.textContent.trim() : '';
-      if (uid) input.value = window.location.origin + '/?ref=' + uid;
+      input.value = 'Acesso de afiliado pendente';
     });
 
   if (copyBtn) {
@@ -2634,6 +2670,7 @@ function setupIndiqueLink() {
 // Period tabs
 document.querySelectorAll('.indique-period').forEach(function(btn) {
   btn.addEventListener('click', function() {
+    if (!canUseAffiliatePanel()) return;
     document.querySelectorAll('.indique-period').forEach(function(b) { b.classList.remove('active'); });
     btn.classList.add('active');
     loadIndiqueLeads(btn.dataset.period || 'all');
@@ -2700,6 +2737,7 @@ function _renderLeadRows(leads) {
 }
 
 function loadIndiqueLeads(period) {
+  if (!window.VNB_IS_AFFILIATE) return;
   var list = document.getElementById('indiqueLeadsList');
   var empty = document.getElementById('indiqueEmptyMsg');
   var pgEl = document.getElementById('indiqueLeadsPagination');
@@ -2733,7 +2771,7 @@ function loadIndiqueLeads(period) {
 
 // Auto-load leads when wallet panel is active
 document.addEventListener('DOMContentLoaded', function() {
-  if (document.getElementById('indiqueLeadsList')) {
+  if (window.VNB_IS_AFFILIATE && document.getElementById('indiqueLeadsList')) {
     loadIndiqueLeads('all');
   }
 });

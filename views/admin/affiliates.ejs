@@ -57,6 +57,34 @@
   </div>
 </div>
 
+<div class="adm-page-card" style="margin-bottom:24px;border-color:rgba(37,211,102,.28);background:linear-gradient(135deg,rgba(37,211,102,.08),rgba(255,255,255,.02));">
+  <div class="adm-page-head">
+    <div>
+      <h3 style="display:flex;align-items:center;gap:10px;">
+        <span style="display:inline-grid;place-items:center;width:32px;height:32px;border-radius:10px;background:rgba(37,211,102,.14);border:1px solid rgba(37,211,102,.3);">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#25D366" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+        </span>
+        Fluxo manual de afiliados
+      </h3>
+      <p class="adm-muted" style="line-height:1.55;margin-top:6px;">O usuário cria a conta normalmente, informa ao admin o <strong>ID da conta</strong> e o <strong>e-mail</strong>. Depois que você liberar aqui, o menu Indique e Ganhe aparece para ele e as APIs de afiliado ficam disponíveis.</p>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:12px;">
+    <div style="padding:14px;border-radius:14px;background:rgba(0,0,0,.18);border:1px solid rgba(255,255,255,.08);">
+      <strong style="color:#fff;display:block;margin-bottom:6px;">1. Cliente envia os dados</strong>
+      <span class="adm-muted" style="font-size:12px;line-height:1.45;display:block;">Peça ID e e-mail para evitar liberar a conta errada.</span>
+    </div>
+    <div style="padding:14px;border-radius:14px;background:rgba(0,0,0,.18);border:1px solid rgba(255,255,255,.08);">
+      <strong style="color:#fff;display:block;margin-bottom:6px;">2. Admin libera abaixo</strong>
+      <span class="adm-muted" style="font-size:12px;line-height:1.45;display:block;">Se ele veio por link de outro afiliado, o sistema vincula como subafiliado L2 automaticamente.</span>
+    </div>
+    <div style="padding:14px;border-radius:14px;background:rgba(0,0,0,.18);border:1px solid rgba(255,255,255,.08);">
+      <strong style="color:#fff;display:block;margin-bottom:6px;">3. Usuário acessa o painel</strong>
+      <span class="adm-muted" style="font-size:12px;line-height:1.45;display:block;">Antes da liberação, ele não vê indicações nem consegue usar endpoints de afiliado.</span>
+    </div>
+  </div>
+</div>
+
 <!-- ═══ MODELO DE COMISSIONAMENTO ═══ -->
 <div class="adm-page-card" style="margin-bottom:24px;">
   <div class="adm-page-head">
@@ -135,6 +163,7 @@
         <option value="1" <%= (typeof affSettings !== 'undefined' && affSettings.aff_auto_approve === '1') ? 'selected' : '' %>>Sim</option>
         <option value="0" <%= (typeof affSettings === 'undefined' || !affSettings.aff_auto_approve || affSettings.aff_auto_approve === '0') ? 'selected' : '' %>>Não</option>
       </select>
+      <small class="adm-muted" style="display:block;margin-top:6px;font-size:11px;line-height:1.35;">Para o fluxo atual, deixe como Não. A liberação manual fica no formulário abaixo.</small>
     </div>
     <div class="adm-setting-card">
       <label>Bônus por Indicação (R$)</label>
@@ -156,6 +185,28 @@
     </div>
   </div>
   <button class="adm-btn primary" id="btnSaveAffSettings" style="margin-top:20px;">Salvar Configurações</button>
+</div>
+
+<!-- ═══ LIBERAÇÃO MANUAL ═══ -->
+<div class="adm-page-card" style="margin-bottom:24px;">
+  <div class="adm-page-head">
+    <div>
+      <h3 style="display:flex;align-items:center;gap:10px;">
+        <span style="display:inline-grid;place-items:center;width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,rgba(37,211,102,.2),rgba(37,211,102,.05));border:1px solid rgba(37,211,102,.3);">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#25D366" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+        </span>
+        Liberar afiliado manualmente
+      </h3>
+      <p class="adm-muted">Use quando o usuário pedir ativação. O botão cria ou reativa o afiliado na conta dele.</p>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:minmax(120px,.5fr) minmax(220px,1fr) minmax(140px,.5fr) auto;gap:14px;align-items:end;margin-top:18px;">
+    <div class="adm-field"><label>ID da conta</label><input type="number" id="manualAffUserId" placeholder="Ex: 123"></div>
+    <div class="adm-field"><label>E-mail da conta</label><input type="email" id="manualAffEmail" placeholder="cliente@email.com"></div>
+    <div class="adm-field"><label>RevShare %</label><input type="number" id="manualAffPct" value="<%= (typeof affSettings !== 'undefined' && affSettings.aff_revshare_pct) || '50' %>" min="0" max="100" step="0.5"></div>
+    <button class="adm-btn primary" id="btnManualAffiliate" style="height:44px;">Liberar afiliado</button>
+  </div>
+  <div class="adm-muted" style="font-size:12px;line-height:1.5;margin-top:12px;">Dica: se preencher ID e e-mail juntos, o sistema exige que os dois batam na mesma conta. Isso evita ativação acidental.</div>
 </div>
 
 <!-- ═══ PLANO DE CARREIRA ═══ -->
@@ -236,13 +287,13 @@
     </button>
   </div>
   <div class="adm-toolbar">
-    <div class="adm-field"><label>Buscar</label><input type="text" placeholder="código / username" data-filter="q" /></div>
+    <div class="adm-field"><label>Buscar</label><input type="text" placeholder="código / username / e-mail / ID" data-filter="q" /></div>
     <div class="adm-field"><label>Por página</label><select data-filter="limit"><option value="10">10</option><option value="25" selected>25</option><option value="50">50</option><option value="100">100</option></select></div>
     <div class="adm-field"><label>&nbsp;</label><button class="adm-btn primary" data-action="apply">Aplicar</button></div>
   </div>
   <div class="adm-table-wrap">
     <table class="adm-table">
-      <thead><tr><th>ID</th><th>Usuário</th><th>Código</th><th>Comissão %</th><th>Total Ganho</th><th>Status</th><th>Criado</th><th>Ações</th></tr></thead>
+      <thead><tr><th>ID</th><th>Usuário</th><th>Código</th><th>Origem L2</th><th>Comissão %</th><th>Total Ganho</th><th>Status</th><th>Criado</th><th>Ações</th></tr></thead>
       <tbody data-tbody></tbody>
     </table>
   </div>
@@ -290,6 +341,7 @@
       <select id="commFilterType">
         <option value="">Todos</option>
         <option value="revshare">RevShare</option>
+        <option value="revshare_l2">RevShare L2</option>
         <option value="cpa">CPA</option>
         <option value="deposit">Depósito</option>
       </select>
@@ -297,8 +349,8 @@
   </div>
   <div class="adm-table-wrap">
     <table class="adm-table">
-      <thead><tr><th>ID</th><th>Data</th><th>Afiliado</th><th>Código</th><th>Indicado</th><th>Tipo</th><th style="text-align:right">Valor</th><th>Status</th><th>Bet ID</th></tr></thead>
-      <tbody id="commissionsBody"><tr><td colspan="9" style="text-align:center;padding:24px;color:var(--adm-muted)">Carregando...</td></tr></tbody>
+      <thead><tr><th>ID</th><th>Data</th><th>Afiliado</th><th>Código</th><th>Indicado</th><th>Tipo</th><th>Detalhe</th><th style="text-align:right">Valor</th><th>Status</th><th>Bet ID</th></tr></thead>
+      <tbody id="commissionsBody"><tr><td colspan="10" style="text-align:center;padding:24px;color:var(--adm-muted)">Carregando...</td></tr></tbody>
     </table>
   </div>
 </div>
@@ -425,6 +477,32 @@ document.getElementById('btnSaveRevshare')?.addEventListener('click', async func
   btn.disabled = false; btn.textContent = 'Salvar RevShare';
 });
 
+document.getElementById('btnManualAffiliate')?.addEventListener('click', async function() {
+  var btn = this;
+  var userId = document.getElementById('manualAffUserId').value.trim();
+  var email = document.getElementById('manualAffEmail').value.trim();
+  if (!userId && !email) { alert('Informe o ID da conta ou o e-mail.'); return; }
+  btn.disabled = true; btn.textContent = 'Liberando...';
+  try {
+    var r = await fetch('/admin/api/affiliates/activate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user_id: userId, email: email, commission_pct: document.getElementById('manualAffPct').value }),
+      credentials: 'same-origin'
+    });
+    var d = await r.json();
+    if (d.ok) {
+      alert('Afiliado liberado com sucesso. Código: ' + (d.affiliate && d.affiliate.code ? d.affiliate.code : 'gerado'));
+      document.getElementById('manualAffUserId').value = '';
+      document.getElementById('manualAffEmail').value = '';
+      document.querySelector('[data-page="affiliates"] [data-action="refresh"]')?.click();
+    } else {
+      alert(d.msg || 'Erro ao liberar afiliado.');
+    }
+  } catch { alert('Erro de rede.'); }
+  btn.disabled = false; btn.textContent = 'Liberar afiliado';
+});
+
 // Commission log
 (function(){
   function fmtBrlCents(c){ var n=(parseInt(c||0,10)/100); return 'R$ '+n.toFixed(2).replace('.',',').replace(/\B(?=(\d{3})+(?!\d))/g,'.'); }
@@ -434,35 +512,42 @@ document.getElementById('btnSaveRevshare')?.addEventListener('click', async func
     var body = document.getElementById('commissionsBody');
     var st = document.getElementById('commFilterStatus').value;
     var tp = document.getElementById('commFilterType').value;
-    body.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:24px;color:var(--adm-muted)">Carregando...</td></tr>';
+    body.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:24px;color:var(--adm-muted)">Carregando...</td></tr>';
     var qs = 'limit=100';
     if (st) qs += '&status=' + encodeURIComponent(st);
     if (tp) qs += '&type=' + encodeURIComponent(tp);
     fetch('/admin/api/affiliate-commissions?' + qs, { credentials:'same-origin', cache:'no-store' })
       .then(function(r){ return r.json(); })
       .then(function(d){
-        if(!d || !d.ok){ body.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:24px;color:#ef4444">Erro ao carregar.</td></tr>'; return; }
+        if(!d || !d.ok){ body.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:24px;color:#ef4444">Erro ao carregar.</td></tr>'; return; }
         var rows = d.rows || [];
-        if(!rows.length){ body.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:24px;color:var(--adm-muted)">Nenhuma comissão encontrada.</td></tr>'; return; }
+        if(!rows.length){ body.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:24px;color:var(--adm-muted)">Nenhuma comissão encontrada.</td></tr>'; return; }
         body.innerHTML = rows.map(function(c){
           var paid = c.status === 'paid';
+          var meta = c.metadata_json || {};
+          var isL2 = c.type === 'revshare_l2';
+          var detail = isL2
+            ? 'L2 10% de ' + esc(c.source_affiliate_username || c.source_affiliate_code || 'subafiliado')
+            : (c.type === 'revshare' ? 'Direto L1' : 'Comissão base');
           var statusBadge = '<span style="padding:3px 10px;border-radius:10px;font-size:11px;font-weight:600;'
             + (paid ? 'background:rgba(37,211,102,.15);color:#25D366' : 'background:rgba(249,115,22,.15);color:#F97316')
             + '">'+(paid?'Creditado':'Pendente')+'</span>';
+          var typeLabel = isL2 ? 'REVSHARE L2' : esc(c.type||'—').toUpperCase();
           return '<tr>'
             + '<td>'+c.id+'</td>'
             + '<td>'+fmtDt(c.created_at)+'</td>'
             + '<td>'+esc(c.referrer_username||'—')+'</td>'
             + '<td><code>'+esc(c.affiliate_code||'—')+'</code></td>'
             + '<td>'+esc(c.referred_username||'—')+'</td>'
-            + '<td style="text-transform:uppercase;font-size:11px">'+esc(c.type||'—')+'</td>'
+            + '<td style="font-size:11px">'+typeLabel+'</td>'
+            + '<td style="color:var(--adm-muted);font-size:11px">'+detail+(meta.base_commission_cents ? ' · base '+fmtBrlCents(meta.base_commission_cents) : '')+'</td>'
             + '<td style="text-align:right;color:#FFD700;font-weight:700">'+fmtBrlCents(c.amount_cents)+'</td>'
             + '<td>'+statusBadge+'</td>'
             + '<td style="color:var(--adm-muted);font-size:11px">'+(c.bet_id||'—')+'</td>'
             + '</tr>';
         }).join('');
       })
-      .catch(function(){ body.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:24px;color:#ef4444">Erro de rede.</td></tr>'; });
+      .catch(function(){ body.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:24px;color:#ef4444">Erro de rede.</td></tr>'; });
   }
   document.getElementById('btnReloadCommissions')?.addEventListener('click', loadCommissions);
   document.getElementById('commFilterStatus')?.addEventListener('change', loadCommissions);

@@ -11,8 +11,16 @@ router.use(requireUser);
 
 // Keep the /referrals data endpoint for any other consumer, but
 // redirect browser navigations straight to the home wallet panel.
-router.get('*', (req, res) => {
-  res.redirect('/#indique');
+router.get('*', async (req, res, next) => {
+  try {
+    if (String(req.path || '').includes('referrals')) {
+      const aff = await query('SELECT id FROM affiliates WHERE user_id = $1 AND is_active = TRUE LIMIT 1', [req.session.user.id]);
+      if (!aff.rows.length) return res.redirect('/');
+    }
+    res.redirect('/#indique');
+  } catch (err) {
+    next(err);
+  }
 });
 
 module.exports = router;

@@ -912,9 +912,10 @@ router.get('/affiliates', async (req, res) => {
     let idx = 1;
 
     if (q) {
-      where.push(`(a.code ILIKE $${idx} OR u.username ILIKE $${idx})`);
+      where.push(`(a.code ILIKE $${idx} OR u.username ILIKE $${idx} OR u.email ILIKE $${idx} OR CAST(u.id AS TEXT) = $${idx + 1})`);
       params.push(`%${q}%`);
-      idx++;
+      params.push(q);
+      idx += 2;
     }
 
     const whereSql = where.length ? 'WHERE ' + where.join(' AND ') : '';
@@ -922,9 +923,12 @@ router.get('/affiliates', async (req, res) => {
     const total = parseInt(countR.rows[0].c);
 
     const rowsR = await query(`
-      SELECT a.id, a.user_id, u.username, a.code, a.commission_pct, a.total_earned_cents, a.is_active, a.created_at
+      SELECT a.id, a.user_id, u.username, u.email, a.code, a.commission_pct, a.total_earned_cents, a.is_active, a.created_at,
+             parent.code AS parent_code, parent_user.username AS parent_username
       FROM affiliates a
       LEFT JOIN users u ON u.id = a.user_id
+      LEFT JOIN affiliates parent ON parent.id = a.parent_id
+      LEFT JOIN users parent_user ON parent_user.id = parent.user_id
       ${whereSql}
       ORDER BY a.id DESC
       LIMIT $${idx} OFFSET $${idx + 1}
@@ -933,6 +937,62 @@ router.get('/affiliates', async (req, res) => {
     res.json({ ok: true, page, limit, total, rows: rowsR.rows });
   } catch (err) {
     res.status(500).json({ ok: false, msg: 'Erro ao listar afiliados.' });
+  }
+});
+
+async function generateAffiliateCode(userId) {
+  for (let i = 0; i < 30; i++) {
+    const suffix = Math.random().toString(36).slice(2, 6).toUpperCase();
+    const code = 'VNB' + userId + suffix;
+    const exists = await query('SELECT 1 FROM affiliates WHERE code = $1 LIMIT 1', [code]);
+    if (!exists.rows.length) return code;
+  }
+  return 'VNB' + userId + Date.now().toString(36).toUpperCase();
+}
+
+router.post('/affiliates/activate', async (req, res) => {
+  try {
+    const userId = parseInt(req.body.user_id, 10);
+    const email = (req.body.email || '').toString().trim().toLowerCase();
+    if (!userId && !email) return res.status(400).json({ ok: false, msg: 'Informe ID da conta ou e-mail.' });
+
+    let userR;
+    if (userId && email) {
+      userR = await query('SELECT id, username, email, referred_by FROM users WHERE id = $1 AND LOWER(COALESCE(email, username)) = $2 LIMIT 1', [userId, email]);
+    } else if (userId) {
+      userR = await query('SELECT id, username, email, referred_by FROM users WHERE id = $1 LIMIT 1', [userId]);
+    } else {
+      userR = await query('SELECT id, username, email, referred_by FROM users WHERE LOWER(COALESCE(email, username)) = $1 LIMIT 1', [email]);
+    }
+    const user = userR.rows[0];
+    if (!user) return res.status(404).json({ ok: false, msg: 'Usuário não encontrado com os dados informados.' });
+
+    const pctR = await query("SELECT value FROM platform_settings WHERE key = 'aff_revshare_pct' LIMIT 1");
+    const commissionPct = Math.max(0, Math.min(parseFloat(req.body.commission_pct || pctR.rows[0]?.value || '50'), 100));
+
+    let parentId = null;
+    if (user.referred_by) {
+      const parentR = await query('SELECT id FROM affiliates WHERE user_id = $1 AND is_active = TRUE LIMIT 1', [user.referred_by]);
+      parentId = parentR.rows[0]?.id || null;
+    }
+
+    const existing = await query('SELECT id, code FROM affiliates WHERE user_id = $1 LIMIT 1', [user.id]);
+    const code = existing.rows[0]?.code || await generateAffiliateCode(user.id);
+    const r = await query(`
+      INSERT INTO affiliates (user_id, code, commission_pct, total_earned_cents, is_active, level, parent_id, model, created_at)
+      VALUES ($1, $2, $3, 0, TRUE, 1, $4, 'revshare', NOW())
+      ON CONFLICT (user_id) DO UPDATE SET
+        is_active = TRUE,
+        commission_pct = EXCLUDED.commission_pct,
+        parent_id = COALESCE(affiliates.parent_id, EXCLUDED.parent_id),
+        model = COALESCE(affiliates.model, 'revshare')
+      RETURNING id, user_id, code, commission_pct, is_active, parent_id
+    `, [user.id, code, commissionPct, parentId]);
+
+    res.json({ ok: true, msg: 'Afiliado liberado manualmente.', affiliate: r.rows[0], user });
+  } catch (err) {
+    console.error('[ADMIN AFF ACTIVATE]', err);
+    res.status(500).json({ ok: false, msg: 'Erro ao liberar afiliado.' });
   }
 });
 
@@ -962,13 +1022,17 @@ router.get('/affiliate-commissions', async (req, res) => {
     const countR = await query(`SELECT COUNT(*)::int AS c FROM affiliate_commissions ac ${wSql}`, params);
     const r = await query(`
       SELECT ac.id, ac.amount_cents, ac.status, ac.type, ac.bet_id, ac.created_at,
+              ac.metadata_json,
              a.id AS affiliate_id, a.code AS affiliate_code,
              ref.id AS referrer_user_id, ref.username AS referrer_username,
-             u.id AS referred_user_id, u.username AS referred_username
+              u.id AS referred_user_id, u.username AS referred_username,
+              src.code AS source_affiliate_code, src_user.username AS source_affiliate_username
       FROM affiliate_commissions ac
       JOIN affiliates a ON a.id = ac.affiliate_id
       JOIN users ref ON ref.id = a.user_id
       LEFT JOIN users u ON u.id = ac.referred_user_id
+            LEFT JOIN affiliates src ON src.id = NULLIF(ac.metadata_json->>'source_affiliate_id', '')::int
+            LEFT JOIN users src_user ON src_user.id = src.user_id
       ${wSql}
       ORDER BY ac.created_at DESC
       LIMIT ${limit} OFFSET ${offset}

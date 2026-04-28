@@ -6,6 +6,44 @@ const { createSale } = require('../services/blackcat');
 const { DEFAULT_AFFILIATE_CAREER_TIERS, normalizeAffiliateCareerTiers } = require('../utils/affiliateCareer');
 const { categoryCondition } = require('../utils/gameCategories');
 
+function centsToBRL(cents) {
+  return 'R$ ' + (Math.max(parseInt(cents || 0, 10), 0) / 100).toFixed(2).replace('.', ',');
+}
+
+async function getPlatformMoneySetting(key, fallbackCents) {
+  const r = await query('SELECT value FROM platform_settings WHERE key = $1 LIMIT 1', [key]);
+  const cents = parseInt(r.rows[0]?.value || fallbackCents, 10);
+  return Number.isFinite(cents) && cents >= 0 ? cents : fallbackCents;
+}
+
+async function getAffiliateByUser(uid, activeOnly = false) {
+  const r = await query(
+    'SELECT id, user_id, code, commission_pct, total_earned_cents, is_active, level, parent_id, model FROM affiliates WHERE user_id = $1 LIMIT 1',
+    [uid]
+  );
+  const aff = r.rows[0] || null;
+  if (!aff) return null;
+  if (activeOnly && aff.is_active !== true) return null;
+  return aff;
+}
+
+function affiliateAccessDenied(res) {
+  return res.status(403).json({
+    ok: false,
+    msg: 'Acesso de afiliado ainda não liberado. Envie seu ID e e-mail para o admin ativar sua conta.',
+    needs_admin_approval: true
+  });
+}
+
+async function requireActiveAffiliate(uid, res) {
+  const aff = await getAffiliateByUser(uid, true);
+  if (!aff) {
+    affiliateAccessDenied(res);
+    return null;
+  }
+  return aff;
+}
+
 // ─── Auth ─────────────────────────────────────────
 
 // POST /api/register
@@ -168,9 +206,21 @@ router.get('/me', async (req, res) => {
     );
     const u = r.rows[0] || req.session.user;
     req.session.user = u;
-    res.json({ ok: true, logged: true, user: u });
+    const aff = await getAffiliateByUser(u.id, false);
+    res.json({
+      ok: true,
+      logged: true,
+      user: u,
+      affiliate: {
+        exists: !!aff,
+        is_active: !!(aff && aff.is_active === true),
+        is_affiliate: !!(aff && aff.is_active === true),
+        status: aff ? (aff.is_active === true ? 'active' : 'pending') : 'none',
+        code: aff && aff.is_active === true ? aff.code : null
+      }
+    });
   } catch (e) {
-    res.json({ ok: true, logged: true, user: req.session.user });
+    res.json({ ok: true, logged: true, user: req.session.user, affiliate: { exists: false, is_active: false, is_affiliate: false, status: 'unknown', code: null } });
   }
 });
 
@@ -193,11 +243,11 @@ router.get('/wallet', requireUser, async (req, res) => {
 router.post('/deposit/create', requireUser, async (req, res) => {
   try {
     const amountBrl = parseFloat(req.body.amount_brl);
-    if (isNaN(amountBrl) || amountBrl < 30 || amountBrl > 50000) {
-      return res.status(400).json({ ok: false, msg: 'Valor deve ser entre R$30 e R$50.000.' });
-    }
-
     const amountCents = Math.round(amountBrl * 100);
+    const minDepositCents = await getPlatformMoneySetting('min_deposit', 2000);
+    if (isNaN(amountBrl) || !Number.isFinite(amountCents) || amountCents < minDepositCents || amountCents > 5000000) {
+      return res.status(400).json({ ok: false, msg: 'Valor deve ser entre ' + centsToBRL(minDepositCents) + ' e R$ 50.000,00.' });
+    }
     const user = req.session.user;
 
     // 1) Create pending transaction
@@ -342,6 +392,112 @@ router.post('/game/launch', requireUser, async (req, res) => {
   } catch (err) {
     console.error('[GAME LAUNCH]', err);
     res.status(500).json({ ok: false, msg: 'Erro ao iniciar jogo.' });
+  }
+});
+
+const FRENCH_ROULETTE_CODE = 'oficial-pragmatic-live-pp-28401';
+const FRENCH_ROULETTE_PF_CODE = '28401';
+const ROULETTE_WHEEL = [0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10, 5, 24, 16, 33, 1, 20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26];
+
+function findRouletteNumber(value, depth = 0) {
+  if (depth > 8 || value == null) return null;
+  if (typeof value === 'number' && Number.isInteger(value) && value >= 0 && value <= 36) return value;
+  if (typeof value === 'string') {
+    const s = value.trim();
+    if (/^(?:[0-9]|[12][0-9]|3[0-6])$/.test(s)) return parseInt(s, 10);
+    return null;
+  }
+  if (Array.isArray(value)) {
+    for (const item of value) {
+      const found = findRouletteNumber(item, depth + 1);
+      if (found !== null) return found;
+    }
+    return null;
+  }
+  if (typeof value === 'object') {
+    const preferredKeys = [
+      'number', 'numero', 'winning_number', 'winningNumber', 'result_number', 'resultNumber',
+      'roulette_number', 'rouletteNumber', 'outcome_number', 'outcomeNumber', 'spin_number', 'spinNumber',
+      'result', 'outcome', 'spin', 'slot'
+    ];
+    for (const key of preferredKeys) {
+      if (Object.prototype.hasOwnProperty.call(value, key)) {
+        const found = findRouletteNumber(value[key], depth + 1);
+        if (found !== null) return found;
+      }
+    }
+    for (const key of Object.keys(value).filter(k => /(result|outcome|roulette|winning|number|numero|spin)/i.test(k))) {
+      const found = findRouletteNumber(value[key], depth + 1);
+      if (found !== null) return found;
+    }
+  }
+  return null;
+}
+
+function buildRouletteSignal(numbers) {
+  if (!numbers.length) return [];
+  const last = numbers[numbers.length - 1];
+  const index = ROULETTE_WHEEL.indexOf(last);
+  const picks = [last];
+  if (index >= 0) {
+    picks.push(ROULETTE_WHEEL[(index + ROULETTE_WHEEL.length - 1) % ROULETTE_WHEEL.length]);
+    picks.push(ROULETTE_WHEEL[(index + 1) % ROULETTE_WHEEL.length]);
+    picks.push(ROULETTE_WHEEL[(index + 18) % ROULETTE_WHEEL.length]);
+  }
+  const freq = new Map();
+  numbers.slice(-18).forEach(n => freq.set(n, (freq.get(n) || 0) + 1));
+  Array.from(freq.entries()).sort((a, b) => b[1] - a[1]).forEach(([n]) => picks.push(n));
+  return Array.from(new Set(picks)).slice(0, 8).sort((a, b) => a - b);
+}
+
+// GET /api/roulette/french/signals — only real numbers found in provider transactions
+router.get('/roulette/french/signals', async (req, res) => {
+  try {
+    const r = await query(`
+      SELECT gt.id, gt.bet_cents, gt.win_cents, gt.created_at, gt.raw_payload
+      FROM game_transactions gt
+      LEFT JOIN games g ON g.id = gt.game_id
+      WHERE gt.pf_game_code = $1 OR g.pf_game_code = $1 OR g.game_code = $2
+      ORDER BY gt.created_at DESC
+      LIMIT 120
+    `, [FRENCH_ROULETTE_PF_CODE, FRENCH_ROULETTE_CODE]);
+
+    const extracted = r.rows.map(row => ({
+      id: row.id,
+      number: findRouletteNumber(row.raw_payload),
+      bet_cents: parseInt(row.bet_cents || 0, 10),
+      win_cents: parseInt(row.win_cents || 0, 10),
+      created_at: row.created_at
+    })).filter(row => row.number !== null);
+
+    const chronological = extracted.slice().reverse().map(row => row.number);
+    let greens = 0;
+    let reds = 0;
+    for (let i = 1; i < chronological.length; i++) {
+      const previous = chronological.slice(0, i);
+      const signal = buildRouletteSignal(previous);
+      if (!signal.length) continue;
+      if (signal.includes(chronological[i])) greens += 1;
+      else reds += 1;
+    }
+
+    res.json({
+      ok: true,
+      source: 'game_transactions.raw_payload',
+      game_code: FRENCH_ROULETTE_CODE,
+      current_signal: buildRouletteSignal(chronological),
+      history: extracted.slice(0, 30),
+      stats: {
+        greens,
+        reds,
+        total: greens + reds,
+        hit_rate: greens + reds ? Math.round((greens / (greens + reds)) * 100) : 0
+      },
+      msg: extracted.length ? '' : 'Ainda não há números reais de últimas jogadas disponíveis no payload do provedor.'
+    });
+  } catch (err) {
+    console.error('[ROULETTE SIGNALS]', err);
+    res.status(500).json({ ok: false, msg: 'Erro ao carregar sinais da roleta.' });
   }
 });
 
@@ -529,10 +685,11 @@ router.get('/user/limits', requireUser, async (req, res) => {
 router.post('/withdrawal/create', requireUser, async (req, res) => {
   try {
     const amountBrl = parseFloat(req.body.amount_brl);
-    if (isNaN(amountBrl) || amountBrl < 10) {
-      return res.status(400).json({ ok: false, msg: 'Valor mínimo para saque: R$ 10,00.' });
-    }
     const amountCents = Math.round(amountBrl * 100);
+    const minWithdrawalCents = await getPlatformMoneySetting('min_withdrawal', 5000);
+    if (isNaN(amountBrl) || !Number.isFinite(amountCents) || amountCents < minWithdrawalCents) {
+      return res.status(400).json({ ok: false, msg: 'Valor mínimo para saque: ' + centsToBRL(minWithdrawalCents) + '.' });
+    }
 
     // Check balance
     const wR = await query('SELECT balance_cents FROM wallets WHERE user_id = $1', [req.session.user.id]);
@@ -864,6 +1021,8 @@ router.get('/user/statement', requireUser, async (req, res) => {
 router.get('/referrals/leads', requireUser, async (req, res) => {
   try {
     const uid = req.session.user.id;
+    const aff = await requireActiveAffiliate(uid, res);
+    if (!aff) return;
     const period = (req.query.period || 'all').toString();
     const brToday = "((NOW() AT TIME ZONE 'America/Sao_Paulo')::date)";
     const brDate = (col) => `((${col} AT TIME ZONE 'America/Sao_Paulo')::date)`;
@@ -921,17 +1080,21 @@ router.get('/affiliate/commissions', requireUser, async (req, res) => {
   try {
     const uid = req.session.user.id;
     const limit = Math.min(Math.max(parseInt(req.query.limit) || 50, 1), 200);
-    const affR = await query('SELECT id FROM affiliates WHERE user_id = $1 LIMIT 1', [uid]);
-    if (!affR.rows.length) return res.json({ ok: true, rows: [] });
+    const aff = await requireActiveAffiliate(uid, res);
+    if (!aff) return;
     const r = await query(`
       SELECT ac.id, ac.amount_cents, ac.status, ac.type, ac.bet_id, ac.created_at,
-             u.username AS from_user
+             ac.metadata_json,
+             u.username AS from_user,
+             src.username AS source_affiliate_user
       FROM affiliate_commissions ac
       LEFT JOIN users u ON u.id = ac.referred_user_id
+      LEFT JOIN affiliates sa ON sa.id = NULLIF(ac.metadata_json->>'source_affiliate_id', '')::int
+      LEFT JOIN users src ON src.id = sa.user_id
       WHERE ac.affiliate_id = $1
       ORDER BY ac.created_at DESC
       LIMIT $2
-    `, [affR.rows[0].id, limit]);
+    `, [aff.id, limit]);
     res.json({ ok: true, rows: r.rows });
   } catch (err) {
     console.error('[AFF COMMISSIONS]', err);
@@ -942,22 +1105,17 @@ router.get('/affiliate/commissions', requireUser, async (req, res) => {
 router.get('/affiliate/me', requireUser, async (req, res) => {
   try {
     const uid = req.session.user.id;
-    let r = await query(
-      `SELECT id, code, commission_pct, total_earned_cents, is_active
-       FROM affiliates WHERE user_id = $1 LIMIT 1`, [uid]
-    );
-    // Auto-criar registro de afiliado se não existir
-    if (!r.rows.length) {
-      const code = 'VNB' + uid + Math.random().toString(36).slice(2, 6).toUpperCase();
-      const pctR = await query(`SELECT value FROM platform_settings WHERE key = 'aff_revshare_pct' LIMIT 1`);
-      const pct = parseFloat(pctR.rows[0]?.value || '50');
-      r = await query(
-        `INSERT INTO affiliates (user_id, code, commission_pct, total_earned_cents, is_active, created_at)
-         VALUES ($1, $2, $3, 0, true, NOW()) RETURNING id, code, commission_pct, total_earned_cents, is_active`,
-        [uid, code, pct]
-      );
+    const aff = await getAffiliateByUser(uid, false);
+    if (!aff || aff.is_active !== true) {
+      return res.json({
+        ok: true,
+        is_active: false,
+        is_affiliate: false,
+        needs_admin_approval: true,
+        status: aff ? 'pending' : 'none',
+        msg: 'Acesso de afiliado ainda não liberado pelo admin.'
+      });
     }
-    const aff = r.rows[0];
     // Stats agregadas
     const stats = await query(
       `SELECT
@@ -975,6 +1133,7 @@ router.get('/affiliate/me', requireUser, async (req, res) => {
       code: aff.code,
       commission_pct: parseFloat(aff.commission_pct),
       is_active: aff.is_active,
+      is_affiliate: true,
       total_earned_cents: parseInt(aff.total_earned_cents || 0),
       stats: {
         total_leads: stats.rows[0].total_leads,
@@ -1013,18 +1172,7 @@ function periodClause(alias, col, period, from, to) {
 }
 
 async function ensureAffiliate(uid) {
-  let r = await query('SELECT id, code, commission_pct, level, parent_id, model FROM affiliates WHERE user_id = $1 LIMIT 1', [uid]);
-  if (!r.rows.length) {
-    const code = 'VNB' + uid + Math.random().toString(36).slice(2, 6).toUpperCase();
-    const pctR = await query("SELECT value FROM platform_settings WHERE key = 'aff_revshare_pct' LIMIT 1");
-    const pct = parseFloat(pctR.rows[0]?.value || '50');
-    r = await query(
-      `INSERT INTO affiliates (user_id, code, commission_pct, total_earned_cents, is_active, level, model, created_at)
-       VALUES ($1, $2, $3, 0, TRUE, 1, 'revshare', NOW()) RETURNING id, code, commission_pct, level, parent_id, model`,
-      [uid, code, pct]
-    );
-  }
-  return r.rows[0];
+  return getAffiliateByUser(uid, true);
 }
 
 async function getAffiliatePayoutSettings() {
@@ -1091,7 +1239,8 @@ function buildAffiliateCareer(activeLeads, paidCommissionCents, rawTiers = DEFAU
 router.get('/affiliate/dashboard', requireUser, async (req, res) => {
   try {
     const uid = req.session.user.id;
-    const aff = await ensureAffiliate(uid);
+    const aff = await requireActiveAffiliate(uid, res);
+    if (!aff) return;
     const period = (req.query.period || 'today').toString();
     const from = (req.query.from || '').toString();
     const to = (req.query.to || '').toString();
@@ -1109,6 +1258,7 @@ router.get('/affiliate/dashboard', requireUser, async (req, res) => {
     const tCl = buildClause('t', 'created_at').clause;
     const wCl = buildClause('w', 'created_at').clause;
     const acCl = buildClause('ac', 'created_at').clause;
+    const minDepositCents = await getPlatformMoneySetting('min_deposit', 2000);
 
     const r = await query(`
       WITH leads AS (
@@ -1146,7 +1296,7 @@ router.get('/affiliate/dashboard', requireUser, async (req, res) => {
           SELECT DISTINCT ON (t.user_id) t.user_id, t.amount_cents, t.created_at
           FROM transactions t
           JOIN users u ON u.id = t.user_id
-          WHERE u.referred_by = $1 AND t.status = 'paid' AND t.type IN ('deposit','pix_in') AND t.amount_cents >= 3000
+          WHERE u.referred_by = $1 AND t.status = 'paid' AND t.type IN ('deposit','pix_in') AND t.amount_cents >= $3
           ORDER BY t.user_id, t.created_at ASC
         ) f
         WHERE 1=1 ${buildClause('f', 'created_at').clause}
@@ -1175,7 +1325,7 @@ router.get('/affiliate/dashboard', requireUser, async (req, res) => {
         (SELECT qty FROM wd) AS wd_qty, (SELECT tot FROM wd) AS wd_tot,
         (SELECT total FROM rev) AS rev_total, (SELECT paid FROM rev) AS rev_paid, (SELECT pending FROM rev) AS rev_pending,
         (SELECT paid_all FROM rev_all) AS rev_paid_total
-    `, [uid, aff.id]);
+    `, [uid, aff.id, minDepositCents]);
 
     const row = r.rows[0];
     const modelR = await query("SELECT value FROM platform_settings WHERE key = 'aff_commission_type' LIMIT 1");
@@ -1250,7 +1400,8 @@ router.get('/affiliate/dashboard', requireUser, async (req, res) => {
 // GET /api/affiliate/links — list
 router.get('/affiliate/links', requireUser, async (req, res) => {
   try {
-    const aff = await ensureAffiliate(req.session.user.id);
+    const aff = await requireActiveAffiliate(req.session.user.id, res);
+    if (!aff) return;
     const r = await query(
       'SELECT id, name, code, clicks, signups, deposits, is_active, created_at FROM affiliate_links WHERE affiliate_id=$1 ORDER BY created_at DESC',
       [aff.id]
@@ -1265,7 +1416,8 @@ router.get('/affiliate/links', requireUser, async (req, res) => {
 // POST /api/affiliate/links — create
 router.post('/affiliate/links', requireUser, async (req, res) => {
   try {
-    const aff = await ensureAffiliate(req.session.user.id);
+    const aff = await requireActiveAffiliate(req.session.user.id, res);
+    if (!aff) return;
     const name = (req.body.name || '').toString().trim().slice(0, 128);
     if (!name) return res.status(400).json({ ok: false, msg: 'Informe um nome para a campanha' });
     let desired = (req.body.code || '').toString().trim().slice(0, 32).toLowerCase().replace(/[^a-z0-9_-]/g, '');
@@ -1292,7 +1444,8 @@ router.post('/affiliate/links', requireUser, async (req, res) => {
 // DELETE /api/affiliate/links/:id
 router.delete('/affiliate/links/:id', requireUser, async (req, res) => {
   try {
-    const aff = await ensureAffiliate(req.session.user.id);
+    const aff = await requireActiveAffiliate(req.session.user.id, res);
+    if (!aff) return;
     const id = parseInt(req.params.id);
     if (!id) return res.status(400).json({ ok: false, msg: 'ID inválido' });
     await query('DELETE FROM affiliate_links WHERE id=$1 AND affiliate_id=$2', [id, aff.id]);
@@ -1306,7 +1459,8 @@ router.delete('/affiliate/links/:id', requireUser, async (req, res) => {
 // GET /api/affiliate/subaffiliates?page=&per_page=
 router.get('/affiliate/subaffiliates', requireUser, async (req, res) => {
   try {
-    const aff = await ensureAffiliate(req.session.user.id);
+    const aff = await requireActiveAffiliate(req.session.user.id, res);
+    if (!aff) return;
     const page = Math.max(parseInt(req.query.page) || 1, 1);
     const perPage = Math.min(Math.max(parseInt(req.query.per_page) || 10, 5), 100);
     const offset = (page - 1) * perPage;
@@ -1315,7 +1469,8 @@ router.get('/affiliate/subaffiliates', requireUser, async (req, res) => {
     const r = await query(`
       SELECT a.id, a.code, a.level, a.created_at, u.username, u.email,
         COALESCE((SELECT COUNT(*)::int FROM users WHERE referred_by = a.user_id), 0) AS leads,
-        COALESCE((SELECT SUM(amount_cents) FROM affiliate_commissions WHERE affiliate_id = a.id), 0) AS commissions
+        COALESCE((SELECT SUM(amount_cents) FROM affiliate_commissions WHERE affiliate_id = a.id), 0) AS commissions,
+        COALESCE((SELECT SUM(amount_cents) FROM affiliate_commissions WHERE affiliate_id = $1 AND type = 'revshare_l2' AND NULLIF(metadata_json->>'source_affiliate_id', '')::int = a.id), 0) AS l2_commissions
       FROM affiliates a JOIN users u ON u.id = a.user_id
       WHERE a.parent_id = $1
       ORDER BY a.created_at DESC LIMIT $2 OFFSET $3`, [aff.id, perPage, offset]);
@@ -1333,7 +1488,8 @@ router.get('/affiliate/subaffiliates', requireUser, async (req, res) => {
 router.get('/affiliate/indicados', requireUser, async (req, res) => {
   try {
     const uid = req.session.user.id;
-    const aff = await ensureAffiliate(uid);
+    const aff = await requireActiveAffiliate(uid, res);
+    if (!aff) return;
     const period = (req.query.period || 'all').toString();
     const from = (req.query.from || '').toString();
     const to = (req.query.to || '').toString();
@@ -1397,7 +1553,8 @@ router.get('/affiliate/indicados', requireUser, async (req, res) => {
 router.get('/affiliate/withdrawals', requireUser, async (req, res) => {
   try {
     const uid = req.session.user.id;
-    const aff = await ensureAffiliate(uid);
+    const aff = await requireActiveAffiliate(uid, res);
+    if (!aff) return;
     const r = await query(
       'SELECT id, amount_cents, pix_type, pix_key, status, notes, requested_at, paid_at FROM affiliate_withdrawals WHERE affiliate_id=$1 ORDER BY requested_at DESC LIMIT 100',
       [aff.id]
@@ -1413,7 +1570,8 @@ router.get('/affiliate/withdrawals', requireUser, async (req, res) => {
 router.post('/affiliate/withdrawals', requireUser, async (req, res) => {
   try {
     const uid = req.session.user.id;
-    const aff = await ensureAffiliate(uid);
+    const aff = await requireActiveAffiliate(uid, res);
+    if (!aff) return;
     const amount = parseInt(req.body.amount_cents || 0);
     const payoutSettings = await getAffiliatePayoutSettings();
     if (!amount || amount < payoutSettings.minWithdrawalCents) {
@@ -1464,7 +1622,7 @@ const CHAT_KB = {
     ]
   },
   depositar: {
-    text: 'Para depositar é simples e rápido:\n\n1️⃣ Clique em "Depositar" no topo da tela\n2️⃣ Escolha o valor (mínimo R$ 1,00)\n3️⃣ Copie o código PIX ou escaneie o QR Code\n4️⃣ Pague pelo seu banco\n\n✅ Saldo creditado em até 2 minutos após confirmação.',
+    text: 'Para depositar é simples e rápido:\n\n1️⃣ Clique em "Depositar" no topo da tela\n2️⃣ Escolha o valor (mínimo R$ 20,00)\n3️⃣ Copie o código PIX ou escaneie o QR Code\n4️⃣ Pague pelo seu banco\n\n✅ Saldo creditado em até 2 minutos após confirmação.',
     options: [
       { id: 'dep_nao_caiu', label: '❓ Meu depósito não caiu' },
       { id: 'dep_min', label: '💵 Valor mínimo/máximo' },
@@ -1480,7 +1638,7 @@ const CHAT_KB = {
     ]
   },
   dep_min: {
-    text: '💵 **Limites de depósito:**\n\n• Mínimo: R$ 1,00\n• Máximo: R$ 50.000,00 por transação\n• Sem limite diário\n• Sem taxas',
+    text: '💵 **Limites de depósito:**\n\n• Mínimo: R$ 20,00\n• Máximo: R$ 50.000,00 por transação\n• Sem limite diário\n• Sem taxas',
     options: [{ id: 'depositar', label: '↩️ Voltar' }, { id: 'menu', label: '🏠 Menu' }]
   },
   dep_metodos: {
@@ -1488,7 +1646,7 @@ const CHAT_KB = {
     options: [{ id: 'depositar', label: '↩️ Voltar' }, { id: 'menu', label: '🏠 Menu' }]
   },
   sacar: {
-    text: '💰 Para sacar seus ganhos:\n\n1️⃣ Acesse Carteira → Sacar\n2️⃣ Digite o valor (mínimo R$ 30,00)\n3️⃣ Confirme sua chave PIX cadastrada\n4️⃣ Aguarde aprovação (até 24h úteis)\n\n⚠️ Importante: Para sacar é necessário ter a conta verificada (CPF + Data de Nascimento).',
+    text: '💰 Para sacar seus ganhos:\n\n1️⃣ Acesse Carteira → Sacar\n2️⃣ Digite o valor (mínimo R$ 50,00)\n3️⃣ Confirme sua chave PIX cadastrada\n4️⃣ Aguarde aprovação (até 24h úteis)\n\n⚠️ Importante: Para sacar é necessário ter a conta verificada (CPF + Data de Nascimento).',
     options: [
       { id: 'saque_tempo', label: '⏱️ Tempo de saque' },
       { id: 'saque_doc', label: '📋 Documentos necessários' },
@@ -1589,7 +1747,7 @@ const CHAT_KB = {
     ]
   },
   prob_lento: {
-    text: '🐢 Para melhorar a performance:\n\n🔹 Use Wi-Fi estável ou 4G+\n🔹 Feche outras abas pesadas\n🔹 Atualize seu navegador\n🔹 Baixe nosso app (em breve)',
+    text: '🐢 Para melhorar a performance:\n\n🔹 Use Wi-Fi estável ou 4G+\n🔹 Feche outras abas pesadas\n🔹 Atualize seu navegador\n🔹 Limpe o cache se a página estiver pesada',
     options: [{ id: 'menu', label: '🏠 Menu' }]
   },
   responsavel: {
@@ -1690,7 +1848,8 @@ function mergeSlots(rows) {
 // GET /api/affiliate/useful-links — owner view (always returns 4 slots)
 router.get('/affiliate/useful-links', requireUser, async (req, res) => {
   try {
-    const aff = await ensureAffiliate(req.session.user.id);
+    const aff = await requireActiveAffiliate(req.session.user.id, res);
+    if (!aff) return;
     const r = await query(
       'SELECT slot, image_url, target_url, title FROM affiliate_useful_links WHERE affiliate_id = $1 ORDER BY slot',
       [aff.id]
@@ -1706,7 +1865,8 @@ router.get('/affiliate/useful-links', requireUser, async (req, res) => {
 // body: { slot: 1-4, image_url: string|null, target_url: string|null, title: string|null }
 router.post('/affiliate/useful-links', requireUser, async (req, res) => {
   try {
-    const aff = await ensureAffiliate(req.session.user.id);
+    const aff = await requireActiveAffiliate(req.session.user.id, res);
+    if (!aff) return;
     const slot = parseInt(req.body.slot, 10);
     if (!(slot >= 1 && slot <= 4)) return res.status(400).json({ ok: false, msg: 'Slot inválido (1-4)' });
     const imageUrl = req.body.image_url == null ? null : String(req.body.image_url).trim() || null;
@@ -1734,7 +1894,8 @@ router.post('/affiliate/useful-links', requireUser, async (req, res) => {
 // DELETE /api/affiliate/useful-links/:slot — clear a slot
 router.delete('/affiliate/useful-links/:slot', requireUser, async (req, res) => {
   try {
-    const aff = await ensureAffiliate(req.session.user.id);
+    const aff = await requireActiveAffiliate(req.session.user.id, res);
+    if (!aff) return;
     const slot = parseInt(req.params.slot, 10);
     if (!(slot >= 1 && slot <= 4)) return res.status(400).json({ ok: false, msg: 'Slot inválido' });
     await query('DELETE FROM affiliate_useful_links WHERE affiliate_id = $1 AND slot = $2', [aff.id, slot]);
@@ -1809,7 +1970,8 @@ const FORBIDDEN_DOMAINS = new Set([
 // GET /api/affiliate/domains — list
 router.get('/affiliate/domains', requireUser, async (req, res) => {
   try {
-    const aff = await ensureAffiliate(req.session.user.id);
+    const aff = await requireActiveAffiliate(req.session.user.id, res);
+    if (!aff) return;
     const r = await query(
       `SELECT id, domain, mode, destination, status, created_at, last_checked_at
        FROM affiliate_domains WHERE affiliate_id = $1 ORDER BY id DESC`,
@@ -1826,7 +1988,8 @@ router.get('/affiliate/domains', requireUser, async (req, res) => {
 // body: { domain, mode: 'cname'|'snippet', destination: 'app'|'cassino' }
 router.post('/affiliate/domains', requireUser, async (req, res) => {
   try {
-    const aff = await ensureAffiliate(req.session.user.id);
+    const aff = await requireActiveAffiliate(req.session.user.id, res);
+    if (!aff) return;
     const domain = normalizeDomain(req.body.domain);
     if (!domain) return res.status(400).json({ ok: false, msg: 'Domínio inválido. Use ex: meusite.com ou www.meusite.com' });
     if (FORBIDDEN_DOMAINS.has(domain) || /\.up\.railway\.app$/.test(domain))
@@ -1866,7 +2029,8 @@ router.post('/affiliate/domains', requireUser, async (req, res) => {
 // DELETE /api/affiliate/domains/:id
 router.delete('/affiliate/domains/:id', requireUser, async (req, res) => {
   try {
-    const aff = await ensureAffiliate(req.session.user.id);
+    const aff = await requireActiveAffiliate(req.session.user.id, res);
+    if (!aff) return;
     const id = parseInt(req.params.id, 10);
     if (!id) return res.status(400).json({ ok: false, msg: 'ID inválido' });
     const r = await query('DELETE FROM affiliate_domains WHERE id = $1 AND affiliate_id = $2', [id, aff.id]);
@@ -1881,7 +2045,8 @@ router.delete('/affiliate/domains/:id', requireUser, async (req, res) => {
 // POST /api/affiliate/domains/:id/verify — DNS lookup p/ promover de pending→active
 router.post('/affiliate/domains/:id/verify', requireUser, async (req, res) => {
   try {
-    const aff = await ensureAffiliate(req.session.user.id);
+    const aff = await requireActiveAffiliate(req.session.user.id, res);
+    if (!aff) return;
     const id = parseInt(req.params.id, 10);
     if (!id) return res.status(400).json({ ok: false, msg: 'ID inválido' });
     const r = await query(

@@ -33,6 +33,33 @@
     </div>
   </div>
 
+  <div class="adm-page-card" style="margin-top:24px;margin-bottom:8px;border-color:rgba(37,211,102,.22);">
+    <div class="adm-page-head">
+      <div>
+        <h3 style="display:flex;align-items:center;gap:10px;">
+          <span style="display:inline-grid;place-items:center;width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,rgba(37,211,102,.2),rgba(37,211,102,.05));border:1px solid rgba(37,211,102,.3);">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#25D366" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          </span>
+          Regras financeiras
+        </h3>
+        <p class="adm-muted" style="line-height:1.55;margin-top:6px;">Esses valores aparecem para o usuário e também são validados no backend. Se alterar aqui, depósito e saque passam a respeitar o novo mínimo sem mexer no código.</p>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-top:18px;">
+      <div class="adm-setting-card">
+        <label>Depósito mínimo</label>
+        <input type="text" id="setMinDeposit" class="money-cents-input" data-initial-cents="<%= settings.min_deposit || '2000' %>" placeholder="R$ 20,00">
+        <small class="adm-muted" style="display:block;margin-top:8px;font-size:11px;line-height:1.4;">Valor mínimo que o cliente consegue gerar PIX. Atual pedido: R$ 20,00.</small>
+      </div>
+      <div class="adm-setting-card">
+        <label>Saque mínimo do cliente</label>
+        <input type="text" id="setMinWithdrawal" class="money-cents-input" data-initial-cents="<%= settings.min_withdrawal || '5000' %>" placeholder="R$ 50,00">
+        <small class="adm-muted" style="display:block;margin-top:8px;font-size:11px;line-height:1.4;">Valor mínimo para solicitação de saque comum da carteira. Atual pedido: R$ 50,00.</small>
+      </div>
+    </div>
+    <div class="adm-muted" style="font-size:12px;line-height:1.5;margin-top:14px;padding:12px 14px;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);">Nota para operação: saque de afiliado tem regra própria em Afiliados. Aqui é o saque normal do jogador.</div>
+  </div>
+
   <button class="adm-btn primary" id="btnSaveSettings" style="margin-top:16px;">Salvar Configurações</button>
 
   <!-- ── Logo do Site ── -->
@@ -97,13 +124,31 @@
 </div>
 
 <script>
+function formatMoneyFromCents(cents) {
+  var n = (parseInt(cents || 0, 10) || 0) / 100;
+  return 'R$ ' + n.toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+}
+function parseMoneyToCents(str) {
+  var n = String(str || '').replace(/[R$\s.]/g, '').replace(',', '.');
+  return Math.max(0, Math.round(parseFloat(n || 0) * 100));
+}
+document.querySelectorAll('.money-cents-input').forEach(function(input) {
+  input.value = formatMoneyFromCents(input.dataset.initialCents || '0');
+  input.addEventListener('input', function() {
+    var v = this.value.replace(/\D/g, '');
+    if (!v) { this.value = ''; return; }
+    this.value = formatMoneyFromCents(parseInt(v, 10));
+  });
+});
 // Settings save
 document.getElementById('btnSaveSettings')?.addEventListener('click', async () => {
   const settings = [
     { key: 'site_name', value: document.getElementById('setSiteName').value },
     { key: 'maintenance_mode', value: document.getElementById('setMaintenance').value },
     { key: 'sports_enabled', value: document.getElementById('setSports').value },
-    { key: 'bonus_enabled', value: document.getElementById('setBonusEnabled').value }
+    { key: 'bonus_enabled', value: document.getElementById('setBonusEnabled').value },
+    { key: 'min_deposit', value: parseMoneyToCents(document.getElementById('setMinDeposit').value) },
+    { key: 'min_withdrawal', value: parseMoneyToCents(document.getElementById('setMinWithdrawal').value) }
   ];
   for (const s of settings) {
     await fetch('/admin/api/settings', {

@@ -42,6 +42,10 @@
     else alert(msg);
   };
 
+  function showNoAccess(msg) {
+    root.innerHTML = '<div class="aff3-section" style="text-align:center;padding:28px"><div class="aff3-title" style="justify-content:center;margin-bottom:8px">Acesso de afiliado pendente</div><div class="aff3-subtitle" style="font-size:13px;line-height:1.5">' + escapeHtml(msg || 'Envie seu ID e e-mail para o admin liberar sua conta de afiliado.') + '</div></div>';
+  }
+
   // ═════════ TABS ═════════
   qsa('[data-aff3-tab]').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -63,7 +67,7 @@
         q.set('from', state.from); q.set('to', state.to);
       }
       const d = await api('/api/affiliate/dashboard?' + q.toString());
-      if (!d.ok) return;
+      if (!d.ok) return showNoAccess(d.msg);
 
       state.affCode = d.code || '';
       const baseUrl = (window.location.origin + '/?ref=' + d.code);
@@ -178,12 +182,13 @@
         if (pag) pag.innerHTML = '';
         return;
       }
-      list.innerHTML = '<div class="aff3-table-wrap"><table class="aff3-table"><thead><tr><th>Afiliado</th><th>Email</th><th>Nível</th><th>Indicados</th><th>Comissões</th><th>Desde</th></tr></thead><tbody>' +
+      list.innerHTML = '<div class="aff3-table-wrap"><table class="aff3-table"><thead><tr><th>Afiliado</th><th>Email</th><th>Nível</th><th>Indicados</th><th>L2 10%</th><th>Comissões dele</th><th>Desde</th></tr></thead><tbody>' +
         d.subs.map(s => `<tr>
           <td><strong>${escapeHtml(s.username || '—')}</strong></td>
           <td>${escapeHtml(s.email || '—')}</td>
           <td><span class="aff3-lvl-badge aff3-lvl-badge-l2">L${s.level || 2}</span></td>
           <td>${s.leads || 0}</td>
+          <td><strong style="color:#fbbf24">${fmtBRL(s.l2_commissions || 0)}</strong></td>
           <td><strong style="color:var(--aff3-green1)">${fmtBRL(s.commissions)}</strong></td>
           <td>${new Date(s.created_at).toLocaleDateString('pt-BR')}</td>
         </tr>`).join('') + '</tbody></table></div>';
@@ -332,7 +337,7 @@
     const q = new URLSearchParams({ period: state.iperiod, page: state.ipage, per_page: state.iperpage });
     if (state.iperiod === 'custom') { q.set('from', state.ifrom); q.set('to', state.ito); }
     const d = await api('/api/affiliate/indicados?' + q.toString());
-    if (!d.ok) return;
+    if (!d.ok) return showNoAccess(d.msg);
 
     const s = d.summary || {};
     const setI = (k, v) => { const el = root.querySelector(`[data-aff3-imetric="${k}"]`); if (el) el.textContent = v; };

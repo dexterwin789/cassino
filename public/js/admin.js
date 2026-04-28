@@ -465,15 +465,17 @@
     }
     if (page === 'affiliates') {
       const earned = Number(r.total_earned_cents || 0) / 100;
+      const parent = r.parent_code ? `${esc(r.parent_code)} <span style="color:rgba(255,255,255,.35)">(${esc(r.parent_username || '-')})</span>` : '<span style="color:rgba(255,255,255,.35)">Direto</span>';
       return `<tr>
         <td>${r.id}</td>
-        <td><strong>${esc(r.username || r.user_id)}</strong></td>
+        <td><strong>${esc(r.username || r.user_id)}</strong><br><span style="color:rgba(255,255,255,.45);font-size:11px">${esc(r.email || '-')} · ID ${r.user_id}</span></td>
         <td style="color:var(--adm-green2);font-weight:700">${esc(r.code)}</td>
+        <td>${parent}</td>
         <td>${r.commission_pct}%</td>
         <td style="color:#2ee76b;font-weight:700">${brl(earned)}</td>
         <td>${activeTag(r.is_active)}</td>
         <td style="color:rgba(255,255,255,.45)">${fdate(r.created_at)}</td>
-        <td><button class="adm-btn btn-toggle-affiliate" data-id="${r.id}" style="font-size:11px;height:30px;padding:0 8px;">${r.is_active ? 'Desativar' : 'Ativar'}</button></td>
+        <td><button class="adm-btn btn-toggle-affiliate" data-id="${r.id}" style="font-size:11px;height:30px;padding:0 8px;">${r.is_active ? 'Bloquear' : 'Liberar'}</button></td>
       </tr>`;
     }
     if (page === 'support') {
