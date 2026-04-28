@@ -250,6 +250,8 @@
   var heroImage = document.getElementById('gpHeroImage');
   var playArea = document.getElementById('gpPlayArea');
   var gameCode = '<%= game.game_code %>';
+  var gameParams = new URLSearchParams(window.location.search);
+  var autoPlayGame = gameParams.get('autoplay') === '1';
 
   if (playBtn) {
     playBtn.addEventListener('click', function() {
@@ -286,6 +288,10 @@
         playBtn.style.display = '';
       });
     });
+
+    if (autoPlayGame) {
+      setTimeout(function() { playBtn.click(); }, 700);
+    }
   }
 
 })();
