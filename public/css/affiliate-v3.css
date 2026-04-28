@@ -687,7 +687,7 @@
 /* ═════════ LINKS ÚTEIS — 4 banner slots ═════════ */
 .aff3-useful-intro {
   color: var(--aff3-muted);
-  font-size: 14px;
+  font-size: 13px;
   line-height: 1.55;
   margin: -4px 0 16px;
 }
@@ -728,7 +728,7 @@
 .aff3-useful-empty {
   display: flex; flex-direction: column; align-items: center; gap: 6px;
   color: var(--aff3-dim);
-  font-size: 13px;
+  font-size: 12px;
   text-transform: uppercase;
   letter-spacing: .08em;
 }
@@ -738,7 +738,7 @@
   display: flex; flex-direction: column; gap: 6px;
 }
 .aff3-useful-label {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--aff3-muted);
   text-transform: uppercase;
   letter-spacing: .06em;
@@ -752,7 +752,7 @@
   border-radius: 8px;
   padding: 8px 10px;
   color: var(--aff3-text);
-  font-size: 15px;
+  font-size: 13px;
   font-family: inherit;
   transition: border-color .15s;
 }
