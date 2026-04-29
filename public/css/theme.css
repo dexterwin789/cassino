@@ -137,8 +137,10 @@
 [data-theme="light"] .provider-grid .game-card{background:#fff;border-color:rgba(0,0,0,.06)}
 
 /* Top10 slider */
-[data-theme="light"] .top10-arrow{background:rgba(0,0,0,.06);color:#475569;border-color:rgba(0,0,0,.08)}
-[data-theme="light"] .top10-arrow:hover{background:rgba(0,0,0,.1)}
+[data-theme="light"] .top10-arrow{background:rgba(15,23,42,.78);color:#fff;border-color:transparent;box-shadow:0 4px 14px rgba(15,23,42,.18)}
+[data-theme="light"] .top10-arrow:hover{background:rgba(15,23,42,.92)}
+[data-theme="light"] .cat-scroll-btn{background:rgba(15,23,42,.78);color:#fff;box-shadow:0 4px 14px rgba(15,23,42,.18)}
+[data-theme="light"] .cat-scroll-btn:hover{background:rgba(15,23,42,.92)}
 [data-theme="light"] .top10-rank{color:rgba(0,0,0,.08)}
 
 /* Ligas */

@@ -1,4 +1,4 @@
-﻿/* /cassino/public/js/script.js — VemNaBet Desktop Layout */
+/* /cassino/public/js/script.js — VemNaBet Desktop Layout */
 
 var allGames = [];
 var gamesLoadPromise = null;
@@ -440,11 +440,21 @@ function renderHomeFiltered() {
 function showMoreHome() {
   var grid = document.getElementById('homeFilteredGrid');
   var loadMore = document.getElementById('homeLoadMore');
+  var countEl = document.getElementById('homeArchiveCount');
   if (!grid) return;
   var next = homeFilteredGames.slice(homeShown, homeShown + homePageSize);
   grid.insertAdjacentHTML('beforeend', next.map(gameCardHTML).join(''));
   homeShown += next.length;
-  if (loadMore) loadMore.style.display = homeShown >= homeFilteredGames.length ? 'none' : 'inline-block';
+  var total = homeFilteredGames.length;
+  if (countEl) {
+    if (total === 0) {
+      countEl.innerHTML = '';
+    } else {
+      var pct = total > 0 ? Math.min(100, Math.round((homeShown / total) * 100)) : 0;
+      countEl.innerHTML = '<div class="progress-track"><div class="progress-fill" style="width:' + pct + '%"></div></div>Mostrando ' + Math.min(homeShown, total) + ' de ' + total + ' jogos';
+    }
+  }
+  if (loadMore) loadMore.style.display = homeShown >= total ? 'none' : 'inline-block';
 }
 
 function buildHomeProviderDropdown() {
@@ -1247,11 +1257,11 @@ function showWalletSection(panel) {
     // Load referral leads when "Indique e Ganhe" panel is shown
     if (panel === 'indique' && typeof loadIndiqueLeads === 'function') loadIndiqueLeads('all');
     // Load casino bets
-    if (panel === 'apostasCassino' && typeof loadBets === 'function') loadBets('casino', 'today');
+    if (panel === 'apostasCassino' && typeof loadBets === 'function') loadBets('casino', '30d');
     // Load sport bets
     if (panel === 'apostasEsportivas' && typeof loadBets === 'function') loadBets('sport', 'today');
     // Load full statement
-    if (panel === 'extrato' && typeof loadExtrato === 'function') loadExtrato('total');
+    if (panel === 'extrato' && typeof loadExtrato === 'function') loadExtrato('30d');
   }
 
   // Set initial mobile state
@@ -1416,7 +1426,7 @@ document.querySelectorAll('#walletMainMenu .wallet-nav-item[data-panel]').forEac
       if (cassinoItem) cassinoItem.classList.add('active');
       _walletMobileReturnTo = 'apostas';
       setWalletMobileState('submenu');
-      if (typeof loadBets === 'function') loadBets('casino', 'today');
+      if (typeof loadBets === 'function') loadBets('casino', '30d');
       return;
     }
     hideWalletSubMenu();
@@ -1430,7 +1440,7 @@ document.querySelectorAll('#walletMainMenu .wallet-nav-item[data-panel]').forEac
     setWalletMobileState('content', item.textContent.trim().split('\n')[0].trim());
     // Lazy-load panel data
     if (panel === 'indique' && typeof loadIndiqueLeads === 'function') loadIndiqueLeads('all');
-    if (panel === 'extrato' && typeof loadExtrato === 'function') loadExtrato('total');
+    if (panel === 'extrato' && typeof loadExtrato === 'function') loadExtrato('30d');
     if (panel === 'notif' && typeof loadNotifications === 'function') loadNotifications();
   });
 });
@@ -1451,7 +1461,7 @@ document.querySelectorAll('#walletSubMenu .wallet-nav-item[data-panel]').forEach
     if (panel === 'sacar') loadWithdrawals();
     if (panel === 'histTransacoes') loadTransactions();
     if (panel === 'indique' && typeof loadIndiqueLeads === 'function') loadIndiqueLeads('all');
-    if (panel === 'extrato' && typeof loadExtrato === 'function') loadExtrato('total');
+    if (panel === 'extrato' && typeof loadExtrato === 'function') loadExtrato('30d');
   });
 });
 
@@ -1504,7 +1514,7 @@ document.querySelectorAll('#walletSubMenuApostas .wallet-nav-item[data-panel]').
     _walletMobileReturnTo = 'apostas';
     setWalletMobileState('content', item.textContent.trim());
     // Lazy-load bets
-    if (panel === 'apostasCassino' && typeof loadBets === 'function') loadBets('casino', 'today');
+    if (panel === 'apostasCassino' && typeof loadBets === 'function') loadBets('casino', '30d');
     if (panel === 'apostasEsportivas' && typeof loadBets === 'function') loadBets('sport', 'today');
   });
 });

@@ -1,4 +1,4 @@
-﻿<%- include('partials/head') %>
+<%- include('partials/head') %>
 
 <%
   function _brl(cents) {
@@ -317,6 +317,7 @@
       </div>
       <div class="provider-grid" id="homeFilteredGrid"></div>
       <div style="text-align:center;margin-top:16px">
+        <div class="archive-count" id="homeArchiveCount" style="margin-bottom:12px"></div>
         <button class="archive-load-more" id="homeLoadMore" style="display:none">Carregar mais</button>
       </div>
     </section>
@@ -383,7 +384,7 @@
           <a href="#" class="wallet-nav-item" data-panel="dadosConta"><span class="wnav-icon"><svg viewBox="0 0 512 512"><path d="M256 272c39.77 0 72-32.24 72-72S295.8 128 256 128C216.2 128 184 160.2 184 200S216.2 272 256 272zM288 320H224c-47.54 0-87.54 29.88-103.7 71.71C155.1 426.5 203.1 448 256 448s100.9-21.53 135.7-56.29C375.5 349.9 335.5 320 288 320z" fill="currentColor" fill-opacity="0.9"/><path d="M256 0C114.6 0 0 114.6 0 256s114.6 256 256 256s256-114.6 256-256S397.4 0 256 0zM256 128c39.77 0 72 32.24 72 72S295.8 272 256 272c-39.76 0-72-32.24-72-72S216.2 128 256 128zM256 448c-52.93 0-100.9-21.53-135.7-56.29C136.5 349.9 176.5 320 224 320h64c47.54 0 87.54 29.88 103.7 71.71C356.9 426.5 308.9 448 256 448z" fill="currentColor" opacity="0.4"/></svg></span> DADOS DA CONTA <svg class="wallet-nav-arrow" viewBox="0 0 320 512"><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z" fill="currentColor" fill-opacity="0.5"/></svg></a>
           <a href="#" class="wallet-nav-item" data-panel="loginSeg"><span class="wnav-icon"><svg viewBox="0 0 512 512"><path d="M160 176C160 78.8 238.8 0 336 0C433.2 0 512 78.8 512 176C512 273.2 433.2 352 336 352C317.3 352 299.2 349.1 282.3 343.7L168.3 229.7C162.9 212.8 160 194.7 160 176zM376 96C353.9 96 336 113.9 336 136C336 158.1 353.9 176 376 176C398.1 176 416 158.1 416 136C416 113.9 398.1 96 376 96z" fill="currentColor" fill-opacity="0.9"/><path d="M168.3 229.7L282.3 343.7L248.1 376.1C244.5 381.5 238.4 384 232 384H192V424C192 437.3 181.3 448 168 448H128V488C128 501.3 117.3 512 104 512H24C10.75 512 0 501.3 0 488V408C0 401.6 2.529 395.5 7.029 391L168.3 229.7z" fill="currentColor" opacity="0.4"/></svg></span> LOGIN E SEGURANÇA <svg class="wallet-nav-arrow" viewBox="0 0 320 512"><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z" fill="currentColor" fill-opacity="0.5"/></svg></a>
           <a href="#" class="wallet-nav-item" data-panel="histLogin"><span class="wnav-icon"><svg viewBox="0 0 512 512"><path d="M256 128C269.3 128 280 138.7 280 152V246.1L344.1 311C354.3 320.4 354.3 335.6 344.1 344.1C335.6 354.3 320.4 354.3 311 344.1L239 272.1C234.5 268.5 232 262.4 232 256V152C232 138.7 242.7 128 256 128z" fill="currentColor" fill-opacity="0.9"/><path d="M151 151C166.1 166.1 155.4 192 134.1 192H24C10.75 192 0 181.3 0 168V57.94C0 36.56 25.85 25.85 40.97 40.97L74.98 74.98C121.3 28.69 185.3 0 255.1 0C397.4 0 512 114.6 512 256C512 397.4 397.4 512 255.1 512C201.7 512 151.2 495 109.7 466.1C95.2 455.1 91.64 436 101.8 421.5C111.9 407 131.8 403.5 146.3 413.6C177.4 435.3 215.2 448 255.1 448C362 448 448 362 448 256C448 149.1 362 64 255.1 64C202.1 64 155 85.46 120.2 120.2L151 151z" fill="currentColor" opacity="0.4"/></svg></span> HISTÓRICO DE LOGIN <svg class="wallet-nav-arrow" viewBox="0 0 320 512"><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z" fill="currentColor" fill-opacity="0.5"/></svg></a>
-          <a href="#" class="wallet-nav-item" data-panel="jogoResp"><span class="wnav-icon"><svg viewBox="0 0 512 512"><path d="M256 0C273.7 0 289.7 11.2 294.8 28.16L307.2 68.48C312.1 84.72 326.3 96.64 343.3 99.2L385.5 105.3C403.1 108 417.4 120.3 422.2 137.1C427 153.1 422.2 171.6 409.6 183.5L378.4 213.1C365.3 225.5 359.5 243.8 362.4 261.7L369.1 303.7C372 321.3 364.8 339.2 350.3 350.1C335.8 361.7 316.4 363.8 299.7 355.4L261.1 335.3C245.7 327.1 227.3 327.1 211.1 335.3L173.3 355.4C156.6 363.8 137.2 361.7 122.7 350.1C108.2 339.2 100.1 321.3 103.9 303.7L110.6 261.7C113.5 243.8 107.7 225.5 94.63 213.1L63.41 183.5C50.84 171.6 45.99 153.1 50.76 137.1C55.53 120.3 69.88 108 87.52 105.3L129.7 99.2C146.7 96.64 160.9 84.72 165.8 68.48L178.2 28.16C183.3 11.2 199.3 0 217 0H256z" fill="currentColor" fill-opacity="0.9"/><path d="M256 0C273.7 0 289.7 11.2 294.8 28.16L307.2 68.48C312.1 84.72 326.3 96.64 343.3 99.2L385.5 105.3C403.1 108 417.4 120.3 422.2 137.1C427 153.1 422.2 171.6 409.6 183.5L378.4 213.1C365.3 225.5 359.5 243.8 362.4 261.7L369.1 303.7C372 321.3 364.8 339.2 350.3 350.1C335.8 361.7 316.4 363.8 299.7 355.4L261.1 335.3C245.7 327.1 227.3 327.1 211.1 335.3L173.3 355.4C156.6 363.8 137.2 361.7 122.7 350.1C108.2 339.2 100.1 321.3 103.9 303.7L110.6 261.7C113.5 243.8 107.7 225.5 94.63 213.1L63.41 183.5C50.84 171.6 45.99 153.1 50.76 137.1C55.53 120.3 69.88 108 87.52 105.3L129.7 99.2C146.7 96.64 160.9 84.72 165.8 68.48L178.2 28.16C183.3 11.2 199.3 0 217 0H256zM233 322.2L192 342.2V288H320V342.2L279 322.2C264.7 314.1 247.3 314.1 233 322.2zM256 224C291.3 224 320 195.3 320 160C320 124.7 291.3 96 256 96C220.7 96 192 124.7 192 160C192 195.3 220.7 224 256 224z" fill="currentColor" opacity="0.4"/></svg></span> JOGO RESPONSÍVEL <svg class="wallet-nav-arrow" viewBox="0 0 320 512"><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z" fill="currentColor" fill-opacity="0.5"/></svg></a>
+          <a href="#" class="wallet-nav-item" data-panel="jogoResp"><span class="wnav-icon"><svg viewBox="0 0 512 512"><path d="M256 0C273.7 0 289.7 11.2 294.8 28.16L307.2 68.48C312.1 84.72 326.3 96.64 343.3 99.2L385.5 105.3C403.1 108 417.4 120.3 422.2 137.1C427 153.1 422.2 171.6 409.6 183.5L378.4 213.1C365.3 225.5 359.5 243.8 362.4 261.7L369.1 303.7C372 321.3 364.8 339.2 350.3 350.1C335.8 361.7 316.4 363.8 299.7 355.4L261.1 335.3C245.7 327.1 227.3 327.1 211.1 335.3L173.3 355.4C156.6 363.8 137.2 361.7 122.7 350.1C108.2 339.2 100.1 321.3 103.9 303.7L110.6 261.7C113.5 243.8 107.7 225.5 94.63 213.1L63.41 183.5C50.84 171.6 45.99 153.1 50.76 137.1C55.53 120.3 69.88 108 87.52 105.3L129.7 99.2C146.7 96.64 160.9 84.72 165.8 68.48L178.2 28.16C183.3 11.2 199.3 0 217 0H256z" fill="currentColor" fill-opacity="0.9"/><path d="M256 0C273.7 0 289.7 11.2 294.8 28.16L307.2 68.48C312.1 84.72 326.3 96.64 343.3 99.2L385.5 105.3C403.1 108 417.4 120.3 422.2 137.1C427 153.1 422.2 171.6 409.6 183.5L378.4 213.1C365.3 225.5 359.5 243.8 362.4 261.7L369.1 303.7C372 321.3 364.8 339.2 350.3 350.1C335.8 361.7 316.4 363.8 299.7 355.4L261.1 335.3C245.7 327.1 227.3 327.1 211.1 335.3L173.3 355.4C156.6 363.8 137.2 361.7 122.7 350.1C108.2 339.2 100.1 321.3 103.9 303.7L110.6 261.7C113.5 243.8 107.7 225.5 94.63 213.1L63.41 183.5C50.84 171.6 45.99 153.1 50.76 137.1C55.53 120.3 69.88 108 87.52 105.3L129.7 99.2C146.7 96.64 160.9 84.72 165.8 68.48L178.2 28.16C183.3 11.2 199.3 0 217 0H256zM233 322.2L192 342.2V288H320V342.2L279 322.2C264.7 314.1 247.3 314.1 233 322.2zM256 224C291.3 224 320 195.3 320 160C320 124.7 291.3 96 256 96C220.7 96 192 124.7 192 160C192 195.3 220.7 224 256 224z" fill="currentColor" opacity="0.4"/></svg></span> JOGO RESPONSÁVEL <svg class="wallet-nav-arrow" viewBox="0 0 320 512"><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z" fill="currentColor" fill-opacity="0.5"/></svg></a>
         </div>
         <!-- Sub-menu for Histórico de Apostas -->
         <div class="wallet-sidebar-nav wallet-sub-menu" id="walletSubMenuApostas" style="display:none">
@@ -588,10 +589,10 @@
             <div class="wallet-panel-title">HISTÓRICO DE APOSTAS DE CASSINO</div>
             <div class="hist-controls" style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center">
               <div class="hist-tabs" id="betCassinoTabs" style="display:flex;gap:4px;flex-wrap:wrap">
-                <button class="hist-tab active" data-period="today">Somente hoje</button>
+                <button class="hist-tab" data-period="today">Somente hoje</button>
                 <button class="hist-tab" data-period="yesterday">Somente ontem</button>
                 <button class="hist-tab" data-period="7d">Últimos 7 dias</button>
-                <button class="hist-tab" data-period="30d">Últimos 30 dias</button>
+                <button class="hist-tab active" data-period="30d">Últimos 30 dias</button>
                 <button class="hist-tab" data-period="90d">Últimos 90 dias</button>
                 <button class="hist-tab" data-period="total">Período total</button>
               </div>
@@ -662,10 +663,10 @@
             <div class="wallet-panel-title">Extrato Completo</div>
             <div class="hist-controls" style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center">
               <div class="hist-tabs" id="extratoTabs" style="display:flex;gap:4px;flex-wrap:wrap">
-                <button class="hist-tab active" data-period="today">Somente hoje</button>
+                <button class="hist-tab" data-period="today">Somente hoje</button>
                 <button class="hist-tab" data-period="yesterday">Somente ontem</button>
                 <button class="hist-tab" data-period="7d">Últimos 7 dias</button>
-                <button class="hist-tab" data-period="30d">Últimos 30 dias</button>
+                <button class="hist-tab active" data-period="30d">Últimos 30 dias</button>
                 <button class="hist-tab" data-period="90d">Últimos 90 dias</button>
                 <button class="hist-tab" data-period="total">Período total</button>
               </div>
@@ -1510,9 +1511,9 @@
             </div>
           </div>
 
-          <!-- JOGO RESPONSÍVEL -->
+          <!-- JOGO RESPONSÁVEL -->
           <div class="wallet-panel" id="walletPanelJogoResp">
-            <div class="wallet-panel-title">JOGO RESPONSÍVEL</div>
+            <div class="wallet-panel-title">JOGO RESPONSÁVEL</div>
             <div class="acct-responsible">
               <p class="acct-resp-intro">A Proteção de Conta permite aos usuários configurar diferentes tipos de limites para suas atividades. Você pode configurar limites financeiros, de tempo e de perdas para garantir que o controle esteja sempre em suas mãos. Esses limites podem ser ajustados para períodos diários, semanais, mensais ou anuais, conforme sua preferência. Se você deseja remover ou modificar um limite, o ajuste só poderá ser realizado após um período de carência de 24 horas.</p>
               <p class="acct-resp-intro" style="margin-top:8px">A página também inclui opções adicionais para tempo de recesso/pausa e auto-exclusão, que são recursos de proteção mais rigorosos.</p>

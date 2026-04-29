@@ -719,6 +719,9 @@ router.post('/settings', async (req, res) => {
       'INSERT INTO platform_settings (key, value) VALUES ($1, $2) ON CONFLICT (key) DO UPDATE SET value = $2',
       [key, value || '']
     );
+    if (String(key).startsWith('blackcat_')) {
+      try { require('../services/blackcat').clearBlackcatCache(); } catch {}
+    }
     res.json({ ok: true });
   } catch (err) {
     res.status(500).json({ ok: false, msg: 'Erro.' });

@@ -1,10 +1,39 @@
 const fetch = require('node-fetch');
+const { pool } = require('../config/database');
 
-const BASE_URL = process.env.BLACKCAT_BASE_URL || '';
-const API_KEY = process.env.BLACKCAT_API_KEY || '';
-const WEBHOOK_URL = process.env.BLACKCAT_WEBHOOK_URL || '';
+const ENV_BASE_URL = process.env.BLACKCAT_BASE_URL || '';
+const ENV_API_KEY = process.env.BLACKCAT_API_KEY || '';
+const ENV_WEBHOOK_URL = process.env.BLACKCAT_WEBHOOK_URL || '';
+
+// Cached overrides from platform_settings (5 minute cache)
+let _settingsCache = { ts: 0, data: null };
+async function loadOverrides() {
+  if (_settingsCache.data && Date.now() - _settingsCache.ts < 5 * 60 * 1000) return _settingsCache.data;
+  try {
+    const r = await pool.query(
+      "SELECT key, value FROM platform_settings WHERE key IN ('blackcat_api_key','blackcat_base_url','blackcat_webhook_url')"
+    );
+    const o = {};
+    r.rows.forEach(row => { o[row.key] = row.value; });
+    _settingsCache = { ts: Date.now(), data: o };
+    return o;
+  } catch {
+    return {};
+  }
+}
+function clearBlackcatCache() { _settingsCache = { ts: 0, data: null }; }
+
+async function getCreds() {
+  const o = await loadOverrides();
+  return {
+    BASE_URL: (o.blackcat_base_url || ENV_BASE_URL || '').trim(),
+    API_KEY: (o.blackcat_api_key || ENV_API_KEY || '').trim(),
+    WEBHOOK_URL: (o.blackcat_webhook_url || ENV_WEBHOOK_URL || '').trim()
+  };
+}
 
 async function blackcatRequest(method, path, payload = null) {
+  const { BASE_URL, API_KEY } = await getCreds();
   const url = `${BASE_URL.replace(/\/+$/, '')}/${path.replace(/^\/+/, '')}`;
 
   const opts = {
@@ -51,6 +80,7 @@ async function createSale(amountCents, title, user, externalRef) {
   if (amountCents <= 0) throw new Error('amountCents inválido');
 
   const customer = normalizeCustomer(user);
+  const { WEBHOOK_URL } = await getCreds();
 
   const payload = {
     amount: amountCents,
@@ -71,4 +101,4 @@ async function getStatus(transactionId) {
   return blackcatRequest('GET', `/sales/${encodeURIComponent(transactionId)}/status`);
 }
 
-module.exports = { blackcatRequest, createSale, getStatus, normalizeCustomer };
+module.exports = { blackcatRequest, createSale, getStatus, normalizeCustomer, clearBlackcatCache, getCreds };

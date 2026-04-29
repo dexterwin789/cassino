@@ -67,6 +67,41 @@
     <div class="adm-muted" style="font-size:12px;line-height:1.5;margin-top:14px;padding:12px 14px;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);">Nota para operação: saque de afiliado tem regra própria em Afiliados. Aqui é o saque normal do jogador.</div>
   </div>
 
+  <!-- ── Gateway BlackCat (PIX) ── -->
+  <div class="adm-page-card" style="margin-top:24px;border-color:rgba(37,211,102,.22);">
+    <div class="adm-page-head">
+      <div>
+        <h3 style="display:flex;align-items:center;gap:10px;">
+          <span style="display:inline-grid;place-items:center;width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,rgba(37,211,102,.2),rgba(37,211,102,.05));border:1px solid rgba(37,211,102,.3);">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#25D366" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          </span>
+          Gateway BlackCat (PIX)
+        </h3>
+        <p class="adm-muted" style="line-height:1.55;margin-top:6px;">Credenciais usadas para gerar PIX de depósito. Se preenchido aqui, sobrescreve o <code>.env</code>. Em branco = usa o <code>.env</code>.</p>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-top:18px;">
+      <div class="adm-setting-card">
+        <label>API Key (Secret)</label>
+        <div style="display:flex;gap:6px;align-items:center;">
+          <input type="password" id="setBlackcatKey" value="<%= settings.blackcat_api_key || '' %>" placeholder="sk_..." autocomplete="off" style="flex:1;">
+          <button type="button" id="btnToggleBlackcatKey" class="adm-btn" style="padding:8px 12px;font-size:12px;">Mostrar</button>
+        </div>
+        <small class="adm-muted" style="display:block;margin-top:6px;font-size:11px;">Enviado em <code>X-API-Key</code> nas requisições.</small>
+      </div>
+      <div class="adm-setting-card">
+        <label>Base URL da API</label>
+        <input type="text" id="setBlackcatBaseUrl" value="<%= settings.blackcat_base_url || '' %>" placeholder="https://api.blackcatpagamentos.online/api">
+        <small class="adm-muted" style="display:block;margin-top:6px;font-size:11px;">Em branco usa o valor do <code>.env</code>.</small>
+      </div>
+      <div class="adm-setting-card">
+        <label>Webhook URL (Postback)</label>
+        <input type="text" id="setBlackcatWebhook" value="<%= settings.blackcat_webhook_url || '' %>" placeholder="https://seudominio.com/api/payments/webhook">
+        <small class="adm-muted" style="display:block;margin-top:6px;font-size:11px;">URL pública que recebe notificações de status do PIX.</small>
+      </div>
+    </div>
+  </div>
+
   <button class="adm-btn primary" id="btnSaveSettings" style="margin-top:16px;">Salvar Configurações</button>
 
   <!-- â”€â”€ Sessão Pragmatic Live (JSESSIONID) â”€â”€ -->
@@ -176,6 +211,14 @@ document.querySelectorAll('.money-cents-input').forEach(function(input) {
     this.value = formatMoneyFromCents(parseInt(v, 10));
   });
 });
+// Toggle BlackCat key visibility
+document.getElementById('btnToggleBlackcatKey')?.addEventListener('click', function() {
+  const inp = document.getElementById('setBlackcatKey');
+  if (!inp) return;
+  const showing = inp.type === 'text';
+  inp.type = showing ? 'password' : 'text';
+  this.textContent = showing ? 'Mostrar' : 'Ocultar';
+});
 // Settings save
 document.getElementById('btnSaveSettings')?.addEventListener('click', async () => {
   const settings = [
@@ -185,7 +228,10 @@ document.getElementById('btnSaveSettings')?.addEventListener('click', async () =
     { key: 'bonus_enabled', value: document.getElementById('setBonusEnabled').value },
     { key: 'career_plan_enabled', value: document.getElementById('setCareerPlan').value },
     { key: 'min_deposit', value: parseMoneyToCents(document.getElementById('setMinDeposit').value) },
-    { key: 'min_withdrawal', value: parseMoneyToCents(document.getElementById('setMinWithdrawal').value) }
+    { key: 'min_withdrawal', value: parseMoneyToCents(document.getElementById('setMinWithdrawal').value) },
+    { key: 'blackcat_api_key', value: document.getElementById('setBlackcatKey').value.trim() },
+    { key: 'blackcat_base_url', value: document.getElementById('setBlackcatBaseUrl').value.trim() },
+    { key: 'blackcat_webhook_url', value: document.getElementById('setBlackcatWebhook').value.trim() }
   ];
   for (const s of settings) {
     await fetch('/admin/api/settings', {
