@@ -4,7 +4,7 @@
   <div class="adm-page-head">
     <div>
       <h3>Ligas & Esportes</h3>
-      <p class="adm-muted">Configura��o de categorias esportivas e ligas</p>
+      <p class="adm-muted">Configuração de categorias esportivas e ligas</p>
     </div>
     <div style="display:flex;gap:8px;">
       <button class="adm-btn" id="btnAddSport">
@@ -23,12 +23,12 @@
   </div>
   <div class="adm-toolbar">
     <div class="adm-field"><label>Buscar</label><input type="text" placeholder="nome / slug" data-filter="q" /></div>
-    <div class="adm-field"><label>Por p�gina</label><select data-filter="limit"><option value="10">10</option><option value="25" selected>25</option><option value="50">50</option></select></div>
+    <div class="adm-field"><label>Por página</label><select data-filter="limit"><option value="10">10</option><option value="25" selected>25</option><option value="50">50</option></select></div>
     <div class="adm-field"><label>&nbsp;</label><button class="adm-btn primary" data-action="apply">Aplicar</button></div>
   </div>
   <div class="adm-table-wrap">
     <table class="adm-table">
-      <thead><tr><th>ID</th><th>Tipo</th><th>Esporte</th><th>Nome</th><th>Pa�s</th><th>Ordem</th><th>Status</th><th>A��es</th></tr></thead>
+      <thead><tr><th>ID</th><th>Tipo</th><th>Esporte</th><th>Nome</th><th>País</th><th>Ordem</th><th>Status</th><th>Ações</th></tr></thead>
       <tbody data-tbody></tbody>
     </table>
   </div>
@@ -36,15 +36,15 @@
     <div class="adm-muted"><span data-count>0</span> resultados</div>
     <div class="adm-pager-btns">
       <button class="adm-btn" data-action="prev">‹ Anterior</button>
-      <span class="adm-muted">P�gina <span data-page-num>1</span></span>
-      <button class="adm-btn" data-action="next">Pr�xima ›</button>
+      <span class="adm-muted">Página <span data-page-num>1</span></span>
+      <button class="adm-btn" data-action="next">Próxima ›</button>
     </div>
   </div>
 </div>
 
 <script src="/public/js/admin.js" defer></script>
 
-<!-- ── Modal: Novo Esporte ── -->
+<!-- Modal: Novo Esporte -->
 <div id="sportModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);align-items:center;justify-content:center">
   <div style="background:linear-gradient(160deg,#111827,#0d1321);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:32px;width:460px;max-width:92vw;box-shadow:0 24px 80px rgba(0,0,0,.6)">
     <h4 style="margin:0 0 24px;color:#fff;font-size:18px;font-weight:700;display:flex;align-items:center;gap:10px">
@@ -74,7 +74,7 @@
   </div>
 </div>
 
-<!-- ── Modal: Nova Liga ── -->
+<!-- Modal: Nova Liga -->
 <div id="leagueModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);align-items:center;justify-content:center">
   <div style="background:linear-gradient(160deg,#111827,#0d1321);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:32px;width:520px;max-width:92vw;box-shadow:0 24px 80px rgba(0,0,0,.6)">
     <h4 style="margin:0 0 24px;color:#fff;font-size:18px;font-weight:700;display:flex;align-items:center;gap:10px">
@@ -84,7 +84,7 @@
     <div style="display:flex;flex-direction:column;gap:16px">
       <div style="display:flex;flex-direction:column;gap:6px">
         <label style="font-size:11px;color:rgba(255,255,255,.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Nome da Liga *</label>
-        <input id="lgName" placeholder="ex: Brasileir�o S�rie A" style="height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3);color:#fff;padding:0 14px;outline:none;font-size:13px;font-weight:500;transition:border-color .2s" onfocus="this.style.borderColor='var(--adm-green1)'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
+        <input id="lgName" placeholder="ex: Brasileirão Série A" style="height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3);color:#fff;padding:0 14px;outline:none;font-size:13px;font-weight:500;transition:border-color .2s" onfocus="this.style.borderColor='var(--adm-green1)'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
         <div style="display:flex;flex-direction:column;gap:6px">
@@ -98,7 +98,7 @@
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
         <div style="display:flex;flex-direction:column;gap:6px">
-          <label style="font-size:11px;color:rgba(255,255,255,.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Pa�s</label>
+          <label style="font-size:11px;color:rgba(255,255,255,.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px">País</label>
           <input id="lgCountry" placeholder="ex: Brasil" style="height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3);color:#fff;padding:0 14px;outline:none;font-size:13px;font-weight:500;transition:border-color .2s" onfocus="this.style.borderColor='var(--adm-green1)'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
         </div>
         <div style="display:flex;flex-direction:column;gap:6px">
@@ -116,7 +116,7 @@
 
 <script>
 (function(){
-  // ── Sport Modal ──
+  // Sport Modal
   var sportModal = document.getElementById('sportModal');
   document.getElementById('btnAddSport').addEventListener('click', function() {
     document.getElementById('spName').value='';
@@ -128,7 +128,7 @@
   sportModal.addEventListener('click', function(e){ if(e.target===sportModal) sportModal.style.display='none'; });
   document.getElementById('spSave').addEventListener('click', async function(){
     var name = document.getElementById('spName').value.trim();
-    if(!name) return alert('Nome � obrigat�rio.');
+    if(!name) return alert('Nome é obrigatório.');
     var slug = document.getElementById('spSlug').value.trim() || name.toLowerCase().replace(/\s+/g,'-');
     var btn=this; btn.disabled=true; btn.textContent='Salvando...';
     try {
@@ -144,7 +144,7 @@
     btn.disabled=false; btn.textContent='Salvar Esporte';
   });
 
-  // ── League Modal ──
+  // League Modal
   var leagueModal = document.getElementById('leagueModal');
   document.getElementById('btnAddLeague').addEventListener('click', function() {
     ['lgName','lgSlug','lgCountry'].forEach(function(id){ document.getElementById(id).value=''; });
@@ -156,7 +156,7 @@
   leagueModal.addEventListener('click', function(e){ if(e.target===leagueModal) leagueModal.style.display='none'; });
   document.getElementById('lgSave').addEventListener('click', async function(){
     var name = document.getElementById('lgName').value.trim();
-    if(!name) return alert('Nome � obrigat�rio.');
+    if(!name) return alert('Nome é obrigatório.');
     var slug = document.getElementById('lgSlug').value.trim() || name.toLowerCase().replace(/\s+/g,'-');
     var btn=this; btn.disabled=true; btn.textContent='Salvando...';
     try {

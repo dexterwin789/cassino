@@ -27,8 +27,19 @@ app.use((req, res, next) => {
 });
 
 // Body parsing
-app.use(express.json({ limit: '15mb' }));
-app.use(express.urlencoded({ extended: true }));
+// rawBody fica disponível para validação HMAC de webhooks sem depender de JSON.stringify(req.body).
+app.use(express.json({
+  limit: '15mb',
+  verify: (req, res, buf) => {
+    req.rawBody = buf ? buf.toString('utf8') : '';
+  }
+}));
+app.use(express.urlencoded({
+  extended: true,
+  verify: (req, res, buf) => {
+    req.rawBody = buf ? buf.toString('utf8') : '';
+  }
+}));
 
 // Health check endpoint for Railway (must be before any DB/auth middleware)
 app.get('/health', (req, res) => res.status(200).send('ok'));

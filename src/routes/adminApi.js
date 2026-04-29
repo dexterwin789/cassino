@@ -4,6 +4,7 @@ const { requireAdmin } = require('../middleware/auth');
 const fetch = require('node-fetch');
 const multer = require('multer');
 const { normalizeAffiliateCareerTiers } = require('../utils/affiliateCareer');
+const { clearWebhookGuardCache } = require('../middleware/webhookGuard');
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 2 * 1024 * 1024 } });
 
 router.use(requireAdmin);
@@ -715,16 +716,132 @@ router.post('/settings', async (req, res) => {
   try {
     const { key, value } = req.body;
     if (!key) return res.status(400).json({ ok: false, msg: 'Key obrigatória.' });
+    const settingKey = String(key);
     await query(
       'INSERT INTO platform_settings (key, value) VALUES ($1, $2) ON CONFLICT (key) DO UPDATE SET value = $2',
       [key, value || '']
     );
-    if (String(key).startsWith('blackcat_')) {
+    if (settingKey.startsWith('blackcat_')) {
       try { require('../services/blackcat').clearBlackcatCache(); } catch {}
+    }
+    if (['blackcat_webhook_ips', 'blackcat_webhook_secret', 'playfivers_webhook_ips', 'playfivers_webhook_secret'].includes(settingKey)) {
+      clearWebhookGuardCache();
     }
     res.json({ ok: true });
   } catch (err) {
     res.status(500).json({ ok: false, msg: 'Erro.' });
+  }
+});
+
+router.get('/security/status', async (req, res) => {
+  try {
+    const watchedKeys = [
+      'blackcat_api_key', 'blackcat_base_url', 'blackcat_webhook_url',
+      'blackcat_webhook_ips', 'blackcat_webhook_secret',
+      'playfivers_webhook_ips', 'playfivers_webhook_secret',
+      'min_deposit', 'min_withdrawal'
+    ];
+
+    const [settingsR, adminsR, pendingWithdrawalsR] = await Promise.all([
+      query('SELECT key, value FROM platform_settings WHERE key = ANY($1::text[])', [watchedKeys]),
+      query("SELECT COUNT(*)::int AS total, COUNT(*) FILTER (WHERE username = 'admin' AND is_active = TRUE)::int AS default_admin FROM admin_users"),
+      query("SELECT COUNT(*)::int AS c, COALESCE(SUM(amount_cents), 0)::bigint AS total FROM withdrawals WHERE status = 'pending'")
+    ]);
+
+    const settings = {};
+    settingsR.rows.forEach(row => { settings[row.key] = String(row.value || '').trim(); });
+    const hasSetting = key => !!settings[key];
+    const hasEnv = key => !!String(process.env[key] || '').trim();
+    const sessionSecret = String(process.env.SESSION_SECRET || '').trim();
+    const pendingWithdrawals = Number(pendingWithdrawalsR.rows[0]?.c || 0);
+    const pendingWithdrawalsTotal = Number(pendingWithdrawalsR.rows[0]?.total || 0);
+
+    const checks = [];
+    const add = (key, label, status, detail, href) => checks.push({ key, label, status, detail, href: href || null });
+
+    add(
+      'session_secret',
+      'SESSION_SECRET forte',
+      sessionSecret && sessionSecret !== 'fallback-secret' && sessionSecret.length >= 32 ? 'ok' : 'danger',
+      sessionSecret && sessionSecret !== 'fallback-secret'
+        ? 'Secret configurado no ambiente; tamanho: ' + sessionSecret.length + ' caracteres.'
+        : 'Ausente ou usando fallback. Configure uma string aleatória com 32+ caracteres no Railway.'
+    );
+
+    add('admin_login_rate_limit', 'Rate limit no login admin', 'ok', 'Ativo: 5 tentativas a cada 15 minutos por IP.');
+    add('user_login_rate_limit', 'Rate limit login/cadastro', 'ok', 'Ativo: login 8/15min e cadastro 5/h por IP.');
+    add('withdrawal_escrow', 'Escrow de saque', 'ok', 'Ativo: solicitação debita saldo em transação e rejeição devolve o valor.');
+    add('trust_proxy', 'Trust proxy específico', 'ok', 'Ativo: 2 hops para Cloudflare + Railway, reduz spoofing de IP em rate-limit.');
+
+    add(
+      'blackcat_credentials',
+      'Credenciais BlackCat',
+      (hasSetting('blackcat_api_key') || hasEnv('BLACKCAT_API_KEY')) && (hasSetting('blackcat_base_url') || hasEnv('BLACKCAT_BASE_URL')) ? 'ok' : 'warn',
+      'API Key/Base URL: ' + (hasSetting('blackcat_api_key') ? 'DB' : hasEnv('BLACKCAT_API_KEY') ? 'ENV' : 'ausente') + ' / ' + (hasSetting('blackcat_base_url') ? 'DB' : hasEnv('BLACKCAT_BASE_URL') ? 'ENV' : 'ausente') + '.',
+      '/admin/settings'
+    );
+
+    add(
+      'blackcat_webhook_origin',
+      'Origem webhook BlackCat',
+      hasSetting('blackcat_webhook_ips') || hasSetting('blackcat_webhook_secret') ? 'ok' : 'warn',
+      hasSetting('blackcat_webhook_ips') || hasSetting('blackcat_webhook_secret')
+        ? 'Guard ativo: ' + (hasSetting('blackcat_webhook_ips') ? 'IP allowlist ' : '') + (hasSetting('blackcat_webhook_secret') ? 'HMAC.' : '')
+        : 'Permissivo. Preencha IPs autorizados ou HMAC Secret quando o provedor confirmar a spec.',
+      '/admin/settings'
+    );
+
+    add(
+      'playfivers_webhook_origin',
+      'Origem webhook PlayFivers',
+      hasSetting('playfivers_webhook_ips') || hasSetting('playfivers_webhook_secret') ? 'ok' : 'warn',
+      hasSetting('playfivers_webhook_ips') || hasSetting('playfivers_webhook_secret')
+        ? 'Guard ativo: ' + (hasSetting('playfivers_webhook_ips') ? 'IP allowlist ' : '') + (hasSetting('playfivers_webhook_secret') ? 'HMAC.' : '')
+        : 'Permissivo. Preencha IPs autorizados ou HMAC Secret quando o provedor confirmar a spec.',
+      '/admin/settings'
+    );
+
+    add(
+      'playfivers_credentials',
+      'Credenciais PlayFivers',
+      hasEnv('PLAYFIVERS_AGENT_TOKEN') && hasEnv('PLAYFIVERS_SECRET_KEY') ? 'ok' : 'warn',
+      hasEnv('PLAYFIVERS_AGENT_TOKEN') && hasEnv('PLAYFIVERS_SECRET_KEY')
+        ? 'Token e secret presentes no ambiente.'
+        : 'PLAYFIVERS_AGENT_TOKEN ou PLAYFIVERS_SECRET_KEY ausente no ambiente.'
+    );
+
+    add(
+      'default_admin',
+      'Usuário admin padrão',
+      Number(adminsR.rows[0]?.default_admin || 0) > 0 ? 'warn' : 'ok',
+      Number(adminsR.rows[0]?.default_admin || 0) > 0
+        ? 'Existe usuário ativo chamado admin. Troque nome/senha se ainda for o padrão.'
+        : 'Nenhum admin ativo com username padrão.'
+    );
+
+    add(
+      'pending_withdrawals',
+      'Saques pendentes',
+      pendingWithdrawals > 0 ? 'warn' : 'ok',
+      pendingWithdrawals > 0
+        ? pendingWithdrawals + ' saque(s) pendente(s), total R$ ' + (pendingWithdrawalsTotal / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 }) + '. Revisar manualmente antes de aprovar/rejeitar.'
+        : 'Nenhum saque pendente agora.',
+      '/admin/withdrawals'
+    );
+
+    const okCount = checks.filter(check => check.status === 'ok').length;
+    const dangerCount = checks.filter(check => check.status === 'danger').length;
+    const score = Math.round((okCount / checks.length) * 100);
+
+    res.json({
+      ok: true,
+      score,
+      status: dangerCount > 0 ? 'danger' : score >= 80 ? 'ok' : 'warn',
+      checks
+    });
+  } catch (err) {
+    console.error('[ADMIN API SECURITY STATUS]', err);
+    res.status(500).json({ ok: false, msg: 'Erro ao calcular status de segurança.' });
   }
 });
 

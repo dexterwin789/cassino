@@ -1,21 +1,53 @@
       </div><!-- .adm-content -->
 
       <footer class="adm-footer">
-        <span>&copy; <%= new Date().getFullYear() %> • Painel Admin</span>
+        <span>&copy; <%= new Date().getFullYear() %> | Painel Admin</span>
       </footer>
     </div><!-- .adm-main -->
   </div><!-- .adm-layout -->
 
   <script>
+  window.adminToast = function(message, type) {
+    let region = document.querySelector('.adm-toast-region');
+    if (!region) {
+      region = document.createElement('div');
+      region.className = 'adm-toast-region';
+      document.body.appendChild(region);
+    }
+    const toast = document.createElement('div');
+    toast.className = 'adm-toast ' + (type || 'info');
+    toast.innerHTML = '<span></span><strong>' + String(message || '').replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])) + '</strong>';
+    region.appendChild(toast);
+    setTimeout(() => toast.classList.add('show'), 20);
+    setTimeout(() => {
+      toast.classList.remove('show');
+      setTimeout(() => toast.remove(), 180);
+    }, 3600);
+  };
+
   // Sidebar toggle
   const sidebar = document.getElementById('admSidebar');
+  const sidebarBackdrop = document.getElementById('sidebarBackdrop');
+  const openMobileSidebar = () => {
+    sidebar.classList.add('mobile-open');
+    document.body.classList.add('adm-sidebar-open');
+  };
+  const closeMobileSidebar = () => {
+    sidebar.classList.remove('mobile-open');
+    document.body.classList.remove('adm-sidebar-open');
+  };
   document.getElementById('sidebarToggle')?.addEventListener('click', () => sidebar.classList.toggle('collapsed'));
-  document.getElementById('mobileMenu')?.addEventListener('click', () => sidebar.classList.toggle('mobile-open'));
+  document.getElementById('mobileMenu')?.addEventListener('click', openMobileSidebar);
+  sidebarBackdrop?.addEventListener('click', closeMobileSidebar);
+  sidebar.querySelectorAll('a').forEach(link => link.addEventListener('click', closeMobileSidebar));
   // Close on outside click (mobile)
   document.addEventListener('click', (e) => {
-    if (sidebar.classList.contains('mobile-open') && !sidebar.contains(e.target) && e.target.id !== 'mobileMenu') {
-      sidebar.classList.remove('mobile-open');
+    if (sidebar.classList.contains('mobile-open') && !sidebar.contains(e.target) && !e.target.closest('#mobileMenu')) {
+      closeMobileSidebar();
     }
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeMobileSidebar();
   });
 
   // Collapsed sidebar: JS-based fixed tooltip

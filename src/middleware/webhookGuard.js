@@ -7,6 +7,10 @@ const { query } = require('../config/database');
 
 // Cache 60s por chave para não consultar DB toda request.
 const cache = new Map();
+function clearWebhookGuardCache() {
+  cache.clear();
+}
+
 async function getSetting(key) {
   const c = cache.get(key);
   if (c && Date.now() - c.ts < 60 * 1000) return c.value;
@@ -60,13 +64,17 @@ function webhookGuard({ ipsKey, secretKey, sigHeader }) {
 
       // 2) HMAC signature
       if (secret && sigHeader) {
-        const sig = (req.headers[sigHeader.toLowerCase()] || '').toString().trim();
+        const sig = (req.headers[sigHeader.toLowerCase()] || '').toString().trim().replace(/^sha256=/i, '');
         if (!sig) {
           console.warn('[WEBHOOK_GUARD] HMAC ausente em header', sigHeader);
           return res.status(401).json({ ok: false, msg: 'Assinatura ausente.' });
         }
-        const raw = JSON.stringify(req.body || {});
-        const expected = crypto.createHmac('sha256', secret).update(raw).digest('hex');
+        if (!/^[a-f0-9]{64}$/i.test(sig)) {
+          console.warn('[WEBHOOK_GUARD] HMAC em formato inválido');
+          return res.status(401).json({ ok: false, msg: 'Assinatura inválida.' });
+        }
+        const raw = typeof req.rawBody === 'string' ? req.rawBody : JSON.stringify(req.body || {});
+        const expected = crypto.createHmac('sha256', secret.trim()).update(raw).digest('hex');
         const a = Buffer.from(sig, 'hex');
         const b = Buffer.from(expected, 'hex');
         if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) {
@@ -83,4 +91,4 @@ function webhookGuard({ ipsKey, secretKey, sigHeader }) {
   };
 }
 
-module.exports = { webhookGuard };
+module.exports = { webhookGuard, clearWebhookGuardCache };
