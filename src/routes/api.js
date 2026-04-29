@@ -787,6 +787,37 @@ router.post('/roulette/pragmatic/ingest', ingestAuth, async (req, res) => {
   }
 });
 
+// GET /api/roulette/pragmatic/launch-url?game_code=...
+// Auth: X-Ingest-Token === process.env.INGEST_TOKEN
+// Used by the local poller: backend (whitelisted IP) calls PlayFivers,
+// returns the launch_url so the poller can follow the redirect chain
+// from a non-blocked IP and extract a fresh JSESSIONID.
+router.get('/roulette/pragmatic/launch-url', ingestAuth, async (req, res) => {
+  try {
+    const config = getPragmaticRouletteConfig(req.query.game_code || req.query.gameCode);
+    if (!config) return res.status(400).json({ ok: false, msg: 'Roleta não configurada.' });
+    const pf = require('../services/playfivers');
+    const launch = await pf.launchGame({
+      userCode: 'vnb_poller_' + config.gameCode.replace(/[^a-z0-9]/gi, '_'),
+      gameCode: config.pfGameCode,
+      provider: 'OFICIAL - PRAGMATIC LIVE',
+      gameOriginal: true,
+      userBalance: 1,
+      lang: 'pt'
+    });
+    const launchUrl = launch && launch.data && launch.data.launch_url;
+    if (launch.status !== 200 || !launchUrl) {
+      return res.status(502).json({ ok: false, msg: (launch.data && launch.data.msg) || 'launch indisponível', status: launch.status });
+    }
+    let nestedUrl = null;
+    try { nestedUrl = new URL(launchUrl).searchParams.get('url'); } catch {}
+    res.json({ ok: true, game_code: config.gameCode, launch_url: launchUrl, nested_url: nestedUrl });
+  } catch (err) {
+    console.error('[ROULETTE LAUNCH-URL]', err);
+    res.status(500).json({ ok: false, msg: err.message || 'Erro ao gerar launch_url.' });
+  }
+});
+
 // GET /api/roulette/pragmatic/signals?game_code=...
 // Generic signals/feed for any configured Pragmatic roulette (used by app.vemnabet pages).
 router.get('/roulette/pragmatic/signals', async (req, res) => {

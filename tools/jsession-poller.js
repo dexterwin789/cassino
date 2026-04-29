@@ -110,31 +110,20 @@ function parseJSessionId(text) {
   try { return decodeURIComponent(match[1]); } catch { return match[1]; }
 }
 
-// ---------- PlayFivers launch ----------
-async function playFiversLaunch(game) {
-  if (!CONFIG.agentToken || !CONFIG.secretKey) {
-    throw new Error('PLAYFIVERS_AGENT_TOKEN/PLAYFIVERS_SECRET_KEY ausentes no .env');
-  }
-  const body = {
-    agentToken: CONFIG.agentToken,
-    secretKey: CONFIG.secretKey,
-    user_code: 'vnb_poller_' + game.gameCode.replace(/[^a-z0-9]/gi, '_'),
-    game_code: game.pfGameCode,
-    provider: game.provider,
-    game_original: true,
-    user_balance: 1,
-    lang: 'pt'
-  };
-  const resp = await httpRequest('https://api.playfivers.com/api/v2/game_launch', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'User-Agent': CONFIG.userAgent },
-    body: JSON.stringify(body)
+// ---------- backend launch-url (PlayFivers via backend whitelisted IP) ----------
+async function getLaunchUrlFromBackend(game) {
+  const url = `${CONFIG.backendUrl}/api/roulette/pragmatic/launch-url?game_code=${encodeURIComponent(game.gameCode)}`;
+  const resp = await httpRequest(url, {
+    headers: {
+      'X-Ingest-Token': CONFIG.ingestToken,
+      'User-Agent': 'vnb-jsession-poller/1.0'
+    }
   }, 20000);
   const data = await resp.json().catch(() => ({}));
-  if (resp.status !== 200 || !data || !data.launch_url) {
-    throw new Error(`launch HTTP ${resp.status} msg=${(data && data.msg) || 'sem launch_url'}`);
+  if (!data.ok || !data.launch_url) {
+    throw new Error(`backend launch-url HTTP ${resp.status} msg=${data.msg || 'sem launch_url'}`);
   }
-  return data.launch_url;
+  return { launchUrl: data.launch_url, nestedUrl: data.nested_url };
 }
 
 // Segue redirects + lê body + Set-Cookie procurando JSESSIONID
@@ -203,12 +192,9 @@ async function tickGame(game) {
   if (prev && prev.jsession && (now - prev.renewedAt) < CONFIG.renewAfterMs) {
     return { game: game.label, action: 'skip', age: Math.round((now - prev.renewedAt) / 1000) + 's' };
   }
-  const launchUrl = await playFiversLaunch(game);
+  const { launchUrl, nestedUrl } = await getLaunchUrlFromBackend(game);
   const candidates = [];
-  try {
-    const nested = new URL(launchUrl).searchParams.get('url');
-    if (nested) candidates.push(nested);
-  } catch {}
+  if (nestedUrl) candidates.push(nestedUrl);
   candidates.push(launchUrl);
 
   let lastErr = null;
@@ -240,8 +226,6 @@ async function tickAll() {
 function validateConfig() {
   const missing = [];
   if (!CONFIG.ingestToken) missing.push('INGEST_TOKEN');
-  if (!CONFIG.agentToken) missing.push('PLAYFIVERS_AGENT_TOKEN');
-  if (!CONFIG.secretKey) missing.push('PLAYFIVERS_SECRET_KEY');
   if (missing.length) {
     console.error('[POLLER] Faltando no .env: ' + missing.join(', '));
     console.error('[POLLER] Copie tools/.env.example para tools/.env e preencha.');
