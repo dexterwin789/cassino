@@ -584,7 +584,11 @@ async function fetchPragmaticHistoryWithSession(jsession, config) {
   const agent = getOutboundProxyAgent();
   if (agent) historyOptions.agent = agent;
   const historyResponse = await fetchWithAbort(historyUrl, historyOptions, 7000);
-  if (!historyResponse.ok) throw new Error('Pragmatic history HTTP ' + historyResponse.status);
+  if (!historyResponse.ok) {
+    const err = new Error('Pragmatic history HTTP ' + historyResponse.status);
+    if (historyResponse.status === 401 || historyResponse.status === 403) err.code = 'SESSION_EXPIRED';
+    throw err;
+  }
   const data = await historyResponse.json();
   const rows = Array.isArray(data.history) ? data.history.map((item, index) => ({
     id: item.gameId || `pragmatic-${index}`,
@@ -596,6 +600,70 @@ async function fetchPragmaticHistoryWithSession(jsession, config) {
   })).filter(row => row.number !== null).slice(0, 120) : [];
   if (!rows.length) throw new Error('histórico Pragmatic vazio');
   return rows;
+}
+
+// Generic helper: fetches Pragmatic roulette history for ANY configured game.
+// Strategy:
+//   1) Try stored JSESSIONID (env var or admin-ingested).
+//   2) On 401/403 (expired) or any failure, auto-renew session via
+//      PlayFivers launch -> readSessionFromUrl, then retry.
+//   3) Persist the freshly-discovered JSESSIONID for next calls.
+async function fetchPragmaticRouletteHistory(gameCode) {
+  const config = getPragmaticRouletteConfig(gameCode);
+  if (!config) throw new Error('roleta Pragmatic não configurada');
+
+  // 1) Stored session fast-path
+  const stored = getStoredJSession(config.gameCode);
+  if (stored) {
+    try {
+      return await fetchPragmaticHistoryWithSession(stored, config);
+    } catch (err) {
+      // Drop expired session to force renew below
+      if (err && err.code === 'SESSION_EXPIRED') {
+        setStoredJSession(config.gameCode, '');
+      }
+      // fall through to launch-based renew
+    }
+  }
+
+  // 2) Auto-renew via PlayFivers launch
+  const pf = require('../services/playfivers');
+  const launch = await pf.launchGame({
+    userCode: 'vnb_signal_' + config.gameCode.replace(/[^a-z0-9]/gi, '_'),
+    gameCode: config.pfGameCode,
+    provider: 'OFICIAL - PRAGMATIC LIVE',
+    gameOriginal: true,
+    userBalance: 1,
+    lang: 'pt'
+  });
+  const launchUrl = launch && launch.data && launch.data.launch_url;
+  if (launch.status !== 200 || !launchUrl) {
+    throw new Error((launch.data && launch.data.msg) || 'launch indisponível');
+  }
+
+  // Resolve fresh JSESSIONID by following the launch redirect chain
+  const candidates = [];
+  try {
+    const nested = new URL(launchUrl).searchParams.get('url');
+    if (nested) candidates.push(nested);
+  } catch (e) {}
+  candidates.push(launchUrl);
+
+  let jsession = '';
+  const errors = [];
+  for (const candidate of candidates) {
+    try {
+      jsession = await readSessionFromUrl(candidate);
+      if (jsession) break;
+    } catch (e) {
+      errors.push((e && e.message) ? e.message : String(e));
+    }
+  }
+  if (!jsession) throw new Error('sessão Pragmatic indisponível: ' + errors.join(' | ').slice(0, 220));
+
+  // 3) Persist + fetch with the new session
+  setStoredJSession(config.gameCode, jsession);
+  return await fetchPragmaticHistoryWithSession(jsession, config);
 }
 
 async function fetchPragmaticRouletteHistoryFromLaunchUrl(launchUrl, config) {
@@ -644,7 +712,6 @@ function updatePragmaticRouletteHistoryCache(gameCode, rows) {
 }
 
 async function fetchPragmaticFrenchHistory() {
-  const config = getPragmaticRouletteConfig(FRENCH_ROULETTE_CODE);
   const cache = getPragmaticRouletteCache(FRENCH_ROULETTE_CODE);
   if (Date.now() < cache.expiresAt && cache.rows.length) {
     return cache.rows;
@@ -652,28 +719,7 @@ async function fetchPragmaticFrenchHistory() {
   if (cache.pending) return cache.pending;
 
   cache.pending = (async () => {
-    // Try stored manual JSESSIONID first (fast path)
-    const stored = getStoredJSession(FRENCH_ROULETTE_CODE);
-    if (stored) {
-      try {
-        const rows = await fetchPragmaticHistoryWithSession(stored, config);
-        updatePragmaticRouletteHistoryCache(FRENCH_ROULETTE_CODE, rows);
-        return rows;
-      } catch (err) { /* fall through to launch */ }
-    }
-    const pf = require('../services/playfivers');
-    const launch = await pf.launchGame({
-      userCode: 'vnb_signal_french_roulette',
-      gameCode: config.pfGameCode,
-      provider: 'OFICIAL - PRAGMATIC LIVE',
-      gameOriginal: true,
-      userBalance: 1,
-      lang: 'pt'
-    });
-    const launchUrl = launch && launch.data && launch.data.launch_url;
-    if (launch.status !== 200 || !launchUrl) throw new Error((launch.data && launch.data.msg) || 'launch indisponível');
-
-    const rows = await fetchPragmaticRouletteHistoryFromLaunchUrl(launchUrl, config);
+    const rows = await fetchPragmaticRouletteHistory(FRENCH_ROULETTE_CODE);
     updatePragmaticRouletteHistoryCache(FRENCH_ROULETTE_CODE, rows);
     return rows;
   })().finally(() => { cache.pending = null; });
@@ -742,19 +788,16 @@ router.get('/roulette/pragmatic/signals', async (req, res) => {
     if (!config) return res.status(400).json({ ok: false, msg: 'Roleta não configurada.' });
     const cache = getPragmaticRouletteCache(config.gameCode);
 
-    // Refresh cache best-effort using stored JSESSIONID
-    if (Date.now() >= cache.expiresAt) {
-      const stored = getStoredJSession(config.gameCode);
-      if (stored && !cache.pending) {
-        cache.pending = fetchPragmaticHistoryWithSession(stored, config)
-          .then(rows => updatePragmaticRouletteHistoryCache(config.gameCode, rows))
-          .catch(err => { console.warn(`[ROULETTE PSIGNALS ${config.gameCode}]`, err.message); return []; })
-          .finally(() => { cache.pending = null; });
-      }
+    // Refresh cache best-effort using stored JSESSIONID OR launch fallback
+    if (Date.now() >= cache.expiresAt && !cache.pending) {
+      cache.pending = fetchPragmaticRouletteHistory(config.gameCode)
+        .then(rows => updatePragmaticRouletteHistoryCache(config.gameCode, rows))
+        .catch(err => { console.warn(`[ROULETTE PSIGNALS ${config.gameCode}]`, err.message); return []; })
+        .finally(() => { cache.pending = null; });
     }
     let rows = cache.rows && cache.rows.length ? cache.rows : [];
     if (!rows.length && cache.pending) {
-      rows = await Promise.race([cache.pending, new Promise(resolve => setTimeout(() => resolve([]), 3500))]);
+      rows = await Promise.race([cache.pending, new Promise(resolve => setTimeout(() => resolve([]), 6500))]);
     }
     if (!rows.length) rows = buildOperationalRouletteRows();
 
