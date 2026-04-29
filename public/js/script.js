@@ -35,6 +35,10 @@ function pageNeedsImmediateGames() {
   return !!(document.getElementById('homeFilteredGrid') || document.getElementById('top10Track') || document.getElementById('liveGamesScroll') || document.getElementById('crashGamesScroll') || document.getElementById('ganhosTrack') || document.getElementById('apostasList'));
 }
 
+function hasFastPageContent() {
+  return !!(document.getElementById('archiveGrid') || document.getElementById('gpPlayBtn') || document.getElementById('providerGrid'));
+}
+
 function vnbMoney(cents) {
   var n = (parseInt(cents || 0, 10) || 0) / 100;
   return 'R$ ' + n.toFixed(2).replace('.', ',');
@@ -506,6 +510,31 @@ function renderCategorySection(category, containerId) {
   if (category === 'live') games = games.slice(0, 36);
   if (!games.length) { el.closest('.game-section').style.display = 'none'; return; }
   el.innerHTML = games.map(function(g) { return gameCardHTML(g); }).join('');
+  enhanceCategoryScroller(el);
+}
+
+function enhanceCategoryScroller(el) {
+  if (!el || el.dataset.scrollEnhanced === '1') return;
+  var parent = el.parentNode;
+  if (!parent) return;
+  var wrap = document.createElement('div');
+  wrap.className = 'category-scroll-wrap';
+  parent.insertBefore(wrap, el);
+  wrap.appendChild(el);
+
+  ['prev', 'next'].forEach(function(kind) {
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'cat-scroll-btn cat-scroll-' + kind;
+    btn.setAttribute('aria-label', kind === 'prev' ? 'Jogos anteriores' : 'Próximos jogos');
+    btn.innerHTML = kind === 'prev' ? '&#8249;' : '&#8250;';
+    btn.addEventListener('click', function() {
+      var direction = kind === 'prev' ? -1 : 1;
+      el.scrollBy({ left: direction * Math.max(420, Math.floor(el.clientWidth * 0.85)), behavior: 'smooth' });
+    });
+    wrap.appendChild(btn);
+  });
+  el.dataset.scrollEnhanced = '1';
 }
 
 /* ========== TOP 10 SLIDER ========== */
@@ -1861,6 +1890,8 @@ function dismissPreloader() {
 
 function initApp() {
   var needsGames = pageNeedsImmediateGames();
+  var preloaderFastTimer = hasFastPageContent() ? setTimeout(dismissPreloader, 350) : null;
+  var preloaderHardTimer = setTimeout(dismissPreloader, 2200);
   var gamesPromise = needsGames ? loadGamesOnce() : Promise.resolve({ ok: true, games: allGames });
   var bannersPromise = Promise.resolve({ ok: false });
 
@@ -1881,6 +1912,8 @@ function initApp() {
       if (window.innerWidth > 768) startBannerAuto();
     }
     updateAuthState().then(function() {
+      if (preloaderFastTimer) clearTimeout(preloaderFastTimer);
+      clearTimeout(preloaderHardTimer);
       dismissPreloader();
       // Auto-open deposit modal if redirected from registration
       if (window.location.search.indexOf('openDeposit=1') !== -1) {
@@ -1901,8 +1934,14 @@ function initApp() {
           }
         }, 300);
       }
-    }).catch(dismissPreloader);
+    }).catch(function() {
+      if (preloaderFastTimer) clearTimeout(preloaderFastTimer);
+      clearTimeout(preloaderHardTimer);
+      dismissPreloader();
+    });
   }).catch(function() {
+    if (preloaderFastTimer) clearTimeout(preloaderFastTimer);
+    clearTimeout(preloaderHardTimer);
     dismissPreloader();
   });
 }

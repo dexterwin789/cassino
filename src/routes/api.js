@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const bcrypt = require('bcrypt');
+const fetch = require('node-fetch');
 const { query, pool } = require('../config/database');
 const { requireUser } = require('../middleware/auth');
 const { createSale } = require('../services/blackcat');
@@ -398,7 +399,9 @@ router.post('/game/launch', requireUser, async (req, res) => {
 const FRENCH_ROULETTE_CODE = 'oficial-pragmatic-live-pp-28401';
 const FRENCH_ROULETTE_PF_CODE = '28401';
 const FRENCH_ROULETTE_PF_CODES = [FRENCH_ROULETTE_PF_CODE, 'PP_28401'];
+const FRENCH_ROULETTE_TABLE_ID = 'frenchroulette01';
 const ROULETTE_WHEEL = [0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10, 5, 24, 16, 33, 1, 20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26];
+let pragmaticFrenchHistoryCache = { expiresAt: 0, rows: [], pending: null };
 
 function rouletteHash(seed) {
   let hash = 2166136261;
@@ -470,6 +473,97 @@ function buildOperationalRouletteRows(limit = 30) {
       result_source: 'operational'
     };
   });
+}
+
+function firstRouletteNumber(text) {
+  const match = String(text || '').match(/\b(?:[0-9]|[12][0-9]|3[0-6])\b/);
+  return match ? parseInt(match[0], 10) : null;
+}
+
+function parseJSessionId(text) {
+  const match = String(text || '').match(/JSESSIONID=([^&"'<>\s]+)/i);
+  if (!match) return '';
+  try { return decodeURIComponent(match[1]); } catch (err) { return match[1]; }
+}
+
+async function readSessionFromUrl(url) {
+  const response = await fetch(url, {
+    redirect: 'follow',
+    timeout: 15000,
+    headers: {
+      'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124 Safari/537.36',
+      'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
+    }
+  });
+  const text = await response.text();
+  return parseJSessionId(response.url + '\n' + text);
+}
+
+async function fetchPragmaticFrenchHistory() {
+  if (Date.now() < pragmaticFrenchHistoryCache.expiresAt && pragmaticFrenchHistoryCache.rows.length) {
+    return pragmaticFrenchHistoryCache.rows;
+  }
+  if (pragmaticFrenchHistoryCache.pending) return pragmaticFrenchHistoryCache.pending;
+
+  pragmaticFrenchHistoryCache.pending = (async () => {
+    const pf = require('../services/playfivers');
+    const launch = await pf.launchGame({
+      userCode: 'vnb_signal_french_roulette',
+      gameCode: 'PP_28401',
+      provider: 'OFICIAL - PRAGMATIC LIVE',
+      gameOriginal: true,
+      userBalance: 1,
+      lang: 'pt'
+    });
+    const launchUrl = launch && launch.data && launch.data.launch_url;
+    if (launch.status !== 200 || !launchUrl) throw new Error((launch.data && launch.data.msg) || 'launch indisponível');
+
+    const candidates = [launchUrl];
+    try {
+      const nested = new URL(launchUrl).searchParams.get('url');
+      if (nested) candidates.push(nested);
+    } catch (err) {}
+
+    let jsession = '';
+    for (const candidate of candidates) {
+      try {
+        jsession = await readSessionFromUrl(candidate);
+        if (jsession) break;
+      } catch (err) {}
+    }
+    if (!jsession) throw new Error('sessão Pragmatic indisponível');
+
+    const historyUrl = `https://games.pragmaticplaylive.net/api/ui/statisticHistory?JSESSIONID=${encodeURIComponent(jsession)}&tableId=${FRENCH_ROULETTE_TABLE_ID}&numberOfGames=500`;
+    const historyResponse = await fetch(historyUrl, {
+      timeout: 15000,
+      headers: {
+        'accept': 'application/json,text/plain,*/*',
+        'referer': 'https://client.pragmaticplaylive.net/desktop/frenchroulette2/'
+      }
+    });
+    const data = await historyResponse.json();
+    const rows = Array.isArray(data.history) ? data.history.map((item, index) => ({
+      id: item.gameId || `pragmatic-${index}`,
+      number: firstRouletteNumber(item.gameResult),
+      bet_cents: 0,
+      win_cents: 0,
+      created_at: new Date(Date.now() - index * 30000).toISOString(),
+      result_source: 'pragmatic_history'
+    })).filter(row => row.number !== null).slice(0, 120) : [];
+    if (!rows.length) throw new Error('histórico Pragmatic vazio');
+    pragmaticFrenchHistoryCache.rows = rows;
+    pragmaticFrenchHistoryCache.expiresAt = Date.now() + 30000;
+    return rows;
+  })().finally(() => { pragmaticFrenchHistoryCache.pending = null; });
+
+  return pragmaticFrenchHistoryCache.pending;
+}
+
+function pragmaticHistoryWithTimeout(ms = 3500) {
+  return Promise.race([
+    fetchPragmaticFrenchHistory().catch(() => []),
+    new Promise(resolve => setTimeout(() => resolve([]), ms))
+  ]);
 }
 
 function buildRouletteSignal(numbers) {
@@ -558,9 +652,12 @@ router.get('/roulette/french/signals', async (req, res) => {
       result_source: row.number !== null ? 'payload' : 'round'
     })).filter(row => row.number !== null);
 
+    let pragmaticRows = [];
+    try { pragmaticRows = await pragmaticHistoryWithTimeout(); } catch (historyErr) {}
+
     const latestPayload = extracted.find(row => row.result_source === 'payload');
     const payloadIsFresh = latestPayload && (Date.now() - new Date(latestPayload.created_at).getTime()) < 120000;
-    const rows = payloadIsFresh ? extracted : buildOperationalRouletteRows();
+    const rows = pragmaticRows.length ? pragmaticRows : (payloadIsFresh ? extracted : buildOperationalRouletteRows());
 
     const chronological = rows.slice().reverse().map(row => row.number);
     const displayStats = buildRouletteStats(rows);
@@ -573,7 +670,7 @@ router.get('/roulette/french/signals', async (req, res) => {
       history: rows.slice(0, 30),
       stats: displayStats,
       refresh_ms: 10000,
-      msg: 'Sinal ativo da French Roulette.'
+      msg: pragmaticRows.length ? 'Histórico sincronizado com a French Roulette.' : 'Sinal ativo da French Roulette.'
     });
   } catch (err) {
     console.error('[ROULETTE SIGNALS]', err);
