@@ -704,7 +704,7 @@ async function autoMigrate() {
 
     await pool.query(`
       UPDATE games
-      SET category = 'live', is_active = TRUE
+      SET category = 'live'
       WHERE LOWER(COALESCE(pf_provider, provider, '')) LIKE '%live%'
         AND pf_game_code IS NOT NULL
         AND pf_provider IS NOT NULL

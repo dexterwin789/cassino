@@ -503,6 +503,7 @@ function renderCategorySection(category, containerId) {
     if (category === 'live') return isLiveGame(g);
     return String(g.category || '').toLowerCase() === category;
   });
+  if (category === 'live') games = games.slice(0, 36);
   if (!games.length) { el.closest('.game-section').style.display = 'none'; return; }
   el.innerHTML = games.map(function(g) { return gameCardHTML(g); }).join('');
 }
