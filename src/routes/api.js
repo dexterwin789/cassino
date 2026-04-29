@@ -756,10 +756,17 @@ router.post('/roulette/pragmatic/sync-session', requireUser, syncPragmaticRoulet
 router.post('/roulette/french/sync-session', requireUser, syncPragmaticRouletteSession);
 
 // POST /api/roulette/pragmatic/ingest  { game_code, jsessionid | url }
-// Admin-only. Stores a JSESSIONID extracted manually (devtools) so the
-// backend can keep refreshing the live history when provider blocks
-// direct egress from Railway / can't get a session from launch URL.
-router.post('/roulette/pragmatic/ingest', requireAdmin, async (req, res) => {
+// Auth: admin session OR header X-Ingest-Token === process.env.INGEST_TOKEN
+// (token mode is what the local poller uses; admin session is for the
+// browser/UI fallback). Stores a JSESSIONID extracted from the launch
+// chain so the backend can keep refreshing live history.
+function ingestAuth(req, res, next) {
+  const token = process.env.INGEST_TOKEN;
+  const sent = req.get('X-Ingest-Token') || req.body?.ingest_token;
+  if (token && sent && sent === token) return next();
+  return requireAdmin(req, res, next);
+}
+router.post('/roulette/pragmatic/ingest', ingestAuth, async (req, res) => {
   try {
     const config = getPragmaticRouletteConfig(req.body.game_code || req.body.gameCode);
     if (!config) return res.status(400).json({ ok: false, msg: 'Roleta não configurada.' });
