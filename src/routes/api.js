@@ -489,7 +489,7 @@ function parseJSessionId(text) {
 async function readSessionFromUrl(url) {
   const response = await fetch(url, {
     redirect: 'follow',
-    timeout: 15000,
+    timeout: 7000,
     headers: {
       'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124 Safari/537.36',
       'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
@@ -500,11 +500,12 @@ async function readSessionFromUrl(url) {
 }
 
 async function fetchPragmaticFrenchHistoryFromLaunchUrl(launchUrl) {
-    const candidates = [launchUrl];
+    const candidates = [];
     try {
       const nested = new URL(launchUrl).searchParams.get('url');
       if (nested) candidates.push(nested);
     } catch (err) {}
+    candidates.push(launchUrl);
 
     let jsession = '';
     for (const candidate of candidates) {
@@ -517,12 +518,13 @@ async function fetchPragmaticFrenchHistoryFromLaunchUrl(launchUrl) {
 
     const historyUrl = `https://games.pragmaticplaylive.net/api/ui/statisticHistory?JSESSIONID=${encodeURIComponent(jsession)}&tableId=${FRENCH_ROULETTE_TABLE_ID}&numberOfGames=500`;
     const historyResponse = await fetch(historyUrl, {
-      timeout: 15000,
+      timeout: 7000,
       headers: {
         'accept': 'application/json,text/plain,*/*',
         'referer': 'https://client.pragmaticplaylive.net/desktop/frenchroulette2/'
       }
     });
+    if (!historyResponse.ok) throw new Error('Pragmatic history HTTP ' + historyResponse.status);
     const data = await historyResponse.json();
     const rows = Array.isArray(data.history) ? data.history.map((item, index) => ({
       id: item.gameId || `pragmatic-${index}`,
@@ -575,10 +577,19 @@ router.post('/roulette/french/sync-session', requireUser, async (req, res) => {
     if (!/^https:\/\//i.test(launchUrl) || (!launchUrl.includes('api.playfivers.com/oneapi') && !launchUrl.includes('/gs2c/playGame.do'))) {
       return res.status(400).json({ ok: false, msg: 'Sessão inválida.' });
     }
-    const rows = await fetchPragmaticFrenchHistoryFromLaunchUrl(launchUrl);
-    updatePragmaticFrenchHistoryCache(rows);
-    res.json({ ok: true, count: rows.length, history: rows.slice(0, 30) });
+    const syncPromise = fetchPragmaticFrenchHistoryFromLaunchUrl(launchUrl)
+      .then(rows => updatePragmaticFrenchHistoryCache(rows))
+      .catch(err => {
+        console.warn('[ROULETTE SYNC]', err.message);
+        return [];
+      });
+    const rows = await Promise.race([
+      syncPromise,
+      new Promise(resolve => setTimeout(() => resolve([]), 4500))
+    ]);
+    res.json({ ok: true, pending: !rows.length, count: rows.length, history: rows.slice(0, 30) });
   } catch (err) {
+    console.warn('[ROULETTE SYNC]', err.message);
     res.status(502).json({ ok: false, msg: 'Histórico indisponível.' });
   }
 });
