@@ -1,10 +1,10 @@
-Ôªø<%- include('layout-head', { title: 'Jogo Respons√°vel', page: 'limits' }) %>
+<%- include('layout-head', { title: 'Jogo Respons·vel', page: 'limits' }) %>
 
 <div class="adm-page-card" data-page="limits">
   <div class="adm-page-head">
     <div>
-      <h3>Jogo Respons√°vel</h3>
-      <p class="adm-muted">Limites de dep√≥sito, aposta, perda e auto-exclus√£o dos usu√°rios</p>
+      <h3>Jogo Respons·vel</h3>
+      <p class="adm-muted">Limites de depÛsito, aposta, perda e auto-exclus„o dos usu·rios</p>
     </div>
     <button class="adm-btn" data-action="refresh">
       <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
@@ -12,23 +12,23 @@
     </button>
   </div>
   <div class="adm-toolbar">
-    <div class="adm-field"><label>Buscar (user_id)</label><input type="text" placeholder="id do usu√°rio" data-filter="q" /></div>
-    <div class="adm-field"><label>Tipo de limite</label><select data-filter="limit_type"><option value="">Todos</option><option value="deposit">Dep√≥sito</option><option value="bet">Aposta</option><option value="loss">Perda</option><option value="time">Tempo</option></select></div>
-    <div class="adm-field"><label>Por p√°gina</label><select data-filter="limit"><option value="10">10</option><option value="25" selected>25</option><option value="50">50</option></select></div>
+    <div class="adm-field"><label>Buscar (user_id)</label><input type="text" placeholder="id do usu·rio" data-filter="q" /></div>
+    <div class="adm-field"><label>Tipo de limite</label><select data-filter="limit_type"><option value="">Todos</option><option value="deposit">DepÛsito</option><option value="bet">Aposta</option><option value="loss">Perda</option><option value="time">Tempo</option></select></div>
+    <div class="adm-field"><label>Por p·gina</label><select data-filter="limit"><option value="10">10</option><option value="25" selected>25</option><option value="50">50</option></select></div>
     <div class="adm-field"><label>&nbsp;</label><button class="adm-btn primary" data-action="apply">Aplicar</button></div>
   </div>
   <div class="adm-table-wrap">
     <table class="adm-table">
-      <thead><tr><th>ID</th><th>Usu√°rio</th><th>Tipo</th><th>Per√≠odo</th><th>Valor</th><th>Configurado por</th><th>Status</th><th>A√ß√µes</th></tr></thead>
+      <thead><tr><th>ID</th><th>Usu·rio</th><th>Tipo</th><th>PerÌodo</th><th>Valor</th><th>Configurado por</th><th>Status</th><th>AÁıes</th></tr></thead>
       <tbody data-tbody></tbody>
     </table>
   </div>
   <div class="adm-pager">
     <div class="adm-muted"><span data-count>0</span> resultados</div>
     <div class="adm-pager-btns">
-      <button class="adm-btn" data-action="prev">√¢‚Ç¨¬π Anterior</button>
-      <span class="adm-muted">P√°gina <span data-page-num>1</span></span>
-      <button class="adm-btn" data-action="next">Pr√≥xima √¢‚Ç¨¬∫</button>
+      <button class="adm-btn" data-action="prev">‚Äπ Anterior</button>
+      <span class="adm-muted">P·gina <span data-page-num>1</span></span>
+      <button class="adm-btn" data-action="next">PrÛxima ‚Ä∫</button>
     </div>
   </div>
 </div>
@@ -38,27 +38,27 @@
   <div style="background:linear-gradient(160deg,#111827,#0d1321);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:32px;width:480px;max-width:92vw;box-shadow:0 24px 80px rgba(0,0,0,.6)">
     <h4 style="margin:0 0 24px;color:#fff;font-size:18px;font-weight:700;display:flex;align-items:center;gap:10px">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--adm-green1,#10b981)" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-      Impor Limite ao Usu√°rio
+      Impor Limite ao Usu·rio
     </h4>
     <div style="display:flex;flex-direction:column;gap:16px">
       <div style="display:flex;flex-direction:column;gap:6px">
         <label style="font-size:11px;color:rgba(255,255,255,.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px">User ID *</label>
-        <input type="number" id="limUserId" placeholder="ID do usu√°rio" style="height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3);color:#fff;padding:0 14px;outline:none;font-size:13px;font-weight:500;transition:border-color .2s" onfocus="this.style.borderColor='var(--adm-green1)'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
+        <input type="number" id="limUserId" placeholder="ID do usu·rio" style="height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3);color:#fff;padding:0 14px;outline:none;font-size:13px;font-weight:500;transition:border-color .2s" onfocus="this.style.borderColor='var(--adm-green1)'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
         <div style="display:flex;flex-direction:column;gap:6px">
           <label style="font-size:11px;color:rgba(255,255,255,.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Tipo</label>
           <select id="limType" style="height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3);color:#fff;padding:0 14px;outline:none;font-size:13px;font-weight:500;transition:border-color .2s;cursor:pointer" onfocus="this.style.borderColor='var(--adm-green1)'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
-            <option value="deposit" style="background:#1a1f2e">Dep√≥sito</option>
+            <option value="deposit" style="background:#1a1f2e">DepÛsito</option>
             <option value="bet" style="background:#1a1f2e">Aposta</option>
             <option value="loss" style="background:#1a1f2e">Perda</option>
-            <option value="time" style="background:#1a1f2e">Tempo de sess√£o</option>
+            <option value="time" style="background:#1a1f2e">Tempo de sess„o</option>
           </select>
         </div>
         <div style="display:flex;flex-direction:column;gap:6px">
-          <label style="font-size:11px;color:rgba(255,255,255,.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Per√≠odo</label>
+          <label style="font-size:11px;color:rgba(255,255,255,.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px">PerÌodo</label>
           <select id="limPeriod" style="height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3);color:#fff;padding:0 14px;outline:none;font-size:13px;font-weight:500;transition:border-color .2s;cursor:pointer" onfocus="this.style.borderColor='var(--adm-green1)'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
-            <option value="daily" style="background:#1a1f2e">Di√°rio</option>
+            <option value="daily" style="background:#1a1f2e">Di·rio</option>
             <option value="weekly" style="background:#1a1f2e">Semanal</option>
             <option value="monthly" style="background:#1a1f2e">Mensal</option>
           </select>
@@ -69,8 +69,8 @@
         <input id="limValue" class="brl-mask" placeholder="R$ 0,00" style="height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3);color:#fff;padding:0 14px;outline:none;font-size:13px;font-weight:500;transition:border-color .2s" onfocus="this.style.borderColor='var(--adm-green1)'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
       </div>
       <div style="display:flex;flex-direction:column;gap:6px">
-        <label style="font-size:11px;color:rgba(255,255,255,.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Observa√ß√£o</label>
-        <input type="text" id="limNotes" placeholder="Motivo da imposi√ß√£o..." style="height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3);color:#fff;padding:0 14px;outline:none;font-size:13px;font-weight:500;transition:border-color .2s" onfocus="this.style.borderColor='var(--adm-green1)'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
+        <label style="font-size:11px;color:rgba(255,255,255,.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px">ObservaÁ„o</label>
+        <input type="text" id="limNotes" placeholder="Motivo da imposiÁ„o..." style="height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3);color:#fff;padding:0 14px;outline:none;font-size:13px;font-weight:500;transition:border-color .2s" onfocus="this.style.borderColor='var(--adm-green1)'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
       </div>
     </div>
     <div style="display:flex;gap:10px;margin-top:24px;justify-content:flex-end">

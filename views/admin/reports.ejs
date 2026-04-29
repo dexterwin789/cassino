@@ -1,12 +1,12 @@
-ï»¿<%- include('layout-head', { title: 'RelatÃ³rios', page: 'reports' }) %>
+<%- include('layout-head', { title: 'Relatórios', page: 'reports' }) %>
 
 <div class="adm-dashboard">
   <!-- Period Selector -->
   <div class="adm-page-card" style="margin-bottom:24px">
     <div class="adm-page-head">
       <div>
-        <h3>RelatÃ³rios Financeiros</h3>
-        <p class="adm-muted">VisÃ£o geral de receita, saques e GGR</p>
+        <h3>Relatórios Financeiros</h3>
+        <p class="adm-muted">Visão geral de receita, saques e GGR</p>
       </div>
       <div style="display:flex;gap:8px;align-items:center;">
         <button class="adm-btn" id="btnExportCsv">
@@ -17,16 +17,16 @@
     </div>
     <div class="adm-toolbar">
       <div class="adm-field"><label>De</label><input type="date" id="reportFrom" /></div>
-      <div class="adm-field"><label>AtÃ©</label><input type="date" id="reportTo" /></div>
-      <div class="adm-field"><label>PerÃ­odo rÃ¡pido</label>
+      <div class="adm-field"><label>Até</label><input type="date" id="reportTo" /></div>
+      <div class="adm-field"><label>Período rápido</label>
         <select id="reportQuick">
-          <option value="7">Ãšltimos 7 dias</option>
-          <option value="30" selected>Ãšltimos 30 dias</option>
-          <option value="90">Ãšltimos 90 dias</option>
-          <option value="365">Ãšltimo ano</option>
+          <option value="7">Últimos 7 dias</option>
+          <option value="30" selected>Últimos 30 dias</option>
+          <option value="90">Últimos 90 dias</option>
+          <option value="365">Último ano</option>
         </select>
       </div>
-      <div class="adm-field"><label>&nbsp;</label><button class="adm-btn primary" id="btnLoadReport">Gerar RelatÃ³rio</button></div>
+      <div class="adm-field"><label>&nbsp;</label><button class="adm-btn primary" id="btnLoadReport">Gerar Relatório</button></div>
     </div>
   </div>
 
@@ -37,9 +37,9 @@
         <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
       </div>
       <div class="adm-stat-info">
-        <div class="adm-stat-label">DepÃ³sitos</div>
+        <div class="adm-stat-label">Depósitos</div>
         <div class="adm-stat-value" id="rptDeposits">-</div>
-        <div class="adm-stat-sub" id="rptDepositsCount">0 transaÃ§Ãµes</div>
+        <div class="adm-stat-sub" id="rptDepositsCount">0 transações</div>
       </div>
     </div>
     <div class="adm-stat-card">
@@ -49,7 +49,7 @@
       <div class="adm-stat-info">
         <div class="adm-stat-label">Saques</div>
         <div class="adm-stat-value" id="rptWithdrawals">-</div>
-        <div class="adm-stat-sub" id="rptWithdrawalsCount">0 transaÃ§Ãµes</div>
+        <div class="adm-stat-sub" id="rptWithdrawalsCount">0 transações</div>
       </div>
     </div>
     <div class="adm-stat-card">
@@ -67,7 +67,7 @@
         <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
       </div>
       <div class="adm-stat-info">
-        <div class="adm-stat-label">UsuÃ¡rios Ativos</div>
+        <div class="adm-stat-label">Usuários Ativos</div>
         <div class="adm-stat-value" id="rptActiveUsers">-</div>
         <div class="adm-stat-sub" id="rptNewUsers">0 novos</div>
       </div>
@@ -77,7 +77,7 @@
   <!-- Charts -->
   <div class="adm-dashboard-grid">
     <div class="adm-chart-card">
-      <div class="adm-chart-head"><h3>Receita vs Saques (diÃ¡rio)</h3></div>
+      <div class="adm-chart-head"><h3>Receita vs Saques (diário)</h3></div>
       <div class="adm-chart-body"><canvas id="revenueChart" height="220"></canvas></div>
     </div>
     <div class="adm-chart-card">
@@ -109,9 +109,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!d.ok) return;
 
     document.getElementById('rptDeposits').textContent = brl(d.deposits_total / 100);
-    document.getElementById('rptDepositsCount').textContent = d.deposits_count + ' transaÃ§Ãµes';
+    document.getElementById('rptDepositsCount').textContent = d.deposits_count + ' transações';
     document.getElementById('rptWithdrawals').textContent = brl(d.withdrawals_total / 100);
-    document.getElementById('rptWithdrawalsCount').textContent = d.withdrawals_count + ' transaÃ§Ãµes';
+    document.getElementById('rptWithdrawalsCount').textContent = d.withdrawals_count + ' transações';
     document.getElementById('rptGgr').textContent = brl(d.ggr / 100);
     document.getElementById('rptGgrPct').textContent = d.deposits_total > 0 ? ((d.ggr / d.deposits_total) * 100).toFixed(1) + '% margem' : '-';
     document.getElementById('rptActiveUsers').textContent = d.active_users;
@@ -123,7 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
       type: 'line', data: {
         labels: d.daily.map(x => new Date(x.d).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})),
         datasets: [
-          { label: 'DepÃ³sitos', data: d.daily.map(x => parseInt(x.dep||0)/100), borderColor: '#2ee76b', backgroundColor:'rgba(46,231,107,.1)', fill:true, tension:.3 },
+          { label: 'Depósitos', data: d.daily.map(x => parseInt(x.dep||0)/100), borderColor: '#2ee76b', backgroundColor:'rgba(46,231,107,.1)', fill:true, tension:.3 },
           { label: 'Saques', data: d.daily.map(x => parseInt(x.wd||0)/100), borderColor: '#25D366', backgroundColor:'rgba(37,211,102,.1)', fill:true, tension:.3 }
         ]
       }, options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{color:'rgba(255,255,255,.6)'}}},

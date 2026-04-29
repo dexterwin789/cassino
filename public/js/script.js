@@ -344,11 +344,11 @@ function applyTagFilter() {
   if (searchActiveTag !== 'Todos') {
     var tag = searchActiveTag.toLowerCase();
     searchFiltered = queryMatched.filter(function(g) {
-      return (g.category || '').toLowerCase().includes(tag) ||
-        (g.provider || '').toLowerCase().includes(tag);
+      return !!g.image_url && ((g.category || '').toLowerCase().includes(tag) ||
+        (g.provider || '').toLowerCase().includes(tag));
     });
   } else {
-    searchFiltered = queryMatched;
+    searchFiltered = queryMatched.filter(function(g) { return !!g.image_url; });
   }
 
   searchShown = 0;
@@ -424,11 +424,11 @@ function renderHomeFiltered() {
   // Filter by provider
   if (homeActiveProvider) {
     homeFilteredGames = sorted.filter(function(g) {
-      return (g.provider || '').toUpperCase() === homeActiveProvider.toUpperCase();
+      return !!g.image_url && (g.provider || '').toUpperCase() === homeActiveProvider.toUpperCase();
     });
     if (title) title.textContent = 'Jogos da ' + homeActiveProvider;
   } else {
-    homeFilteredGames = sorted;
+    homeFilteredGames = sorted.filter(function(g) { return !!g.image_url; });
     if (title) title.textContent = 'Todos os Jogos';
   }
 

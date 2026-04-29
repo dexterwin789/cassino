@@ -1,10 +1,10 @@
-﻿<%- include('layout-head', { title: 'Cupons', page: 'coupons' }) %>
+<%- include('layout-head', { title: 'Cupons', page: 'coupons' }) %>
 
 <div class="adm-page-card" data-page="coupons">
   <div class="adm-page-head">
     <div>
       <h3>Cupons</h3>
-      <p class="adm-muted">Gerenciamento de cupons de desconto e bônus</p>
+      <p class="adm-muted">Gerenciamento de cupons de desconto e b�nus</p>
     </div>
     <div style="display:flex;gap:8px;">
       <button class="adm-btn primary" id="btnAddCoupon">
@@ -18,30 +18,30 @@
     </div>
   </div>
   <div class="adm-toolbar">
-    <div class="adm-field"><label>Buscar</label><input type="text" placeholder="código / descrição" data-filter="q" /></div>
+    <div class="adm-field"><label>Buscar</label><input type="text" placeholder="c�digo / descri��o" data-filter="q" /></div>
     <div class="adm-field"><label>Status</label><select data-filter="active"><option value="">Todos</option><option value="1">Ativo</option><option value="0">Inativo</option></select></div>
-    <div class="adm-field"><label>Por página</label><select data-filter="limit"><option value="10">10</option><option value="25" selected>25</option><option value="50">50</option></select></div>
+    <div class="adm-field"><label>Por p�gina</label><select data-filter="limit"><option value="10">10</option><option value="25" selected>25</option><option value="50">50</option></select></div>
     <div class="adm-field"><label>&nbsp;</label><button class="adm-btn primary" data-action="apply">Aplicar</button></div>
   </div>
   <div class="adm-table-wrap">
     <table class="adm-table">
-      <thead><tr><th>ID</th><th>Código</th><th>Tipo</th><th>Valor</th><th>Mín. Depósito</th><th>Usos</th><th>Status</th><th>Expira</th><th>Ações</th></tr></thead>
+      <thead><tr><th>ID</th><th>C�digo</th><th>Tipo</th><th>Valor</th><th>M�n. Dep�sito</th><th>Usos</th><th>Status</th><th>Expira</th><th>A��es</th></tr></thead>
       <tbody data-tbody></tbody>
     </table>
   </div>
   <div class="adm-pager">
     <div class="adm-muted"><span data-count>0</span> resultados</div>
     <div class="adm-pager-btns">
-      <button class="adm-btn" data-action="prev">â€¹ Anterior</button>
-      <span class="adm-muted">Página <span data-page-num>1</span></span>
-      <button class="adm-btn" data-action="next">Próxima â€º</button>
+      <button class="adm-btn" data-action="prev">‹ Anterior</button>
+      <span class="adm-muted">P�gina <span data-page-num>1</span></span>
+      <button class="adm-btn" data-action="next">Pr�xima ›</button>
     </div>
   </div>
 </div>
 
 <script src="/public/js/admin.js" defer></script>
 
-<!-- â”€â”€ Modal: Novo Cupom â”€â”€ -->
+<!-- ── Modal: Novo Cupom ── -->
 <div id="couponModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);align-items:center;justify-content:center">
   <div style="background:linear-gradient(160deg,#111827,#0d1321);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:32px;width:540px;max-width:92vw;box-shadow:0 24px 80px rgba(0,0,0,.6)">
     <h4 style="margin:0 0 24px;color:#fff;font-size:18px;font-weight:700;display:flex;align-items:center;gap:10px">
@@ -51,20 +51,20 @@
     <div style="display:flex;flex-direction:column;gap:16px">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
         <div style="display:flex;flex-direction:column;gap:6px">
-          <label style="font-size:11px;color:rgba(255,255,255,.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Código do Cupom *</label>
+          <label style="font-size:11px;color:rgba(255,255,255,.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px">C�digo do Cupom *</label>
           <input id="cpCode" placeholder="ex: BEM-VINDO" style="height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3);color:#fff;padding:0 14px;outline:none;font-size:13px;font-weight:500;transition:border-color .2s;text-transform:uppercase" onfocus="this.style.borderColor='var(--adm-green1)'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
         </div>
         <div style="display:flex;flex-direction:column;gap:6px">
           <label style="font-size:11px;color:rgba(255,255,255,.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Tipo</label>
           <select id="cpType" style="height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3);color:#fff;padding:0 14px;outline:none;font-size:13px;font-weight:500;transition:border-color .2s;cursor:pointer" onfocus="this.style.borderColor='var(--adm-green1)'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
-            <option value="bonus" style="background:#1a1f2e">Bônus</option>
+            <option value="bonus" style="background:#1a1f2e">B�nus</option>
             <option value="cashback" style="background:#1a1f2e">Cashback</option>
             <option value="freebet" style="background:#1a1f2e">Freebet</option>
           </select>
         </div>
       </div>
       <div style="display:flex;flex-direction:column;gap:6px">
-        <label style="font-size:11px;color:rgba(255,255,255,.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Descrição</label>
+        <label style="font-size:11px;color:rgba(255,255,255,.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Descri��o</label>
         <input id="cpDesc" placeholder="ex: Cupom de boas-vindas para novos jogadores" style="height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3);color:#fff;padding:0 14px;outline:none;font-size:13px;font-weight:500;transition:border-color .2s" onfocus="this.style.borderColor='var(--adm-green1)'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
@@ -79,11 +79,11 @@
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
         <div style="display:flex;flex-direction:column;gap:6px">
-          <label style="font-size:11px;color:rgba(255,255,255,.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Depósito Mínimo (R$)</label>
+          <label style="font-size:11px;color:rgba(255,255,255,.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Dep�sito M�nimo (R$)</label>
           <input id="cpMinDeposit" class="brl-mask" placeholder="R$ 0,00" style="height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3);color:#fff;padding:0 14px;outline:none;font-size:13px;font-weight:500;transition:border-color .2s" onfocus="this.style.borderColor='var(--adm-green1)'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
         </div>
         <div style="display:flex;flex-direction:column;gap:6px">
-          <label style="font-size:11px;color:rgba(255,255,255,.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Máx. Usos</label>
+          <label style="font-size:11px;color:rgba(255,255,255,.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px">M�x. Usos</label>
           <input id="cpMaxUses" type="number" placeholder="0 = ilimitado" value="0" style="height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3);color:#fff;padding:0 14px;outline:none;font-size:13px;font-weight:500;transition:border-color .2s" onfocus="this.style.borderColor='var(--adm-green1)'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
         </div>
       </div>
@@ -122,7 +122,7 @@ document.querySelectorAll('.brl-mask').forEach(brlMask);
   modal.addEventListener('click', function(e){ if(e.target===modal) modal.style.display='none'; });
   document.getElementById('cpSave').addEventListener('click', async function(){
     var code = document.getElementById('cpCode').value.trim();
-    if(!code) return alert('Código é obrigatório.');
+    if(!code) return alert('C�digo � obrigat�rio.');
     var btn=this; btn.disabled=true; btn.textContent='Salvando...';
     try {
       var r = await fetch('/admin/api/coupons', {

@@ -1,8 +1,8 @@
-Ôªø<%- include('layout-head', { title: 'Configura√ß√µes', page: 'settings' }) %>
+<%- include('layout-head', { title: 'ConfiguraÁıes', page: 'settings' }) %>
 
 <div class="adm-settings-page">
   <div class="adm-page-head">
-    <div><h3>Configura√ß√µes da Plataforma</h3><p class="adm-muted">Ajuste configura√ß√µes gerais</p></div>
+    <div><h3>ConfiguraÁıes da Plataforma</h3><p class="adm-muted">Ajuste configuraÁıes gerais</p></div>
   </div>
 
   <div class="adm-settings-grid">
@@ -11,21 +11,21 @@
       <input type="text" id="setSiteName" value="<%= settings.site_name || 'Cassino' %>">
     </div>
     <div class="adm-setting-card">
-      <label>Modo Manuten√ß√£o</label>
+      <label>Modo ManutenÁ„o</label>
       <select id="setMaintenance">
         <option value="0" <%= settings.maintenance_mode !== '1' ? 'selected' : '' %>>Desativado</option>
         <option value="1" <%= settings.maintenance_mode === '1' ? 'selected' : '' %>>Ativado</option>
       </select>
     </div>
     <div class="adm-setting-card">
-      <label>Esportes (Sidebar, Ligas, √çcones)</label>
+      <label>Esportes (Sidebar, Ligas, Õcones)</label>
       <select id="setSports">
         <option value="0" <%= settings.sports_enabled !== '1' ? 'selected' : '' %>>Desativado</option>
         <option value="1" <%= settings.sports_enabled === '1' ? 'selected' : '' %>>Ativado</option>
       </select>
     </div>
     <div class="adm-setting-card">
-      <label>Sistema de B√¥nus (Pr√™mios, Saldo B√¥nus, Filtros)</label>
+      <label>Sistema de BÙnus (PrÍmios, Saldo BÙnus, Filtros)</label>
       <select id="setBonusEnabled">
         <option value="0" <%= settings.bonus_enabled !== '1' ? 'selected' : '' %>>Desativado</option>
         <option value="1" <%= settings.bonus_enabled === '1' ? 'selected' : '' %>>Ativado</option>
@@ -49,25 +49,25 @@
           </span>
           Regras financeiras
         </h3>
-        <p class="adm-muted" style="line-height:1.55;margin-top:6px;">Esses valores aparecem para o usu√°rio e tamb√©m s√£o validados no backend. Se alterar aqui, dep√≥sito e saque passam a respeitar o novo m√≠nimo sem mexer no c√≥digo.</p>
+        <p class="adm-muted" style="line-height:1.55;margin-top:6px;">Esses valores aparecem para o usu·rio e tambÈm s„o validados no backend. Se alterar aqui, depÛsito e saque passam a respeitar o novo mÌnimo sem mexer no cÛdigo.</p>
       </div>
     </div>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-top:18px;">
       <div class="adm-setting-card">
-        <label>Dep√≥sito m√≠nimo</label>
+        <label>DepÛsito mÌnimo</label>
         <input type="text" id="setMinDeposit" class="money-cents-input" data-initial-cents="<%= settings.min_deposit || '2000' %>" placeholder="R$ 20,00">
-        <small class="adm-muted" style="display:block;margin-top:8px;font-size:11px;line-height:1.4;">Valor m√≠nimo que o cliente consegue gerar PIX. Atual pedido: R$ 20,00.</small>
+        <small class="adm-muted" style="display:block;margin-top:8px;font-size:11px;line-height:1.4;">Valor mÌnimo que o cliente consegue gerar PIX. Atual pedido: R$ 20,00.</small>
       </div>
       <div class="adm-setting-card">
-        <label>Saque m√≠nimo do cliente</label>
+        <label>Saque mÌnimo do cliente</label>
         <input type="text" id="setMinWithdrawal" class="money-cents-input" data-initial-cents="<%= settings.min_withdrawal || '5000' %>" placeholder="R$ 50,00">
-        <small class="adm-muted" style="display:block;margin-top:8px;font-size:11px;line-height:1.4;">Valor m√≠nimo para solicita√ß√£o de saque comum da carteira. Atual pedido: R$ 50,00.</small>
+        <small class="adm-muted" style="display:block;margin-top:8px;font-size:11px;line-height:1.4;">Valor mÌnimo para solicitaÁ„o de saque comum da carteira. Atual pedido: R$ 50,00.</small>
       </div>
     </div>
-    <div class="adm-muted" style="font-size:12px;line-height:1.5;margin-top:14px;padding:12px 14px;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);">Nota para opera√ß√£o: saque de afiliado tem regra pr√≥pria em Afiliados. Aqui √© o saque normal do jogador.</div>
+    <div class="adm-muted" style="font-size:12px;line-height:1.5;margin-top:14px;padding:12px 14px;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);">Nota para operaÁ„o: saque de afiliado tem regra prÛpria em Afiliados. Aqui È o saque normal do jogador.</div>
   </div>
 
-  <!-- ‚îÄ‚îÄ Gateway BlackCat (PIX) ‚îÄ‚îÄ -->
+  <!-- -- Gateway BlackCat (PIX) -- -->
   <div class="adm-page-card" style="margin-top:24px;border-color:rgba(37,211,102,.22);">
     <div class="adm-page-head">
       <div>
@@ -77,7 +77,7 @@
           </span>
           Gateway BlackCat (PIX)
         </h3>
-        <p class="adm-muted" style="line-height:1.55;margin-top:6px;">Credenciais usadas para gerar PIX de dep√≥sito. Se preenchido aqui, sobrescreve o <code>.env</code>. Em branco = usa o <code>.env</code>.</p>
+        <p class="adm-muted" style="line-height:1.55;margin-top:6px;">Credenciais usadas para gerar PIX de depÛsito. Se preenchido aqui, sobrescreve o <code>.env</code>. Em branco = usa o <code>.env</code>.</p>
       </div>
     </div>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-top:18px;">
@@ -87,7 +87,7 @@
           <input type="password" id="setBlackcatKey" value="<%= settings.blackcat_api_key || '' %>" placeholder="sk_..." autocomplete="off" style="flex:1;">
           <button type="button" id="btnToggleBlackcatKey" class="adm-btn" style="padding:8px 12px;font-size:12px;">Mostrar</button>
         </div>
-        <small class="adm-muted" style="display:block;margin-top:6px;font-size:11px;">Enviado em <code>X-API-Key</code> nas requisi√ß√µes.</small>
+        <small class="adm-muted" style="display:block;margin-top:6px;font-size:11px;">Enviado em <code>X-API-Key</code> nas requisiÁıes.</small>
       </div>
       <div class="adm-setting-card">
         <label>Base URL da API</label>
@@ -97,14 +97,14 @@
       <div class="adm-setting-card">
         <label>Webhook URL (Postback)</label>
         <input type="text" id="setBlackcatWebhook" value="<%= settings.blackcat_webhook_url || '' %>" placeholder="https://seudominio.com/api/payments/webhook">
-        <small class="adm-muted" style="display:block;margin-top:6px;font-size:11px;">URL p√∫blica que recebe notifica√ß√µes de status do PIX.</small>
+        <small class="adm-muted" style="display:block;margin-top:6px;font-size:11px;">URL p˙blica que recebe notificaÁıes de status do PIX.</small>
       </div>
     </div>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-top:14px;">
       <div class="adm-setting-card">
         <label>IPs autorizados do webhook (opcional)</label>
         <input type="text" id="setBlackcatWebhookIps" value="<%= settings.blackcat_webhook_ips || '' %>" placeholder="Ex: 200.50.10.5, 200.50.10.">
-        <small class="adm-muted" style="display:block;margin-top:6px;font-size:11px;">CSV de IPs ou prefixos. Em branco = aceita qualquer origem (n√£o recomendado).</small>
+        <small class="adm-muted" style="display:block;margin-top:6px;font-size:11px;">CSV de IPs ou prefixos. Em branco = aceita qualquer origem (n„o recomendado).</small>
       </div>
       <div class="adm-setting-card">
         <label>HMAC Secret do webhook (opcional)</label>
@@ -117,7 +117,7 @@
     </div>
   </div>
 
-  <!-- ‚îÄ‚îÄ PlayFivers (Webhook) ‚îÄ‚îÄ -->
+  <!-- -- PlayFivers (Webhook) -- -->
   <div class="adm-page-card" style="margin-top:24px;border-color:rgba(37,211,102,.22);">
     <div class="adm-page-head">
       <div>
@@ -127,7 +127,7 @@
           </span>
           PlayFivers (Webhook de jogos)
         </h3>
-        <p class="adm-muted" style="line-height:1.55;margin-top:6px;">Restri√ß√£o opcional de origem para o webhook que credita/debita saldo conforme apostas.</p>
+        <p class="adm-muted" style="line-height:1.55;margin-top:6px;">RestriÁ„o opcional de origem para o webhook que credita/debita saldo conforme apostas.</p>
       </div>
     </div>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-top:14px;">
@@ -147,18 +147,18 @@
     </div>
   </div>
 
-  <button class="adm-btn primary" id="btnSaveSettings" style="margin-top:16px;">Salvar Configura√ß√µes</button>
+  <button class="adm-btn primary" id="btnSaveSettings" style="margin-top:16px;">Salvar ConfiguraÁıes</button>
 
-  <!-- √¢‚Äù‚Ç¨√¢‚Äù‚Ç¨ Sess√£o Pragmatic Live (JSESSIONID) √¢‚Äù‚Ç¨√¢‚Äù‚Ç¨ -->
+  <!-- ‚îÄ‚îÄ Sess„o Pragmatic Live (JSESSIONID) ‚îÄ‚îÄ -->
   <div class="adm-page-card" style="margin-top:32px;border-color:rgba(37,211,102,.22);">
     <div class="adm-page-head">
       <div>
-        <h3>Sincronizar Hist√≥rico das Roletas (Pragmatic Live)</h3>
+        <h3>Sincronizar HistÛrico das Roletas (Pragmatic Live)</h3>
         <p class="adm-muted" style="line-height:1.55;margin-top:6px;">
           Cole a <strong>URL completa</strong> ou apenas a <strong>JSESSIONID</strong> que aparece em
-          <code>games.pragmaticplaylive.net/api/ui/statisticHistory?...JSESSIONID=...</code> (Devtools √¢‚Ä†‚Äô Network √¢‚Ä†‚Äô filtrar por <code>statisticHistory</code>).
-          O backend usa essa sess√£o para buscar o hist√≥rico real continuamente.
-          A sess√£o expira em algumas horas ‚Äî quando o hist√≥rico parar de atualizar, cole de novo.
+          <code>games.pragmaticplaylive.net/api/ui/statisticHistory?...JSESSIONID=...</code> (Devtools ‚Üí Network ‚Üí filtrar por <code>statisticHistory</code>).
+          O backend usa essa sess„o para buscar o histÛrico real continuamente.
+          A sess„o expira em algumas horas ó quando o histÛrico parar de atualizar, cole de novo.
         </p>
       </div>
     </div>
@@ -178,10 +178,10 @@
     </div>
   </div>
 
-  <!-- √¢‚Äù‚Ç¨√¢‚Äù‚Ç¨ Logo do Site √¢‚Äù‚Ç¨√¢‚Äù‚Ç¨ -->
+  <!-- ‚îÄ‚îÄ Logo do Site ‚îÄ‚îÄ -->
   <div style="margin-top:32px;">
     <h4 style="margin-bottom:4px;">Logo do Site</h4>
-    <p class="adm-muted" style="margin-bottom:20px;">Envie logos separadas para tema escuro e claro. Se enviar apenas uma, ser√° usada em ambos.</p>
+    <p class="adm-muted" style="margin-bottom:20px;">Envie logos separadas para tema escuro e claro. Se enviar apenas uma, ser· usada em ambos.</p>
 
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:700px;">
       <!-- Dark Logo -->
@@ -300,7 +300,7 @@ document.getElementById('btnSaveSettings')?.addEventListener('click', async () =
       credentials: 'same-origin'
     });
   }
-  alert('Configura√ß√µes salvas!');
+  alert('ConfiguraÁıes salvas!');
 });
 
 // Logo preview on file select
@@ -370,7 +370,7 @@ document.querySelectorAll('[data-prgm-game]').forEach(function(btn) {
         body: JSON.stringify(body)
       });
       var j = await r.json();
-      if (msgEl) msgEl.textContent = j.ok ? (j.msg || 'OK') + ' (' + (j.count || 0) + ' n√∫meros)' : (j.msg || 'Erro.');
+      if (msgEl) msgEl.textContent = j.ok ? (j.msg || 'OK') + ' (' + (j.count || 0) + ' n˙meros)' : (j.msg || 'Erro.');
     } catch (e) {
       if (msgEl) msgEl.textContent = 'Erro de rede.';
     } finally {

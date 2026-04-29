@@ -1,8 +1,8 @@
-Ôªø<%- include('layout-head', { title: 'Temas', page: 'themes' }) %>
+<%- include('layout-head', { title: 'Temas', page: 'themes' }) %>
 
 <div class="adm-themes-page">
   <div class="adm-page-head">
-    <div><h3>Gerenciador de Temas</h3><p class="adm-muted">Personalize a apar√™ncia da plataforma</p></div>
+    <div><h3>Gerenciador de Temas</h3><p class="adm-muted">Personalize a aparÍncia da plataforma</p></div>
     <button class="adm-btn primary" id="btnNewTheme">
       <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
       Novo Tema
@@ -38,7 +38,7 @@
       </div>
       <div class="adm-theme-body">
         <h4><%= t.name %></h4>
-        <p class="adm-muted"><%= t.description || 'Sem descri√ß√£o' %></p>
+        <p class="adm-muted"><%= t.description || 'Sem descriÁ„o' %></p>
         <div class="adm-theme-meta">
           <span class="adm-meta-tag"><%= layout.headerStyle || 'classic' %></span>
           <span class="adm-meta-tag"><%= layout.gamesPerRow || 4 %> cols</span>
@@ -78,7 +78,7 @@
       <div class="te-section">
         <h4 class="te-section-title">
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-          Informa√ß√µes
+          InformaÁıes
         </h4>
         <div class="te-row">
           <div class="te-field">
@@ -91,8 +91,8 @@
           </div>
         </div>
         <div class="te-field">
-          <label>Descri√ß√£o</label>
-          <input type="text" id="teDesc" class="te-input" placeholder="Descri√ß√£o curta do tema" />
+          <label>DescriÁ„o</label>
+          <input type="text" id="teDesc" class="te-input" placeholder="DescriÁ„o curta do tema" />
         </div>
       </div>
 
@@ -203,7 +203,7 @@
             <label>Aspecto do Banner</label>
             <select id="lcBannerAspect" class="te-select">
               <option value="16/5">Ultra-wide (16/5)</option>
-              <option value="16/7" selected>Padr√£o (16/7)</option>
+              <option value="16/7" selected>Padr„o (16/7)</option>
               <option value="16/8">Alto (16/8)</option>
               <option value="16/9">Cinema (16/9)</option>
               <option value="2/1">Quadrado alto (2/1)</option>
@@ -212,18 +212,18 @@
         </div>
         <div class="te-row">
           <div class="te-field">
-            <label>√çcones R√°pidos</label>
+            <label>Õcones R·pidos</label>
             <select id="lcQuickIcons" class="te-select">
-              <option value="4">4 √≠cones</option>
-              <option value="5">5 √≠cones</option>
-              <option value="6" selected>6 √≠cones</option>
-              <option value="8">8 √≠cones</option>
+              <option value="4">4 Ìcones</option>
+              <option value="5">5 Ìcones</option>
+              <option value="6" selected>6 Ìcones</option>
+              <option value="8">8 Ìcones</option>
             </select>
           </div>
           <div class="te-field">
             <label>Estilo do Header</label>
             <select id="lcHeaderStyle" class="te-select">
-              <option value="classic" selected>Cl√°ssico</option>
+              <option value="classic" selected>Cl·ssico</option>
               <option value="neon">Neon</option>
               <option value="royal">Royal</option>
               <option value="minimal">Minimalista</option>
@@ -234,7 +234,7 @@
           <div class="te-field">
             <label>Estilo do Footer</label>
             <select id="lcFooterStyle" class="te-select">
-              <option value="classic" selected>Cl√°ssico</option>
+              <option value="classic" selected>Cl·ssico</option>
               <option value="neon">Neon</option>
               <option value="royal">Royal</option>
               <option value="minimal">Minimalista</option>
@@ -245,7 +245,7 @@
             <select id="lcBorderRadius" class="te-select">
               <option value="8">8px - Sutil</option>
               <option value="12">12px - Moderado</option>
-              <option value="16" selected>16px - Padr√£o</option>
+              <option value="16" selected>16px - Padr„o</option>
               <option value="20">20px - Arredondado</option>
               <option value="24">24px - Muito arredondado</option>
             </select>
@@ -257,7 +257,7 @@
       <div class="te-section">
         <h4 class="te-section-title">
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-          Pr√©-visualiza√ß√£o
+          PrÈ-visualizaÁ„o
         </h4>
         <div class="te-live-preview" id="livePreview">
           <div class="tlp-header">
@@ -369,7 +369,7 @@ document.addEventListener('DOMContentLoaded', () => {
     layout_config: typeof t.layout_config === 'string' ? JSON.parse(t.layout_config) : (t.layout_config || {})
   }))) %>;
 
-  // Color map: field id ‚Ñ¢ css_vars key
+  // Color map: field id ô css_vars key
   const colorMap = {
     cBg: 'bg', cBlack: 'black', cCard: 'card', cText: 'text',
     cGreen1: 'green1', cGreen2: 'green2', cGreen3: 'green3',
@@ -423,7 +423,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Layout change ‚Ñ¢ update preview
+  // Layout change ô update preview
   ['lcGamesPerRow','lcBannerAspect','lcQuickIcons','lcHeaderStyle','lcFooterStyle','lcBorderRadius'].forEach(id => {
     document.getElementById(id).addEventListener('change', updatePreview);
   });

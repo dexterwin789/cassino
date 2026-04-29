@@ -1,8 +1,8 @@
-﻿<%- include('layout-head', { title: 'Top 10', page: 'top10' }) %>
+<%- include('layout-head', { title: 'Top 10', page: 'top10' }) %>
 
 <div class="adm-page-card" data-page="top10">
   <div class="adm-page-head">
-    <div><h3>Top 10 — Jogos em Destaque</h3><p class="adm-muted">Gerencie os jogos destacados na home</p></div>
+    <div><h3>Top 10 � Jogos em Destaque</h3><p class="adm-muted">Gerencie os jogos destacados na home</p></div>
     <button class="adm-btn primary" id="btnAddFeatured">+ Adicionar Jogo</button>
   </div>
 
@@ -19,7 +19,7 @@
       <button class="adm-btn" id="closeModal">&times;</button>
     </div>
     <div class="adm-field" style="margin-bottom:12px;">
-      <input type="text" id="searchAvailable" placeholder="Buscar jogo por nome, código ou provider..." style="width:100%;padding:8px 12px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:inherit;" />
+      <input type="text" id="searchAvailable" placeholder="Buscar jogo por nome, c�digo ou provider..." style="width:100%;padding:8px 12px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:inherit;" />
     </div>
     <div id="availableList" style="display:flex;flex-direction:column;gap:6px;max-height:400px;overflow:auto;"></div>
   </div>
@@ -45,12 +45,12 @@
           <img src="${g.image_url || ''}" alt="" style="width:48px;height:48px;object-fit:cover;border-radius:8px;${g.image_url ? '' : 'display:none'}">
           <div style="flex:1;min-width:0;">
             <div style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${g.game_name}</div>
-            <div style="font-size:12px;opacity:.5;">${g.provider || ''} • ${g.game_code}</div>
+            <div style="font-size:12px;opacity:.5;">${g.provider || ''} � ${g.game_code}</div>
           </div>
           <div style="display:flex;gap:6px;">
-            <button class="adm-btn" data-move="up" title="Subir" style="padding:4px 8px;">â†‘</button>
-            <button class="adm-btn" data-move="down" title="Descer" style="padding:4px 8px;">â†“</button>
-            <button class="adm-btn" data-remove="${g.id}" title="Remover" style="padding:4px 8px;color:#ef4444;">âœ•</button>
+            <button class="adm-btn" data-move="up" title="Subir" style="padding:4px 8px;">↑</button>
+            <button class="adm-btn" data-move="down" title="Descer" style="padding:4px 8px;">↓</button>
+            <button class="adm-btn" data-remove="${g.id}" title="Remover" style="padding:4px 8px;color:#ef4444;">✕</button>
           </div>
         </div>
       `).join('');

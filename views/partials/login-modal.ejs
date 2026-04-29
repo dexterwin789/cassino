@@ -1,4 +1,4 @@
-ï»¿<!-- LOGIN MODAL -->
+<!-- LOGIN MODAL -->
 <div class="login-overlay" id="loginModal">
   <div class="login-modal">
     <div class="login-right">
@@ -8,7 +8,7 @@
           <span>Precisa de<br>Ajuda?</span>
         </button>
         <div class="login-topbar-right">
-          <span class="login-topbar-line">NÃ£o tem uma conta?</span>
+          <span class="login-topbar-line">Não tem uma conta?</span>
           <a href="#" class="login-link" id="loginGoRegister">Crie uma conta aqui</a>
         </div>
         <button class="login-close" id="loginClose" type="button">
@@ -48,7 +48,7 @@
   </div>
 </div>
 
-<!-- â•â•â•â•â• REGISTER MODAL â•â•â•â•â• -->
+<!-- ----- REGISTER MODAL ----- -->
 <div class="login-overlay" id="registerModal">
   <div class="login-modal">
     <div class="login-right">
@@ -58,8 +58,8 @@
           <span>Precisa de<br>Ajuda?</span>
         </button>
         <div class="login-topbar-right">
-          <span class="login-topbar-line">JÃ¡ tem uma conta?</span>
-          <a href="#" class="login-link" id="regGoLogin">FaÃ§a login aqui</a>
+          <span class="login-topbar-line">Já tem uma conta?</span>
+          <a href="#" class="login-link" id="regGoLogin">Faça login aqui</a>
         </div>
         <button class="login-close" id="registerClose" type="button">
           <img src="/public/img/novo/modal2.svg" width="24" height="24" alt="Fechar">
@@ -147,7 +147,7 @@
             <!-- Checkbox -->
             <label class="reg-check">
               <input type="checkbox" id="regTerms" name="terms">
-              <span>Confirmo que <strong><u>tenho mais de 18 anos</u></strong> e aceito os <a href="#" class="login-link">Termos e CondiÃ§Ãµes</a> e a <a href="#" class="login-link">PolÃ­tica de Privacidade</a>.</span>
+              <span>Confirmo que <strong><u>tenho mais de 18 anos</u></strong> e aceito os <a href="#" class="login-link">Termos e Condições</a> e a <a href="#" class="login-link">Política de Privacidade</a>.</span>
             </label>
 
             <!-- Submit -->
@@ -178,7 +178,7 @@
       </button>
       <div class="dep-header-text">
         <strong>Depositar</strong>
-        <span>Adicione saldo Ã  sua conta</span>
+        <span>Adicione saldo à sua conta</span>
       </div>
     </div>
 
@@ -194,8 +194,8 @@
         </div>
       </div>
 
-      <!-- MÃ©todo -->
-      <div class="dep-payment-label">MÃ©todo de Pagamento</div>
+      <!-- Método -->
+      <div class="dep-payment-label">Método de Pagamento</div>
       <div class="dep-payment-method" id="depPaymentName">PAYBROKERS</div>
 
       <!-- Valor -->
@@ -213,7 +213,7 @@
         <button class="dep-val-btn" type="button" data-value="20"><span class="dep-val-text">R$ 20</span></button>
         <button class="dep-val-btn" type="button" data-value="50"><span class="dep-val-text">R$ 50</span></button>
         <button class="dep-val-btn" type="button" data-value="100">
-          <span class="dep-badge">SUPER HOT ðŸ”¥</span>
+          <span class="dep-badge">SUPER HOT ??</span>
           <span class="dep-val-text">R$ 100</span>
         </button>
         <button class="dep-val-btn" type="button" data-value="150"><span class="dep-val-text">R$ 150</span></button>
@@ -255,10 +255,10 @@
         <div class="dep-qr-code-wrap">
           <input type="text" class="dep-qr-code" id="depQrCode" readonly>
         </div>
-        <button class="dep-qr-copy-btn" id="depQrCopyBtn" type="button">Copiar CÃ³digo "copia e cola"</button>
+        <button class="dep-qr-copy-btn" id="depQrCopyBtn" type="button">Copiar Código "copia e cola"</button>
       </div>
       <div class="dep-qr-countdown">
-        <span class="dep-qr-countdown-label">O tempo para vocÃª pagar acaba em:</span>
+        <span class="dep-qr-countdown-label">O tempo para você pagar acaba em:</span>
         <span class="dep-qr-countdown-time" id="depQrCountdown">05:00</span>
         <div class="dep-qr-countdown-bar"><div class="dep-qr-countdown-fill" id="depQrCountdownFill"></div></div>
       </div>
@@ -385,11 +385,11 @@
 
   setupEyeToggle(document.getElementById('regTogglePw'), regPasswordInput);
 
-  /* Validate CPF â„¢ spinner â„¢ check API â„¢ show fields */
+  /* Validate CPF ™ spinner ™ check API ™ show fields */
   if (regValidateBtn) regValidateBtn.addEventListener('click', function() {
     var cpf = (regCpf.value || '').replace(/\D/g, '');
     if (cpf.length !== 11) {
-      if (typeof showToast === 'function') showToast('Digite um CPF vÃ¡lido com 11 dÃ­gitos', 'error');
+      if (typeof showToast === 'function') showToast('Digite um CPF válido com 11 dígitos', 'error');
       return;
     }
     regValidateBtn.querySelector('.reg-validate-text').style.display = 'none';
@@ -402,7 +402,7 @@
       .then(function(r) { return r.json().catch(function() { return {}; }); })
       .then(function(data) {
         if (data.exists) {
-          if (typeof showToast === 'function') showToast('CPF jÃ¡ cadastrado. FaÃ§a login.', 'error');
+          if (typeof showToast === 'function') showToast('CPF já cadastrado. Faça login.', 'error');
           regCpf.disabled = false;
           regValidateBtn.querySelector('.reg-validate-text').style.display = '';
           regValidateBtn.querySelector('.reg-validate-spinner').style.display = 'none';
@@ -662,22 +662,22 @@
     var code = depQrCode ? depQrCode.value : '';
     if (code && navigator.clipboard) {
       navigator.clipboard.writeText(code).then(function() {
-        if (typeof showToast === 'function') showToast('CÃ³digo PIX copiado!', 'success');
+        if (typeof showToast === 'function') showToast('Código PIX copiado!', 'success');
       });
     }
   });
 
-  /* DEPOSITAR button â€” loading animation then API call */
+  /* DEPOSITAR button — loading animation then API call */
   if (depSubmitBtn) depSubmitBtn.addEventListener('click', function() {
     var val = depValueInput ? depValueInput.value : '';
     var amount = parseFloat(String(val || '').replace(/[^\d,.]/g, '').replace(/\./g, '').replace(',', '.'));
     if (!val || isNaN(amount) || amount <= 0) {
-      if (typeof showToast === 'function') showToast('Digite um valor vÃ¡lido', 'error');
+      if (typeof showToast === 'function') showToast('Digite um valor válido', 'error');
       return;
     }
     var minDeposit = (window.VNB_LIMITS && window.VNB_LIMITS.minDepositCents ? window.VNB_LIMITS.minDepositCents : 2000) / 100;
     if (amount < minDeposit) {
-      if (typeof showToast === 'function') showToast('Valor mÃ­nimo: R$ ' + minDeposit.toFixed(2).replace('.', ','), 'error');
+      if (typeof showToast === 'function') showToast('Valor mínimo: R$ ' + minDeposit.toFixed(2).replace('.', ','), 'error');
       return;
     }
     depSubmitBtn.disabled = true;
@@ -699,7 +699,7 @@
     }).catch(function() {
       depSubmitBtn.disabled = false;
       depSubmitBtn.textContent = 'DEPOSITAR';
-      if (typeof showToast === 'function') showToast('Erro de conexÃ£o', 'error');
+      if (typeof showToast === 'function') showToast('Erro de conexão', 'error');
     });
   });
 
