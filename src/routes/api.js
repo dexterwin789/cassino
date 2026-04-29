@@ -497,20 +497,27 @@ function getOutboundProxyAgent() {
   }
 }
 
+async function fetchWithAbort(url, options = {}, ms = 7000) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), ms);
+  try {
+    return await fetch(url, { ...options, signal: controller.signal });
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 async function readSessionFromUrl(url) {
   const agent = getOutboundProxyAgent();
   const options = {
     redirect: 'follow',
-    timeout: 7000,
     headers: {
       'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124 Safari/537.36',
       'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
     }
   };
   if (agent) options.agent = agent;
-  const response = await fetch(url, {
-    ...options
-  });
+  const response = await fetchWithAbort(url, options, 7000);
   const text = await response.text();
   return parseJSessionId(response.url + '\n' + text);
 }
@@ -524,17 +531,19 @@ async function fetchPragmaticFrenchHistoryFromLaunchUrl(launchUrl) {
     candidates.push(launchUrl);
 
     let jsession = '';
+    const errors = [];
     for (const candidate of candidates) {
       try {
         jsession = await readSessionFromUrl(candidate);
         if (jsession) break;
-      } catch (err) {}
+      } catch (err) {
+        errors.push((err && err.message) ? err.message : String(err));
+      }
     }
-    if (!jsession) throw new Error('sessão Pragmatic indisponível');
+    if (!jsession) throw new Error('sessão Pragmatic indisponível: ' + errors.join(' | ').slice(0, 220));
 
     const historyUrl = `https://games.pragmaticplaylive.net/api/ui/statisticHistory?JSESSIONID=${encodeURIComponent(jsession)}&tableId=${FRENCH_ROULETTE_TABLE_ID}&numberOfGames=500`;
     const historyOptions = {
-      timeout: 7000,
       headers: {
         'accept': 'application/json,text/plain,*/*',
         'referer': 'https://client.pragmaticplaylive.net/desktop/frenchroulette2/'
@@ -542,7 +551,7 @@ async function fetchPragmaticFrenchHistoryFromLaunchUrl(launchUrl) {
     };
     const agent = getOutboundProxyAgent();
     if (agent) historyOptions.agent = agent;
-    const historyResponse = await fetch(historyUrl, historyOptions);
+    const historyResponse = await fetchWithAbort(historyUrl, historyOptions, 7000);
     if (!historyResponse.ok) throw new Error('Pragmatic history HTTP ' + historyResponse.status);
     const data = await historyResponse.json();
     const rows = Array.isArray(data.history) ? data.history.map((item, index) => ({
