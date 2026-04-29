@@ -499,25 +499,7 @@ async function readSessionFromUrl(url) {
   return parseJSessionId(response.url + '\n' + text);
 }
 
-async function fetchPragmaticFrenchHistory() {
-  if (Date.now() < pragmaticFrenchHistoryCache.expiresAt && pragmaticFrenchHistoryCache.rows.length) {
-    return pragmaticFrenchHistoryCache.rows;
-  }
-  if (pragmaticFrenchHistoryCache.pending) return pragmaticFrenchHistoryCache.pending;
-
-  pragmaticFrenchHistoryCache.pending = (async () => {
-    const pf = require('../services/playfivers');
-    const launch = await pf.launchGame({
-      userCode: 'vnb_signal_french_roulette',
-      gameCode: 'PP_28401',
-      provider: 'OFICIAL - PRAGMATIC LIVE',
-      gameOriginal: true,
-      userBalance: 1,
-      lang: 'pt'
-    });
-    const launchUrl = launch && launch.data && launch.data.launch_url;
-    if (launch.status !== 200 || !launchUrl) throw new Error((launch.data && launch.data.msg) || 'launch indisponível');
-
+async function fetchPragmaticFrenchHistoryFromLaunchUrl(launchUrl) {
     const candidates = [launchUrl];
     try {
       const nested = new URL(launchUrl).searchParams.get('url');
@@ -551,13 +533,55 @@ async function fetchPragmaticFrenchHistory() {
       result_source: 'pragmatic_history'
     })).filter(row => row.number !== null).slice(0, 120) : [];
     if (!rows.length) throw new Error('histórico Pragmatic vazio');
+    return rows;
+}
+
+function updatePragmaticFrenchHistoryCache(rows) {
     pragmaticFrenchHistoryCache.rows = rows;
     pragmaticFrenchHistoryCache.expiresAt = Date.now() + 30000;
+    return rows;
+}
+
+async function fetchPragmaticFrenchHistory() {
+  if (Date.now() < pragmaticFrenchHistoryCache.expiresAt && pragmaticFrenchHistoryCache.rows.length) {
+    return pragmaticFrenchHistoryCache.rows;
+  }
+  if (pragmaticFrenchHistoryCache.pending) return pragmaticFrenchHistoryCache.pending;
+
+  pragmaticFrenchHistoryCache.pending = (async () => {
+    const pf = require('../services/playfivers');
+    const launch = await pf.launchGame({
+      userCode: 'vnb_signal_french_roulette',
+      gameCode: 'PP_28401',
+      provider: 'OFICIAL - PRAGMATIC LIVE',
+      gameOriginal: true,
+      userBalance: 1,
+      lang: 'pt'
+    });
+    const launchUrl = launch && launch.data && launch.data.launch_url;
+    if (launch.status !== 200 || !launchUrl) throw new Error((launch.data && launch.data.msg) || 'launch indisponível');
+
+    const rows = await fetchPragmaticFrenchHistoryFromLaunchUrl(launchUrl);
+    updatePragmaticFrenchHistoryCache(rows);
     return rows;
   })().finally(() => { pragmaticFrenchHistoryCache.pending = null; });
 
   return pragmaticFrenchHistoryCache.pending;
 }
+
+router.post('/roulette/french/sync-session', requireUser, async (req, res) => {
+  try {
+    const launchUrl = String(req.body.launch_url || req.body.launchUrl || '');
+    if (!/^https:\/\//i.test(launchUrl) || (!launchUrl.includes('api.playfivers.com/oneapi') && !launchUrl.includes('/gs2c/playGame.do'))) {
+      return res.status(400).json({ ok: false, msg: 'Sessão inválida.' });
+    }
+    const rows = await fetchPragmaticFrenchHistoryFromLaunchUrl(launchUrl);
+    updatePragmaticFrenchHistoryCache(rows);
+    res.json({ ok: true, count: rows.length, history: rows.slice(0, 30) });
+  } catch (err) {
+    res.status(502).json({ ok: false, msg: 'Histórico indisponível.' });
+  }
+});
 
 function pragmaticHistoryWithTimeout(ms = 3500) {
   return Promise.race([

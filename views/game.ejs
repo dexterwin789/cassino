@@ -178,7 +178,7 @@
 
 <div id="toastContainer" class="toast-container"></div>
 
-<script src="/public/js/script.js?v=20260428h"></script>
+<script src="/public/js/script.js?v=20260428i"></script>
 <script>
 (function(){
   /* === Slider helper === */
@@ -253,6 +253,16 @@
   var playArea = document.getElementById('gpPlayArea');
   var gameCode = '<%= game.game_code %>';
 
+  function syncFrenchRouletteHistory(launchUrl) {
+    if (gameCode !== 'oficial-pragmatic-live-pp-28401' || !launchUrl) return;
+    fetch('/api/roulette/french/sync-session', {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ launch_url: launchUrl })
+    }).catch(function() {});
+  }
+
   if (playBtn) {
     playBtn.addEventListener('click', function() {
       playBtn.style.display = 'none';
@@ -275,6 +285,7 @@
             gameIframe.src = j.launch_url;
             gameIframe.style.display = 'block';
           }
+          syncFrenchRouletteHistory(j.launch_url);
           // Auto enter a wider view
           if (hero) hero.classList.add('gp-playing');
         } else {
