@@ -1,5 +1,13 @@
 const router = require('express').Router();
 const { pool, query } = require('../config/database');
+const { webhookGuard } = require('../middleware/webhookGuard');
+
+// Guard opcional: ativa só se settings 'playfivers_webhook_ips' ou 'playfivers_webhook_secret' estiverem preenchidos.
+router.use(webhookGuard({
+  ipsKey: 'playfivers_webhook_ips',
+  secretKey: 'playfivers_webhook_secret',
+  sigHeader: 'x-playfivers-signature'
+}));
 
 // Helper: get user by code (email/username)
 async function findUser(userCode) {
@@ -211,6 +219,11 @@ async function creditRevshareCommission(userId, betId, houseProfitCents) {
   const userR = await query('SELECT referred_by FROM users WHERE id = $1', [userId]);
   const referrerId = userR.rows[0]?.referred_by;
   if (!referrerId) return;
+  // Defesa: nunca pagar comissão para o próprio usuário (self-referral)
+  if (Number(referrerId) === Number(userId)) {
+    console.warn('[AFF] Self-referral detectado, ignorando comissão.', { userId });
+    return;
+  }
 
   const affR = await query('SELECT id, parent_id FROM affiliates WHERE user_id = $1 AND is_active = TRUE LIMIT 1', [referrerId]);
   const affiliateId = affR.rows[0]?.id;

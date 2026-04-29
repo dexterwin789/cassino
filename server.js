@@ -35,12 +35,17 @@ app.get('/health', (req, res) => res.status(200).send('ok'));
 
 // Trust Railway/Heroku/Cloudflare reverse proxy chain so secure cookies work
 // (custom domain goes Cloudflare → Railway → App = 2 hops)
-app.set('trust proxy', true);
+// Usar contagem específica em vez de `true` para evitar spoofing de X-Forwarded-For (rate-limit por IP).
+app.set('trust proxy', 2);
 
 // Session cookie config — production on Railway/Cloudflare always HTTPS,
 // so use secure+sameSite:none+domain=.vemnabet.bet whenever not running local dev.
 // Local dev (localhost) → sameSite:lax, no secure, no domain.
 const IS_PROD = process.env.NODE_ENV === 'production' || !!process.env.RAILWAY_ENVIRONMENT || !!process.env.RAILWAY_PROJECT_ID;
+
+if (IS_PROD && (!process.env.SESSION_SECRET || process.env.SESSION_SECRET === 'fallback-secret' || process.env.SESSION_SECRET.length < 32)) {
+  console.warn('[SECURITY] SESSION_SECRET fraco ou ausente em PRODUÇÃO. Defina uma string aleatória de 32+ caracteres.');
+}
 
 // Sessions
 app.use(session({

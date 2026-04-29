@@ -1,11 +1,30 @@
 const router = require('express').Router();
 const bcrypt = require('bcrypt');
 const fetch = require('node-fetch');
+const rateLimit = require('express-rate-limit');
 const { query, pool } = require('../config/database');
 const { requireUser, requireAdmin } = require('../middleware/auth');
 const { createSale } = require('../services/blackcat');
 const { DEFAULT_AFFILIATE_CAREER_TIERS, normalizeAffiliateCareerTiers } = require('../utils/affiliateCareer');
 const { categoryCondition } = require('../utils/gameCategories');
+
+// Rate limit: 8 tentativas de login por IP a cada 15 min
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 8,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { ok: false, msg: 'Muitas tentativas de login. Tente novamente em alguns minutos.' },
+  skipSuccessfulRequests: true
+});
+// Rate limit cadastro: 5 contas por IP por hora
+const registerLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { ok: false, msg: 'Muitos cadastros deste IP. Tente novamente mais tarde.' }
+});
 
 function centsToBRL(cents) {
   return 'R$ ' + (Math.max(parseInt(cents || 0, 10), 0) / 100).toFixed(2).replace('.', ',');
@@ -48,7 +67,7 @@ async function requireActiveAffiliate(uid, res) {
 // ─── Auth ─────────────────────────────────────────
 
 // POST /api/register
-router.post('/register', async (req, res) => {
+router.post('/register', registerLimiter, async (req, res) => {
   try {
     const { username, password, phone, cpf, email, name, birth_date } = req.body;
     const user = (username || email || '').trim();
@@ -133,7 +152,7 @@ router.post('/register', async (req, res) => {
 });
 
 // POST /api/login
-router.post('/login', async (req, res) => {
+router.post('/login', loginLimiter, async (req, res) => {
   try {
     const login = (req.body.login || req.body.username || '').trim();
     const password = req.body.password || '';
@@ -1197,6 +1216,7 @@ router.get('/user/limits', requireUser, async (req, res) => {
 
 // POST /api/withdrawal/create
 router.post('/withdrawal/create', requireUser, async (req, res) => {
+  const userId = req.session.user.id;
   try {
     const amountBrl = parseFloat(req.body.amount_brl);
     const amountCents = Math.round(amountBrl * 100);
@@ -1205,28 +1225,39 @@ router.post('/withdrawal/create', requireUser, async (req, res) => {
       return res.status(400).json({ ok: false, msg: 'Valor mínimo para saque: ' + centsToBRL(minWithdrawalCents) + '.' });
     }
 
-    // Check balance
-    const wR = await query('SELECT balance_cents FROM wallets WHERE user_id = $1', [req.session.user.id]);
-    const balance = parseInt(wR.rows[0]?.balance_cents || 0);
-    if (amountCents > balance) {
-      return res.status(400).json({ ok: false, msg: 'Saldo insuficiente.' });
-    }
-
     const pixType = req.body.pix_type || 'cpf';
     const pixKey = (req.body.pix_key || '').trim();
     if (!pixKey) return res.status(400).json({ ok: false, msg: 'Informe a chave PIX.' });
 
-    // Check pending withdrawals
-    const pending = await query("SELECT id FROM withdrawals WHERE user_id=$1 AND status='pending'", [req.session.user.id]);
+    // Check pending withdrawals (limit 3)
+    const pending = await query("SELECT id FROM withdrawals WHERE user_id=$1 AND status='pending'", [userId]);
     if (pending.rows.length >= 3) {
       return res.status(400).json({ ok: false, msg: 'Você já tem 3 saques pendentes. Aguarde a aprovação.' });
     }
 
-    const r = await query(
-      'INSERT INTO withdrawals (user_id, amount_cents, pix_type, pix_key) VALUES ($1,$2,$3,$4) RETURNING id',
-      [req.session.user.id, amountCents, pixType, pixKey]);
-
-    res.json({ ok: true, msg: 'Saque solicitado! Aguarde aprovação.', withdrawal_id: r.rows[0].id });
+    // Atomic: lock wallet, validate, debit, create withdrawal (escrow)
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+      const wR = await client.query('SELECT balance_cents FROM wallets WHERE user_id = $1 FOR UPDATE', [userId]);
+      const balance = parseInt(wR.rows[0]?.balance_cents || 0);
+      if (amountCents > balance) {
+        await client.query('ROLLBACK');
+        return res.status(400).json({ ok: false, msg: 'Saldo insuficiente.' });
+      }
+      await client.query('UPDATE wallets SET balance_cents = balance_cents - $1, updated_at = NOW() WHERE user_id = $2', [amountCents, userId]);
+      const r = await client.query(
+        'INSERT INTO withdrawals (user_id, amount_cents, pix_type, pix_key) VALUES ($1,$2,$3,$4) RETURNING id',
+        [userId, amountCents, pixType, pixKey]
+      );
+      await client.query('COMMIT');
+      return res.json({ ok: true, msg: 'Saque solicitado! Aguarde aprovação.', withdrawal_id: r.rows[0].id });
+    } catch (txErr) {
+      try { await client.query('ROLLBACK'); } catch {}
+      throw txErr;
+    } finally {
+      client.release();
+    }
   } catch (err) {
     console.error('[WITHDRAWAL_CREATE]', err);
     res.status(500).json({ ok: false, msg: 'Erro ao solicitar saque.' });

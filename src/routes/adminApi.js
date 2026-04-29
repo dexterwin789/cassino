@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const { query } = require('../config/database');
+const { query, pool } = require('../config/database');
 const { requireAdmin } = require('../middleware/auth');
 const fetch = require('node-fetch');
 const multer = require('multer');
@@ -1298,34 +1298,59 @@ router.get('/withdrawals', async (req, res) => {
 });
 
 router.post('/withdrawals/:id/approve', async (req, res) => {
+  const client = await pool.connect();
   try {
     const { admin_note } = req.body;
-    await query(
-      "UPDATE withdrawals SET status = 'approved', admin_note = $2, updated_at = NOW() WHERE id = $1 AND status = 'pending'",
+    await client.query('BEGIN');
+    // Lock the row to prevent double-approval / race with reject
+    const r = await client.query(
+      "SELECT id, status FROM withdrawals WHERE id = $1 FOR UPDATE",
+      [req.params.id]
+    );
+    if (!r.rows[0]) { await client.query('ROLLBACK'); return res.status(404).json({ ok: false, msg: 'Saque não encontrado.' }); }
+    if (r.rows[0].status !== 'pending') { await client.query('ROLLBACK'); return res.status(409).json({ ok: false, msg: 'Saque não está pendente.' }); }
+    // Saldo já foi debitado em /withdrawal/create (escrow). Aqui só marcamos aprovado.
+    await client.query(
+      "UPDATE withdrawals SET status = 'approved', admin_note = $2, updated_at = NOW() WHERE id = $1",
       [req.params.id, admin_note || null]
     );
+    await client.query('COMMIT');
     res.json({ ok: true });
   } catch (err) {
+    try { await client.query('ROLLBACK'); } catch {}
+    console.error('[ADMIN WITHDRAW APPROVE]', err);
     res.status(500).json({ ok: false, msg: 'Erro ao aprovar.' });
+  } finally {
+    client.release();
   }
 });
 
 router.post('/withdrawals/:id/reject', async (req, res) => {
+  const client = await pool.connect();
   try {
     const { admin_note } = req.body;
-    const wd = await query('SELECT user_id, amount_cents FROM withdrawals WHERE id = $1', [req.params.id]);
-    if (!wd.rows[0]) return res.status(404).json({ ok: false, msg: 'Saque não encontrado.' });
-
-    await query(
-      "UPDATE withdrawals SET status = 'rejected', admin_note = $2, updated_at = NOW() WHERE id = $1 AND status = 'pending'",
+    await client.query('BEGIN');
+    // Lock + validate state to avoid double-refund
+    const wd = await client.query('SELECT user_id, amount_cents, status FROM withdrawals WHERE id = $1 FOR UPDATE', [req.params.id]);
+    if (!wd.rows[0]) { await client.query('ROLLBACK'); return res.status(404).json({ ok: false, msg: 'Saque não encontrado.' }); }
+    if (wd.rows[0].status !== 'pending') { await client.query('ROLLBACK'); return res.status(409).json({ ok: false, msg: 'Saque não está pendente.' }); }
+    await client.query(
+      "UPDATE withdrawals SET status = 'rejected', admin_note = $2, updated_at = NOW() WHERE id = $1",
       [req.params.id, admin_note || 'Rejeitado pelo admin']
     );
-    // Refund wallet
-    await query('UPDATE wallets SET balance_cents = balance_cents + $2 WHERE user_id = $1', [wd.rows[0].user_id, wd.rows[0].amount_cents]);
-
+    // Refund wallet (saldo foi debitado no escrow do create)
+    await client.query(
+      'UPDATE wallets SET balance_cents = balance_cents + $2, updated_at = NOW() WHERE user_id = $1',
+      [wd.rows[0].user_id, wd.rows[0].amount_cents]
+    );
+    await client.query('COMMIT');
     res.json({ ok: true });
   } catch (err) {
+    try { await client.query('ROLLBACK'); } catch {}
+    console.error('[ADMIN WITHDRAW REJECT]', err);
     res.status(500).json({ ok: false, msg: 'Erro ao rejeitar.' });
+  } finally {
+    client.release();
   }
 });
 

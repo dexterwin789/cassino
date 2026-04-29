@@ -1,8 +1,18 @@
 const router = require('express').Router();
 const bcrypt = require('bcrypt');
+const rateLimit = require('express-rate-limit');
 const { query } = require('../config/database');
 const { requireAdmin } = require('../middleware/auth');
 const { normalizeAffiliateCareerTiers } = require('../utils/affiliateCareer');
+
+// Rate limit admin login: 5 tentativas por IP a cada 15 min
+const adminLoginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  skipSuccessfulRequests: true
+});
 
 // ─── Admin Auth Pages ─────────────────────────────
 
@@ -11,7 +21,7 @@ router.get('/login', (req, res) => {
   res.render('admin/login', { error: null, title: 'Login Admin' });
 });
 
-router.post('/login', async (req, res) => {
+router.post('/login', adminLoginLimiter, async (req, res) => {
   const { username, password } = req.body;
   if (!username || !password) {
     return res.render('admin/login', { error: 'Preencha todos os campos.', title: 'Login Admin' });

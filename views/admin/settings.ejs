@@ -100,6 +100,51 @@
         <small class="adm-muted" style="display:block;margin-top:6px;font-size:11px;">URL pública que recebe notificações de status do PIX.</small>
       </div>
     </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-top:14px;">
+      <div class="adm-setting-card">
+        <label>IPs autorizados do webhook (opcional)</label>
+        <input type="text" id="setBlackcatWebhookIps" value="<%= settings.blackcat_webhook_ips || '' %>" placeholder="Ex: 200.50.10.5, 200.50.10.">
+        <small class="adm-muted" style="display:block;margin-top:6px;font-size:11px;">CSV de IPs ou prefixos. Em branco = aceita qualquer origem (não recomendado).</small>
+      </div>
+      <div class="adm-setting-card">
+        <label>HMAC Secret do webhook (opcional)</label>
+        <div style="display:flex;gap:6px;align-items:center;">
+          <input type="password" id="setBlackcatWebhookSecret" value="<%= settings.blackcat_webhook_secret || '' %>" placeholder="Segredo HMAC-SHA256" autocomplete="off" style="flex:1;">
+          <button type="button" id="btnToggleBcWebhookSecret" class="adm-btn" style="padding:8px 12px;font-size:12px;">Mostrar</button>
+        </div>
+        <small class="adm-muted" style="display:block;margin-top:6px;font-size:11px;">Se preenchido, valida header <code>x-blackcat-signature</code> = HMAC-SHA256(payload, segredo) hex.</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PlayFivers (Webhook) ── -->
+  <div class="adm-page-card" style="margin-top:24px;border-color:rgba(37,211,102,.22);">
+    <div class="adm-page-head">
+      <div>
+        <h3 style="display:flex;align-items:center;gap:10px;">
+          <span style="display:inline-grid;place-items:center;width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,rgba(37,211,102,.2),rgba(37,211,102,.05));border:1px solid rgba(37,211,102,.3);">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#25D366" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+          </span>
+          PlayFivers (Webhook de jogos)
+        </h3>
+        <p class="adm-muted" style="line-height:1.55;margin-top:6px;">Restrição opcional de origem para o webhook que credita/debita saldo conforme apostas.</p>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-top:14px;">
+      <div class="adm-setting-card">
+        <label>IPs autorizados (opcional)</label>
+        <input type="text" id="setPlayfiversWebhookIps" value="<%= settings.playfivers_webhook_ips || '' %>" placeholder="Ex: 200.50.10.5, 200.50.10.">
+        <small class="adm-muted" style="display:block;margin-top:6px;font-size:11px;">CSV de IPs/prefixos. Em branco = aceita qualquer origem.</small>
+      </div>
+      <div class="adm-setting-card">
+        <label>HMAC Secret (opcional)</label>
+        <div style="display:flex;gap:6px;align-items:center;">
+          <input type="password" id="setPlayfiversWebhookSecret" value="<%= settings.playfivers_webhook_secret || '' %>" placeholder="Segredo HMAC-SHA256" autocomplete="off" style="flex:1;">
+          <button type="button" id="btnTogglePfWebhookSecret" class="adm-btn" style="padding:8px 12px;font-size:12px;">Mostrar</button>
+        </div>
+        <small class="adm-muted" style="display:block;margin-top:6px;font-size:11px;">Se preenchido, valida header <code>x-playfivers-signature</code>.</small>
+      </div>
+    </div>
   </div>
 
   <button class="adm-btn primary" id="btnSaveSettings" style="margin-top:16px;">Salvar Configurações</button>
@@ -219,6 +264,16 @@ document.getElementById('btnToggleBlackcatKey')?.addEventListener('click', funct
   inp.type = showing ? 'password' : 'text';
   this.textContent = showing ? 'Mostrar' : 'Ocultar';
 });
+['btnToggleBcWebhookSecret:setBlackcatWebhookSecret','btnTogglePfWebhookSecret:setPlayfiversWebhookSecret'].forEach(pair => {
+  const [btnId, inpId] = pair.split(':');
+  document.getElementById(btnId)?.addEventListener('click', function() {
+    const inp = document.getElementById(inpId);
+    if (!inp) return;
+    const showing = inp.type === 'text';
+    inp.type = showing ? 'password' : 'text';
+    this.textContent = showing ? 'Mostrar' : 'Ocultar';
+  });
+});
 // Settings save
 document.getElementById('btnSaveSettings')?.addEventListener('click', async () => {
   const settings = [
@@ -231,7 +286,11 @@ document.getElementById('btnSaveSettings')?.addEventListener('click', async () =
     { key: 'min_withdrawal', value: parseMoneyToCents(document.getElementById('setMinWithdrawal').value) },
     { key: 'blackcat_api_key', value: document.getElementById('setBlackcatKey').value.trim() },
     { key: 'blackcat_base_url', value: document.getElementById('setBlackcatBaseUrl').value.trim() },
-    { key: 'blackcat_webhook_url', value: document.getElementById('setBlackcatWebhook').value.trim() }
+    { key: 'blackcat_webhook_url', value: document.getElementById('setBlackcatWebhook').value.trim() },
+    { key: 'blackcat_webhook_ips', value: document.getElementById('setBlackcatWebhookIps')?.value.trim() || '' },
+    { key: 'blackcat_webhook_secret', value: document.getElementById('setBlackcatWebhookSecret')?.value.trim() || '' },
+    { key: 'playfivers_webhook_ips', value: document.getElementById('setPlayfiversWebhookIps')?.value.trim() || '' },
+    { key: 'playfivers_webhook_secret', value: document.getElementById('setPlayfiversWebhookSecret')?.value.trim() || '' }
   ];
   for (const s of settings) {
     await fetch('/admin/api/settings', {

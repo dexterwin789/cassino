@@ -1,5 +1,13 @@
 const router = require('express').Router();
 const { pool, query } = require('../config/database');
+const { webhookGuard } = require('../middleware/webhookGuard');
+
+// Guard opcional: ativa só se settings 'blackcat_webhook_ips' ou 'blackcat_webhook_secret' estiverem preenchidos.
+router.use(webhookGuard({
+  ipsKey: 'blackcat_webhook_ips',
+  secretKey: 'blackcat_webhook_secret',
+  sigHeader: 'x-blackcat-signature'
+}));
 
 // POST /api/webhook/blackcat
 router.post('/blackcat', async (req, res) => {
@@ -75,6 +83,10 @@ router.post('/blackcat', async (req, res) => {
       const refR = await client.query('SELECT referred_by FROM users WHERE id = $1', [tx.user_id]);
       const referredBy = refR.rows[0]?.referred_by;
       if (referredBy) {
+        // Defesa: nunca pagar comissão para o próprio usuário (self-referral)
+        if (Number(referredBy) === Number(tx.user_id)) {
+          console.warn('[WEBHOOK][AFF] Self-referral detectado, ignorando comissão.', { user_id: tx.user_id });
+        } else {
         const affR = await client.query(
           'SELECT id, commission_pct, is_active FROM affiliates WHERE user_id = $1 LIMIT 1',
           [referredBy]
@@ -102,6 +114,7 @@ router.post('/blackcat', async (req, res) => {
             }
           }
         }
+        } // /else self-referral
       }
       }
     } catch (affErr) {
