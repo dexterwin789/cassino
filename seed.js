@@ -421,12 +421,12 @@ async function seed() {
       (SELECT COUNT(*) FROM sessions) AS sessions
   `);
   
-  console.log('\nÂÂÂÂÂÂÂÂÂÂÂÂÂÂÂÂÂ');
+  console.log('\n');
   console.log('  SEED COMPLETO — Contagem final:');
-  console.log('ÂÂÂÂÂÂÂÂÂÂÂÂÂÂÂÂÂ');
+  console.log('');
   const c = counts.rows[0];
   Object.entries(c).forEach(([k, v]) => console.log(`  ${k.padEnd(20)} ${v}`));
-  console.log('ÂÂÂÂÂÂÂÂÂÂÂÂÂÂÂÂÂ\n');
+  console.log('\n');
 
   await pool.end();
 }

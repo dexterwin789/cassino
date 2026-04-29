@@ -599,7 +599,11 @@ ul{list-style:none}
   border:1px solid var(--border);background:transparent;
   color:var(--text);font-size:13px;font-weight:600;
   cursor:pointer;transition:.2s;white-space:nowrap;
-  width:160px;text-align:left;
+  max-width:220px;overflow:hidden;text-overflow:ellipsis;
+  display:inline-flex;align-items:center;gap:6px;
+}
+.archive-provider-btn>span{
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;
 }
 .archive-provider-btn:hover{border-color:rgb(37,211,102);color:rgb(37,211,102)}
 .archive-provider-dropdown{
@@ -1071,6 +1075,13 @@ body.search-lock{overflow:hidden!important}
 .wallet-content{padding:24px;padding-top:0;position:relative;min-width:0;overflow-x:hidden}
 .wallet-panel{display:none;max-width:100%}
 .wallet-panel.active{display:block}
+.wallet-banner{
+  position:relative;border-radius:12px;overflow:hidden;
+  margin-bottom:14px;background:#0e1117;
+}
+.wallet-banner-img{
+  display:block;width:100%;height:auto;max-height:180px;object-fit:cover;
+}
 .wallet-panel-title{
   display:flex;align-items:center;gap:.75rem;justify-content:space-between;
   background-color:var(--wn-bg,#0e1117);border-radius:.375rem;
@@ -2741,6 +2752,36 @@ body.game-fullscreen-open .messages-container{display:none!important}
   color:#25D366;background:rgba(37,211,102,.09);font-size:9px;font-weight:900;
   padding:3px 6px;text-transform:uppercase;letter-spacing:.02em;
 }
+/* Badge AO VIVO posicionada no canto superior direito sobre a imagem */
+.provider-grid .archive-game-badge--top{
+  position:absolute;top:8px;right:8px;z-index:3;
+  background:linear-gradient(135deg,#25D366,#16a34a);
+  color:#fff;border-color:rgba(255,255,255,.25);
+  box-shadow:0 4px 12px rgba(0,0,0,.35);
+  padding:3px 8px;font-size:9px;
+}
+.provider-grid .game-card{position:relative}
+.provider-grid .archive-game-meta{justify-content:flex-start}
+/* Aplicação genérica do badge AO VIVO em qualquer grid (home, busca, categorias) */
+.game-card.is-live{position:relative}
+.game-card.is-live .archive-game-badge--top{
+  position:absolute;top:8px;right:8px;z-index:3;
+  background:linear-gradient(135deg,#25D366,#16a34a);
+  color:#fff;border:1px solid rgba(255,255,255,.25);
+  border-radius:999px;
+  box-shadow:0 4px 12px rgba(0,0,0,.35);
+  padding:3px 8px;font-size:9px;font-weight:900;
+  text-transform:uppercase;letter-spacing:.02em;
+}
+.game-card.is-live .archive-game-meta{
+  display:flex;align-items:center;justify-content:flex-start;gap:8px;
+  padding:8px 9px 9px;min-height:38px;background:rgba(8,10,16,.92);
+  position:absolute;left:0;right:0;bottom:0;
+}
+.game-card.is-live .archive-game-title{
+  min-width:0;color:#fff;font-size:12px;font-weight:800;line-height:1.15;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
 .provider-grid .game-card .game-overlay{
   position:absolute;inset:0;
   background:rgba(0,0,0,.55);
@@ -2906,10 +2947,18 @@ body.game-fullscreen-open .messages-container{display:none!important}
   .banner-dots .dot.active{width:18px}
   .banner-side{display:none}
 
-  /* --- Category game strips compact --- */
+  /* --- Category game strips compact + mobile slider --- */
   .category-games-scroll .game-card{flex:0 0 110px}
   .category-games-scroll .game-card img{height:140px}
-  .cat-scroll-btn{display:none}
+  /* Habilita scroll horizontal nativo no mobile e desativa o transform do JS */
+  .category-scroll-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;scroll-behavior:smooth;scroll-snap-type:x mandatory;scrollbar-width:none}
+  .category-scroll-wrap::-webkit-scrollbar{display:none}
+  .category-games-scroll{transform:none!important;transition:none!important}
+  .category-games-scroll .game-card{scroll-snap-align:start}
+  /* Setas mobile (menores, sobrepostas) */
+  .cat-scroll-btn{display:flex;width:32px;height:42px;font-size:24px;background:rgba(8,10,16,.78)}
+  .cat-scroll-prev{left:2px}
+  .cat-scroll-next{right:2px}
 
   /* --- Remove gap between banner and search --- */
   .search-section{margin-bottom:14px}
@@ -3139,7 +3188,7 @@ body.game-fullscreen-open .messages-container{display:none!important}
   font-style:italic;background:rgba(255,255,255,.02);border-radius:8px;
 }
 
-/* ===== PRÃŠMIOS E RECOMPENSAS ===== */
+/* ===== PRÊMIOS E RECOMPENSAS ===== */
 .premios-card{
   background-color:#0e1117;border-radius:.375rem;padding:1rem;
   color:rgba(253,255,255,1);

@@ -68,12 +68,13 @@ function gameCardHTML(game) {
   var img = game.image_url;
   var name = game.game_name || 'Jogo';
   var code = game.game_code || '';
-  var h = '<a href="/game/' + code + '" class="game-card" title="' + name + '" style="text-decoration:none">';
+  var live = isLiveGame(game);
+  var h = '<a href="/game/' + code + '" class="game-card' + (live ? ' is-live' : '') + '" title="' + name + '" style="text-decoration:none">';
   h += '<img src="' + img + '" alt="' + name + '" draggable="false" loading="lazy" onerror="this.onerror=null;this.closest(\'a\').style.display=\'none\'">';
-  h += '<div class="game-overlay">';
-  h += '<span class="game-name">' + name + '</span>';
-  h += '<span class="play-btn">&#9654; JOGAR</span>';
-  h += '</div></a>';
+  if (live) h += '<span class="archive-game-badge archive-game-badge--top">Ao vivo</span>';
+  h += '<div class="archive-game-meta"><span class="archive-game-title">' + name + '</span></div>';
+  h += '<div class="game-overlay"><span class="play-btn">&#9654; JOGAR</span></div>';
+  h += '</a>';
   return h;
 }
 
@@ -362,11 +363,13 @@ function searchCardHTML(game) {
   var img = game.image_url;
   var name = game.game_name || 'Jogo';
   var code = game.game_code || '';
-  return '<a href="/game/' + code + '" class="game-card" title="' + name + '" style="text-decoration:none">' +
+  var live = isLiveGame(game);
+  return '<a href="/game/' + code + '" class="game-card' + (live ? ' is-live' : '') + '" title="' + name + '" style="text-decoration:none">' +
     '<img src="' + img + '" alt="' + name + '" draggable="false" loading="lazy" onerror="this.onerror=null;this.closest(\'a\').style.display=\'none\'">' +
-    '<div class="game-overlay">' +
-      '<span class="play-btn">&#9654; JOGAR</span>' +
-    '</div></a>';
+    (live ? '<span class="archive-game-badge archive-game-badge--top">Ao vivo</span>' : '') +
+    '<div class="archive-game-meta"><span class="archive-game-title">' + name + '</span></div>' +
+    '<div class="game-overlay"><span class="play-btn">&#9654; JOGAR</span></div>' +
+    '</a>';
 }
 
 function showMoreSearchResults() {
@@ -550,8 +553,15 @@ function getCategoryRailStep(el) {
 function moveCategoryRail(el, direction) {
   if (!el) return;
   var step = getCategoryRailStep(el);
-  var total = el.querySelectorAll('.game-card').length;
   var wrap = el.parentNode;
+  // Mobile: wrap usa scroll nativo (overflow-x:auto). Detecta e usa scrollLeft.
+  if (wrap && wrap.scrollWidth > wrap.clientWidth + 1 &&
+      getComputedStyle(wrap).overflowX !== 'hidden') {
+    var amount = Math.max(step * 2, wrap.clientWidth * 0.85);
+    wrap.scrollBy({ left: direction * amount, behavior: 'smooth' });
+    return;
+  }
+  var total = el.querySelectorAll('.game-card').length;
   var wrapWidth = wrap ? wrap.clientWidth : el.clientWidth;
   var visible = Math.max(1, Math.floor((wrapWidth + 1) / step));
   var maxIndex = Math.max(0, total - visible);

@@ -1,19 +1,19 @@
-﻿<%- include('layout-head', { title: 'SeguranÃ§a', page: 'security', u }) %>
+﻿<%- include('layout-head', { title: 'Segurança', page: 'security', u }) %>
 
 <!-- Account Info -->
 <div class="ud-card">
   <div class="ud-card-header">
     <svg width="18" height="18" fill="none" stroke="var(--ud-accent)" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-    <span>InformaÃ§Ãµes da Conta</span>
+    <span>Informações da Conta</span>
   </div>
   <div class="ud-info-grid">
     <div class="ud-info-item">
-      <label>UsuÃ¡rio</label>
+      <label>Usuário</label>
       <span><%= u.username %></span>
     </div>
     <div class="ud-info-item">
       <label>Telefone</label>
-      <span><%= u.phone || 'NÃ£o informado' %></span>
+      <span><%= u.phone || 'Não informado' %></span>
     </div>
     <div class="ud-info-item">
       <label>ID</label>
@@ -61,7 +61,7 @@ document.getElementById('changePasswordForm')?.addEventListener('submit', async 
   const fd = new FormData(form);
 
   if (fd.get('new_password') !== fd.get('confirm_password')) {
-    msg.textContent = 'As senhas nÃ£o coincidem.';
+    msg.textContent = 'As senhas não coincidem.';
     msg.className = 'ud-form-msg error';
     return;
   }
@@ -85,7 +85,7 @@ document.getElementById('changePasswordForm')?.addEventListener('submit', async 
     msg.className = 'ud-form-msg ' + (json.ok ? 'success' : 'error');
     if (json.ok) form.reset();
   } catch {
-    msg.textContent = 'Erro de conexÃ£o.';
+    msg.textContent = 'Erro de conexão.';
     msg.className = 'ud-form-msg error';
   } finally {
     btn.disabled = false;

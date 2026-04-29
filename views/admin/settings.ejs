@@ -1,8 +1,8 @@
-﻿<%- include('layout-head', { title: 'ConfiguraÃ§Ãµes', page: 'settings' }) %>
+﻿<%- include('layout-head', { title: 'Configurações', page: 'settings' }) %>
 
 <div class="adm-settings-page">
   <div class="adm-page-head">
-    <div><h3>ConfiguraÃ§Ãµes da Plataforma</h3><p class="adm-muted">Ajuste configuraÃ§Ãµes gerais</p></div>
+    <div><h3>Configurações da Plataforma</h3><p class="adm-muted">Ajuste configurações gerais</p></div>
   </div>
 
   <div class="adm-settings-grid">
@@ -11,21 +11,21 @@
       <input type="text" id="setSiteName" value="<%= settings.site_name || 'Cassino' %>">
     </div>
     <div class="adm-setting-card">
-      <label>Modo ManutenÃ§Ã£o</label>
+      <label>Modo Manutenção</label>
       <select id="setMaintenance">
         <option value="0" <%= settings.maintenance_mode !== '1' ? 'selected' : '' %>>Desativado</option>
         <option value="1" <%= settings.maintenance_mode === '1' ? 'selected' : '' %>>Ativado</option>
       </select>
     </div>
     <div class="adm-setting-card">
-      <label>Esportes (Sidebar, Ligas, Ãcones)</label>
+      <label>Esportes (Sidebar, Ligas, Ícones)</label>
       <select id="setSports">
         <option value="0" <%= settings.sports_enabled !== '1' ? 'selected' : '' %>>Desativado</option>
         <option value="1" <%= settings.sports_enabled === '1' ? 'selected' : '' %>>Ativado</option>
       </select>
     </div>
     <div class="adm-setting-card">
-      <label>Sistema de BÃ´nus (PrÃªmios, Saldo BÃ´nus, Filtros)</label>
+      <label>Sistema de Bônus (Prêmios, Saldo Bônus, Filtros)</label>
       <select id="setBonusEnabled">
         <option value="0" <%= settings.bonus_enabled !== '1' ? 'selected' : '' %>>Desativado</option>
         <option value="1" <%= settings.bonus_enabled === '1' ? 'selected' : '' %>>Ativado</option>
@@ -42,36 +42,36 @@
           </span>
           Regras financeiras
         </h3>
-        <p class="adm-muted" style="line-height:1.55;margin-top:6px;">Esses valores aparecem para o usuÃ¡rio e tambÃ©m sÃ£o validados no backend. Se alterar aqui, depÃ³sito e saque passam a respeitar o novo mÃ­nimo sem mexer no cÃ³digo.</p>
+        <p class="adm-muted" style="line-height:1.55;margin-top:6px;">Esses valores aparecem para o usuário e também são validados no backend. Se alterar aqui, depósito e saque passam a respeitar o novo mínimo sem mexer no código.</p>
       </div>
     </div>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-top:18px;">
       <div class="adm-setting-card">
-        <label>DepÃ³sito mÃ­nimo</label>
+        <label>Depósito mínimo</label>
         <input type="text" id="setMinDeposit" class="money-cents-input" data-initial-cents="<%= settings.min_deposit || '2000' %>" placeholder="R$ 20,00">
-        <small class="adm-muted" style="display:block;margin-top:8px;font-size:11px;line-height:1.4;">Valor mÃ­nimo que o cliente consegue gerar PIX. Atual pedido: R$ 20,00.</small>
+        <small class="adm-muted" style="display:block;margin-top:8px;font-size:11px;line-height:1.4;">Valor mínimo que o cliente consegue gerar PIX. Atual pedido: R$ 20,00.</small>
       </div>
       <div class="adm-setting-card">
-        <label>Saque mÃ­nimo do cliente</label>
+        <label>Saque mínimo do cliente</label>
         <input type="text" id="setMinWithdrawal" class="money-cents-input" data-initial-cents="<%= settings.min_withdrawal || '5000' %>" placeholder="R$ 50,00">
-        <small class="adm-muted" style="display:block;margin-top:8px;font-size:11px;line-height:1.4;">Valor mÃ­nimo para solicitaÃ§Ã£o de saque comum da carteira. Atual pedido: R$ 50,00.</small>
+        <small class="adm-muted" style="display:block;margin-top:8px;font-size:11px;line-height:1.4;">Valor mínimo para solicitação de saque comum da carteira. Atual pedido: R$ 50,00.</small>
       </div>
     </div>
-    <div class="adm-muted" style="font-size:12px;line-height:1.5;margin-top:14px;padding:12px 14px;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);">Nota para operaÃ§Ã£o: saque de afiliado tem regra prÃ³pria em Afiliados. Aqui Ã© o saque normal do jogador.</div>
+    <div class="adm-muted" style="font-size:12px;line-height:1.5;margin-top:14px;padding:12px 14px;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);">Nota para operação: saque de afiliado tem regra própria em Afiliados. Aqui é o saque normal do jogador.</div>
   </div>
 
-  <button class="adm-btn primary" id="btnSaveSettings" style="margin-top:16px;">Salvar ConfiguraÃ§Ãµes</button>
+  <button class="adm-btn primary" id="btnSaveSettings" style="margin-top:16px;">Salvar Configurações</button>
 
-  <!-- â”€â”€ SessÃ£o Pragmatic Live (JSESSIONID) â”€â”€ -->
+  <!-- â”€â”€ Sessão Pragmatic Live (JSESSIONID) â”€â”€ -->
   <div class="adm-page-card" style="margin-top:32px;border-color:rgba(37,211,102,.22);">
     <div class="adm-page-head">
       <div>
-        <h3>Sincronizar HistÃ³rico das Roletas (Pragmatic Live)</h3>
+        <h3>Sincronizar Histórico das Roletas (Pragmatic Live)</h3>
         <p class="adm-muted" style="line-height:1.55;margin-top:6px;">
           Cole a <strong>URL completa</strong> ou apenas a <strong>JSESSIONID</strong> que aparece em
           <code>games.pragmaticplaylive.net/api/ui/statisticHistory?...JSESSIONID=...</code> (Devtools â†’ Network â†’ filtrar por <code>statisticHistory</code>).
-          O backend usa essa sessÃ£o para buscar o histÃ³rico real continuamente.
-          A sessÃ£o expira em algumas horas â€” quando o histÃ³rico parar de atualizar, cole de novo.
+          O backend usa essa sessão para buscar o histórico real continuamente.
+          A sessão expira em algumas horas — quando o histórico parar de atualizar, cole de novo.
         </p>
       </div>
     </div>
@@ -94,7 +94,7 @@
   <!-- â”€â”€ Logo do Site â”€â”€ -->
   <div style="margin-top:32px;">
     <h4 style="margin-bottom:4px;">Logo do Site</h4>
-    <p class="adm-muted" style="margin-bottom:20px;">Envie logos separadas para tema escuro e claro. Se enviar apenas uma, serÃ¡ usada em ambos.</p>
+    <p class="adm-muted" style="margin-bottom:20px;">Envie logos separadas para tema escuro e claro. Se enviar apenas uma, será usada em ambos.</p>
 
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:700px;">
       <!-- Dark Logo -->
@@ -187,7 +187,7 @@ document.getElementById('btnSaveSettings')?.addEventListener('click', async () =
       credentials: 'same-origin'
     });
   }
-  alert('ConfiguraÃ§Ãµes salvas!');
+  alert('Configurações salvas!');
 });
 
 // Logo preview on file select
@@ -257,7 +257,7 @@ document.querySelectorAll('[data-prgm-game]').forEach(function(btn) {
         body: JSON.stringify(body)
       });
       var j = await r.json();
-      if (msgEl) msgEl.textContent = j.ok ? (j.msg || 'OK') + ' (' + (j.count || 0) + ' nÃºmeros)' : (j.msg || 'Erro.');
+      if (msgEl) msgEl.textContent = j.ok ? (j.msg || 'OK') + ' (' + (j.count || 0) + ' números)' : (j.msg || 'Erro.');
     } catch (e) {
       if (msgEl) msgEl.textContent = 'Erro de rede.';
     } finally {

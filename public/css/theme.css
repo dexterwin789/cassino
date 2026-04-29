@@ -38,16 +38,19 @@
 [data-theme="light"] .tab-switch.active{color:#fff}
 [data-theme="light"] .tab-switch.active img{filter:brightness(0) invert(1);opacity:1}
 [data-theme="light"] .bars-toggle img{filter:brightness(0) invert(1);opacity:.8}
-[data-theme="light"] .topbar-balance{background:rgba(255,255,255,.15)}
+[data-theme="light"] .topbar-balance{background:rgba(255,255,255,.28);border:1px solid rgba(255,255,255,.45)}
 [data-theme="light"] .topbar-balance-btn{color:#fff}
-[data-theme="light"] .topbar-balance-val{color:#fff}
-[data-theme="light"] .topbar-balance-refresh{border-color:rgba(255,255,255,.2)}
+[data-theme="light"] .topbar-balance-val{color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.18)}
+[data-theme="light"] .topbar-balance-refresh{border-color:rgba(255,255,255,.35)}
 [data-theme="light"] .topbar-balance-refresh img,
-[data-theme="light"] .topbar-notif img{filter:brightness(0) invert(1);opacity:.8}
+[data-theme="light"] .topbar-notif img{filter:brightness(0) invert(1);opacity:.95}
+[data-theme="light"] .topbar-notif{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.4)}
+[data-theme="light"] .btn-deposit{background:#fff;color:#16a34a;box-shadow:0 2px 8px rgba(0,0,0,.12)}
+[data-theme="light"] .btn-deposit:hover{background:#f0fdf4;color:#15803d}
 [data-theme="light"] .topbar-user-btn{border-color:rgba(0,0,0,.15)}
 [data-theme="light"] .topbar-user-avatar[src*=".svg"]{filter:brightness(0) invert(1);opacity:.8}
 [data-theme="light"] .btn-login{border-color:rgba(255,255,255,.3);color:#fff}
-[data-theme="light"] .topbar-notif-badge{background:#25D366}
+[data-theme="light"] .topbar-notif-badge{background:#ef4444;color:#fff;border:2px solid #fff}
 
 /* Dropdown */
 [data-theme="light"] .topbar-dropdown{background:#fff;border-color:rgba(0,0,0,.1);box-shadow:0 8px 32px rgba(0,0,0,.15)}
@@ -87,8 +90,11 @@
 /* Sidebar icon filter  gray for menu icons, colorful for popular leagues */
 [data-theme="light"] .mi{filter:brightness(0) saturate(100%);opacity:.55}
 [data-theme="light"] .mi.grayscale{filter:none!important;opacity:1!important}
-[data-theme="light"] .menu-list li:hover .mi{filter:brightness(0) saturate(100%) invert(28%) sepia(96%) saturate(3624%) hue-rotate(3deg) brightness(101%) contrast(106%);opacity:1}
-[data-theme="light"] .menu-list li.active .mi{filter:brightness(0) saturate(100%) invert(28%) sepia(96%) saturate(3624%) hue-rotate(3deg) brightness(101%) contrast(106%);opacity:1}
+[data-theme="light"] .menu-list li:hover .mi{filter:brightness(0) saturate(100%) invert(64%) sepia(53%) saturate(596%) hue-rotate(95deg) brightness(91%) contrast(89%);opacity:1}
+[data-theme="light"] .menu-list li.active .mi{filter:brightness(0) saturate(100%) invert(64%) sepia(53%) saturate(596%) hue-rotate(95deg) brightness(91%) contrast(89%);opacity:1}
+[data-theme="light"] .sidebar.collapsed .menu-list li.active{background:rgba(37,211,102,.08)}
+[data-theme="light"] .sidebar.collapsed .menu-list li:hover .mi,
+[data-theme="light"] .sidebar.collapsed .menu-list li.active .mi{filter:brightness(0) saturate(100%) invert(64%) sepia(53%) saturate(596%) hue-rotate(95deg) brightness(91%) contrast(89%)!important;opacity:1!important}
 /* Collapsed sidebar menu items  light bg */
 [data-theme="light"] .sidebar.collapsed .menu-list li{background:#e8ecf1}
 [data-theme="light"] .sidebar.collapsed .menu-list li:hover{background:rgba(37,211,102,.08)}
@@ -362,7 +368,7 @@
 /* Toast */
 [data-theme="light"] .toast-container .toast{box-shadow:0 4px 16px rgba(0,0,0,.15)}
 
-/* ===== PRÃŠMIOS E RECOMPENSAS  Light Theme ===== */
+/* ===== PRÊMIOS E RECOMPENSAS  Light Theme ===== */
 [data-theme="light"] .premios-card{background-color:#fff;color:#1a1a2e;border:1px solid rgba(0,0,0,.08)}
 [data-theme="light"] .premios-tabs-wrap{background:rgba(0,0,0,.04)}
 [data-theme="light"] .premios-tab{background:rgba(0,0,0,.03);border-color:rgba(0,0,0,.06);color:#64748b}

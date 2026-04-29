@@ -2,7 +2,7 @@
 
 <div class="adm-page-card" data-page="games">
   <div class="adm-page-head">
-    <div><h3>Jogos</h3><p class="adm-muted">CatÃ¡logo de jogos</p></div>
+    <div><h3>Jogos</h3><p class="adm-muted">Catálogo de jogos</p></div>
     <div style="display:flex;gap:8px;">
       <button class="adm-btn" id="btnAutoFetchImages" title="Buscar imagens automaticamente para jogos sem foto">ðŸ–¼ï¸ Buscar Imagens</button>
       <button class="adm-btn" id="btnBadImages" title="Desativar jogos sem imagem ou com imagem default" style="border-color:rgba(255,77,77,.3);color:#ff4d4d">ðŸ–¼ï¸ Limpar Imagens</button>
@@ -43,12 +43,12 @@
         <div class="adm-ms-list" id="admProvList"></div>
       </div>
     </div>
-    <div class="adm-field"><label>Por pÃ¡gina</label><select data-filter="limit"><option value="10">10</option><option value="25" selected>25</option><option value="50">50</option><option value="100">100</option></select></div>
+    <div class="adm-field"><label>Por página</label><select data-filter="limit"><option value="10">10</option><option value="25" selected>25</option><option value="50">50</option><option value="100">100</option></select></div>
     <div class="adm-field"><label>&nbsp;</label><button class="adm-btn primary" data-action="apply">Aplicar</button></div>
   </div>
   <div class="adm-table-wrap">
     <table class="adm-table">
-      <thead><tr><th>ID</th><th>Imagem</th><th>CÃ³digo</th><th>Nome</th><th>Provider</th><th>Categoria</th><th>Status</th><th>AÃ§Ãµes</th></tr></thead>
+      <thead><tr><th>ID</th><th>Imagem</th><th>Código</th><th>Nome</th><th>Provider</th><th>Categoria</th><th>Status</th><th>Ações</th></tr></thead>
       <tbody data-tbody></tbody>
     </table>
   </div>
@@ -56,7 +56,7 @@
     <div class="adm-muted"><span data-count>0</span> resultados</div>
     <div class="adm-pager-btns">
       <button class="adm-btn" data-action="prev">â€¹</button>
-      <span class="adm-muted">PÃ¡gina <span data-page-num>1</span></span>
+      <span class="adm-muted">Página <span data-page-num>1</span></span>
       <button class="adm-btn" data-action="next">â€º</button>
     </div>
   </div>
@@ -74,7 +74,7 @@
     <div style="display:flex;flex-direction:column;gap:16px">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
         <div style="display:flex;flex-direction:column;gap:6px">
-          <label style="font-size:11px;color:rgba(255,255,255,.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px">CÃ³digo do Jogo *</label>
+          <label style="font-size:11px;color:rgba(255,255,255,.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Código do Jogo *</label>
           <input id="gmCode" placeholder="ex: fortune-tiger" style="height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3);color:#fff;padding:0 14px;outline:none;font-size:13px;font-weight:500;transition:border-color .2s" onfocus="this.style.borderColor='var(--adm-green1)'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
         </div>
         <div style="display:flex;flex-direction:column;gap:6px">
@@ -105,7 +105,7 @@
         <div style="display:flex;flex-direction:column;gap:6px">
           <label style="font-size:11px;color:rgba(255,255,255,.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Destaque</label>
           <select id="gmFeatured" style="height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3);color:#fff;padding:0 14px;outline:none;font-size:13px;font-weight:500;transition:border-color .2s;cursor:pointer" onfocus="this.style.borderColor='var(--adm-green1)'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
-            <option value="0" style="background:#1a1f2e">NÃ£o</option>
+            <option value="0" style="background:#1a1f2e">Não</option>
             <option value="1" style="background:#1a1f2e">Sim</option>
           </select>
         </div>
@@ -121,7 +121,7 @@
           <div id="gmPreviewArea">
             <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="1.5" style="display:block;margin:0 auto 8px"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
             <p style="margin:0;color:rgba(255,255,255,.45);font-size:13px;font-weight:500">Clique ou arraste uma imagem</p>
-            <p style="margin:5px 0 0;color:rgba(255,255,255,.2);font-size:11px">PNG, JPG, WebP â€” mÃ¡x. 2MB</p>
+            <p style="margin:5px 0 0;color:rgba(255,255,255,.2);font-size:11px">PNG, JPG, WebP — máx. 2MB</p>
           </div>
           <input type="file" id="gmFileInput" accept="image/*" style="display:none;">
         </div>
@@ -185,7 +185,7 @@
   fileInput.addEventListener('change', function() { if (this.files[0]) handleFile(this.files[0]); });
 
   function handleFile(f) {
-    if (f.size > 2 * 1024 * 1024) return alert('Arquivo muito grande. MÃ¡x. 2MB.');
+    if (f.size > 2 * 1024 * 1024) return alert('Arquivo muito grande. Máx. 2MB.');
     selectedFile = f;
     var url = URL.createObjectURL(f);
     previewArea.innerHTML = '<img src="' + url + '" style="max-height:120px;max-width:100%;border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,.3)"><p style="margin:6px 0 0;color:rgba(255,255,255,.4);font-size:10px;font-weight:500">' + esc(f.name) + '</p>';
@@ -208,7 +208,7 @@
   document.getElementById('gmSave').addEventListener('click', async function() {
     var code = document.getElementById('gmCode').value.trim();
     var name = document.getElementById('gmName').value.trim();
-    if(!code || !name) return alert('CÃ³digo e nome sÃ£o obrigatÃ³rios.');
+    if(!code || !name) return alert('Código e nome são obrigatórios.');
     var btn = this; btn.disabled=true; btn.textContent='Salvando...';
     try {
       var fd = new FormData();
@@ -302,7 +302,7 @@ document.getElementById('btnAutoFetchImages')?.addEventListener('click', async f
   try {
     var r = await fetch('/admin/api/games/auto-fetch-images', { method: 'POST', credentials: 'same-origin' });
     var d = await r.json();
-    alert(d.msg || (d.ok ? 'ConcluÃ­do!' : 'Erro'));
+    alert(d.msg || (d.ok ? 'Concluído!' : 'Erro'));
     if (d.ok && d.updated > 0) location.reload();
   } catch { alert('Erro de rede.'); }
   btn.disabled = false; btn.textContent = 'ðŸ–¼ï¸ Buscar Imagens';
@@ -326,7 +326,7 @@ document.getElementById('btnBadImages')?.addEventListener('click', async functio
     if (!confirm(msg)) { btn.disabled = false; btn.textContent = 'ðŸ–¼ï¸ Limpar Imagens'; return; }
     var r2 = await fetch('/admin/api/games/deactivate-bad-images', { method: 'POST', credentials: 'same-origin' });
     var d2 = await r2.json();
-    alert(d2.ok ? 'âœ… ' + d2.msg : 'âŒ ' + (d2.msg || 'Erro'));
+    alert(d2.ok ? '✅ ' + d2.msg : 'âŒ ' + (d2.msg || 'Erro'));
     if (d2.ok) location.reload();
   } catch (e) {
     alert('Erro: ' + e.message);
@@ -348,7 +348,7 @@ document.getElementById('btnDedupGames')?.addEventListener('click', async functi
     var summary = d.totalDuplicates + ' duplicatas em ' + d.groups.length + ' grupos.\n\n';
     d.groups.slice(0, 10).forEach(function(g) {
       if (!g.keep) return;
-      summary += 'âœ… Manter: ' + g.keep.game_name + ' (ID ' + g.keep.id + ', ' + (g.keep.provider || '?') + ')\n';
+      summary += '✅ Manter: ' + g.keep.game_name + ' (ID ' + g.keep.id + ', ' + (g.keep.provider || '?') + ')\n';
       g.duplicates.forEach(function(dup) {
         summary += '   âŒ Desativar: ID ' + dup.id + ' (' + (dup.provider || '?') + ')' + (dup.is_active ? ' [ativo]' : '') + '\n';
       });
@@ -358,7 +358,7 @@ document.getElementById('btnDedupGames')?.addEventListener('click', async functi
     if (!confirm(summary)) { btn.disabled = false; btn.textContent = 'ðŸ” Dedup'; return; }
     var r2 = await fetch('/admin/api/games/deduplicate', { method: 'POST', credentials: 'same-origin' });
     var d2 = await r2.json();
-    alert(d2.ok ? 'âœ… ' + d2.msg : 'âŒ ' + (d2.msg || 'Erro'));
+    alert(d2.ok ? '✅ ' + d2.msg : 'âŒ ' + (d2.msg || 'Erro'));
     if (d2.ok) location.reload();
   } catch (e) {
     alert('Erro: ' + e.message);

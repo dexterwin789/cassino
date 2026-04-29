@@ -30,7 +30,7 @@
     <div style="flex:1">
       <div class="adm-stat-label">Leads Indicados</div>
       <div style="font-size:28px;font-weight:800;margin-top:4px;color:var(--adm-text)"><%= _stats.totalLeads %></div>
-      <div class="adm-muted" style="font-size:12px;margin-top:2px;">usuÃ¡rios com referrer</div>
+      <div class="adm-muted" style="font-size:12px;margin-top:2px;">usuários com referrer</div>
     </div>
   </div>
 
@@ -41,7 +41,7 @@
     <div style="flex:1">
       <div class="adm-stat-label">Total Pago</div>
       <div style="font-size:22px;font-weight:800;margin-top:4px;color:#FFD700"><%= _brl(_stats.totalEarned) %></div>
-      <div class="adm-muted" style="font-size:12px;margin-top:2px;">acumulado histÃ³rico</div>
+      <div class="adm-muted" style="font-size:12px;margin-top:2px;">acumulado histórico</div>
     </div>
   </div>
 
@@ -50,7 +50,7 @@
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
     </div>
     <div style="flex:1">
-      <div class="adm-stat-label">ComissÃµes Pendentes</div>
+      <div class="adm-stat-label">Comissões Pendentes</div>
       <div style="font-size:22px;font-weight:800;margin-top:4px;color:#F97316"><%= _brl(_stats.pendingCommissions) %></div>
       <div class="adm-muted" style="font-size:12px;margin-top:2px;">aguardando pagamento</div>
     </div>
@@ -66,21 +66,21 @@
         </span>
         Fluxo manual de afiliados
       </h3>
-      <p class="adm-muted" style="line-height:1.55;margin-top:6px;">O usuÃ¡rio cria a conta normalmente, informa ao admin o <strong>ID da conta</strong> e o <strong>e-mail</strong>. Depois que vocÃª liberar aqui, o menu Indique e Ganhe aparece para ele e as APIs de afiliado ficam disponÃ­veis.</p>
+      <p class="adm-muted" style="line-height:1.55;margin-top:6px;">O usuário cria a conta normalmente, informa ao admin o <strong>ID da conta</strong> e o <strong>e-mail</strong>. Depois que você liberar aqui, o menu Indique e Ganhe aparece para ele e as APIs de afiliado ficam disponíveis.</p>
     </div>
   </div>
   <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:12px;">
     <div style="padding:14px;border-radius:14px;background:rgba(0,0,0,.18);border:1px solid rgba(255,255,255,.08);">
       <strong style="color:#fff;display:block;margin-bottom:6px;">1. Cliente envia os dados</strong>
-      <span class="adm-muted" style="font-size:12px;line-height:1.45;display:block;">PeÃ§a ID e e-mail para evitar liberar a conta errada.</span>
+      <span class="adm-muted" style="font-size:12px;line-height:1.45;display:block;">Peça ID e e-mail para evitar liberar a conta errada.</span>
     </div>
     <div style="padding:14px;border-radius:14px;background:rgba(0,0,0,.18);border:1px solid rgba(255,255,255,.08);">
       <strong style="color:#fff;display:block;margin-bottom:6px;">2. Admin libera abaixo</strong>
       <span class="adm-muted" style="font-size:12px;line-height:1.45;display:block;">Se ele veio por link de outro afiliado, o sistema vincula como subafiliado L2 automaticamente.</span>
     </div>
     <div style="padding:14px;border-radius:14px;background:rgba(0,0,0,.18);border:1px solid rgba(255,255,255,.08);">
-      <strong style="color:#fff;display:block;margin-bottom:6px;">3. UsuÃ¡rio acessa o painel</strong>
-      <span class="adm-muted" style="font-size:12px;line-height:1.45;display:block;">Antes da liberaÃ§Ã£o, ele nÃ£o vÃª indicaÃ§Ãµes nem consegue usar endpoints de afiliado.</span>
+      <strong style="color:#fff;display:block;margin-bottom:6px;">3. Usuário acessa o painel</strong>
+      <span class="adm-muted" style="font-size:12px;line-height:1.45;display:block;">Antes da liberação, ele não vê indicações nem consegue usar endpoints de afiliado.</span>
     </div>
   </div>
 </div>
@@ -95,7 +95,7 @@
         </span>
         Modelo de Comissionamento
       </h3>
-      <p class="adm-muted">Apenas <strong>um</strong> modelo fica ativo por vez. MudanÃ§a afeta comissÃµes <strong>futuras</strong>.</p>
+      <p class="adm-muted">Apenas <strong>um</strong> modelo fica ativo por vez. Mudança afeta comissões <strong>futuras</strong>.</p>
     </div>
     <div style="display:flex;align-items:center;gap:8px;padding:6px 12px;border-radius:20px;background:<%= _commType === 'revshare' ? 'rgba(37,211,102,.12)' : 'rgba(255,215,0,.12)' %>;border:1px solid <%= _commType === 'revshare' ? 'rgba(37,211,102,.3)' : 'rgba(255,215,0,.3)' %>;">
       <span style="width:8px;height:8px;border-radius:50%;background:<%= _commType === 'revshare' ? '#25D366' : '#FFD700' %>;box-shadow:0 0 8px <%= _commType === 'revshare' ? '#25D366' : '#FFD700' %>;"></span>
@@ -111,7 +111,7 @@
             <span style="font-weight:800;font-size:16px;color:#25D366;">RevShare</span>
             <span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:6px;background:rgba(37,211,102,.15);color:#25D366;text-transform:uppercase;letter-spacing:.5px;">Recomendado</span>
           </div>
-          <div class="adm-muted" style="font-size:13px;margin-top:8px;line-height:1.5;">Afiliado ganha um <strong style="color:var(--adm-text)">% recorrente</strong> sobre a movimentaÃ§Ã£o do indicado. Pagamento contÃ­nuo enquanto o usuÃ¡rio apostar.</div>
+          <div class="adm-muted" style="font-size:13px;margin-top:8px;line-height:1.5;">Afiliado ganha um <strong style="color:var(--adm-text)">% recorrente</strong> sobre a movimentação do indicado. Pagamento contínuo enquanto o usuário apostar.</div>
         </div>
       </div>
     </label>
@@ -120,10 +120,10 @@
         <input type="radio" name="affCommissionType" value="cpa" <%= _commType === 'cpa' ? 'checked' : '' %> style="margin-top:4px;accent-color:#FFD700;width:18px;height:18px;">
         <div style="flex:1">
           <div style="display:flex;align-items:center;gap:8px;">
-            <span style="font-weight:800;font-size:16px;color:#FFD700;">CPA (BÃ´nus Fixo)</span>
-            <span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:6px;background:rgba(255,215,0,.15);color:#FFD700;text-transform:uppercase;letter-spacing:.5px;">Pagamento Ãºnico</span>
+            <span style="font-weight:800;font-size:16px;color:#FFD700;">CPA (Bônus Fixo)</span>
+            <span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:6px;background:rgba(255,215,0,.15);color:#FFD700;text-transform:uppercase;letter-spacing:.5px;">Pagamento único</span>
           </div>
-          <div class="adm-muted" style="font-size:13px;margin-top:8px;line-height:1.5;">Afiliado recebe um <strong style="color:var(--adm-text)">valor fixo</strong> por cada indicado que cumpre o depÃ³sito mÃ­nimo. Uma vez apenas.</div>
+          <div class="adm-muted" style="font-size:13px;margin-top:8px;line-height:1.5;">Afiliado recebe um <strong style="color:var(--adm-text)">valor fixo</strong> por cada indicado que cumpre o depósito mínimo. Uma vez apenas.</div>
         </div>
       </div>
     </label>
@@ -131,7 +131,7 @@
   <button class="adm-btn primary" id="btnSaveCommType" style="margin-top:20px;">Salvar Modelo</button>
 </div>
 
-<!-- â•â•â• CONFIGURAÃ‡Ã•ES GERAIS â•â•â• -->
+<!-- â•â•â• CONFIGURAÇÃ•ES GERAIS â•â•â• -->
 <div class="adm-page-card" style="margin-bottom:24px;">
   <div class="adm-page-head">
     <div>
@@ -139,18 +139,18 @@
         <span style="display:inline-grid;place-items:center;width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,rgba(59,130,246,.2),rgba(59,130,246,.05));border:1px solid rgba(59,130,246,.3);">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 6v6m11-7h-6M7 12H1m15.5-6.5l-4.24 4.24m-4.52 4.52L3.5 18.5M18.5 18.5l-4.24-4.24m-4.52-4.52L5.5 5.5"/></svg>
         </span>
-        ConfiguraÃ§Ãµes Gerais
+        Configurações Gerais
       </h3>
       <p class="adm-muted">Regras globais do programa de afiliados</p>
     </div>
   </div>
   <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;margin-top:20px;">
     <div class="adm-setting-card">
-      <label>ComissÃ£o PadrÃ£o (%)</label>
+      <label>Comissão Padrão (%)</label>
       <input type="number" id="affDefaultCommission" value="<%= (typeof affSettings !== 'undefined' && affSettings.aff_default_commission) || '10' %>" min="0" max="100" step="0.5">
     </div>
     <div class="adm-setting-card">
-      <label>DepÃ³sito MÃ­n. p/ ComissÃ£o</label>
+      <label>Depósito Mín. p/ Comissão</label>
       <input type="text" id="affMinDeposit" class="brl-mask-reais" value="" data-initial-cents="<%= (typeof affSettings !== 'undefined' && affSettings.aff_min_deposit) || '2000' %>" min="0">
     </div>
     <div class="adm-setting-card">
@@ -158,36 +158,36 @@
       <input type="number" id="affCookieDays" value="<%= (typeof affSettings !== 'undefined' && affSettings.aff_cookie_days) || '30' %>" min="1" max="365">
     </div>
     <div class="adm-setting-card">
-      <label>AprovaÃ§Ã£o AutomÃ¡tica</label>
+      <label>Aprovação Automática</label>
       <select id="affAutoApprove">
         <option value="1" <%= (typeof affSettings !== 'undefined' && affSettings.aff_auto_approve === '1') ? 'selected' : '' %>>Sim</option>
-        <option value="0" <%= (typeof affSettings === 'undefined' || !affSettings.aff_auto_approve || affSettings.aff_auto_approve === '0') ? 'selected' : '' %>>NÃ£o</option>
+        <option value="0" <%= (typeof affSettings === 'undefined' || !affSettings.aff_auto_approve || affSettings.aff_auto_approve === '0') ? 'selected' : '' %>>Não</option>
       </select>
-      <small class="adm-muted" style="display:block;margin-top:6px;font-size:11px;line-height:1.35;">Para o fluxo atual, deixe como NÃ£o. A liberaÃ§Ã£o manual fica no formulÃ¡rio abaixo.</small>
+      <small class="adm-muted" style="display:block;margin-top:6px;font-size:11px;line-height:1.35;">Para o fluxo atual, deixe como Não. A liberação manual fica no formulário abaixo.</small>
     </div>
     <div class="adm-setting-card">
-      <label>BÃ´nus por IndicaÃ§Ã£o (R$)</label>
+      <label>Bônus por Indicação (R$)</label>
       <input type="text" id="affReferralBonus" class="brl-mask-reais" value="" data-initial-cents="<%= (typeof affSettings !== 'undefined' && affSettings.aff_referral_bonus) || '5000' %>" min="0">
     </div>
     <div class="adm-setting-card">
-      <label>MÃ¡x. Afiliados</label>
+      <label>Máx. Afiliados</label>
       <input type="number" id="affMaxAffiliates" value="<%= (typeof affSettings !== 'undefined' && affSettings.aff_max_affiliates) || '0' %>" min="0" placeholder="0 = ilimitado">
     </div>
     <div class="adm-setting-card">
-      <label>Saque MÃ­nimo (R$)</label>
+      <label>Saque Mínimo (R$)</label>
       <input type="text" id="affMinWithdrawal" class="brl-mask-reais" value="" data-initial-cents="<%= (typeof affSettings !== 'undefined' && affSettings.aff_min_withdrawal) || '35000' %>" min="0">
       <small class="adm-muted" style="display:block;margin-top:6px;font-size:11px;line-height:1.35;">Recomendado: R$ 350,00 para manter saque qualificado.</small>
     </div>
     <div class="adm-setting-card">
       <label>Ciclo de Pagamento</label>
       <input type="number" id="affPaymentIntervalDays" value="<%= (typeof affSettings !== 'undefined' && affSettings.aff_payment_interval_days) || '15' %>" min="10" max="15" step="5">
-      <small class="adm-muted" style="display:block;margin-top:6px;font-size:11px;line-height:1.35;">Use 10 ou 15 dias. O sistema bloqueia novo saque antes do prÃ³ximo ciclo.</small>
+      <small class="adm-muted" style="display:block;margin-top:6px;font-size:11px;line-height:1.35;">Use 10 ou 15 dias. O sistema bloqueia novo saque antes do próximo ciclo.</small>
     </div>
   </div>
-  <button class="adm-btn primary" id="btnSaveAffSettings" style="margin-top:20px;">Salvar ConfiguraÃ§Ãµes</button>
+  <button class="adm-btn primary" id="btnSaveAffSettings" style="margin-top:20px;">Salvar Configurações</button>
 </div>
 
-<!-- â•â•â• LIBERAÃ‡ÃƒO MANUAL â•â•â• -->
+<!-- â•â•â• LIBERAÇÃO MANUAL â•â•â• -->
 <div class="adm-page-card" style="margin-bottom:24px;">
   <div class="adm-page-head">
     <div>
@@ -197,7 +197,7 @@
         </span>
         Liberar afiliado manualmente
       </h3>
-      <p class="adm-muted">Use quando o usuÃ¡rio pedir ativaÃ§Ã£o. O botÃ£o cria ou reativa o afiliado na conta dele.</p>
+      <p class="adm-muted">Use quando o usuário pedir ativação. O botão cria ou reativa o afiliado na conta dele.</p>
     </div>
   </div>
   <div style="display:grid;grid-template-columns:minmax(120px,.5fr) minmax(220px,1fr) minmax(140px,.5fr) auto;gap:14px;align-items:end;margin-top:18px;">
@@ -206,7 +206,7 @@
     <div class="adm-field"><label>RevShare %</label><input type="number" id="manualAffPct" value="<%= (typeof affSettings !== 'undefined' && affSettings.aff_revshare_pct) || '50' %>" min="0" max="100" step="0.5"></div>
     <button class="adm-btn primary" id="btnManualAffiliate" style="height:44px;">Liberar afiliado</button>
   </div>
-  <div class="adm-muted" style="font-size:12px;line-height:1.5;margin-top:12px;">Dica: se preencher ID e e-mail juntos, o sistema exige que os dois batam na mesma conta. Isso evita ativaÃ§Ã£o acidental.</div>
+  <div class="adm-muted" style="font-size:12px;line-height:1.5;margin-top:12px;">Dica: se preencher ID e e-mail juntos, o sistema exige que os dois batam na mesma conta. Isso evita ativação acidental.</div>
 </div>
 
 <!-- â•â•â• PLANO DE CARREIRA â•â•â• -->
@@ -219,18 +219,18 @@
         </span>
         Plano de Carreira do Afiliado
       </h3>
-      <p class="adm-muted">Metas automÃ¡ticas exibidas no painel do afiliado para incentivar cadastros ativos e comissÃ£o recorrente.</p>
+      <p class="adm-muted">Metas automáticas exibidas no painel do afiliado para incentivar cadastros ativos e comissão recorrente.</p>
     </div>
   </div>
   <div id="careerTiersEditor" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-top:20px;">
     <% _careerTiers.forEach(function(tier) { %>
     <div class="adm-setting-card" data-career-tier>
       <input type="hidden" data-career-level value="<%= tier.level %>">
-      <label>NÃ­vel <%= tier.level %></label>
+      <label>Nível <%= tier.level %></label>
       <input type="text" data-career-name value="<%= tier.name %>" maxlength="40" style="margin-top:8px;font-weight:700;">
       <label style="margin-top:12px;display:block;">Indicados ativos</label>
       <input type="number" data-career-active value="<%= tier.activeLeads %>" min="0" step="1">
-      <label style="margin-top:12px;display:block;">ComissÃ£o paga acumulada</label>
+      <label style="margin-top:12px;display:block;">Comissão paga acumulada</label>
       <input type="text" class="brl-mask-reais" data-career-commission value="" data-initial-cents="<%= tier.commissionCents %>">
       <label style="margin-top:12px;display:block;">Mensagem da meta</label>
       <textarea data-career-reward maxlength="180" style="width:100%;min-height:72px;margin-top:6px;border-radius:12px;border:1px solid var(--adm-border);background:var(--adm-input);color:var(--adm-text);padding:10px;resize:vertical;"><%= tier.reward %></textarea>
@@ -250,7 +250,7 @@
         </span>
         Percentual de RevShare
       </h3>
-      <p class="adm-muted">% que o afiliado recebe sobre a movimentaÃ§Ã£o do indicado (aplicado apenas com modelo RevShare ativo).</p>
+      <p class="adm-muted">% que o afiliado recebe sobre a movimentação do indicado (aplicado apenas com modelo RevShare ativo).</p>
     </div>
   </div>
   <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;margin-top:20px;">
@@ -258,7 +258,7 @@
       <label>Ativar RevShare</label>
       <select id="affRevshareEnabled">
         <option value="1" <%= (typeof affSettings !== 'undefined' && affSettings.aff_revshare_enabled === '1') ? 'selected' : '' %>>Sim</option>
-        <option value="0" <%= (typeof affSettings === 'undefined' || affSettings.aff_revshare_enabled !== '1') ? 'selected' : '' %>>NÃ£o</option>
+        <option value="0" <%= (typeof affSettings === 'undefined' || affSettings.aff_revshare_enabled !== '1') ? 'selected' : '' %>>Não</option>
       </select>
     </div>
     <div class="adm-setting-card">
@@ -279,7 +279,7 @@
         </span>
         Afiliados Cadastrados
       </h3>
-      <p class="adm-muted">Todos os usuÃ¡rios com cÃ³digo de afiliado ativo</p>
+      <p class="adm-muted">Todos os usuários com código de afiliado ativo</p>
     </div>
     <button class="adm-btn" data-action="refresh">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px;vertical-align:-2px"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
@@ -287,13 +287,13 @@
     </button>
   </div>
   <div class="adm-toolbar">
-    <div class="adm-field"><label>Buscar</label><input type="text" placeholder="cÃ³digo / username / e-mail / ID" data-filter="q" /></div>
-    <div class="adm-field"><label>Por pÃ¡gina</label><select data-filter="limit"><option value="10">10</option><option value="25" selected>25</option><option value="50">50</option><option value="100">100</option></select></div>
+    <div class="adm-field"><label>Buscar</label><input type="text" placeholder="código / username / e-mail / ID" data-filter="q" /></div>
+    <div class="adm-field"><label>Por página</label><select data-filter="limit"><option value="10">10</option><option value="25" selected>25</option><option value="50">50</option><option value="100">100</option></select></div>
     <div class="adm-field"><label>&nbsp;</label><button class="adm-btn primary" data-action="apply">Aplicar</button></div>
   </div>
   <div class="adm-table-wrap">
     <table class="adm-table">
-      <thead><tr><th>ID</th><th>UsuÃ¡rio</th><th>CÃ³digo</th><th>Origem L2</th><th>ComissÃ£o %</th><th>Total Ganho</th><th>Status</th><th>Criado</th><th>AÃ§Ãµes</th></tr></thead>
+      <thead><tr><th>ID</th><th>Usuário</th><th>Código</th><th>Origem L2</th><th>Comissão %</th><th>Total Ganho</th><th>Status</th><th>Criado</th><th>Ações</th></tr></thead>
       <tbody data-tbody></tbody>
     </table>
   </div>
@@ -301,7 +301,7 @@
     <div class="adm-muted"><span data-count>0</span> resultados</div>
     <div class="adm-pager-btns">
       <button class="adm-btn" data-action="prev">â€¹</button>
-      <span class="adm-muted">PÃ¡gina <span data-page-num>1</span></span>
+      <span class="adm-muted">Página <span data-page-num>1</span></span>
       <button class="adm-btn" data-action="next">â€º</button>
     </div>
   </div>
@@ -320,9 +320,9 @@
         <span style="display:inline-grid;place-items:center;width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,rgba(255,215,0,.2),rgba(255,215,0,.05));border:1px solid rgba(255,215,0,.3);">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFD700" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
         </span>
-        Log de ComissÃµes
+        Log de Comissões
       </h3>
-      <p class="adm-muted">HistÃ³rico de comissÃµes creditadas para afiliados</p>
+      <p class="adm-muted">Histórico de comissões creditadas para afiliados</p>
     </div>
     <button class="adm-btn" id="btnReloadCommissions">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px;vertical-align:-2px"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
@@ -343,13 +343,13 @@
         <option value="revshare">RevShare</option>
         <option value="revshare_l2">RevShare L2</option>
         <option value="cpa">CPA</option>
-        <option value="deposit">DepÃ³sito</option>
+        <option value="deposit">Depósito</option>
       </select>
     </div>
   </div>
   <div class="adm-table-wrap">
     <table class="adm-table">
-      <thead><tr><th>ID</th><th>Data</th><th>Afiliado</th><th>CÃ³digo</th><th>Indicado</th><th>Tipo</th><th>Detalhe</th><th style="text-align:right">Valor</th><th>Status</th><th>Bet ID</th></tr></thead>
+      <thead><tr><th>ID</th><th>Data</th><th>Afiliado</th><th>Código</th><th>Indicado</th><th>Tipo</th><th>Detalhe</th><th style="text-align:right">Valor</th><th>Status</th><th>Bet ID</th></tr></thead>
       <tbody id="commissionsBody"><tr><td colspan="10" style="text-align:center;padding:24px;color:var(--adm-muted)">Carregando...</td></tr></tbody>
     </table>
   </div>
@@ -434,10 +434,10 @@ document.getElementById('btnSaveAffSettings')?.addEventListener('click', async f
       credentials: 'same-origin'
     });
     var d = await r.json();
-    if (d.ok) alert('ConfiguraÃ§Ãµes salvas!');
+    if (d.ok) alert('Configurações salvas!');
     else alert(d.msg || 'Erro');
   } catch { alert('Erro de rede.'); }
-  btn.disabled = false; btn.textContent = 'Salvar ConfiguraÃ§Ãµes';
+  btn.disabled = false; btn.textContent = 'Salvar Configurações';
 });
 
 document.getElementById('btnSaveCareerPlan')?.addEventListener('click', async function() {
@@ -492,7 +492,7 @@ document.getElementById('btnManualAffiliate')?.addEventListener('click', async f
     });
     var d = await r.json();
     if (d.ok) {
-      alert('Afiliado liberado com sucesso. CÃ³digo: ' + (d.affiliate && d.affiliate.code ? d.affiliate.code : 'gerado'));
+      alert('Afiliado liberado com sucesso. Código: ' + (d.affiliate && d.affiliate.code ? d.affiliate.code : 'gerado'));
       document.getElementById('manualAffUserId').value = '';
       document.getElementById('manualAffEmail').value = '';
       document.querySelector('[data-page="affiliates"] [data-action="refresh"]')?.click();
@@ -506,7 +506,7 @@ document.getElementById('btnManualAffiliate')?.addEventListener('click', async f
 // Commission log
 (function(){
   function fmtBrlCents(c){ var n=(parseInt(c||0,10)/100); return 'R$ '+n.toFixed(2).replace('.',',').replace(/\B(?=(\d{3})+(?!\d))/g,'.'); }
-  function fmtDt(d){ if(!d) return 'â€”'; var x=new Date(d); return x.toLocaleDateString('pt-BR')+' '+x.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}); }
+  function fmtDt(d){ if(!d) return '—'; var x=new Date(d); return x.toLocaleDateString('pt-BR')+' '+x.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}); }
   function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]; }); }
   function loadCommissions(){
     var body = document.getElementById('commissionsBody');
@@ -521,29 +521,29 @@ document.getElementById('btnManualAffiliate')?.addEventListener('click', async f
       .then(function(d){
         if(!d || !d.ok){ body.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:24px;color:#ef4444">Erro ao carregar.</td></tr>'; return; }
         var rows = d.rows || [];
-        if(!rows.length){ body.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:24px;color:var(--adm-muted)">Nenhuma comissÃ£o encontrada.</td></tr>'; return; }
+        if(!rows.length){ body.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:24px;color:var(--adm-muted)">Nenhuma comissão encontrada.</td></tr>'; return; }
         body.innerHTML = rows.map(function(c){
           var paid = c.status === 'paid';
           var meta = c.metadata_json || {};
           var isL2 = c.type === 'revshare_l2';
           var detail = isL2
             ? 'L2 10% de ' + esc(c.source_affiliate_username || c.source_affiliate_code || 'subafiliado')
-            : (c.type === 'revshare' ? 'Direto L1' : 'ComissÃ£o base');
+            : (c.type === 'revshare' ? 'Direto L1' : 'Comissão base');
           var statusBadge = '<span style="padding:3px 10px;border-radius:10px;font-size:11px;font-weight:600;'
             + (paid ? 'background:rgba(37,211,102,.15);color:#25D366' : 'background:rgba(249,115,22,.15);color:#F97316')
             + '">'+(paid?'Creditado':'Pendente')+'</span>';
-          var typeLabel = isL2 ? 'REVSHARE L2' : esc(c.type||'â€”').toUpperCase();
+          var typeLabel = isL2 ? 'REVSHARE L2' : esc(c.type||'—').toUpperCase();
           return '<tr>'
             + '<td>'+c.id+'</td>'
             + '<td>'+fmtDt(c.created_at)+'</td>'
-            + '<td>'+esc(c.referrer_username||'â€”')+'</td>'
-            + '<td><code>'+esc(c.affiliate_code||'â€”')+'</code></td>'
-            + '<td>'+esc(c.referred_username||'â€”')+'</td>'
+            + '<td>'+esc(c.referrer_username||'—')+'</td>'
+            + '<td><code>'+esc(c.affiliate_code||'—')+'</code></td>'
+            + '<td>'+esc(c.referred_username||'—')+'</td>'
             + '<td style="font-size:11px">'+typeLabel+'</td>'
-            + '<td style="color:var(--adm-muted);font-size:11px">'+detail+(meta.base_commission_cents ? ' Â· base '+fmtBrlCents(meta.base_commission_cents) : '')+'</td>'
+            + '<td style="color:var(--adm-muted);font-size:11px">'+detail+(meta.base_commission_cents ? ' · base '+fmtBrlCents(meta.base_commission_cents) : '')+'</td>'
             + '<td style="text-align:right;color:#FFD700;font-weight:700">'+fmtBrlCents(c.amount_cents)+'</td>'
             + '<td>'+statusBadge+'</td>'
-            + '<td style="color:var(--adm-muted);font-size:11px">'+(c.bet_id||'â€”')+'</td>'
+            + '<td style="color:var(--adm-muted);font-size:11px">'+(c.bet_id||'—')+'</td>'
             + '</tr>';
         }).join('');
       })

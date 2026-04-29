@@ -547,13 +547,13 @@ async function autoMigrate() {
     const notifCount = await pool.query('SELECT COUNT(*) FROM notifications WHERE user_id = 24');
     if (parseInt(notifCount.rows[0].count) === 0) {
       await pool.query(`INSERT INTO notifications (user_id, tipo, titulo, mensagem) VALUES
-        (24, 'success', 'Bem-vindo ÃÆ’Ã‚Â  VemNaBet!', 'Sua conta foi criada com sucesso. Aproveite nossos jogos!'),
+        (24, 'success', 'Bem-vindo à VemNaBet!', 'Sua conta foi criada com sucesso. Aproveite nossos jogos!'),
         (24, 'deposit', 'Depósito confirmado', 'Seu depósito de R$ 100,00 foi creditado na sua carteira.'),
         (24, 'promo', 'Bônus especial de boas-vindas', 'Você ganhou 20 rodadas grátis no Fortune Tiger! Jogue agora.'),
         (24, 'info', 'Verificação de identidade', 'Complete seu cadastro com CPF e data de nascimento para liberar saques.'),
-        (24, 'warning', 'Sessão em novo dispositivo', 'Detectamos um novo acesso ÃÆ’Ã‚Â  sua conta. Se não foi você, altere sua senha.'),
+        (24, 'warning', 'Sessão em novo dispositivo', 'Detectamos um novo acesso à sua conta. Se não foi você, altere sua senha.'),
         (0, 'promo', 'Promoção de Páscoa!', 'Deposite R$ 50 e ganhe R$ 25 de bônus. Válido até domingo!'),
-        (0, 'info', 'Manutenção programada', 'O sistema ficará indisponível dia 10/04 das 03:00 ÃÆ’Ã‚Â s 05:00 para manutenção.')
+        (0, 'info', 'Manutenção programada', 'O sistema ficará indisponível dia 10/04 das 03:00 à s 05:00 para manutenção.')
       `);
       console.log('[MIGRATE] Notifications seeded for user 24 ');
     }
