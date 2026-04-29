@@ -530,11 +530,21 @@ function enhanceCategoryScroller(el) {
     btn.innerHTML = kind === 'prev' ? '&#8249;' : '&#8250;';
     btn.addEventListener('click', function() {
       var direction = kind === 'prev' ? -1 : 1;
-      el.scrollBy({ left: direction * Math.max(420, Math.floor(el.clientWidth * 0.85)), behavior: 'smooth' });
+      moveCategoryRail(el, direction);
     });
     wrap.appendChild(btn);
   });
   el.dataset.scrollEnhanced = '1';
+}
+
+function moveCategoryRail(el, direction) {
+  if (!el) return;
+  var max = Math.max(0, el.scrollWidth - el.clientWidth);
+  var current = parseInt(el.dataset.scrollOffset || '0', 10) || 0;
+  var step = Math.max(420, Math.floor(el.clientWidth * 0.85));
+  var next = Math.max(0, Math.min(max, current + direction * step));
+  el.dataset.scrollOffset = String(next);
+  el.style.transform = next > 0 ? 'translateX(-' + next + 'px)' : '';
 }
 
 /* ========== TOP 10 SLIDER ========== */

@@ -674,9 +674,10 @@ ul{list-style:none}
   -webkit-overflow-scrolling:touch;
   padding-bottom:4px;
   scroll-behavior:smooth;
+  transition:transform .32s ease;
 }
 .category-games-scroll::-webkit-scrollbar{display:none}
-.category-scroll-wrap{position:relative}
+.category-scroll-wrap{position:relative;overflow:hidden}
 .cat-scroll-btn{
   position:absolute;top:50%;transform:translateY(-50%);
   z-index:5;width:36px;height:52px;border-radius:10px;
