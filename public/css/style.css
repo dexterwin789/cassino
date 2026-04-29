@@ -1879,6 +1879,35 @@ body.search-lock{overflow:hidden!important}
 .gp-hero.gp-playing .gp-game-iframe{min-height:70vh;border-radius:0}
 .gp-hero.gp-fullscreen .gp-game-iframe{min-height:100vh;border-radius:0}
 
+.gp-roulette-history{
+  display:flex;flex-direction:column;gap:12px;
+  margin-bottom:16px;padding:16px;
+  background:rgba(255,255,255,.045);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:12px;
+}
+.gp-roulette-history[hidden]{display:none}
+.gp-roulette-history-head{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+}
+.gp-roulette-history-head h2{
+  margin:0;color:#fff;font-size:16px;font-weight:800;
+}
+.gp-roulette-history-head span{
+  color:var(--text-muted);font-size:12px;font-weight:700;
+}
+.gp-roulette-numbers{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.gp-roulette-number{
+  width:36px;height:36px;border-radius:50%;
+  display:inline-flex;align-items:center;justify-content:center;
+  color:#fff;font-size:13px;font-weight:900;
+  border:1px solid rgba(255,255,255,.16);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 8px 18px rgba(0,0,0,.24);
+}
+.gp-roulette-number.is-red{background:linear-gradient(135deg,#ef4444,#991b1b)}
+.gp-roulette-number.is-black{background:linear-gradient(135deg,#1f2937,#05070b)}
+.gp-roulette-number.is-green{background:linear-gradient(135deg,#22c55e,#047857)}
+
 /* Fullscreen mode */
 .gp-hero.gp-fullscreen{
   position:fixed;inset:0;z-index:9999;

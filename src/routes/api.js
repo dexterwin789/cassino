@@ -400,8 +400,37 @@ const FRENCH_ROULETTE_CODE = 'oficial-pragmatic-live-pp-28401';
 const FRENCH_ROULETTE_PF_CODE = '28401';
 const FRENCH_ROULETTE_PF_CODES = [FRENCH_ROULETTE_PF_CODE, 'PP_28401'];
 const FRENCH_ROULETTE_TABLE_ID = 'frenchroulette01';
+const FORTUNE_ROULETTE_CODE = 'oficial-pragmatic-live-pp-270';
+const PRAGMATIC_ROULETTE_GAMES = {
+  [FRENCH_ROULETTE_CODE]: {
+    gameCode: FRENCH_ROULETTE_CODE,
+    gameName: 'French Roulette',
+    pfGameCode: 'PP_28401',
+    tableId: FRENCH_ROULETTE_TABLE_ID,
+    referer: 'https://client.pragmaticplaylive.net/desktop/frenchroulette2/'
+  },
+  [FORTUNE_ROULETTE_CODE]: {
+    gameCode: FORTUNE_ROULETTE_CODE,
+    gameName: 'Fortune Roulette',
+    pfGameCode: 'PP_270',
+    tableId: 'megaroulettbba91',
+    referer: 'https://client.pragmaticplaylive.net/desktop/fortuneroulette/'
+  }
+};
 const ROULETTE_WHEEL = [0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10, 5, 24, 16, 33, 1, 20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26];
-let pragmaticFrenchHistoryCache = { expiresAt: 0, rows: [], pending: null };
+const pragmaticRouletteHistoryCaches = {};
+
+function getPragmaticRouletteConfig(gameCode) {
+  return PRAGMATIC_ROULETTE_GAMES[String(gameCode || FRENCH_ROULETTE_CODE)] || null;
+}
+
+function getPragmaticRouletteCache(gameCode) {
+  const cacheKey = String(gameCode || FRENCH_ROULETTE_CODE);
+  if (!pragmaticRouletteHistoryCaches[cacheKey]) {
+    pragmaticRouletteHistoryCaches[cacheKey] = { expiresAt: 0, rows: [], pending: null };
+  }
+  return pragmaticRouletteHistoryCaches[cacheKey];
+}
 
 function rouletteHash(seed) {
   let hash = 2166136261;
@@ -528,7 +557,9 @@ async function readSessionFromUrl(url) {
   return jsession;
 }
 
-async function fetchPragmaticFrenchHistoryFromLaunchUrl(launchUrl) {
+async function fetchPragmaticRouletteHistoryFromLaunchUrl(launchUrl, config) {
+  const rouletteConfig = config || getPragmaticRouletteConfig(FRENCH_ROULETTE_CODE);
+  if (!rouletteConfig) throw new Error('roleta Pragmatic não configurada');
     const candidates = [];
     try {
       const nested = new URL(launchUrl).searchParams.get('url');
@@ -548,11 +579,11 @@ async function fetchPragmaticFrenchHistoryFromLaunchUrl(launchUrl) {
     }
     if (!jsession) throw new Error('sessão Pragmatic indisponível: ' + errors.join(' | ').slice(0, 220));
 
-    const historyUrl = `https://games.pragmaticplaylive.net/api/ui/statisticHistory?JSESSIONID=${encodeURIComponent(jsession)}&tableId=${FRENCH_ROULETTE_TABLE_ID}&numberOfGames=500`;
+    const historyUrl = `https://games.pragmaticplaylive.net/api/ui/statisticHistory?tableId=${encodeURIComponent(rouletteConfig.tableId)}&numberOfGames=500&JSESSIONID=${encodeURIComponent(jsession)}&ck=${Date.now()}&game_mode=lobby_desktop`;
     const historyOptions = {
       headers: {
         'accept': 'application/json,text/plain,*/*',
-        'referer': 'https://client.pragmaticplaylive.net/desktop/frenchroulette2/'
+        'referer': rouletteConfig.referer
       }
     };
     const agent = getOutboundProxyAgent();
@@ -572,23 +603,26 @@ async function fetchPragmaticFrenchHistoryFromLaunchUrl(launchUrl) {
     return rows;
 }
 
-function updatePragmaticFrenchHistoryCache(rows) {
-    pragmaticFrenchHistoryCache.rows = rows;
-    pragmaticFrenchHistoryCache.expiresAt = Date.now() + 30000;
+function updatePragmaticRouletteHistoryCache(gameCode, rows) {
+    const cache = getPragmaticRouletteCache(gameCode);
+    cache.rows = rows;
+    cache.expiresAt = Date.now() + 30000;
     return rows;
 }
 
 async function fetchPragmaticFrenchHistory() {
-  if (Date.now() < pragmaticFrenchHistoryCache.expiresAt && pragmaticFrenchHistoryCache.rows.length) {
-    return pragmaticFrenchHistoryCache.rows;
+  const config = getPragmaticRouletteConfig(FRENCH_ROULETTE_CODE);
+  const cache = getPragmaticRouletteCache(FRENCH_ROULETTE_CODE);
+  if (Date.now() < cache.expiresAt && cache.rows.length) {
+    return cache.rows;
   }
-  if (pragmaticFrenchHistoryCache.pending) return pragmaticFrenchHistoryCache.pending;
+  if (cache.pending) return cache.pending;
 
-  pragmaticFrenchHistoryCache.pending = (async () => {
+  cache.pending = (async () => {
     const pf = require('../services/playfivers');
     const launch = await pf.launchGame({
       userCode: 'vnb_signal_french_roulette',
-      gameCode: 'PP_28401',
+      gameCode: config.pfGameCode,
       provider: 'OFICIAL - PRAGMATIC LIVE',
       gameOriginal: true,
       userBalance: 1,
@@ -597,36 +631,41 @@ async function fetchPragmaticFrenchHistory() {
     const launchUrl = launch && launch.data && launch.data.launch_url;
     if (launch.status !== 200 || !launchUrl) throw new Error((launch.data && launch.data.msg) || 'launch indisponível');
 
-    const rows = await fetchPragmaticFrenchHistoryFromLaunchUrl(launchUrl);
-    updatePragmaticFrenchHistoryCache(rows);
+    const rows = await fetchPragmaticRouletteHistoryFromLaunchUrl(launchUrl, config);
+    updatePragmaticRouletteHistoryCache(FRENCH_ROULETTE_CODE, rows);
     return rows;
-  })().finally(() => { pragmaticFrenchHistoryCache.pending = null; });
+  })().finally(() => { cache.pending = null; });
 
-  return pragmaticFrenchHistoryCache.pending;
+  return cache.pending;
 }
 
-router.post('/roulette/french/sync-session', requireUser, async (req, res) => {
+async function syncPragmaticRouletteSession(req, res) {
   try {
     const launchUrl = String(req.body.launch_url || req.body.launchUrl || '');
+    const config = getPragmaticRouletteConfig(req.body.game_code || req.body.gameCode || FRENCH_ROULETTE_CODE);
+    if (!config) return res.status(400).json({ ok: false, msg: 'Roleta não configurada.' });
     if (!/^https:\/\//i.test(launchUrl) || (!launchUrl.includes('api.playfivers.com/oneapi') && !launchUrl.includes('/gs2c/playGame.do'))) {
       return res.status(400).json({ ok: false, msg: 'Sessão inválida.' });
     }
-    const syncPromise = fetchPragmaticFrenchHistoryFromLaunchUrl(launchUrl)
-      .then(rows => updatePragmaticFrenchHistoryCache(rows))
+    const syncPromise = fetchPragmaticRouletteHistoryFromLaunchUrl(launchUrl, config)
+      .then(rows => updatePragmaticRouletteHistoryCache(config.gameCode, rows))
       .catch(err => {
-        console.warn('[ROULETTE SYNC]', err.message);
+        console.warn(`[ROULETTE SYNC ${config.gameCode}]`, err.message);
         return [];
       });
     const rows = await Promise.race([
       syncPromise,
       new Promise(resolve => setTimeout(() => resolve([]), 4500))
     ]);
-    res.json({ ok: true, pending: !rows.length, count: rows.length, history: rows.slice(0, 30) });
+    res.json({ ok: true, game_code: config.gameCode, table_id: config.tableId, pending: !rows.length, count: rows.length, history: rows.slice(0, 30) });
   } catch (err) {
     console.warn('[ROULETTE SYNC]', err.message);
     res.status(502).json({ ok: false, msg: 'Histórico indisponível.' });
   }
-});
+}
+
+router.post('/roulette/pragmatic/sync-session', requireUser, syncPragmaticRouletteSession);
+router.post('/roulette/french/sync-session', requireUser, syncPragmaticRouletteSession);
 
 function pragmaticHistoryWithTimeout(ms = 3500) {
   return Promise.race([

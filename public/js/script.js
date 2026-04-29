@@ -517,6 +517,10 @@ function enhanceCategoryScroller(el) {
   if (!el || el.dataset.scrollEnhanced === '1') return;
   var parent = el.parentNode;
   if (!parent) return;
+  el.dataset.scrollIndex = '0';
+  el.dataset.scrollOffset = '0';
+  el.style.position = 'relative';
+  el.style.left = '0px';
   var wrap = document.createElement('div');
   wrap.className = 'category-scroll-wrap';
   parent.insertBefore(wrap, el);
@@ -537,12 +541,25 @@ function enhanceCategoryScroller(el) {
   el.dataset.scrollEnhanced = '1';
 }
 
+function getCategoryRailStep(el) {
+  var card = el ? el.querySelector('.game-card') : null;
+  if (!card) return 150;
+  var style = window.getComputedStyle(el);
+  var gap = parseFloat(style.columnGap || style.gap || '0') || 0;
+  return Math.max(1, Math.round(card.getBoundingClientRect().width + gap));
+}
+
 function moveCategoryRail(el, direction) {
   if (!el) return;
-  var max = Math.max(0, el.scrollWidth - el.clientWidth);
-  var current = parseInt(el.dataset.scrollOffset || '0', 10) || 0;
-  var step = Math.max(420, Math.floor(el.clientWidth * 0.85));
-  var next = Math.max(0, Math.min(max, current + direction * step));
+  var step = getCategoryRailStep(el);
+  var total = el.querySelectorAll('.game-card').length;
+  var visible = Math.max(1, Math.floor((el.clientWidth + 1) / step));
+  var maxIndex = Math.max(0, total - visible);
+  var currentIndex = parseInt(el.dataset.scrollIndex || '0', 10) || 0;
+  var nextIndex = Math.max(0, Math.min(maxIndex, currentIndex + direction));
+  var maxOffset = Math.max(0, el.scrollWidth - el.clientWidth);
+  var next = Math.min(maxOffset, nextIndex * step);
+  el.dataset.scrollIndex = String(nextIndex);
   el.dataset.scrollOffset = String(next);
   el.style.position = 'relative';
   el.style.left = next > 0 ? '-' + next + 'px' : '0px';

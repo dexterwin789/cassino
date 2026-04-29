@@ -59,6 +59,14 @@
         </div>
       </section>
 
+      <section class="gp-roulette-history" id="gpRouletteHistory" hidden>
+        <div class="gp-roulette-history-head">
+          <h2>Últimos números</h2>
+          <span id="gpRouletteHistoryStatus">Sincronizando ao vivo</span>
+        </div>
+        <div class="gp-roulette-numbers" id="gpRouletteNumbers"></div>
+      </section>
+
       <!-- Stats Section -->
       <section class="gp-stats">
         <div class="gp-stat-card">
@@ -178,7 +186,7 @@
 
 <div id="toastContainer" class="toast-container"></div>
 
-<script src="/public/js/script.js?v=20260428i"></script>
+<script src="/public/js/script.js?v=20260428j"></script>
 <script>
 (function(){
   /* === Slider helper === */
@@ -253,14 +261,48 @@
   var playArea = document.getElementById('gpPlayArea');
   var gameCode = '<%= game.game_code %>';
 
-  function syncFrenchRouletteHistory(launchUrl) {
-    if (gameCode !== 'oficial-pragmatic-live-pp-28401' || !launchUrl) return;
-    fetch('/api/roulette/french/sync-session', {
+  var rouletteHistoryGames = {
+    'oficial-pragmatic-live-pp-28401': true,
+    'oficial-pragmatic-live-pp-270': true
+  };
+  var rouletteHistoryBox = document.getElementById('gpRouletteHistory');
+  var rouletteHistoryStatus = document.getElementById('gpRouletteHistoryStatus');
+  var rouletteNumbers = document.getElementById('gpRouletteNumbers');
+  var redRouletteNumbers = {1:1,3:1,5:1,7:1,9:1,12:1,14:1,16:1,18:1,19:1,21:1,23:1,25:1,27:1,30:1,32:1,34:1,36:1};
+
+  function rouletteColorClass(number) {
+    if (number === 0) return 'is-green';
+    return redRouletteNumbers[number] ? 'is-red' : 'is-black';
+  }
+
+  function renderRouletteHistory(rows) {
+    if (!rouletteHistoryBox || !rouletteNumbers || !rows || !rows.length) return;
+    rouletteNumbers.innerHTML = rows.slice(0, 18).map(function(row) {
+      var number = parseInt(row.number, 10);
+      return '<span class="gp-roulette-number ' + rouletteColorClass(number) + '">' + number + '</span>';
+    }).join('');
+    if (rouletteHistoryStatus) rouletteHistoryStatus.textContent = 'Sincronizado ao vivo';
+    rouletteHistoryBox.hidden = false;
+  }
+
+  function syncPragmaticRouletteHistory(launchUrl) {
+    if (!rouletteHistoryGames[gameCode] || !launchUrl) return;
+    if (rouletteHistoryBox && rouletteHistoryStatus) {
+      rouletteHistoryStatus.textContent = 'Sincronizando ao vivo';
+      rouletteHistoryBox.hidden = false;
+    }
+    fetch('/api/roulette/pragmatic/sync-session', {
       method: 'POST',
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ launch_url: launchUrl })
-    }).catch(function() {});
+      body: JSON.stringify({ launch_url: launchUrl, game_code: gameCode })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(j) {
+      if (j && j.ok && j.history && j.history.length) renderRouletteHistory(j.history);
+      else if (rouletteHistoryBox && !rouletteNumbers.innerHTML) rouletteHistoryBox.hidden = true;
+    })
+    .catch(function() { if (rouletteHistoryBox && !rouletteNumbers.innerHTML) rouletteHistoryBox.hidden = true; });
   }
 
   if (playBtn) {
@@ -285,7 +327,7 @@
             gameIframe.src = j.launch_url;
             gameIframe.style.display = 'block';
           }
-          syncFrenchRouletteHistory(j.launch_url);
+          syncPragmaticRouletteHistory(j.launch_url);
           // Auto enter a wider view
           if (hero) hero.classList.add('gp-playing');
         } else {
