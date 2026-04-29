@@ -521,6 +521,9 @@ function enhanceCategoryScroller(el) {
   el.dataset.scrollOffset = '0';
   el.style.position = 'relative';
   el.style.left = '0px';
+  el.style.transform = 'translateX(0)';
+  el.style.scrollBehavior = 'auto';
+  el.scrollLeft = 0;
   var wrap = document.createElement('div');
   wrap.className = 'category-scroll-wrap';
   parent.insertBefore(wrap, el);
@@ -555,14 +558,17 @@ function moveCategoryRail(el, direction) {
   var total = el.querySelectorAll('.game-card').length;
   var visible = Math.max(1, Math.floor((el.clientWidth + 1) / step));
   var maxIndex = Math.max(0, total - visible);
-  var currentIndex = parseInt(el.dataset.scrollIndex || '0', 10) || 0;
+  var currentIndex = Math.round((el.scrollLeft || parseInt(el.dataset.scrollOffset || '0', 10) || 0) / step);
   var nextIndex = Math.max(0, Math.min(maxIndex, currentIndex + direction));
   var maxOffset = Math.max(0, el.scrollWidth - el.clientWidth);
   var next = Math.min(maxOffset, nextIndex * step);
   el.dataset.scrollIndex = String(nextIndex);
   el.dataset.scrollOffset = String(next);
   el.style.position = 'relative';
-  el.style.left = next > 0 ? '-' + next + 'px' : '0px';
+  el.style.left = '0px';
+  el.style.transform = 'translateX(0)';
+  el.style.scrollBehavior = 'auto';
+  el.scrollLeft = next;
 }
 
 /* ========== TOP 10 SLIDER ========== */

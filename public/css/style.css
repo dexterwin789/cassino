@@ -673,8 +673,6 @@ ul{list-style:none}
   overflow-x:auto;scrollbar-width:none;
   -webkit-overflow-scrolling:touch;
   padding-bottom:4px;
-  scroll-behavior:smooth;
-  transition:left .32s ease;
 }
 .category-games-scroll::-webkit-scrollbar{display:none}
 .category-scroll-wrap{position:relative;overflow:hidden}
