@@ -707,7 +707,10 @@ async function fetchPragmaticRouletteHistoryFromLaunchUrl(launchUrl, config) {
 function updatePragmaticRouletteHistoryCache(gameCode, rows) {
     const cache = getPragmaticRouletteCache(gameCode);
     cache.rows = rows;
-    cache.expiresAt = Date.now() + 30000;
+    // Cache válido por 90s. O poller local empurra a cada 60s, então
+    // sempre haverá rows frescos. Se ele parar, expira e cai para
+    // operational (ou tenta launch direto, que falha por IP).
+    cache.expiresAt = Date.now() + 90000;
     return rows;
 }
 
@@ -719,9 +722,16 @@ async function fetchPragmaticFrenchHistory() {
   if (cache.pending) return cache.pending;
 
   cache.pending = (async () => {
-    const rows = await fetchPragmaticRouletteHistory(FRENCH_ROULETTE_CODE);
-    updatePragmaticRouletteHistoryCache(FRENCH_ROULETTE_CODE, rows);
-    return rows;
+    try {
+      const rows = await fetchPragmaticRouletteHistory(FRENCH_ROULETTE_CODE);
+      updatePragmaticRouletteHistoryCache(FRENCH_ROULETTE_CODE, rows);
+      return rows;
+    } catch (err) {
+      // Se o fetch falhar (ex.: 451 / sessão expirada e poller off),
+      // mantém as rows antigas em vez de cair pra operational.
+      if (cache.rows && cache.rows.length) return cache.rows;
+      throw err;
+    }
   })().finally(() => { cache.pending = null; });
 
   return cache.pending;
@@ -852,8 +862,11 @@ router.get('/roulette/pragmatic/signals', async (req, res) => {
     if (!config) return res.status(400).json({ ok: false, msg: 'Roleta não configurada.' });
     const cache = getPragmaticRouletteCache(config.gameCode);
 
-    // Refresh cache best-effort using stored JSESSIONID OR launch fallback
-    if (Date.now() >= cache.expiresAt && !cache.pending) {
+    // Refresh cache best-effort using stored JSESSIONID OR launch fallback.
+    // Se houver rows fresh OU mesmo expiradas no cache, NÃO disparamos refresh
+    // (o poller local cuida disso via /push-history). Só tentamos refresh se
+    // cache estiver completamente vazio.
+    if (Date.now() >= cache.expiresAt && !cache.pending && !cache.rows.length) {
       cache.pending = fetchPragmaticRouletteHistory(config.gameCode)
         .then(rows => updatePragmaticRouletteHistoryCache(config.gameCode, rows))
         .catch(err => { console.warn(`[ROULETTE PSIGNALS ${config.gameCode}]`, err.message); return []; })

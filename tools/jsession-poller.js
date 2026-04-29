@@ -135,41 +135,52 @@ async function readJSessionFromUrl(url) {
   const cookies = [];
   let current = url;
   let redirects = 0;
-  while (redirects < 6) {
+  const trace = [];
+  while (redirects < 10) {
     const resp = await httpRequest(current, {
       method: 'GET',
       redirect: 'manual',
       headers: {
         'User-Agent': CONFIG.userAgent,
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-        'Accept-Language': 'pt-BR,pt;q=0.9,en;q=0.8'
+        'Accept-Language': 'pt-BR,pt;q=0.9,en;q=0.8',
+        ...(cookies.length ? { 'Cookie': cookies.map(c => c.split(';')[0]).join('; ') } : {})
       }
     }, 15000);
+    trace.push(`${resp.status} ${new URL(current).host}`);
     // capturar cookies
     const sc = resp.headers.raw ? resp.headers.raw()['set-cookie'] : (resp.headers.getSetCookie ? resp.headers.getSetCookie() : []);
     if (sc && sc.length) cookies.push(...sc);
-    // tentar achar na URL final, body ou cookies
-    let jsession = parseJSessionId(resp.url || current);
-    if (!jsession && cookies.length) jsession = parseJSessionId(cookies.join('; '));
     if (resp.status >= 300 && resp.status < 400) {
       const loc = resp.headers.get('location');
-      if (jsession) return jsession;
       if (!loc) break;
       current = new URL(loc, current).toString();
       redirects++;
       continue;
     }
-    if (jsession) return jsession;
+    // No final do chain: tentar extrair JSESSIONID em ordem de prioridade:
+    //   1) URL atual (?JSESSIONID=...)
+    //   2) body HTML (window.JSESSIONID, scripts)
+    //   3) Set-Cookie
+    let jsession = parseJSessionId(current);
     const body = await resp.text();
-    jsession = parseJSessionId(body);
+    if (!jsession) jsession = parseJSessionId(body);
+    if (!jsession && cookies.length) jsession = parseJSessionId(cookies.join('; '));
+    if (process.env.POLLER_DEBUG === '1') {
+      console.log('[DEBUG] chain:', trace.join(' -> '));
+      console.log('[DEBUG] final URL:', current);
+      console.log('[DEBUG] cookies count:', cookies.length, 'body len:', body.length);
+      console.log('[DEBUG] jsession found:', jsession ? jsession.slice(0, 20) + '...' : '(none)');
+      const titleMatch = body.match(/<title[^>]*>([^<]+)<\/title>/i);
+      if (titleMatch) console.log('[DEBUG] title:', titleMatch[1]);
+    }
     if (jsession) return jsession;
-    // detectar challenge HTML do PlayFivers
     if (/class\s*=\s*["']?man["']?/i.test(body)) {
       throw new Error(`challenge anti-bot em ${new URL(current).host} (HTTP ${resp.status})`);
     }
-    throw new Error(`sem JSESSIONID em ${new URL(current).host} (HTTP ${resp.status})`);
+    throw new Error(`sem JSESSIONID em ${new URL(current).host} (HTTP ${resp.status}) chain=${trace.join('>')}`);
   }
-  throw new Error('redirects demais sem JSESSIONID');
+  throw new Error('redirects demais sem JSESSIONID, chain=' + trace.join('>'));
 }
 
 async function pushToBackend(gameCode, jsession) {
