@@ -544,7 +544,8 @@ function moveCategoryRail(el, direction) {
   var step = Math.max(420, Math.floor(el.clientWidth * 0.85));
   var next = Math.max(0, Math.min(max, current + direction * step));
   el.dataset.scrollOffset = String(next);
-  el.style.transform = next > 0 ? 'translateX(-' + next + 'px)' : '';
+  el.style.position = 'relative';
+  el.style.left = next > 0 ? '-' + next + 'px' : '0px';
 }
 
 /* ========== TOP 10 SLIDER ========== */
