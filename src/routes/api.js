@@ -486,14 +486,30 @@ function parseJSessionId(text) {
   try { return decodeURIComponent(match[1]); } catch (err) { return match[1]; }
 }
 
+function getOutboundProxyAgent() {
+  const proxy = process.env.OUTBOUND_PROXY;
+  if (!proxy) return undefined;
+  try {
+    const { HttpsProxyAgent } = require('https-proxy-agent');
+    return new HttpsProxyAgent(proxy);
+  } catch (err) {
+    return undefined;
+  }
+}
+
 async function readSessionFromUrl(url) {
-  const response = await fetch(url, {
+  const agent = getOutboundProxyAgent();
+  const options = {
     redirect: 'follow',
     timeout: 7000,
     headers: {
       'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124 Safari/537.36',
       'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
     }
+  };
+  if (agent) options.agent = agent;
+  const response = await fetch(url, {
+    ...options
   });
   const text = await response.text();
   return parseJSessionId(response.url + '\n' + text);
@@ -517,13 +533,16 @@ async function fetchPragmaticFrenchHistoryFromLaunchUrl(launchUrl) {
     if (!jsession) throw new Error('sessão Pragmatic indisponível');
 
     const historyUrl = `https://games.pragmaticplaylive.net/api/ui/statisticHistory?JSESSIONID=${encodeURIComponent(jsession)}&tableId=${FRENCH_ROULETTE_TABLE_ID}&numberOfGames=500`;
-    const historyResponse = await fetch(historyUrl, {
+    const historyOptions = {
       timeout: 7000,
       headers: {
         'accept': 'application/json,text/plain,*/*',
         'referer': 'https://client.pragmaticplaylive.net/desktop/frenchroulette2/'
       }
-    });
+    };
+    const agent = getOutboundProxyAgent();
+    if (agent) historyOptions.agent = agent;
+    const historyResponse = await fetch(historyUrl, historyOptions);
     if (!historyResponse.ok) throw new Error('Pragmatic history HTTP ' + historyResponse.status);
     const data = await historyResponse.json();
     const rows = Array.isArray(data.history) ? data.history.map((item, index) => ({
