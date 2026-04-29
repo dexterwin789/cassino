@@ -818,6 +818,32 @@ router.get('/roulette/pragmatic/launch-url', ingestAuth, async (req, res) => {
   }
 });
 
+// POST /api/roulette/pragmatic/push-history  { game_code, history: [{number, gameId?}] }
+// Auth: X-Ingest-Token. Poller fetches Pragmatic history locally (own IP)
+// because Pragmatic binds JSESSIONID to the requesting IP. Receives rows
+// already in Pragmatic order (newest first) and stores them in cache.
+router.post('/roulette/pragmatic/push-history', ingestAuth, (req, res) => {
+  try {
+    const config = getPragmaticRouletteConfig(req.body.game_code || req.body.gameCode);
+    if (!config) return res.status(400).json({ ok: false, msg: 'Roleta não configurada.' });
+    const incoming = Array.isArray(req.body.history) ? req.body.history : [];
+    const rows = incoming.map((item, index) => ({
+      id: item.gameId || item.id || `pushed-${Date.now()}-${index}`,
+      number: typeof item.number === 'number' ? item.number : firstRouletteNumber(item.gameResult || item.result || ''),
+      bet_cents: 0,
+      win_cents: 0,
+      created_at: item.created_at || new Date(Date.now() - index * 30000).toISOString(),
+      result_source: 'pragmatic_history'
+    })).filter(r => r.number !== null && r.number >= 0 && r.number <= 36).slice(0, 120);
+    if (!rows.length) return res.status(400).json({ ok: false, msg: 'Histórico vazio ou inválido.' });
+    updatePragmaticRouletteHistoryCache(config.gameCode, rows);
+    res.json({ ok: true, game_code: config.gameCode, count: rows.length });
+  } catch (err) {
+    console.error('[ROULETTE PUSH-HISTORY]', err);
+    res.status(500).json({ ok: false, msg: 'Erro ao gravar histórico.' });
+  }
+});
+
 // GET /api/roulette/pragmatic/signals?game_code=...
 // Generic signals/feed for any configured Pragmatic roulette (used by app.vemnabet pages).
 router.get('/roulette/pragmatic/signals', async (req, res) => {

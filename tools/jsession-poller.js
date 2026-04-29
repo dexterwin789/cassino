@@ -59,13 +59,17 @@ const GAMES = [
     label: 'Fortune Roulette',
     gameCode: 'oficial-pragmatic-live-pp-270',
     pfGameCode: 'PP_270',
-    provider: 'OFICIAL - PRAGMATIC LIVE'
+    provider: 'OFICIAL - PRAGMATIC LIVE',
+    tableId: 'megaroulettbba91',
+    referer: 'https://client.pragmaticplaylive.net/desktop/fortuneroulette/'
   },
   {
     label: 'French Roulette',
     gameCode: 'oficial-pragmatic-live-pp-28401',
     pfGameCode: 'PP_28401',
-    provider: 'OFICIAL - PRAGMATIC LIVE'
+    provider: 'OFICIAL - PRAGMATIC LIVE',
+    tableId: 'frenchroulette01',
+    referer: 'https://client.pragmaticplaylive.net/desktop/frenchroulette2/'
   }
 ];
 
@@ -183,32 +187,93 @@ async function pushToBackend(gameCode, jsession) {
   return data;
 }
 
+function firstRouletteNumber(text) {
+  const match = String(text || '').match(/\b(?:[0-9]|[12][0-9]|3[0-6])\b/);
+  return match ? parseInt(match[0], 10) : null;
+}
+
+// Pragmatic statisticHistory chamado a partir do poller (mesmo IP que abriu a sessão)
+async function fetchPragmaticHistoryLocal(game, jsession) {
+  const url = `https://games.pragmaticplaylive.net/api/ui/statisticHistory?tableId=${encodeURIComponent(game.tableId)}&numberOfGames=500&JSESSIONID=${encodeURIComponent(jsession)}&ck=${Date.now()}&game_mode=lobby_desktop`;
+  const resp = await httpRequest(url, {
+    headers: {
+      'Accept': 'application/json,text/plain,*/*',
+      'Referer': game.referer,
+      'User-Agent': CONFIG.userAgent
+    }
+  }, 15000);
+  if (resp.status === 401 || resp.status === 403) {
+    const e = new Error(`Pragmatic ${resp.status}`); e.code = 'SESSION_EXPIRED'; throw e;
+  }
+  if (!resp.ok) throw new Error(`Pragmatic HTTP ${resp.status}`);
+  const data = await resp.json();
+  const rows = Array.isArray(data.history) ? data.history.map(item => ({
+    gameId: item.gameId,
+    number: firstRouletteNumber(item.gameResult)
+  })).filter(r => r.number !== null) : [];
+  return rows;
+}
+
+async function pushHistoryToBackend(gameCode, history) {
+  const resp = await httpRequest(`${CONFIG.backendUrl}/api/roulette/pragmatic/push-history`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Ingest-Token': CONFIG.ingestToken,
+      'User-Agent': 'vnb-jsession-poller/1.0'
+    },
+    body: JSON.stringify({ game_code: gameCode, history })
+  }, 15000);
+  const data = await resp.json().catch(() => ({}));
+  if (!data.ok) throw new Error(`backend push-history rejeitou: HTTP ${resp.status} ${data.msg || ''}`);
+  return data;
+}
+
 // ---------- loop ----------
 const state = new Map(); // gameCode -> { jsession, renewedAt }
 
-async function tickGame(game) {
-  const now = Date.now();
-  const prev = state.get(game.gameCode);
-  if (prev && prev.jsession && (now - prev.renewedAt) < CONFIG.renewAfterMs) {
-    return { game: game.label, action: 'skip', age: Math.round((now - prev.renewedAt) / 1000) + 's' };
-  }
+async function renewSession(game) {
   const { launchUrl, nestedUrl } = await getLaunchUrlFromBackend(game);
   const candidates = [];
   if (nestedUrl) candidates.push(nestedUrl);
   candidates.push(launchUrl);
-
   let lastErr = null;
   for (const c of candidates) {
     try {
       const jsession = await readJSessionFromUrl(c);
-      const push = await pushToBackend(game.gameCode, jsession);
       state.set(game.gameCode, { jsession, renewedAt: Date.now() });
-      return { game: game.label, action: 'renewed', count: push.count, msg: push.msg };
-    } catch (err) {
-      lastErr = err;
+      return jsession;
+    } catch (err) { lastErr = err; }
+  }
+  throw lastErr || new Error('falha ao renovar JSESSIONID');
+}
+
+async function tickGame(game) {
+  const now = Date.now();
+  let prev = state.get(game.gameCode);
+  let jsession = prev && prev.jsession;
+  let renewed = false;
+  // Renova se não tem ou está velha
+  if (!jsession || (now - prev.renewedAt) >= CONFIG.renewAfterMs) {
+    jsession = await renewSession(game);
+    renewed = true;
+  }
+  // Busca histórico local. Se 401 -> renova e retry uma vez.
+  let history;
+  try {
+    history = await fetchPragmaticHistoryLocal(game, jsession);
+  } catch (err) {
+    if (err.code === 'SESSION_EXPIRED') {
+      jsession = await renewSession(game);
+      renewed = true;
+      history = await fetchPragmaticHistoryLocal(game, jsession);
+    } else {
+      throw err;
     }
   }
-  throw lastErr || new Error('falha desconhecida');
+  if (!history.length) throw new Error('histórico vazio');
+  const push = await pushHistoryToBackend(game.gameCode, history);
+  return { game: game.label, action: renewed ? 'renewed+push' : 'push', count: push.count, last: history[0]?.number };
 }
 
 async function tickAll() {
@@ -216,7 +281,7 @@ async function tickAll() {
   for (const game of GAMES) {
     try {
       const r = await tickGame(game);
-      console.log(`[${stamp}] ${r.game}: ${r.action}`, r.count !== undefined ? `count=${r.count}` : '', r.msg || r.age || '');
+      console.log(`[${stamp}] ${r.game}: ${r.action}`, r.count !== undefined ? `count=${r.count}` : '', r.last !== undefined ? `last=${r.last}` : '');
     } catch (err) {
       console.warn(`[${stamp}] ${game.label}: ERRO ${err.message}`);
     }
