@@ -1,15 +1,15 @@
-<%- include('layout-head', { title: 'Notificações', page: 'notifications' }) %>
+﻿<%- include('layout-head', { title: 'NotificaÃ§Ãµes', page: 'notifications' }) %>
 
 <div class="adm-page-card" data-page="notifications">
   <div class="adm-page-head">
     <div>
-      <h3>Notificações</h3>
-      <p class="adm-muted">Enviar e gerenciar notificações push</p>
+      <h3>NotificaÃ§Ãµes</h3>
+      <p class="adm-muted">Enviar e gerenciar notificaÃ§Ãµes push</p>
     </div>
     <div style="display:flex;gap:8px;">
       <button class="adm-btn primary" id="btnAddNotif">
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        Nova Notificação
+        Nova NotificaÃ§Ã£o
       </button>
       <button class="adm-btn" data-action="refresh">
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
@@ -18,45 +18,45 @@
     </div>
   </div>
   <div class="adm-toolbar">
-    <div class="adm-field"><label>Buscar</label><input type="text" placeholder="título / mensagem" data-filter="q" /></div>
-    <div class="adm-field"><label>Tipo</label><select data-filter="tipo"><option value="">Todos</option><option value="info">Info</option><option value="success">Sucesso</option><option value="warning">Alerta</option><option value="promo">Promoção</option><option value="deposit">Depósito</option></select></div>
+    <div class="adm-field"><label>Buscar</label><input type="text" placeholder="tÃ­tulo / mensagem" data-filter="q" /></div>
+    <div class="adm-field"><label>Tipo</label><select data-filter="tipo"><option value="">Todos</option><option value="info">Info</option><option value="success">Sucesso</option><option value="warning">Alerta</option><option value="promo">PromoÃ§Ã£o</option><option value="deposit">DepÃ³sito</option></select></div>
     <div class="adm-field"><label>Destino</label><select data-filter="target"><option value="">Todos</option><option value="global">Global (user_id=0)</option><option value="individual">Individual</option></select></div>
-    <div class="adm-field"><label>Por página</label><select data-filter="limit"><option value="10">10</option><option value="25" selected>25</option><option value="50">50</option></select></div>
+    <div class="adm-field"><label>Por pÃ¡gina</label><select data-filter="limit"><option value="10">10</option><option value="25" selected>25</option><option value="50">50</option></select></div>
     <div class="adm-field"><label>&nbsp;</label><button class="adm-btn primary" data-action="apply">Aplicar</button></div>
   </div>
   <div class="adm-table-wrap">
     <table class="adm-table">
-      <thead><tr><th>ID</th><th>Tipo</th><th>Título</th><th>Mensagem</th><th>Destino</th><th>Criado</th><th>Ações</th></tr></thead>
+      <thead><tr><th>ID</th><th>Tipo</th><th>TÃ­tulo</th><th>Mensagem</th><th>Destino</th><th>Criado</th><th>AÃ§Ãµes</th></tr></thead>
       <tbody data-tbody></tbody>
     </table>
   </div>
   <div class="adm-pager">
     <div class="adm-muted"><span data-count>0</span> resultados</div>
     <div class="adm-pager-btns">
-      <button class="adm-btn" data-action="prev">‹ Anterior</button>
-      <span class="adm-muted">Página <span data-page-num>1</span></span>
-      <button class="adm-btn" data-action="next">Próxima ›</button>
+      <button class="adm-btn" data-action="prev">â€¹ Anterior</button>
+      <span class="adm-muted">PÃ¡gina <span data-page-num>1</span></span>
+      <button class="adm-btn" data-action="next">PrÃ³xima â€º</button>
     </div>
   </div>
 </div>
 
 <script src="/public/js/admin.js" defer></script>
 
-<!-- ── Modal: Nova Notificação ── -->
+<!-- â”€â”€ Modal: Nova NotificaÃ§Ã£o â”€â”€ -->
 <div id="notifModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);align-items:center;justify-content:center">
   <div style="background:linear-gradient(160deg,#111827,#0d1321);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:32px;width:520px;max-width:92vw;box-shadow:0 24px 80px rgba(0,0,0,.6)">
     <h4 style="margin:0 0 24px;color:#fff;font-size:18px;font-weight:700;display:flex;align-items:center;gap:10px">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--adm-green1,#10b981)" stroke-width="2"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
-      Nova Notificação
+      Nova NotificaÃ§Ã£o
     </h4>
     <div style="display:flex;flex-direction:column;gap:16px">
       <div style="display:flex;flex-direction:column;gap:6px">
-        <label style="font-size:11px;color:rgba(255,255,255,.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Título *</label>
-        <input id="ntTitle" placeholder="ex: Bônus especial ativado!" style="height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3);color:#fff;padding:0 14px;outline:none;font-size:13px;font-weight:500;transition:border-color .2s" onfocus="this.style.borderColor='var(--adm-green1)'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
+        <label style="font-size:11px;color:rgba(255,255,255,.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px">TÃ­tulo *</label>
+        <input id="ntTitle" placeholder="ex: BÃ´nus especial ativado!" style="height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3);color:#fff;padding:0 14px;outline:none;font-size:13px;font-weight:500;transition:border-color .2s" onfocus="this.style.borderColor='var(--adm-green1)'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
       </div>
       <div style="display:flex;flex-direction:column;gap:6px">
         <label style="font-size:11px;color:rgba(255,255,255,.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Mensagem</label>
-        <textarea id="ntMessage" rows="3" placeholder="Conteúdo da notificação..." style="border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3);color:#fff;padding:12px 14px;outline:none;font-size:13px;font-weight:500;transition:border-color .2s;resize:vertical;font-family:inherit" onfocus="this.style.borderColor='var(--adm-green1)'" onblur="this.style.borderColor='rgba(255,255,255,.1)'"></textarea>
+        <textarea id="ntMessage" rows="3" placeholder="ConteÃºdo da notificaÃ§Ã£o..." style="border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3);color:#fff;padding:12px 14px;outline:none;font-size:13px;font-weight:500;transition:border-color .2s;resize:vertical;font-family:inherit" onfocus="this.style.borderColor='var(--adm-green1)'" onblur="this.style.borderColor='rgba(255,255,255,.1)'"></textarea>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
         <div style="display:flex;flex-direction:column;gap:6px">
@@ -65,14 +65,14 @@
             <option value="info" style="background:#1a1f2e">Info</option>
             <option value="success" style="background:#1a1f2e">Sucesso</option>
             <option value="warning" style="background:#1a1f2e">Alerta</option>
-            <option value="promo" style="background:#1a1f2e">Promoção</option>
-            <option value="deposit" style="background:#1a1f2e">Depósito</option>
+            <option value="promo" style="background:#1a1f2e">PromoÃ§Ã£o</option>
+            <option value="deposit" style="background:#1a1f2e">DepÃ³sito</option>
           </select>
         </div>
         <div style="display:flex;flex-direction:column;gap:6px">
           <label style="font-size:11px;color:rgba(255,255,255,.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px">User ID</label>
           <input id="ntUserId" type="number" placeholder="0 = todos" value="0" style="height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.3);color:#fff;padding:0 14px;outline:none;font-size:13px;font-weight:500;transition:border-color .2s" onfocus="this.style.borderColor='var(--adm-green1)'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
-          <span style="font-size:10px;color:rgba(255,255,255,.25);margin-top:2px">0 = global para todos os usuários</span>
+          <span style="font-size:10px;color:rgba(255,255,255,.25);margin-top:2px">0 = global para todos os usuÃ¡rios</span>
         </div>
       </div>
       <div style="display:flex;flex-direction:column;gap:6px">
@@ -82,7 +82,7 @@
     </div>
     <div style="display:flex;gap:10px;margin-top:24px;justify-content:flex-end">
       <button class="adm-btn" id="ntCancel" style="padding:10px 20px;border-radius:10px">Cancelar</button>
-      <button class="adm-btn primary" id="ntSave" style="padding:10px 24px;border-radius:10px;font-weight:700">Enviar Notificação</button>
+      <button class="adm-btn primary" id="ntSave" style="padding:10px 24px;border-radius:10px;font-weight:700">Enviar NotificaÃ§Ã£o</button>
     </div>
   </div>
 </div>
@@ -101,7 +101,7 @@
   modal.addEventListener('click', function(e){ if(e.target===modal) modal.style.display='none'; });
   document.getElementById('ntSave').addEventListener('click', async function(){
     var titulo = document.getElementById('ntTitle').value.trim();
-    if(!titulo) return alert('Título é obrigatório.');
+    if(!titulo) return alert('TÃ­tulo Ã© obrigatÃ³rio.');
     var btn=this; btn.disabled=true; btn.textContent='Enviando...';
     try {
       var r = await fetch('/admin/api/notifications', {
@@ -113,7 +113,7 @@
       if(d.ok){ modal.style.display='none'; location.reload(); }
       else alert(d.msg||'Erro');
     } catch{ alert('Erro de rede.'); }
-    btn.disabled=false; btn.textContent='Enviar Notificação';
+    btn.disabled=false; btn.textContent='Enviar NotificaÃ§Ã£o';
   });
 })();
 </script>

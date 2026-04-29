@@ -518,12 +518,7 @@ function enhanceCategoryScroller(el) {
   var parent = el.parentNode;
   if (!parent) return;
   el.dataset.scrollIndex = '0';
-  el.dataset.scrollOffset = '0';
-  el.style.position = 'relative';
-  el.style.left = '0px';
   el.style.transform = 'translateX(0)';
-  el.style.scrollBehavior = 'auto';
-  el.scrollLeft = 0;
   var wrap = document.createElement('div');
   wrap.className = 'category-scroll-wrap';
   parent.insertBefore(wrap, el);
@@ -556,19 +551,14 @@ function moveCategoryRail(el, direction) {
   if (!el) return;
   var step = getCategoryRailStep(el);
   var total = el.querySelectorAll('.game-card').length;
-  var visible = Math.max(1, Math.floor((el.clientWidth + 1) / step));
+  var wrap = el.parentNode;
+  var wrapWidth = wrap ? wrap.clientWidth : el.clientWidth;
+  var visible = Math.max(1, Math.floor((wrapWidth + 1) / step));
   var maxIndex = Math.max(0, total - visible);
-  var currentIndex = Math.round((el.scrollLeft || parseInt(el.dataset.scrollOffset || '0', 10) || 0) / step);
+  var currentIndex = parseInt(el.dataset.scrollIndex || '0', 10) || 0;
   var nextIndex = Math.max(0, Math.min(maxIndex, currentIndex + direction));
-  var maxOffset = Math.max(0, el.scrollWidth - el.clientWidth);
-  var next = Math.min(maxOffset, nextIndex * step);
   el.dataset.scrollIndex = String(nextIndex);
-  el.dataset.scrollOffset = String(next);
-  el.style.position = 'relative';
-  el.style.left = '0px';
-  el.style.transform = 'translateX(0)';
-  el.style.scrollBehavior = 'auto';
-  el.scrollLeft = next;
+  el.style.transform = 'translateX(-' + (nextIndex * step) + 'px)';
 }
 
 /* ========== TOP 10 SLIDER ========== */

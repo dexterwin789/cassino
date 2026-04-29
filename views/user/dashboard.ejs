@@ -1,8 +1,8 @@
-<%- include('layout-head', { title: 'Dashboard', page: 'dashboard', u }) %>
+﻿<%- include('layout-head', { title: 'Dashboard', page: 'dashboard', u }) %>
 
 <!-- Welcome -->
 <div class="ud-welcome">
-  <h1>Olá, <strong><%= u.username %></strong> 👋</h1>
+  <h1>OlÃ¡, <strong><%= u.username %></strong> ðŸ‘‹</h1>
   <p>Bem-vindo de volta ao seu painel.</p>
 </div>
 
@@ -33,7 +33,7 @@
       <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
     </div>
     <div class="ud-stat-data">
-      <span class="ud-stat-label">Depósitos</span>
+      <span class="ud-stat-label">DepÃ³sitos</span>
       <span class="ud-stat-value"><%= totalDeposits %></span>
     </div>
   </div>
@@ -59,7 +59,7 @@
 <div class="ud-card ud-agent-card">
   <div class="ud-card-header">
     <svg width="18" height="18" fill="none" stroke="var(--ud-accent)" stroke-width="2" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
-    <span>Link de Indicação</span>
+    <span>Link de IndicaÃ§Ã£o</span>
   </div>
   <div class="ud-agent-row">
     <code class="ud-agent-link" id="agentLink"><%= `${process.env.BASE_URL || (process.env.NODE_ENV === 'production' ? 'https://vemnabet.bet' : 'http://localhost:3000')}/?ref=${u.id}` %></code>
@@ -71,12 +71,12 @@
 <div class="ud-card">
   <div class="ud-card-header">
     <svg width="18" height="18" fill="none" stroke="var(--ud-green1)" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-    <span>Últimas Transações</span>
-    <a href="/dashboard/transactions" class="ud-card-action">Ver todas →</a>
+    <span>Ãšltimas TransaÃ§Ãµes</span>
+    <a href="/dashboard/transactions" class="ud-card-action">Ver todas â†’</a>
   </div>
   <div class="ud-tx-list">
     <% if (recentTx.length === 0) { %>
-    <div class="ud-empty">Nenhuma transação ainda.</div>
+    <div class="ud-empty">Nenhuma transaÃ§Ã£o ainda.</div>
     <% } else { %>
     <% recentTx.forEach(function(tx) { %>
     <div class="ud-tx-row">
@@ -90,7 +90,7 @@
         <% } %>
       </div>
       <div class="ud-tx-info">
-        <div class="ud-tx-type"><%= tx.type === 'deposit' ? 'Depósito' : tx.type %></div>
+        <div class="ud-tx-type"><%= tx.type === 'deposit' ? 'DepÃ³sito' : tx.type %></div>
         <div class="ud-tx-date"><%= new Date(tx.created_at).toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' }) %></div>
       </div>
       <div class="ud-tx-amount">R$ <%= (parseInt(tx.amount_cents) / 100).toFixed(2).replace('.', ',') %></div>

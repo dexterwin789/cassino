@@ -2,7 +2,7 @@ const router = require('express').Router();
 const bcrypt = require('bcrypt');
 const fetch = require('node-fetch');
 const { query, pool } = require('../config/database');
-const { requireUser } = require('../middleware/auth');
+const { requireUser, requireAdmin } = require('../middleware/auth');
 const { createSale } = require('../services/blackcat');
 const { DEFAULT_AFFILIATE_CAREER_TIERS, normalizeAffiliateCareerTiers } = require('../utils/affiliateCareer');
 const { categoryCondition } = require('../utils/gameCategories');
@@ -419,6 +419,22 @@ const PRAGMATIC_ROULETTE_GAMES = {
 };
 const ROULETTE_WHEEL = [0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10, 5, 24, 16, 33, 1, 20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26];
 const pragmaticRouletteHistoryCaches = {};
+// Manual JSESSIONID storage per game. Survives until process restart.
+// Populated via POST /api/roulette/pragmatic/ingest by an admin who pastes
+// the JSESSIONID extracted from devtools after opening the live game.
+const pragmaticManualJSessions = {};
+function getStoredJSession(gameCode) {
+  const key = String(gameCode || FRENCH_ROULETTE_CODE);
+  if (pragmaticManualJSessions[key] && pragmaticManualJSessions[key].value) {
+    return pragmaticManualJSessions[key].value;
+  }
+  const envKey = 'PRAGMATIC_JSESSION_' + key.replace(/[^A-Z0-9]/gi, '_').toUpperCase();
+  return process.env[envKey] || '';
+}
+function setStoredJSession(gameCode, value) {
+  const key = String(gameCode || FRENCH_ROULETTE_CODE);
+  pragmaticManualJSessions[key] = { value: String(value), savedAt: Date.now() };
+}
 
 function getPragmaticRouletteConfig(gameCode) {
   return PRAGMATIC_ROULETTE_GAMES[String(gameCode || FRENCH_ROULETTE_CODE)] || null;
@@ -557,6 +573,31 @@ async function readSessionFromUrl(url) {
   return jsession;
 }
 
+async function fetchPragmaticHistoryWithSession(jsession, config) {
+  const historyUrl = `https://games.pragmaticplaylive.net/api/ui/statisticHistory?tableId=${encodeURIComponent(config.tableId)}&numberOfGames=500&JSESSIONID=${encodeURIComponent(jsession)}&ck=${Date.now()}&game_mode=lobby_desktop`;
+  const historyOptions = {
+    headers: {
+      'accept': 'application/json,text/plain,*/*',
+      'referer': config.referer
+    }
+  };
+  const agent = getOutboundProxyAgent();
+  if (agent) historyOptions.agent = agent;
+  const historyResponse = await fetchWithAbort(historyUrl, historyOptions, 7000);
+  if (!historyResponse.ok) throw new Error('Pragmatic history HTTP ' + historyResponse.status);
+  const data = await historyResponse.json();
+  const rows = Array.isArray(data.history) ? data.history.map((item, index) => ({
+    id: item.gameId || `pragmatic-${index}`,
+    number: firstRouletteNumber(item.gameResult),
+    bet_cents: 0,
+    win_cents: 0,
+    created_at: new Date(Date.now() - index * 30000).toISOString(),
+    result_source: 'pragmatic_history'
+  })).filter(row => row.number !== null).slice(0, 120) : [];
+  if (!rows.length) throw new Error('histórico Pragmatic vazio');
+  return rows;
+}
+
 async function fetchPragmaticRouletteHistoryFromLaunchUrl(launchUrl, config) {
   const rouletteConfig = config || getPragmaticRouletteConfig(FRENCH_ROULETTE_CODE);
   if (!rouletteConfig) throw new Error('roleta Pragmatic não configurada');
@@ -577,30 +618,22 @@ async function fetchPragmaticRouletteHistoryFromLaunchUrl(launchUrl, config) {
         errors.push((err && err.message) ? err.message : String(err));
       }
     }
-    if (!jsession) throw new Error('sessão Pragmatic indisponível: ' + errors.join(' | ').slice(0, 220));
+    if (!jsession) {
+      // Fallback: use manually-ingested JSESSIONID (admin-pasted from devtools)
+      jsession = getStoredJSession(rouletteConfig.gameCode);
+      if (!jsession) throw new Error('sessão Pragmatic indisponível: ' + errors.join(' | ').slice(0, 220));
+    }
 
-    const historyUrl = `https://games.pragmaticplaylive.net/api/ui/statisticHistory?tableId=${encodeURIComponent(rouletteConfig.tableId)}&numberOfGames=500&JSESSIONID=${encodeURIComponent(jsession)}&ck=${Date.now()}&game_mode=lobby_desktop`;
-    const historyOptions = {
-      headers: {
-        'accept': 'application/json,text/plain,*/*',
-        'referer': rouletteConfig.referer
+    try {
+      return await fetchPragmaticHistoryWithSession(jsession, rouletteConfig);
+    } catch (err) {
+      // If launch-derived session failed but we have a manual one, try it
+      const manual = getStoredJSession(rouletteConfig.gameCode);
+      if (manual && manual !== jsession) {
+        return await fetchPragmaticHistoryWithSession(manual, rouletteConfig);
       }
-    };
-    const agent = getOutboundProxyAgent();
-    if (agent) historyOptions.agent = agent;
-    const historyResponse = await fetchWithAbort(historyUrl, historyOptions, 7000);
-    if (!historyResponse.ok) throw new Error('Pragmatic history HTTP ' + historyResponse.status);
-    const data = await historyResponse.json();
-    const rows = Array.isArray(data.history) ? data.history.map((item, index) => ({
-      id: item.gameId || `pragmatic-${index}`,
-      number: firstRouletteNumber(item.gameResult),
-      bet_cents: 0,
-      win_cents: 0,
-      created_at: new Date(Date.now() - index * 30000).toISOString(),
-      result_source: 'pragmatic_history'
-    })).filter(row => row.number !== null).slice(0, 120) : [];
-    if (!rows.length) throw new Error('histórico Pragmatic vazio');
-    return rows;
+      throw err;
+    }
 }
 
 function updatePragmaticRouletteHistoryCache(gameCode, rows) {
@@ -619,6 +652,15 @@ async function fetchPragmaticFrenchHistory() {
   if (cache.pending) return cache.pending;
 
   cache.pending = (async () => {
+    // Try stored manual JSESSIONID first (fast path)
+    const stored = getStoredJSession(FRENCH_ROULETTE_CODE);
+    if (stored) {
+      try {
+        const rows = await fetchPragmaticHistoryWithSession(stored, config);
+        updatePragmaticRouletteHistoryCache(FRENCH_ROULETTE_CODE, rows);
+        return rows;
+      } catch (err) { /* fall through to launch */ }
+    }
     const pf = require('../services/playfivers');
     const launch = await pf.launchGame({
       userCode: 'vnb_signal_french_roulette',
@@ -666,6 +708,73 @@ async function syncPragmaticRouletteSession(req, res) {
 
 router.post('/roulette/pragmatic/sync-session', requireUser, syncPragmaticRouletteSession);
 router.post('/roulette/french/sync-session', requireUser, syncPragmaticRouletteSession);
+
+// POST /api/roulette/pragmatic/ingest  { game_code, jsessionid | url }
+// Admin-only. Stores a JSESSIONID extracted manually (devtools) so the
+// backend can keep refreshing the live history when provider blocks
+// direct egress from Railway / can't get a session from launch URL.
+router.post('/roulette/pragmatic/ingest', requireAdmin, async (req, res) => {
+  try {
+    const config = getPragmaticRouletteConfig(req.body.game_code || req.body.gameCode);
+    if (!config) return res.status(400).json({ ok: false, msg: 'Roleta não configurada.' });
+    let jsession = String(req.body.jsessionid || req.body.JSESSIONID || '').trim();
+    if (!jsession && req.body.url) jsession = parseJSessionId(String(req.body.url));
+    if (!jsession) return res.status(400).json({ ok: false, msg: 'Informe a JSESSIONID ou a URL completa.' });
+    setStoredJSession(config.gameCode, jsession);
+    try {
+      const rows = await fetchPragmaticHistoryWithSession(jsession, config);
+      updatePragmaticRouletteHistoryCache(config.gameCode, rows);
+      return res.json({ ok: true, game_code: config.gameCode, count: rows.length, history: rows.slice(0, 30), msg: 'Sessão salva e histórico sincronizado.' });
+    } catch (err) {
+      return res.json({ ok: true, game_code: config.gameCode, count: 0, history: [], msg: 'Sessão salva, mas Pragmatic respondeu: ' + (err.message || 'erro').slice(0, 200) });
+    }
+  } catch (err) {
+    console.error('[ROULETTE INGEST]', err);
+    res.status(500).json({ ok: false, msg: 'Erro ao salvar sessão.' });
+  }
+});
+
+// GET /api/roulette/pragmatic/signals?game_code=...
+// Generic signals/feed for any configured Pragmatic roulette (used by app.vemnabet pages).
+router.get('/roulette/pragmatic/signals', async (req, res) => {
+  try {
+    const config = getPragmaticRouletteConfig(req.query.game_code || req.query.gameCode);
+    if (!config) return res.status(400).json({ ok: false, msg: 'Roleta não configurada.' });
+    const cache = getPragmaticRouletteCache(config.gameCode);
+
+    // Refresh cache best-effort using stored JSESSIONID
+    if (Date.now() >= cache.expiresAt) {
+      const stored = getStoredJSession(config.gameCode);
+      if (stored && !cache.pending) {
+        cache.pending = fetchPragmaticHistoryWithSession(stored, config)
+          .then(rows => updatePragmaticRouletteHistoryCache(config.gameCode, rows))
+          .catch(err => { console.warn(`[ROULETTE PSIGNALS ${config.gameCode}]`, err.message); return []; })
+          .finally(() => { cache.pending = null; });
+      }
+    }
+    let rows = cache.rows && cache.rows.length ? cache.rows : [];
+    if (!rows.length && cache.pending) {
+      rows = await Promise.race([cache.pending, new Promise(resolve => setTimeout(() => resolve([]), 3500))]);
+    }
+    if (!rows.length) rows = buildOperationalRouletteRows();
+
+    const chronological = rows.slice().reverse().map(row => row.number);
+    res.json({
+      ok: true,
+      source: 'pragmatic_live',
+      game_code: config.gameCode,
+      table_id: config.tableId,
+      current_signal: buildActiveRouletteSignal(chronological),
+      history: rows.slice(0, 30),
+      stats: buildRouletteStats(rows),
+      refresh_ms: 10000,
+      msg: cache.rows.length ? 'Histórico sincronizado.' : 'Aguardando histórico real.'
+    });
+  } catch (err) {
+    console.error('[ROULETTE PSIGNALS]', err);
+    res.status(500).json({ ok: false, msg: 'Erro ao carregar sinais.' });
+  }
+});
 
 function pragmaticHistoryWithTimeout(ms = 3500) {
   return Promise.race([

@@ -670,9 +670,9 @@ ul{list-style:none}
 /* ===== CATEGORY GAMES HORIZONTAL SCROLL ===== */
 .category-games-scroll{
   display:flex;gap:10px;
-  overflow-x:auto;scrollbar-width:none;
-  -webkit-overflow-scrolling:touch;
   padding-bottom:4px;
+  transition:transform .35s ease;
+  will-change:transform;
 }
 .category-games-scroll::-webkit-scrollbar{display:none}
 .category-scroll-wrap{position:relative;overflow:hidden}
