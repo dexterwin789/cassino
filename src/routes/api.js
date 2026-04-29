@@ -519,7 +519,13 @@ async function readSessionFromUrl(url) {
   if (agent) options.agent = agent;
   const response = await fetchWithAbort(url, options, 7000);
   const text = await response.text();
-  return parseJSessionId(response.url + '\n' + text);
+  const jsession = parseJSessionId(response.url + '\n' + text);
+  if (!jsession) {
+    let host = 'unknown';
+    try { host = new URL(response.url).host; } catch (err) {}
+    throw new Error(`sem JSESSIONID status=${response.status} host=${host} body=${text.slice(0, 80).replace(/\s+/g, ' ')}`);
+  }
+  return jsession;
 }
 
 async function fetchPragmaticFrenchHistoryFromLaunchUrl(launchUrl) {
