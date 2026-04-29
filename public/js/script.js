@@ -1,8 +1,39 @@
 ﻿/* /cassino/public/js/script.js — VemNaBet Desktop Layout */
 
 var allGames = [];
+var gamesLoadPromise = null;
 window.VNB_IS_AFFILIATE = false;
 if (document.body) document.body.classList.add('not-affiliate');
+
+function loadGamesOnce() {
+  if (allGames.length) return Promise.resolve({ ok: true, games: allGames });
+  if (gamesLoadPromise) return gamesLoadPromise;
+  gamesLoadPromise = fetch('/api/games')
+    .then(function(r) { return r.json(); })
+    .then(function(j) {
+      allGames = (j && j.ok && j.games) ? j.games : [];
+      return { ok: true, games: allGames };
+    })
+    .catch(function() { allGames = []; return { ok: false, games: [] }; });
+  return gamesLoadPromise;
+}
+
+function isLiveGame(game) {
+  var provider = String(game && game.provider || '').toLowerCase();
+  var category = String(game && game.category || '').toLowerCase();
+  var name = String(game && game.game_name || '').toLowerCase();
+  return provider.indexOf('live') !== -1 || ['live', 'ao vivo', 'ao-vivo', 'casino_live', 'cassino-ao-vivo'].indexOf(category) !== -1 || name.indexOf('live casino') !== -1;
+}
+
+function isElementInView(el) {
+  if (!el || document.hidden) return false;
+  var rect = el.getBoundingClientRect();
+  return rect.bottom > 0 && rect.top < (window.innerHeight || document.documentElement.clientHeight);
+}
+
+function pageNeedsImmediateGames() {
+  return !!(document.getElementById('homeFilteredGrid') || document.getElementById('top10Track') || document.getElementById('liveGamesScroll') || document.getElementById('crashGamesScroll') || document.getElementById('ganhosTrack') || document.getElementById('apostasList'));
+}
 
 function vnbMoney(cents) {
   var n = (parseInt(cents || 0, 10) || 0) / 100;
@@ -161,7 +192,15 @@ function openSearch() {
   if (searchResults) searchResults.classList.add('active');
   if (searchCloseBtn) searchCloseBtn.classList.add('active');
   document.body.classList.add('search-lock');
-  handleSearchState();
+  if (!allGames.length) {
+    if (searchMessage) {
+      searchMessage.textContent = 'Carregando jogos...';
+      searchMessage.style.display = 'block';
+    }
+    loadGamesOnce().then(handleSearchState);
+  } else {
+    handleSearchState();
+  }
 }
 
 function closeSearch() {
@@ -344,7 +383,10 @@ if (searchInput) {
   searchInput.addEventListener('focus', function() { openSearch(); });
   searchInput.addEventListener('input', function() {
     clearTimeout(searchTimer);
-    searchTimer = setTimeout(function() { handleSearchState(); }, 300);
+    searchTimer = setTimeout(function() {
+      if (!allGames.length) loadGamesOnce().then(handleSearchState);
+      else handleSearchState();
+    }, 300);
   });
 }
 if (searchOverlay) searchOverlay.addEventListener('click', closeSearch);
@@ -458,6 +500,7 @@ function renderCategorySection(category, containerId) {
   var el = document.getElementById(containerId);
   if (!el) return;
   var games = allGames.filter(function(g) {
+    if (category === 'live') return isLiveGame(g);
     return String(g.category || '').toLowerCase() === category;
   });
   if (!games.length) { el.closest('.game-section').style.display = 'none'; return; }
@@ -1701,6 +1744,7 @@ function startGanhosScroll() {
   var maxIdx = Math.max(0, cards.length - visibleCount);
   ganhosScrollIdx = 0;
   ganhosInterval = setInterval(function() {
+    if (!isElementInView(wrapper || track)) return;
     ganhosScrollIdx++;
     if (ganhosScrollIdx > maxIdx) {
       track.style.transition = 'none';
@@ -1767,6 +1811,7 @@ function startApostasScroll() {
   var rowH = 56; // px per row
 
   apostasInterval = setInterval(function() {
+    if (!isElementInView(list)) return;
     // Slide up one row
     list.style.transition = 'transform .5s ease';
     list.style.transform = 'translateY(-' + rowH + 'px)';
@@ -1814,18 +1859,26 @@ function dismissPreloader() {
 }
 
 function initApp() {
+  var needsGames = pageNeedsImmediateGames();
+  var gamesPromise = needsGames ? loadGamesOnce() : Promise.resolve({ ok: true, games: allGames });
+  var bannersPromise = Promise.resolve({ ok: false });
+
   Promise.all([
-    fetch('/api/games').then(function(r) { return r.json(); }).catch(function() { return { ok: false }; }),
-    fetch('/api/banners').then(function(r) { return r.json(); }).catch(function() { return { ok: false }; })
+    gamesPromise,
+    bannersPromise
   ]).then(function(results) {
     var gamesRes = results[0];
     allGames = (gamesRes.ok && gamesRes.games) ? gamesRes.games : [];
-    renderAllSections();
-    renderGanhos();
-    renderApostas();
-    initBannerDots();
-    showBanner(0);
-    if (window.innerWidth > 768) startBannerAuto();
+    if (needsGames) {
+      renderAllSections();
+      renderGanhos();
+      renderApostas();
+    }
+    if (bannerSlider) {
+      initBannerDots();
+      showBanner(0);
+      if (window.innerWidth > 768) startBannerAuto();
+    }
     updateAuthState().then(function() {
       dismissPreloader();
       // Auto-open deposit modal if redirected from registration

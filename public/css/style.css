@@ -1887,6 +1887,10 @@ body.search-lock{overflow:hidden!important}
   cursor:pointer;transition:.2s;text-decoration:none;
 }
 .gp-fs-back:hover{background:rgba(37,211,102,.4)}
+body.game-fullscreen-open .cb-root,
+body.game-fullscreen-open .toast-container,
+body.game-fullscreen-open .vnb-toast,
+body.game-fullscreen-open .messages-container{display:none!important}
 
 /* Info bar */
 .gp-info-bar{

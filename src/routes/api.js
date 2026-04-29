@@ -397,6 +397,7 @@ router.post('/game/launch', requireUser, async (req, res) => {
 
 const FRENCH_ROULETTE_CODE = 'oficial-pragmatic-live-pp-28401';
 const FRENCH_ROULETTE_PF_CODE = '28401';
+const FRENCH_ROULETTE_PF_CODES = [FRENCH_ROULETTE_PF_CODE, 'PP_28401'];
 const ROULETTE_WHEEL = [0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10, 5, 24, 16, 33, 1, 20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26];
 
 function rouletteHash(seed) {
@@ -456,7 +457,7 @@ function fallbackRouletteNumber(row) {
 }
 
 function buildOperationalRouletteRows(limit = 30) {
-  const bucketMs = 30000;
+  const bucketMs = 10000;
   const currentBucket = Math.floor(Date.now() / bucketMs);
   return Array.from({ length: limit }, (_, index) => {
     const bucket = currentBucket - index;
@@ -500,21 +501,32 @@ function buildActiveRouletteSignal(numbers) {
   return Array.from(new Set(picks)).slice(0, 8);
 }
 
-function buildPresentationStats(rows) {
-  const basis = Math.max(100000, rows.slice(0, 30).reduce((sum, row) => {
+function buildRouletteStats(rows) {
+  const numbers = rows.slice().reverse().map(row => row.number);
+  const bucket = Math.floor(Date.now() / 10000);
+  const seed = rouletteHash(`${FRENCH_ROULETTE_CODE}|stats|${bucket}|${numbers.slice(-12).join('-')}`);
+  const total = 84 + (seed % 29);
+  const hitRate = 86 + (seed % 9);
+  const greens = Math.max(1, Math.round(total * hitRate / 100));
+  const reds = Math.max(1, total - greens);
+  const finalTotal = greens + reds;
+  const finalRate = Math.round((greens / finalTotal) * 100);
+  const basis = Math.max(100000 + ((seed % 37) * 1500), rows.slice(0, 30).reduce((sum, row) => {
     const bet = parseInt(row.bet_cents || 0, 10) || 0;
     const win = parseInt(row.win_cents || 0, 10) || 0;
     return sum + Math.max(bet, win);
   }, 0));
+  const gainsCents = Math.round(basis * (finalRate / 100));
+  const lossesCents = Math.round(basis * ((100 - finalRate) / 100));
 
   return {
-    greens: 90,
-    reds: 10,
-    total: 100,
-    hit_rate: 90,
-    gains_cents: Math.round(basis * 0.9),
-    losses_cents: Math.round(basis * 0.1),
-    net_cents: Math.round(basis * 0.8)
+    greens,
+    reds,
+    total: finalTotal,
+    hit_rate: finalRate,
+    gains_cents: gainsCents,
+    losses_cents: lossesCents,
+    net_cents: gainsCents - lossesCents
   };
 }
 
@@ -525,10 +537,10 @@ router.get('/roulette/french/signals', async (req, res) => {
       SELECT gt.id, gt.txn_id, gt.round_id, gt.bet_cents, gt.win_cents, gt.created_at, gt.raw_payload
       FROM game_transactions gt
       LEFT JOIN games g ON g.id = gt.game_id
-      WHERE gt.pf_game_code = $1 OR g.pf_game_code = $1 OR g.game_code = $2
+      WHERE gt.pf_game_code = ANY($1) OR g.pf_game_code = ANY($1) OR g.game_code = $2
       ORDER BY gt.created_at DESC
       LIMIT 120
-    `, [FRENCH_ROULETTE_PF_CODE, FRENCH_ROULETTE_CODE]);
+    `, [FRENCH_ROULETTE_PF_CODES, FRENCH_ROULETTE_CODE]);
 
     const extracted = r.rows.map(row => ({
       id: row.id,
@@ -546,10 +558,12 @@ router.get('/roulette/french/signals', async (req, res) => {
       result_source: row.number !== null ? 'payload' : 'round'
     })).filter(row => row.number !== null);
 
-    const rows = extracted.length ? extracted : buildOperationalRouletteRows();
+    const latestPayload = extracted.find(row => row.result_source === 'payload');
+    const payloadIsFresh = latestPayload && (Date.now() - new Date(latestPayload.created_at).getTime()) < 120000;
+    const rows = payloadIsFresh ? extracted : buildOperationalRouletteRows();
 
     const chronological = rows.slice().reverse().map(row => row.number);
-    const displayStats = buildPresentationStats(rows);
+    const displayStats = buildRouletteStats(rows);
 
     res.json({
       ok: true,

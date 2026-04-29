@@ -632,16 +632,16 @@ async function autoMigrate() {
 
     await pool.query(`
       INSERT INTO games (game_code, game_name, image_url, provider, category, sort_order, is_active, pf_game_code, pf_provider, game_original, is_featured, featured_order)
-      VALUES ('oficial-pragmatic-live-pp-28401', 'French Roulette', '/public/img/novo/roleta_svg.svg', 'Oficial Pragmatic Live PP', 'live', -100, TRUE, '28401', 'Oficial Pragmatic Live PP', TRUE, TRUE, 1)
+      VALUES ('oficial-pragmatic-live-pp-28401', 'French Roulette', 'https://imagensfivers.com/Games/Pragmatic-Play/PP_28401.webp', 'OFICIAL - PRAGMATIC LIVE', 'live', -100, TRUE, 'PP_28401', 'OFICIAL - PRAGMATIC LIVE', TRUE, TRUE, 1)
       ON CONFLICT (game_code) DO UPDATE SET
         game_name = EXCLUDED.game_name,
-        image_url = COALESCE(NULLIF(games.image_url, ''), EXCLUDED.image_url),
-        provider = COALESCE(NULLIF(games.provider, ''), EXCLUDED.provider),
+        image_url = EXCLUDED.image_url,
+        provider = EXCLUDED.provider,
         category = 'live',
         sort_order = LEAST(COALESCE(games.sort_order, 0), -100),
         is_active = TRUE,
-        pf_game_code = COALESCE(NULLIF(games.pf_game_code, ''), EXCLUDED.pf_game_code),
-        pf_provider = COALESCE(NULLIF(games.pf_provider, ''), EXCLUDED.pf_provider),
+        pf_game_code = EXCLUDED.pf_game_code,
+        pf_provider = EXCLUDED.pf_provider,
         game_original = TRUE,
         is_featured = TRUE,
         featured_order = 1
@@ -650,8 +650,12 @@ async function autoMigrate() {
       UPDATE games
       SET sort_order = -100,
           is_featured = TRUE,
-          featured_order = 1
-      WHERE game_code = 'oficial-pragmatic-live-pp-28401' OR pf_game_code = '28401'
+          featured_order = 1,
+          category = 'live',
+          pf_game_code = 'PP_28401',
+          pf_provider = 'OFICIAL - PRAGMATIC LIVE',
+          provider = 'OFICIAL - PRAGMATIC LIVE'
+      WHERE game_code = 'oficial-pragmatic-live-pp-28401' OR pf_game_code IN ('28401', 'PP_28401')
     `);
 
     // ——— Chatbot sessions (for analytics / escalation) ——————————
@@ -697,6 +701,54 @@ async function autoMigrate() {
         AND LOWER(COALESCE(pf_provider, provider, '')) NOT SIMILAR TO '%(pg soft|pg|pragmatic|pragmatic play)%'
     `);
     if (cleanupResult.rowCount > 0) console.log('[MIGRATE] Deactivated ' + cleanupResult.rowCount + ' non-PG/Pragmatic games');
+
+    await pool.query(`
+      UPDATE games
+      SET category = 'live', is_active = TRUE
+      WHERE LOWER(COALESCE(pf_provider, provider, '')) LIKE '%live%'
+        AND pf_game_code IS NOT NULL
+        AND pf_provider IS NOT NULL
+        AND (
+          LOWER(COALESCE(game_name, '')) LIKE '%roulette%'
+          OR LOWER(COALESCE(game_name, '')) LIKE '%roleta%'
+          OR LOWER(COALESCE(game_name, '')) LIKE '%baccarat%'
+          OR LOWER(COALESCE(game_name, '')) LIKE '%blackjack%'
+          OR LOWER(COALESCE(game_name, '')) LIKE '%dragon%'
+        )
+    `);
+
+    const liveRouletteGames = [
+      ['oficial-pragmatic-live-pp-203', 'Speed Roulette 1', 'https://imagensfivers.com/Games/Pragmatic-Play/PP_203.webp', 'OFICIAL - PRAGMATIC LIVE', 'PP_203', -99, true, 2],
+      ['oficial-pragmatic-live-pp-266', 'VIP Auto Roulette', 'https://imagensfivers.com/Games/Pragmatic-Play/PP_266.webp', 'OFICIAL - PRAGMATIC LIVE', 'PP_266', -98, true, 3],
+      ['oficial-pragmatic-live-pp-270', 'Fortune Roulette', 'https://imagensfivers.com/Games/Pragmatic-Play/PP_270.webp', 'OFICIAL - PRAGMATIC LIVE', 'PP_270', -97, true, 4],
+      ['oficial-pragmatic-live-pp-292', 'Immersive Roulette Deluxe', 'https://imagensfivers.com/Games/Pragmatic-Play/PP_292.webp', 'OFICIAL - PRAGMATIC LIVE', 'PP_292', -96, false, null],
+      ['oficial-pragmatic-live-pp-28201', 'Prive Lounge Roulette', 'https://imagensfivers.com/Games/Pragmatic-Play/PP_28201.webp', 'OFICIAL - PRAGMATIC LIVE', 'PP_28201', -95, false, null],
+      ['oficial-pragmatic-live-pp-28301', 'Prive Lounge Roulette Deluxe', 'https://imagensfivers.com/Games/Pragmatic-Play/PP_28301.webp', 'OFICIAL - PRAGMATIC LIVE', 'PP_28301', -94, false, null],
+      ['oficial-pragmatic-slots-pp-rla', 'Roulette', 'https://imagensfivers.com/Games/Pragmatic-Play/PP_rla.webp', 'OFICIAL - PRAGMATIC SLOTS', 'PP_rla', -93, false, null],
+      ['oficial-evolution-live-evolive-immersive-roulette', 'Immersive Roulette', 'https://imagensfivers.com/Games/Evolution-Live/EVOLIVE_7x0b1tgh7agmf6hv.webp', 'OFICIAL - EVOLUTION LIVE', 'EVOLIVE_7x0b1tgh7agmf6hv', -92, false, null],
+      ['oficial-evolution-live-evolive-xxxtreme-lightning-roulette', 'XXXtreme Lightning Roulette', 'https://imagensfivers.com/Games/Evolution-Live/EVOLIVE_XxxtremeLigh0001.webp', 'OFICIAL - EVOLUTION LIVE', 'EVOLIVE_XxxtremeLigh0001', -91, false, null],
+      ['oficial-ezugi-ezugi-5001', 'Auto Roulette', 'https://imagensfivers.com/Games/Ezugi/EZUGI_5001.webp', 'OFICIAL - EZUGI', 'EZUGI_5001', -90, false, null],
+      ['oficial-live88-bb-2076005', 'Portugues Roulette 1', 'https://imagensfivers.com/Games/Live88/BB_2076005.webp', 'OFICIAL - LIVE88', 'BB_2076005', -89, false, null],
+      ['oficial-live88-bb-20749030', 'Deu Green Roulette', 'https://imagensfivers.com/Games/Live88/BB_20749030.webp', 'OFICIAL - LIVE88', 'BB_20749030', -88, false, null]
+    ];
+    for (const game of liveRouletteGames) {
+      await pool.query(`
+        INSERT INTO games (game_code, game_name, image_url, provider, category, sort_order, is_active, pf_game_code, pf_provider, game_original, is_featured, featured_order)
+        VALUES ($1, $2, $3, $4, 'live', $6, TRUE, $5, $4, TRUE, $7, $8)
+        ON CONFLICT (game_code) DO UPDATE SET
+          game_name = EXCLUDED.game_name,
+          image_url = EXCLUDED.image_url,
+          provider = EXCLUDED.provider,
+          category = 'live',
+          sort_order = EXCLUDED.sort_order,
+          is_active = TRUE,
+          pf_game_code = EXCLUDED.pf_game_code,
+          pf_provider = EXCLUDED.pf_provider,
+          game_original = TRUE,
+          is_featured = COALESCE(games.is_featured, FALSE) OR EXCLUDED.is_featured,
+          featured_order = COALESCE(games.featured_order, EXCLUDED.featured_order)
+      `, game);
+    }
 
     // ——— Seed sample data for admin verification —————————————
     // Banners

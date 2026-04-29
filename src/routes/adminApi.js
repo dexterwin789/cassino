@@ -350,6 +350,15 @@ router.post('/games/auto-fetch-images', async (req, res) => {
   }
 });
 
+function inferPlayfiversCategory(game, providerName) {
+  const provider = String(providerName || '').toLowerCase();
+  const name = String(game && game.name || '').toLowerCase();
+  const code = String(game && game.game_code || '').toLowerCase();
+  if (provider.includes('live') || /roulette|roleta|baccarat|blackjack|dragon\s*tiger|sic\s*bo|andar|football\s*studio|mega\s*wheel/.test(name)) return 'live';
+  if (/aviator|spaceman|mines|crash|plinko|penalty|jetx/.test(name + ' ' + code)) return 'crash';
+  return 'slots';
+}
+
 // Sync games from PlayFivers API
 router.post('/games/sync-playfivers', async (req, res) => {
   try {
@@ -381,6 +390,7 @@ router.post('/games/sync-playfivers', async (req, res) => {
       if (!g.game_code || !g.name) { skipped++; continue; }
       const providerName = (g.provider && g.provider.name) ? g.provider.name : '';
       const slug = (providerName + '-' + g.game_code).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+      const category = inferPlayfiversCategory(g, providerName);
 
       // Check if already exists by pf_game_code + pf_provider
       const existing = await query(
@@ -396,8 +406,8 @@ router.post('/games/sync-playfivers', async (req, res) => {
         const existingGame = await query('SELECT image_url FROM games WHERE id = $1', [existing.rows[0].id]);
         const newImage = g.image_url || existingGame.rows[0]?.image_url || null;
         await query(
-          `UPDATE games SET game_name = $1, image_url = $2, is_active = $3, game_original = $4 WHERE id = $5`,
-          [g.name, newImage, shouldBeActive, isOriginal, existing.rows[0].id]
+          `UPDATE games SET game_name = $1, image_url = $2, is_active = $3, game_original = $4, category = $5 WHERE id = $6`,
+          [g.name, newImage, shouldBeActive, isOriginal, category, existing.rows[0].id]
         );
         updated++;
       } else {
@@ -409,7 +419,7 @@ router.post('/games/sync-playfivers', async (req, res) => {
         await query(
           `INSERT INTO games (game_code, game_name, image_url, provider, category, is_active, pf_game_code, pf_provider, game_original)
            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
-          [finalSlug, g.name, g.image_url || null, providerName, 'slots', g.status !== false && isOriginal, g.game_code, providerName, isOriginal]
+          [finalSlug, g.name, g.image_url || null, providerName, category, g.status !== false && isOriginal, g.game_code, providerName, isOriginal]
         );
         inserted++;
       }

@@ -1,38 +1,5 @@
 ﻿<%- include('partials/head') %>
 
-<script>
-  (function () {
-    try {
-      if (new URLSearchParams(window.location.search).get('embed') === '1') {
-        document.body.classList.add('vnb-embed-game');
-      }
-    } catch (e) {}
-  })();
-</script>
-<style>
-  body.vnb-embed-game { background:#050505; overflow:hidden; }
-  body.vnb-embed-game .preloader,
-  body.vnb-embed-game .topbar,
-  body.vnb-embed-game .sidebar,
-  body.vnb-embed-game .bottom-nav,
-  body.vnb-embed-game .sidebar-overlay,
-  body.vnb-embed-game .gp-info-bar,
-  body.vnb-embed-game .gp-stats,
-  body.vnb-embed-game .game-section,
-  body.vnb-embed-game footer { display:none !important; }
-  body.vnb-embed-game .app-layout,
-  body.vnb-embed-game .main-content,
-  body.vnb-embed-game .main-container { width:100% !important; max-width:none !important; min-height:100vh !important; margin:0 !important; padding:0 !important; }
-  body.vnb-embed-game .gp-hero { width:100% !important; min-height:100vh !important; height:100vh !important; margin:0 !important; border-radius:0 !important; }
-  body.vnb-embed-game .gp-hero-content { min-height:100vh !important; padding:20px !important; align-items:center !important; justify-content:center !important; }
-  body.vnb-embed-game .gp-hero-image { width:min(220px, 42vw) !important; max-width:220px !important; }
-  body.vnb-embed-game .gp-hero-actions { max-width:420px !important; text-align:center !important; }
-  body.vnb-embed-game:not(.is-logged) .is-logged-el { display:none !important; }
-  body.vnb-embed-game.is-logged .is-guest-el { display:none !important; }
-  body.vnb-embed-game .gp-game-iframe { width:100% !important; height:100vh !important; border:0 !important; border-radius:0 !important; }
-  body.vnb-embed-game .gp-playing .gp-hero-content { padding:0 !important; }
-</style>
-
 <%- include('partials/topbar') %>
 
 <div class="app-layout" id="appLayout">
@@ -250,6 +217,7 @@
   function enterFullscreen() {
     if (!hero) return;
     hero.classList.add('gp-fullscreen');
+    document.body.classList.add('game-fullscreen-open');
     if (fsClose) fsClose.style.display = 'flex';
     if (fsBack) fsBack.style.display = 'flex';
     document.body.style.overflow = 'hidden';
@@ -257,6 +225,7 @@
   function exitFullscreen() {
     if (!hero) return;
     hero.classList.remove('gp-fullscreen');
+    document.body.classList.remove('game-fullscreen-open');
     if (fsClose) fsClose.style.display = 'none';
     if (fsBack) fsBack.style.display = 'none';
     document.body.style.overflow = '';
@@ -283,36 +252,6 @@
   var heroImage = document.getElementById('gpHeroImage');
   var playArea = document.getElementById('gpPlayArea');
   var gameCode = '<%= game.game_code %>';
-  var gameParams = new URLSearchParams(window.location.search);
-  var autoPlayGame = gameParams.get('autoplay') === '1';
-  var isEmbedGame = gameParams.get('embed') === '1';
-
-  if (isEmbedGame) {
-    fetch('/api/me', { credentials: 'include', cache: 'no-store' })
-      .then(function(res) { return res.json().catch(function() { return null; }); })
-      .then(function(j) {
-        var logged = !!(j && j.ok && j.logged);
-        document.body.classList.toggle('is-logged', logged);
-        document.body.classList.toggle('is-guest', !logged);
-      })
-      .catch(function() {
-        document.body.classList.remove('is-logged');
-        document.body.classList.add('is-guest');
-      });
-  }
-
-  function runAutoPlayWhenLogged() {
-    var tries = 0;
-    var timer = setInterval(function() {
-      tries += 1;
-      if (document.body.classList.contains('is-logged')) {
-        clearInterval(timer);
-        playBtn.click();
-      } else if (document.body.classList.contains('is-guest') || tries >= 20) {
-        clearInterval(timer);
-      }
-    }, 250);
-  }
 
   if (playBtn) {
     playBtn.addEventListener('click', function() {
@@ -350,7 +289,6 @@
       });
     });
 
-    if (autoPlayGame) runAutoPlayWhenLogged();
   }
 
 })();
