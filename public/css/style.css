@@ -695,17 +695,17 @@ ul{list-style:none}
   width:100%;height:180px;object-fit:cover;
   border-radius:var(--radius);
 }
-.category-games-scroll .game-card .game-overlay{
-  position:absolute;inset:0;
-  background:rgba(0,0,0,.6);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
-  padding:10px;border-radius:var(--radius);
-  opacity:0;transition:opacity .25s ease;
-}
 .category-games-scroll .game-card:hover{
   transform:translateY(-3px);
-  box-shadow:0 12px 32px rgba(0,0,0,.55);
-  border-color:rgba(37,211,102,.35);
+  box-shadow:0 8px 25px rgba(0,0,0,.4);
+  border-color:rgba(37,211,102,.25);
+}
+.category-games-scroll .game-card .game-overlay{
+  position:absolute;inset:0;
+  background:rgba(0,0,0,.55);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
+  opacity:0;transition:opacity .25s ease;
+  border-radius:12px;padding:10px;
 }
 .category-games-scroll .game-card:hover .game-overlay{opacity:1}
 .category-games-scroll .game-card .game-name{
@@ -713,11 +713,11 @@ ul{list-style:none}
   text-shadow:0 2px 6px rgba(0,0,0,.6);margin:0;
 }
 .category-games-scroll .game-card .play-btn{
-  display:inline-flex;align-items:center;gap:4px;
-  padding:6px 14px;border-radius:6px;margin-top:0;
-  background:rgb(37,211,102);color:rgb(33,36,37);
-  font-size:11px;font-weight:800;text-transform:uppercase;
-  box-shadow:0 4px 14px rgba(37,211,102,.45);
+  display:flex;align-items:center;gap:.5rem;
+  background-color:rgb(37,211,102);color:rgb(33,36,37);
+  padding:.375rem .625rem;border-radius:.375rem;
+  font-size:.7rem;font-weight:700;text-transform:uppercase;
+  box-shadow:0 4px 14px rgba(37,211,102,.35);margin-top:0;
 }
 
 .search-box{
