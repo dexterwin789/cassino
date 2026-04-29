@@ -71,32 +71,6 @@
     </div>
   </div>
 
-  <section class="adm-security-center adm-page-card" aria-labelledby="securityCenterTitle">
-    <div class="adm-page-head">
-      <div>
-        <h3 id="securityCenterTitle">Centro de Segurança</h3>
-        <p class="adm-muted">Checks reais do backend para credenciais, webhooks, sessão, rate-limit e fluxo financeiro.</p>
-      </div>
-      <a href="/admin/settings" class="adm-link-sm">Ajustar configurações</a>
-    </div>
-    <div class="adm-security-body">
-      <div class="adm-security-score-card" id="securityScoreCard">
-        <div class="adm-security-score-ring" id="securityScoreRing" style="--score:0;">
-          <span id="securityScoreValue">--</span>
-        </div>
-        <div>
-          <strong id="securityScoreTitle">Calculando...</strong>
-          <p id="securityScoreDetail">Validando configuração operacional do painel.</p>
-        </div>
-      </div>
-      <div class="adm-security-checks" id="securityChecks">
-        <div class="adm-security-check skeleton"><span></span><div></div></div>
-        <div class="adm-security-check skeleton"><span></span><div></div></div>
-        <div class="adm-security-check skeleton"><span></span><div></div></div>
-      </div>
-    </div>
-  </section>
-
   <!-- Row 2: Charts -->
   <div class="adm-dash-row" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;">
     <div class="adm-chart-card">
@@ -232,41 +206,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   const brl = n => new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(n);
   const fdate = d => d ? new Date(d).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}) : '-';
   const esc = s => String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-
-  async function loadSecurityStatus() {
-    const checksEl = document.getElementById('securityChecks');
-    const ring = document.getElementById('securityScoreRing');
-    const value = document.getElementById('securityScoreValue');
-    const title = document.getElementById('securityScoreTitle');
-    const detail = document.getElementById('securityScoreDetail');
-    try {
-      const r = await fetch('/admin/api/security/status', { credentials: 'same-origin' });
-      const d = await r.json();
-      if (!d.ok) throw new Error(d.msg || 'Erro');
-      const score = Number(d.score || 0);
-      ring.style.setProperty('--score', score);
-      value.textContent = score + '%';
-      title.textContent = d.status === 'danger' ? 'Ação crítica necessária' : d.status === 'warn' ? 'Operacional com alertas' : 'Operação protegida';
-      detail.textContent = d.status === 'ok'
-        ? 'Os principais controles estão ativos.'
-        : 'Revise os itens marcados antes de escalar tráfego ou liberar saques.';
-      document.getElementById('securityScoreCard').className = 'adm-security-score-card ' + d.status;
-      checksEl.innerHTML = (d.checks || []).map(check => {
-        const href = check.href ? '<a href="' + check.href + '">Abrir</a>' : '';
-        return '<div class="adm-security-check ' + esc(check.status) + '">' +
-          '<span class="adm-security-dot"></span>' +
-          '<div><strong>' + esc(check.label) + '</strong><p>' + esc(check.detail) + '</p></div>' + href +
-        '</div>';
-      }).join('');
-    } catch (err) {
-      value.textContent = '--';
-      title.textContent = 'Falha ao validar segurança';
-      detail.textContent = 'Não foi possível consultar /admin/api/security/status.';
-      checksEl.innerHTML = '<div class="adm-security-check danger"><span class="adm-security-dot"></span><div><strong>Status indisponível</strong><p>Verifique logs do servidor e sessão admin.</p></div></div>';
-    }
-  }
-
-  loadSecurityStatus();
 
   try {
     const r = await fetch('/admin/api/stats/enhanced', { credentials: 'same-origin' });
