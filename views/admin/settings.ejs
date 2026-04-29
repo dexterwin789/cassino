@@ -31,6 +31,13 @@
         <option value="1" <%= settings.bonus_enabled === '1' ? 'selected' : '' %>>Ativado</option>
       </select>
     </div>
+    <div class="adm-setting-card">
+      <label>Plano de Carreira (Afiliados)</label>
+      <select id="setCareerPlan">
+        <option value="0" <%= settings.career_plan_enabled !== '1' ? 'selected' : '' %>>Desativado</option>
+        <option value="1" <%= settings.career_plan_enabled === '1' ? 'selected' : '' %>>Ativado</option>
+      </select>
+    </div>
   </div>
 
   <div class="adm-page-card" style="margin-top:24px;margin-bottom:8px;border-color:rgba(37,211,102,.22);">
@@ -176,6 +183,7 @@ document.getElementById('btnSaveSettings')?.addEventListener('click', async () =
     { key: 'maintenance_mode', value: document.getElementById('setMaintenance').value },
     { key: 'sports_enabled', value: document.getElementById('setSports').value },
     { key: 'bonus_enabled', value: document.getElementById('setBonusEnabled').value },
+    { key: 'career_plan_enabled', value: document.getElementById('setCareerPlan').value },
     { key: 'min_deposit', value: parseMoneyToCents(document.getElementById('setMinDeposit').value) },
     { key: 'min_withdrawal', value: parseMoneyToCents(document.getElementById('setMinWithdrawal').value) }
   ];

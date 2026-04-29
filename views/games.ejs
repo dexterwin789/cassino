@@ -184,11 +184,10 @@
     var name = escapeHTML(g.game_name || 'Jogo');
     var code = encodeURIComponent(g.game_code || '');
     var isLive = gameMatchesCategory(g, 'live');
-    return '<a href="/game/' + code + '" class="game-card' + (isLive ? ' is-live' : '') + '" title="' + name + '" style="text-decoration:none">' +
+    return '<a href="/game/' + code + '" class="game-card" title="' + name + '" style="text-decoration:none">' +
       '<img src="' + img + '" alt="' + name + '" draggable="false" loading="lazy" onerror="this.onerror=null;this.closest(\'a\').style.display=\'none\'">' +
-      (isLive ? '<span class="archive-game-badge archive-game-badge--top">Ao vivo</span>' : '') +
-      '<div class="archive-game-meta"><span class="archive-game-title">' + name + '</span></div>' +
       '<div class="game-overlay">' +
+        '<span class="game-name">' + name + '</span>' +
         '<span class="play-btn">&#9654; JOGAR</span>' +
       '</div></a>';
   }

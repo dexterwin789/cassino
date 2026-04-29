@@ -2265,7 +2265,7 @@ const CHAT_KB = {
     options: [{ id: 'menu', label: '🏠 Menu' }]
   },
   responsavel: {
-    text: '🛡️ **Jogo Responsável:**\n\nApostar deve ser diversão, não problema. Oferecemos:\n\n✅ Limites de depósito e apostas\n✅ Limite de tempo de sessão\n✅ Auto-exclusão (7/30 dias ou permanente)\n✅ Realidade check periódica\n\n📞 Central de apoio: 0800-726-9797',
+    text: '🛡️ **Jogo Responsável:**\n\nApostar deve ser diversão, não problema. Oferecemos:\n\n✅ Limites de depósito e apostas\n✅ Limite de tempo de sessão\n✅ Auto-exclusão (7/30 dias ou permanente)\n✅ Realidade check periódica',
     options: [
       { id: 'resp_limite', label: '⚙️ Definir limites' },
       { id: 'resp_exc', label: '🚫 Auto-exclusão' },

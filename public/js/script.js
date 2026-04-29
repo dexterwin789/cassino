@@ -68,13 +68,12 @@ function gameCardHTML(game) {
   var img = game.image_url;
   var name = game.game_name || 'Jogo';
   var code = game.game_code || '';
-  var live = isLiveGame(game);
-  var h = '<a href="/game/' + code + '" class="game-card' + (live ? ' is-live' : '') + '" title="' + name + '" style="text-decoration:none">';
+  var h = '<a href="/game/' + code + '" class="game-card" title="' + name + '" style="text-decoration:none">';
   h += '<img src="' + img + '" alt="' + name + '" draggable="false" loading="lazy" onerror="this.onerror=null;this.closest(\'a\').style.display=\'none\'">';
-  if (live) h += '<span class="archive-game-badge archive-game-badge--top">Ao vivo</span>';
-  h += '<div class="archive-game-meta"><span class="archive-game-title">' + name + '</span></div>';
-  h += '<div class="game-overlay"><span class="play-btn">&#9654; JOGAR</span></div>';
-  h += '</a>';
+  h += '<div class="game-overlay">';
+  h += '<span class="game-name">' + name + '</span>';
+  h += '<span class="play-btn">&#9654; JOGAR</span>';
+  h += '</div></a>';
   return h;
 }
 
@@ -363,13 +362,11 @@ function searchCardHTML(game) {
   var img = game.image_url;
   var name = game.game_name || 'Jogo';
   var code = game.game_code || '';
-  var live = isLiveGame(game);
-  return '<a href="/game/' + code + '" class="game-card' + (live ? ' is-live' : '') + '" title="' + name + '" style="text-decoration:none">' +
+  return '<a href="/game/' + code + '" class="game-card" title="' + name + '" style="text-decoration:none">' +
     '<img src="' + img + '" alt="' + name + '" draggable="false" loading="lazy" onerror="this.onerror=null;this.closest(\'a\').style.display=\'none\'">' +
-    (live ? '<span class="archive-game-badge archive-game-badge--top">Ao vivo</span>' : '') +
-    '<div class="archive-game-meta"><span class="archive-game-title">' + name + '</span></div>' +
-    '<div class="game-overlay"><span class="play-btn">&#9654; JOGAR</span></div>' +
-    '</a>';
+    '<div class="game-overlay">' +
+      '<span class="play-btn">&#9654; JOGAR</span>' +
+    '</div></a>';
 }
 
 function showMoreSearchResults() {
@@ -522,9 +519,12 @@ function enhanceCategoryScroller(el) {
   if (!parent) return;
   el.dataset.scrollIndex = '0';
   el.style.transform = 'translateX(0)';
+  var outer = document.createElement('div');
+  outer.className = 'category-scroll-outer';
+  parent.insertBefore(outer, el);
   var wrap = document.createElement('div');
   wrap.className = 'category-scroll-wrap';
-  parent.insertBefore(wrap, el);
+  outer.appendChild(wrap);
   wrap.appendChild(el);
 
   ['prev', 'next'].forEach(function(kind) {
@@ -537,7 +537,7 @@ function enhanceCategoryScroller(el) {
       var direction = kind === 'prev' ? -1 : 1;
       moveCategoryRail(el, direction);
     });
-    wrap.appendChild(btn);
+    outer.appendChild(btn);
   });
   el.dataset.scrollEnhanced = '1';
 }
@@ -570,7 +570,6 @@ function moveCategoryRail(el, direction) {
   el.dataset.scrollIndex = String(nextIndex);
   el.style.transform = 'translateX(-' + (nextIndex * step) + 'px)';
 }
-
 /* ========== TOP 10 SLIDER ========== */
 function top10CardHTML(game, rank) {
   if (!game.image_url) return '';

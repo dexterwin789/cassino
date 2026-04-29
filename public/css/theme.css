@@ -44,13 +44,12 @@
 [data-theme="light"] .topbar-balance-refresh{border-color:rgba(255,255,255,.35)}
 [data-theme="light"] .topbar-balance-refresh img,
 [data-theme="light"] .topbar-notif img{filter:brightness(0) invert(1);opacity:.95}
-[data-theme="light"] .topbar-notif{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.4)}
 [data-theme="light"] .btn-deposit{background:#fff;color:#16a34a;box-shadow:0 2px 8px rgba(0,0,0,.12)}
 [data-theme="light"] .btn-deposit:hover{background:#f0fdf4;color:#15803d}
 [data-theme="light"] .topbar-user-btn{border-color:rgba(0,0,0,.15)}
 [data-theme="light"] .topbar-user-avatar[src*=".svg"]{filter:brightness(0) invert(1);opacity:.8}
 [data-theme="light"] .btn-login{border-color:rgba(255,255,255,.3);color:#fff}
-[data-theme="light"] .topbar-notif-badge{background:#ef4444;color:#fff;border:2px solid #fff}
+[data-theme="light"] .topbar-notif-badge{background:#ef4444;color:#fff}
 
 /* Dropdown */
 [data-theme="light"] .topbar-dropdown{background:#fff;border-color:rgba(0,0,0,.1);box-shadow:0 8px 32px rgba(0,0,0,.15)}
@@ -306,8 +305,14 @@
 [data-theme="light"] .dep-header-text strong{color:#1a1a2e}
 [data-theme="light"] .dep-header-text span{color:#64748b}
 [data-theme="light"] .dep-back img{filter:none;opacity:.5}
-[data-theme="light"] .dep-method-card{background:#f8fafc;border-color:rgba(0,0,0,.08)}
-[data-theme="light"] .dep-method-active{background:rgba(37,211,102,.06);border-color:#25D366}
+[data-theme="light"] .dep-back{background:rgba(15,23,42,.06);border:1px solid rgba(15,23,42,.12);border-radius:8px;opacity:1}
+[data-theme="light"] .dep-back:hover{background:rgba(37,211,102,.12);border-color:#25D366}
+[data-theme="light"] .dep-back img{opacity:.85;filter:invert(20%) sepia(8%) saturate(800%) hue-rotate(180deg) brightness(40%) contrast(85%)}
+[data-theme="light"] .dep-method-card{background:#ffffff;border:1px solid rgba(15,23,42,.14);box-shadow:0 1px 3px rgba(15,23,42,.08)}
+[data-theme="light"] .dep-method-card:hover{background:#f1f5f9;border-color:rgba(15,23,42,.2)}
+[data-theme="light"] .dep-method-active{background:linear-gradient(180deg,#dcfce7,#bbf7d0);border:2px solid #25D366;box-shadow:0 4px 14px rgba(37,211,102,.32),0 0 0 3px rgba(37,211,102,.18)}
+[data-theme="light"] .dep-method-card img{filter:none;opacity:.55}
+[data-theme="light"] .dep-method-active img{opacity:1}
 [data-theme="light"] .dep-payment-label{color:#64748b}
 [data-theme="light"] .dep-payment-method{background:#f0f2f5;color:#1a1a2e}
 [data-theme="light"] .dep-value-label{color:#1a1a2e}
@@ -361,6 +366,10 @@
 [data-theme="light"] .login-field-date input[type="date"]{color-scheme:light;color:#1a1a2e}
 [data-theme="light"] .login-field-date input[type="date"]::-webkit-calendar-picker-indicator{filter:none}
 [data-theme="light"] .login-field-date label{color:#64748b}
+
+/* Date icon — dark theme: white/visible. Light theme: black/preto (default browser) */
+.login-field-date input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(1) brightness(2);cursor:pointer}
+[data-theme="light"] .login-field-date input[type="date"]::-webkit-calendar-picker-indicator{filter:none}
 
 /* Overlay color */
 [data-theme="light"] .sidebar-overlay.active{background:rgba(0,0,0,.25)}

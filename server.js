@@ -153,7 +153,7 @@ app.use(async (req, res, next) => {
     res.locals.sportsEnabled = sportsR.rows[0]?.value === '1';
 
     // Logo settings
-    const logoR = await pool.query("SELECT key, value FROM platform_settings WHERE key IN ('logo_dark', 'logo_light', 'promo_banner_1', 'promo_banner_2', 'promo_banner_3', 'promo_banner_1_link', 'promo_banner_2_link', 'promo_banner_3_link', 'side_banner_1', 'side_banner_2', 'side_banner_1_link', 'side_banner_2_link', 'min_deposit', 'min_withdrawal')");
+    const logoR = await pool.query("SELECT key, value FROM platform_settings WHERE key IN ('logo_dark', 'logo_light', 'promo_banner_1', 'promo_banner_2', 'promo_banner_3', 'promo_banner_1_link', 'promo_banner_2_link', 'promo_banner_3_link', 'side_banner_1', 'side_banner_2', 'side_banner_1_link', 'side_banner_2_link', 'min_deposit', 'min_withdrawal', 'career_plan_enabled')");
     const pset = {};
     logoR.rows.forEach(r => { pset[r.key] = r.value; });
     res.locals.logoDark = pset.logo_dark || '';
@@ -170,6 +170,7 @@ app.use(async (req, res, next) => {
     res.locals.sideBanner2Link = pset.side_banner_2_link || '#';
     res.locals.minDepositCents = parseInt(pset.min_deposit || '2000', 10) || 2000;
     res.locals.minWithdrawalCents = parseInt(pset.min_withdrawal || '5000', 10) || 5000;
+    res.locals.careerPlanEnabled = pset.career_plan_enabled === '1';
   } catch {
     res.locals.activeTheme = 'default';
     res.locals.theme = null;
@@ -179,6 +180,7 @@ app.use(async (req, res, next) => {
     res.locals.logoLight = '';
     res.locals.minDepositCents = 2000;
     res.locals.minWithdrawalCents = 5000;
+    res.locals.careerPlanEnabled = false;
   }
   res.locals.user = req.session.user || null;
   next();
