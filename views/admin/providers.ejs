@@ -8,13 +8,24 @@
       <button class="adm-btn" id="btnRefresh">Atualizar</button>
     </div>
   </div>
+  <div class="adm-toolbar">
+    <div class="adm-field"><label>Por página</label><select id="provLimit"><option value="5">5</option><option value="10" selected>10</option><option value="20">20</option><option value="30">30</option></select></div>
+  </div>
   <div class="adm-table-wrap">
     <table class="adm-table">
       <thead><tr><th>ID</th><th>Preview</th><th>Nome</th><th>URL da Imagem</th><th>Ordem</th><th>Ativo</th><th>Ações</th></tr></thead>
       <tbody id="provTbody"></tbody>
     </table>
   </div>
-  <div class="adm-pager"><div class="adm-muted"><span id="provCount">0</span> provedores</div></div>
+  <div class="adm-pager">
+    <div class="adm-muted"><span id="provCount">0</span> provedores</div>
+    <div class="adm-pager-btns">
+      <button class="adm-btn" id="provPrev">‹ Anterior</button>
+      <span class="adm-muted">Página <span id="provPageNum">1 de 1</span></span>
+      <div class="adm-page-numbers" id="provPageList"></div>
+      <button class="adm-btn" id="provNext">Próxima ›</button>
+    </div>
+  </div>
 </div>
 
 <!-- Modal Add/Edit -->
@@ -58,14 +69,47 @@
 (function(){
   var tb = document.getElementById('provTbody');
   var countEl = document.getElementById('provCount');
+  var limitEl = document.getElementById('provLimit');
+  var pageNumEl = document.getElementById('provPageNum');
+  var pageListEl = document.getElementById('provPageList');
+  var prevBtn = document.getElementById('provPrev');
+  var nextBtn = document.getElementById('provNext');
   var modal = document.getElementById('provModal');
   var dropZone = document.getElementById('provDropZone');
   var fileInput = document.getElementById('provFileInput');
   var previewArea = document.getElementById('provPreviewArea');
   var editingId = null;
   var selectedFile = null;
+  var page = 1;
+  var totalPages = 1;
 
   function esc(s) { var d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
+  function normalizeLimit(value) { var n = parseInt(value, 10); return [5, 10, 20, 30].indexOf(n) >= 0 ? n : 10; }
+  function compactPages(current, total) {
+    total = Math.max(1, parseInt(total, 10) || 1);
+    current = Math.min(Math.max(1, parseInt(current, 10) || 1), total);
+    if (total <= 7) return Array.from({ length: total }, function(_, i) { return i + 1; });
+    var items = [1], start = Math.max(2, current - 1), end = Math.min(total - 1, current + 1);
+    if (current <= 3) end = 4;
+    if (current >= total - 2) start = total - 3;
+    if (start > 2) items.push('...');
+    for (var i = start; i <= end; i++) items.push(i);
+    if (end < total - 1) items.push('...');
+    items.push(total);
+    return items;
+  }
+  function renderPager(total, current, limit) {
+    totalPages = Math.max(1, Math.ceil(total / limit));
+    page = Math.min(Math.max(1, current), totalPages);
+    countEl.textContent = total;
+    pageNumEl.textContent = page + ' de ' + totalPages;
+    prevBtn.disabled = page <= 1;
+    nextBtn.disabled = page >= totalPages;
+    pageListEl.innerHTML = compactPages(page, totalPages).map(function(item) {
+      if (item === '...') return '<span class="adm-page-ellipsis">...</span>';
+      return '<button class="adm-page-btn' + (item === page ? ' active' : '') + '" type="button" data-page="' + item + '">' + item + '</button>';
+    }).join('');
+  }
 
   // Drag & drop + file pick
   var provDefaultDropHTML = '<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="1.5" style="display:block;margin:0 auto 8px"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg><p style="margin:0;color:rgba(255,255,255,.45);font-size:13px;font-weight:500">Clique ou arraste a imagem</p><p style="margin:6px 0 0;color:rgba(255,255,255,.2);font-size:11px">PNG, JPG, WebP — máx. 2MB</p>';
@@ -88,13 +132,17 @@
   }
 
   async function load() {
+    var limit = normalizeLimit(limitEl.value);
     tb.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:32px;color:rgba(255,255,255,.4)">Carregando...</td></tr>';
     try {
-      var r = await fetch('/admin/api/provider-images', { credentials: 'same-origin' });
+      var r = await fetch('/admin/api/provider-images?page=' + page + '&limit=' + limit, { credentials: 'same-origin' });
       var d = await r.json();
       if (!d.ok) throw new Error(d.msg);
       var items = d.items || [];
-      countEl.textContent = items.length;
+      var total = parseInt(d.total || items.length, 10) || 0;
+      var current = parseInt(d.page || page, 10) || 1;
+      renderPager(total, current, normalizeLimit(d.limit || limit));
+      if (current > totalPages) { page = totalPages; return load(); }
       if (!items.length) {
         tb.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:32px;color:rgba(255,255,255,.35)">Nenhum provedor cadastrado</td></tr>';
         return;
@@ -141,6 +189,10 @@
 
   document.getElementById('btnAddProvider').onclick = function() { openModal(); };
   document.getElementById('btnRefresh').onclick = load;
+  limitEl.onchange = function() { page = 1; load(); };
+  prevBtn.onclick = function() { page = Math.max(1, page - 1); load(); };
+  nextBtn.onclick = function() { page = Math.min(totalPages, page + 1); load(); };
+  pageListEl.onclick = function(e) { var btn = e.target.closest('[data-page]'); if (!btn) return; page = parseInt(btn.dataset.page, 10) || 1; load(); };
   document.getElementById('provModalCancel').onclick = closeModal;
   modal.onclick = function(e) { if (e.target === modal) closeModal(); };
 

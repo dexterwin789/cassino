@@ -1,4 +1,4 @@
-<%- include('layout-head', { title: 'Transações', page: 'transactions', u }) %>
+<%- include('layout-head', { title: 'TransaÃ§Ãµes', page: 'transactions', u }) %>
 
 <!-- Filters -->
 <div class="ud-card ud-filters">
@@ -17,7 +17,7 @@
       <input type="date" name="from" class="ud-input" value="<%= typeof from !== 'undefined' ? from : '' %>" onchange="this.form.submit()" />
     </div>
     <div class="ud-filter-group">
-      <label class="ud-filter-label">Até</label>
+      <label class="ud-filter-label">AtÃ©</label>
       <input type="date" name="to" class="ud-input" value="<%= typeof to !== 'undefined' ? to : '' %>" onchange="this.form.submit()" />
     </div>
     <button type="submit" class="ud-btn-filter">Filtrar</button>
@@ -26,13 +26,13 @@
 
 <!-- Summary -->
 <div class="ud-tx-summary">
-  <span><%= total %> transaç<%= total === 1 ? 'ão' : 'ões' %> encontrada<%= total === 1 ? '' : 's' %></span>
+  <span><%= total %> transa<%= total === 1 ? 'Ã§Ã£o' : 'Ã§Ãµes' %> encontrada<%= total === 1 ? '' : 's' %></span>
 </div>
 
 <!-- Table -->
 <div class="ud-card ud-table-wrap">
   <% if (transactions.length === 0) { %>
-  <div class="ud-empty">Nenhuma transação encontrada.</div>
+  <div class="ud-empty">Nenhuma transaÃ§Ã£o encontrada.</div>
   <% } else { %>
   <table class="ud-table">
     <thead>
@@ -48,7 +48,7 @@
       <% transactions.forEach(function(tx) { %>
       <tr>
         <td class="ud-mono">#<%= tx.id %></td>
-        <td><%= tx.type === 'deposit' ? 'Depósito' : tx.type === 'withdrawal' ? 'Saque' : tx.type %></td>
+        <td><%= tx.type === 'deposit' ? 'DepÃ³sito' : tx.type === 'withdrawal' ? 'Saque' : tx.type %></td>
         <td class="ud-mono">R$ <%= (parseInt(tx.amount_cents) / 100).toFixed(2).replace('.', ',') %></td>
         <td>
           <span class="ud-badge <%= tx.status === 'paid' ? 'ok' : tx.status === 'pending' ? 'warn' : 'bad' %>">
@@ -72,10 +72,10 @@
     Anterior
   </a>
   <% } %>
-  <span class="ud-page-info">Página <%= page %> de <%= totalPages %></span>
+  <span class="ud-page-info">PÃ¡gina <%= page %> de <%= totalPages %></span>
   <% if (page < totalPages) { %>
   <a href="?page=<%= page + 1 %><%= typeof status !== 'undefined' && status ? '&status=' + status : '' %><%= typeof from !== 'undefined' && from ? '&from=' + from : '' %><%= typeof to !== 'undefined' && to ? '&to=' + to : '' %>" class="ud-page-btn">
-    Próxima
+    PrÃ³xima
     <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
   </a>
   <% } %>

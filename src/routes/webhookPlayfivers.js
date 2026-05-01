@@ -9,10 +9,15 @@ router.use(webhookGuard({
   sigHeader: 'x-playfivers-signature'
 }));
 
-// Helper: get user by code (email/username)
+// Helper: get user by code (email/username). Returns is_demo + demo_balance for demo branching.
 async function findUser(userCode) {
   const r = await query(
-    'SELECT u.id, u.username, u.email, w.balance_cents FROM users u JOIN wallets w ON w.user_id = u.id WHERE u.email = $1 OR u.username = $1 LIMIT 1',
+    `SELECT u.id, u.username, u.email, u.is_demo, u.demo_balance_cents,
+            COALESCE(w.balance_cents, 0) AS balance_cents
+     FROM users u
+     LEFT JOIN wallets w ON w.user_id = u.id
+     WHERE u.email = $1 OR u.username = $1
+     LIMIT 1`,
     [userCode]
   );
   return r.rows[0] || null;
@@ -60,7 +65,8 @@ async function handleBalance(req, res) {
       return res.status(404).json({ balance: 0, msg: 'INVALID_USER' });
     }
 
-    const balance = parseFloat((parseInt(user.balance_cents) / 100).toFixed(2));
+    const balanceCents = user.is_demo ? parseInt(user.demo_balance_cents || 0) : parseInt(user.balance_cents || 0);
+    const balance = parseFloat((balanceCents / 100).toFixed(2));
     res.json({ balance, msg: '' });
   } catch (err) {
     console.error('[PF WEBHOOK BALANCE]', err);
@@ -89,6 +95,47 @@ async function handleTransaction(req, res) {
 
     const user = await findUser(user_code);
     if (!user) {
+      return res.status(404).json({ balance: 0, msg: 'INVALID_USER' });
+    }
+
+    // ───── DEMO BRANCH ─────────────────────────────────────────────
+    // Demo users NEVER touch wallets, transactions, bets, or affiliate commissions.
+    // Demo balance lives only on users.demo_balance_cents.
+    if (user.is_demo) {
+      // Idempotency check on a separate scope (read-only on game_transactions just in case)
+      if (txn_id) {
+        const dupCheck = await query('SELECT id FROM game_transactions WHERE txn_id = $1', [txn_id]);
+        if (dupCheck.rows.length) {
+          const balance = parseFloat((parseInt(user.demo_balance_cents || 0) / 100).toFixed(2));
+          return res.json({ balance, msg: '' });
+        }
+      }
+      const betCents = Math.round((parseFloat(bet) || 0) * 100);
+      const winCents = Math.round((parseFloat(win) || 0) * 100);
+      let netChange = 0;
+      if (txn_type === 'debit_credit') netChange = winCents - betCents;
+      else if (txn_type === 'debit') netChange = -betCents;
+      else if (txn_type === 'credit' || txn_type === 'bonus') netChange = winCents;
+      else netChange = winCents - betCents;
+
+      await client.query('BEGIN');
+      const dR = await client.query('SELECT demo_balance_cents FROM users WHERE id = $1 FOR UPDATE', [user.id]);
+      const currentDemo = parseInt(dR.rows[0].demo_balance_cents || 0);
+      if (netChange < 0 && (currentDemo + netChange) < 0) {
+        await client.query('ROLLBACK');
+        return res.status(400).json({ balance: parseFloat((currentDemo / 100).toFixed(2)), msg: 'INSUFFICIENT_USER_FUNDS' });
+      }
+      const newDemo = currentDemo + netChange;
+      await client.query('UPDATE users SET demo_balance_cents = $1, updated_at = NOW() WHERE id = $2', [newDemo, user.id]);
+      await client.query('COMMIT');
+      console.log('[PF DEMO TXN]', { user_code, txn_id, betCents, winCents, netChange, currentDemo, newDemo });
+      return res.json({ balance: parseFloat((newDemo / 100).toFixed(2)), msg: '' });
+    }
+
+    // ───── REAL FLOW (unchanged) ───────────────────────────────────
+    // Real users must have a wallet row (created at signup).
+    const hasWalletR = await query('SELECT 1 FROM wallets WHERE user_id = $1 LIMIT 1', [user.id]);
+    if (!hasWalletR.rows.length) {
       return res.status(404).json({ balance: 0, msg: 'INVALID_USER' });
     }
 

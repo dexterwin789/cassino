@@ -916,6 +916,49 @@ img, svg, canvas, video {
   align-items: center;
   gap: 10px;
 }
+.adm-page-numbers {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.adm-page-btn,
+.adm-page-ellipsis {
+  min-width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: inline-grid;
+  place-items: center;
+  font-size: 12px;
+  font-weight: 900;
+}
+.adm-page-btn {
+  border: 1px solid rgba(255,255,255,.1);
+  background: rgba(255,255,255,.035);
+  color: var(--adm-text);
+  cursor: pointer;
+  transition: .18s;
+}
+.adm-page-btn:hover {
+  border-color: rgba(16,185,129,.32);
+  background: rgba(16,185,129,.08);
+}
+.adm-page-btn.active {
+  border-color: rgba(16,185,129,.55);
+  background: linear-gradient(180deg, rgba(16,185,129,.28), rgba(16,185,129,.12));
+  color: #fff;
+  box-shadow: 0 8px 20px rgba(16,185,129,.12);
+}
+.adm-page-ellipsis {
+  color: var(--adm-muted);
+}
+.adm-btn:disabled,
+.adm-page-btn:disabled {
+  opacity: .42;
+  cursor: not-allowed;
+  transform: none;
+}
 
 /* Thumb */
 .adm-thumb {
@@ -1361,7 +1404,8 @@ body.adm-sidebar-open .adm-sidebar-backdrop {
   .adm-chart-head .adm-btn,
   .adm-list-head .adm-btn { flex: 1 1 min(100%, 160px); }
   .adm-pager { padding: 12px; flex-direction: column; align-items: stretch; gap: 10px; }
-  .adm-pager-btns { justify-content: space-between; }
+  .adm-pager-btns { justify-content: center; flex-wrap: wrap; gap: 8px; }
+  .adm-page-numbers { order: 3; width: 100%; }
   .adm-settings-grid,
   .adm-themes-grid { grid-template-columns: 1fr !important; }
   .adm-content [style*="max-width:700px"] { max-width: 100% !important; }

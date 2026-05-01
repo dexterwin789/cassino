@@ -85,6 +85,103 @@
   </div>
 </div>
 
+<!-- --- SOLICITAÇÕES PENDENTES (sub)afiliados --- -->
+<div class="adm-page-card" id="affPendingCard" style="margin-bottom:24px;border-color:rgba(255,193,7,.32);background:linear-gradient(135deg,rgba(255,193,7,.08),rgba(255,255,255,.02));">
+  <div class="adm-page-head">
+    <div>
+      <h3 style="display:flex;align-items:center;gap:10px;">
+        <span style="display:inline-grid;place-items:center;width:32px;height:32px;border-radius:10px;background:rgba(255,193,7,.14);border:1px solid rgba(255,193,7,.3);">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ffc107" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </span>
+        Solicitações de afiliado pendentes
+        <span id="affPendingCount" class="adm-tag warn" style="font-size:11px;background:rgba(255,193,7,.18);border-color:rgba(255,193,7,.4);color:#ffc107">0</span>
+      </h3>
+      <p class="adm-muted" style="line-height:1.55;margin-top:6px;">Subafiliados se cadastram através do link do afiliado pai e solicitam aprovação. Afiliados também podem solicitar via <code>POST /api/affiliate/request</code>. Aprove para liberar o painel Indique e Ganhe.</p>
+    </div>
+    <button class="adm-btn" id="affPendingRefresh" style="font-size:12px;height:34px;padding:0 12px;">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+      Atualizar
+    </button>
+  </div>
+  <div class="adm-table-wrap">
+    <table class="adm-table">
+      <thead><tr><th>ID</th><th>Usuário</th><th>E-mail / Telefone</th><th>Tipo</th><th>Pai (parent)</th><th>Solicitado</th><th>Ações</th></tr></thead>
+      <tbody id="affPendingTbody"><tr><td colspan="7" style="text-align:center;color:rgba(255,255,255,.4);padding:24px">Carregando...</td></tr></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+(function(){
+  const tbody = document.getElementById('affPendingTbody');
+  const countEl = document.getElementById('affPendingCount');
+  const refreshBtn = document.getElementById('affPendingRefresh');
+  function esc(s){return String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+  function fdate(s){if(!s)return '-';const d=new Date(s);return isNaN(d)?'-':d.toLocaleString('pt-BR');}
+  async function load(){
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:rgba(255,255,255,.4);padding:24px">Carregando...</td></tr>';
+    try {
+      const r = await fetch('/admin/api/affiliates/pending?limit=20', { credentials:'same-origin' });
+      const j = await r.json();
+      if (!j.ok) throw new Error(j.msg||'erro');
+      const rows = j.rows || [];
+      countEl.textContent = j.total || 0;
+      if (!rows.length) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:rgba(255,255,255,.4);padding:24px">Nenhuma solicitação pendente.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = rows.map(r=>{
+        const isSub = !!r.parent_id;
+        const tipo = isSub
+          ? '<span class="adm-tag" style="background:rgba(99,102,241,.18);border-color:rgba(99,102,241,.4);color:#a5b4fc">SUBAFILIADO</span>'
+          : '<span class="adm-tag" style="background:rgba(37,211,102,.14);border-color:rgba(37,211,102,.4);color:#25D366">AFILIADO</span>';
+        const parent = isSub
+          ? `${esc(r.parent_username||'-')} <span style="color:rgba(255,255,255,.35)">(${esc(r.parent_code||'-')})</span>`
+          : '<span style="color:rgba(255,255,255,.3)">—</span>';
+        return `<tr>
+          <td>${r.id}</td>
+          <td><strong>${esc(r.username||'-')}</strong> <span style="color:rgba(255,255,255,.35)">#${r.user_id}</span></td>
+          <td style="color:rgba(255,255,255,.55)">${esc(r.email||r.phone||'-')}</td>
+          <td>${tipo}</td>
+          <td>${parent}</td>
+          <td style="color:rgba(255,255,255,.45)">${fdate(r.created_at)}</td>
+          <td>
+            <div style="display:flex;gap:6px;flex-wrap:wrap">
+              <button class="adm-btn primary aff-approve" data-id="${r.id}" style="font-size:11px;height:30px;padding:0 10px;">Aprovar</button>
+              <button class="adm-btn aff-reject" data-id="${r.id}" style="font-size:11px;height:30px;padding:0 10px;border-color:rgba(255,77,77,.3);color:#ff4d4d">Rejeitar</button>
+            </div>
+          </td>
+        </tr>`;
+      }).join('');
+    } catch (e) {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#ff4d4d;padding:24px">Erro ao carregar pendentes.</td></tr>';
+    }
+  }
+  document.addEventListener('click', async (e)=>{
+    const ap = e.target.closest('.aff-approve');
+    if (ap) {
+      const pct = prompt('Comissão (%) — deixe vazio para usar padrão:', '');
+      const body = pct ? JSON.stringify({ commission_pct: parseFloat(pct) }) : '{}';
+      const r = await fetch(`/admin/api/affiliates/${ap.dataset.id}/approve`, { method:'POST', headers:{'Content-Type':'application/json'}, credentials:'same-origin', body });
+      const j = await r.json().catch(()=>({}));
+      if (!j.ok) alert(j.msg||'Erro ao aprovar.');
+      load();
+    }
+    const rj = e.target.closest('.aff-reject');
+    if (rj) {
+      const reason = prompt('Motivo da rejeição (opcional):','') || '';
+      if (!confirm('Rejeitar esta solicitação?')) return;
+      const r = await fetch(`/admin/api/affiliates/${rj.dataset.id}/reject`, { method:'POST', headers:{'Content-Type':'application/json'}, credentials:'same-origin', body: JSON.stringify({ reason }) });
+      const j = await r.json().catch(()=>({}));
+      if (!j.ok) alert(j.msg||'Erro ao rejeitar.');
+      load();
+    }
+  });
+  refreshBtn.addEventListener('click', load);
+  load();
+})();
+</script>
+
 <!-- --- MODELO DE COMISSIONAMENTO --- -->
 <div class="adm-page-card" style="margin-bottom:24px;">
   <div class="adm-page-head">
@@ -288,7 +385,7 @@
   </div>
   <div class="adm-toolbar">
     <div class="adm-field"><label>Buscar</label><input type="text" placeholder="código / username / e-mail / ID" data-filter="q" /></div>
-    <div class="adm-field"><label>Por página</label><select data-filter="limit"><option value="10">10</option><option value="25" selected>25</option><option value="50">50</option><option value="100">100</option></select></div>
+    <div class="adm-field"><label>Por página</label><select data-filter="limit"><option value="5">5</option><option value="10" selected>10</option><option value="20">20</option><option value="30">30</option></select></div>
     <div class="adm-field"><label>&nbsp;</label><button class="adm-btn primary" data-action="apply">Aplicar</button></div>
   </div>
   <div class="adm-table-wrap">
@@ -346,12 +443,22 @@
         <option value="deposit">Depósito</option>
       </select>
     </div>
+    <div class="adm-field"><label>Por página</label><select id="commLimit"><option value="5">5</option><option value="10" selected>10</option><option value="20">20</option><option value="30">30</option></select></div>
   </div>
   <div class="adm-table-wrap">
     <table class="adm-table">
       <thead><tr><th>ID</th><th>Data</th><th>Afiliado</th><th>Código</th><th>Indicado</th><th>Tipo</th><th>Detalhe</th><th style="text-align:right">Valor</th><th>Status</th><th>Bet ID</th></tr></thead>
       <tbody id="commissionsBody"><tr><td colspan="10" style="text-align:center;padding:24px;color:var(--adm-muted)">Carregando...</td></tr></tbody>
     </table>
+  </div>
+  <div class="adm-pager">
+    <div class="adm-muted"><span id="commCount">0</span> resultados</div>
+    <div class="adm-pager-btns">
+      <button class="adm-btn" id="commPrev">‹ Anterior</button>
+      <span class="adm-muted">Página <span id="commPageNum">1 de 1</span></span>
+      <div class="adm-page-numbers" id="commPageList"></div>
+      <button class="adm-btn" id="commNext">Próxima ›</button>
+    </div>
   </div>
 </div>
 
@@ -508,12 +615,35 @@ document.getElementById('btnManualAffiliate')?.addEventListener('click', async f
   function fmtBrlCents(c){ var n=(parseInt(c||0,10)/100); return 'R$ '+n.toFixed(2).replace('.',',').replace(/\B(?=(\d{3})+(?!\d))/g,'.'); }
   function fmtDt(d){ if(!d) return '—'; var x=new Date(d); return x.toLocaleDateString('pt-BR')+' '+x.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}); }
   function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]; }); }
+  var commPage = 1;
+  var commTotalPages = 1;
+  function normalizeLimit(value){ var n=parseInt(value,10); return [5,10,20,30].indexOf(n)>=0 ? n : 10; }
+  function compactPages(current,total){
+    total=Math.max(1,parseInt(total,10)||1); current=Math.min(Math.max(1,parseInt(current,10)||1),total);
+    if(total<=7) return Array.from({length:total}, function(_,i){return i+1;});
+    var items=[1], start=Math.max(2,current-1), end=Math.min(total-1,current+1);
+    if(current<=3) end=4; if(current>=total-2) start=total-3;
+    if(start>2) items.push('...'); for(var i=start;i<=end;i++) items.push(i); if(end<total-1) items.push('...'); items.push(total); return items;
+  }
+  function renderCommPager(total,current,limit){
+    commTotalPages=Math.max(1,Math.ceil(total/limit));
+    commPage=Math.min(Math.max(1,current),commTotalPages);
+    document.getElementById('commCount').textContent=total;
+    document.getElementById('commPageNum').textContent=commPage+' de '+commTotalPages;
+    document.getElementById('commPrev').disabled=commPage<=1;
+    document.getElementById('commNext').disabled=commPage>=commTotalPages;
+    document.getElementById('commPageList').innerHTML=compactPages(commPage,commTotalPages).map(function(item){
+      if(item==='...') return '<span class="adm-page-ellipsis">...</span>';
+      return '<button class="adm-page-btn'+(item===commPage?' active':'')+'" type="button" data-comm-page="'+item+'">'+item+'</button>';
+    }).join('');
+  }
   function loadCommissions(){
     var body = document.getElementById('commissionsBody');
     var st = document.getElementById('commFilterStatus').value;
     var tp = document.getElementById('commFilterType').value;
+    var limit = normalizeLimit(document.getElementById('commLimit').value);
     body.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:24px;color:var(--adm-muted)">Carregando...</td></tr>';
-    var qs = 'limit=100';
+    var qs = 'page=' + commPage + '&limit=' + limit;
     if (st) qs += '&status=' + encodeURIComponent(st);
     if (tp) qs += '&type=' + encodeURIComponent(tp);
     fetch('/admin/api/affiliate-commissions?' + qs, { credentials:'same-origin', cache:'no-store' })
@@ -521,6 +651,10 @@ document.getElementById('btnManualAffiliate')?.addEventListener('click', async f
       .then(function(d){
         if(!d || !d.ok){ body.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:24px;color:#ef4444">Erro ao carregar.</td></tr>'; return; }
         var rows = d.rows || [];
+        var total = parseInt(d.total || 0, 10) || 0;
+        var current = parseInt(d.page || commPage, 10) || 1;
+        renderCommPager(total, current, normalizeLimit(d.limit || limit));
+        if(current > commTotalPages){ commPage = commTotalPages; loadCommissions(); return; }
         if(!rows.length){ body.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:24px;color:var(--adm-muted)">Nenhuma comissão encontrada.</td></tr>'; return; }
         body.innerHTML = rows.map(function(c){
           var paid = c.status === 'paid';
@@ -550,8 +684,12 @@ document.getElementById('btnManualAffiliate')?.addEventListener('click', async f
       .catch(function(){ body.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:24px;color:#ef4444">Erro de rede.</td></tr>'; });
   }
   document.getElementById('btnReloadCommissions')?.addEventListener('click', loadCommissions);
-  document.getElementById('commFilterStatus')?.addEventListener('change', loadCommissions);
-  document.getElementById('commFilterType')?.addEventListener('change', loadCommissions);
+  document.getElementById('commFilterStatus')?.addEventListener('change', function(){ commPage = 1; loadCommissions(); });
+  document.getElementById('commFilterType')?.addEventListener('change', function(){ commPage = 1; loadCommissions(); });
+  document.getElementById('commLimit')?.addEventListener('change', function(){ commPage = 1; loadCommissions(); });
+  document.getElementById('commPrev')?.addEventListener('click', function(){ commPage = Math.max(1, commPage - 1); loadCommissions(); });
+  document.getElementById('commNext')?.addEventListener('click', function(){ commPage = Math.min(commTotalPages, commPage + 1); loadCommissions(); });
+  document.getElementById('commPageList')?.addEventListener('click', function(e){ var btn=e.target.closest('[data-comm-page]'); if(!btn) return; commPage=parseInt(btn.dataset.commPage,10)||1; loadCommissions(); });
   loadCommissions();
 })();
 </script>

@@ -7,6 +7,15 @@ const { normalizeAffiliateCareerTiers } = require('../utils/affiliateCareer');
 const { clearWebhookGuardCache } = require('../middleware/webhookGuard');
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 2 * 1024 * 1024 } });
 
+const ADMIN_LIST_LIMITS = [5, 10, 20, 30];
+function getAdminListLimit(value) {
+  const limit = parseInt(value, 10);
+  return ADMIN_LIST_LIMITS.includes(limit) ? limit : 10;
+}
+function getAdminPage(value) {
+  return Math.max(parseInt(value, 10) || 1, 1);
+}
+
 router.use(requireAdmin);
 
 // ─── Server IP Check (for PlayFivers whitelist) ───
@@ -26,8 +35,8 @@ router.get('/users', async (req, res) => {
   try {
     const q = (req.query.q || '').trim();
     const active = req.query.active || '';
-    const limit = Math.min(Math.max(parseInt(req.query.limit) || 25, 1), 200);
-    const page = Math.max(parseInt(req.query.page) || 1, 1);
+    const limit = getAdminListLimit(req.query.limit);
+    const page = getAdminPage(req.query.page);
     const offset = (page - 1) * limit;
 
     let where = [];
@@ -53,7 +62,7 @@ router.get('/users', async (req, res) => {
 
     const rowsR = await query(`
       SELECT u.id, u.username, u.phone, u.bonus, u.balance, u.credit_score, u.is_active, u.created_at,
-             u.kyc_status, u.block_reason,
+             u.kyc_status, u.block_reason, u.is_demo, u.demo_balance_cents,
              COALESCE(w.balance_cents, 0) AS wallet_balance_cents
       FROM users u
       LEFT JOIN wallets w ON w.user_id = u.id
@@ -79,6 +88,56 @@ router.post('/users/:id/toggle', async (req, res) => {
   }
 });
 
+// ─── Demo Account Controls ────────────────────────
+// Toggle is_demo ON/OFF for a user. Demo accounts are isolated from real wallet/withdrawals.
+router.post('/users/:id/demo-toggle', async (req, res) => {
+  try {
+    const r = await query(
+      'UPDATE users SET is_demo = NOT is_demo, updated_at = NOW() WHERE id = $1 RETURNING id, username, is_demo, demo_balance_cents',
+      [req.params.id]
+    );
+    if (!r.rows.length) return res.status(404).json({ ok: false, msg: 'Usuário não encontrado.' });
+    try {
+      await query(
+        `INSERT INTO admin_audit_log (admin_id, action, target_type, target_id, details, ip_address)
+         VALUES ($1, 'demo_toggle', 'user', $2, $3::jsonb, $4)`,
+        [req.session.admin?.id || null, r.rows[0].id, JSON.stringify({ is_demo: r.rows[0].is_demo }), req.ip || '']
+      );
+    } catch {}
+    res.json({ ok: true, user: r.rows[0] });
+  } catch (err) {
+    console.error('[ADMIN DEMO TOGGLE]', err);
+    res.status(500).json({ ok: false, msg: 'Erro ao alternar modo demo.' });
+  }
+});
+
+// Set demo balance (replaces value). Body: { balance_brl: number }.
+router.post('/users/:id/demo-balance', async (req, res) => {
+  try {
+    const brl = parseFloat(req.body.balance_brl);
+    if (!Number.isFinite(brl) || brl < 0 || brl > 1000000) {
+      return res.status(400).json({ ok: false, msg: 'Valor inválido (0 a 1.000.000).' });
+    }
+    const cents = Math.round(brl * 100);
+    const r = await query(
+      'UPDATE users SET demo_balance_cents = $1, updated_at = NOW() WHERE id = $2 RETURNING id, username, is_demo, demo_balance_cents',
+      [cents, req.params.id]
+    );
+    if (!r.rows.length) return res.status(404).json({ ok: false, msg: 'Usuário não encontrado.' });
+    try {
+      await query(
+        `INSERT INTO admin_audit_log (admin_id, action, target_type, target_id, details, ip_address)
+         VALUES ($1, 'demo_set_balance', 'user', $2, $3::jsonb, $4)`,
+        [req.session.admin?.id || null, r.rows[0].id, JSON.stringify({ demo_balance_cents: cents }), req.ip || '']
+      );
+    } catch {}
+    res.json({ ok: true, user: r.rows[0] });
+  } catch (err) {
+    console.error('[ADMIN DEMO BALANCE]', err);
+    res.status(500).json({ ok: false, msg: 'Erro ao definir saldo demo.' });
+  }
+});
+
 // ─── Deposits ─────────────────────────────────────
 
 router.get('/deposits', async (req, res) => {
@@ -87,8 +146,8 @@ router.get('/deposits', async (req, res) => {
     const status = req.query.status || '';
     const from = req.query.from || '';
     const to = req.query.to || '';
-    const limit = Math.min(Math.max(parseInt(req.query.limit) || 25, 1), 200);
-    const page = Math.max(parseInt(req.query.page) || 1, 1);
+    const limit = getAdminListLimit(req.query.limit);
+    const page = getAdminPage(req.query.page);
     const offset = (page - 1) * limit;
 
     let where = ["t.type = 'deposit'"];
@@ -146,8 +205,8 @@ router.get('/games', async (req, res) => {
     const q = (req.query.q || '').trim();
     const active = req.query.active || '';
     const providerFilter = req.query.providers || '';
-    const limit = Math.min(Math.max(parseInt(req.query.limit) || 25, 1), 200);
-    const page = Math.max(parseInt(req.query.page) || 1, 1);
+    const limit = getAdminListLimit(req.query.limit);
+    const page = getAdminPage(req.query.page);
     const offset = (page - 1) * limit;
 
     let where = [];
@@ -400,15 +459,13 @@ router.post('/games/sync-playfivers', async (req, res) => {
       );
 
       if (existing.rows.length) {
-        // Update image/name/status — but don't reactivate clone games (unfunded wallet)
-        // Preserve existing image if API returns null/empty
+        // Preserve admin curation: sync updates metadata, but never reactivates games in bulk.
         const isOriginal = g.original === true;
-        const shouldBeActive = g.status !== false && isOriginal; // clones stay inactive
-        const existingGame = await query('SELECT image_url FROM games WHERE id = $1', [existing.rows[0].id]);
+        const existingGame = await query('SELECT image_url, is_active FROM games WHERE id = $1', [existing.rows[0].id]);
         const newImage = g.image_url || existingGame.rows[0]?.image_url || null;
         await query(
           `UPDATE games SET game_name = $1, image_url = $2, is_active = $3, game_original = $4, category = $5 WHERE id = $6`,
-          [g.name, newImage, shouldBeActive, isOriginal, category, existing.rows[0].id]
+          [g.name, newImage, !!existingGame.rows[0]?.is_active, isOriginal, category, existing.rows[0].id]
         );
         updated++;
       } else {
@@ -420,7 +477,7 @@ router.post('/games/sync-playfivers', async (req, res) => {
         await query(
           `INSERT INTO games (game_code, game_name, image_url, provider, category, is_active, pf_game_code, pf_provider, game_original)
            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
-          [finalSlug, g.name, g.image_url || null, providerName, category, g.status !== false && isOriginal, g.game_code, providerName, isOriginal]
+          [finalSlug, g.name, g.image_url || null, providerName, category, false, g.game_code, providerName, isOriginal]
         );
         inserted++;
       }
@@ -454,7 +511,7 @@ router.post('/games/sync-playfivers', async (req, res) => {
       if (r.rowCount > 0) featuredCount += r.rowCount;
     }
 
-    res.json({ ok: true, msg: `Sincronização concluída: ${inserted} novos, ${updated} atualizados, ${skipped} ignorados, ${deduped} duplicados desativados. ${featuredCount} jogos marcados como destaque.`, total: games.length, inserted, updated, skipped, deduped, featured: featuredCount });
+    res.json({ ok: true, msg: `Sincronização concluída: ${inserted} novos desativados, ${updated} atualizados preservando status, ${skipped} ignorados, ${deduped} duplicados desativados. ${featuredCount} jogos marcados como destaque.`, total: games.length, inserted, updated, skipped, deduped, featured: featuredCount });
   } catch (err) {
     console.error('[SYNC PLAYFIVERS]', err);
     res.status(500).json({ ok: false, msg: 'Erro na sincronização: ' + err.message });
@@ -570,8 +627,8 @@ router.get('/transactions', async (req, res) => {
     const status = req.query.status || '';
     const from = req.query.from || '';
     const to = req.query.to || '';
-    const limit = Math.min(Math.max(parseInt(req.query.limit) || 25, 1), 200);
-    const page = Math.max(parseInt(req.query.page) || 1, 1);
+    const limit = getAdminListLimit(req.query.limit);
+    const page = getAdminPage(req.query.page);
     const offset = (page - 1) * limit;
 
     let where = [];
@@ -626,8 +683,13 @@ router.get('/transactions', async (req, res) => {
 
 router.get('/banners', async (req, res) => {
   try {
-    const r = await query('SELECT * FROM banners ORDER BY sort_order, id DESC');
-    res.json({ ok: true, rows: r.rows, total: r.rows.length, page: 1, limit: 200 });
+    const limit = getAdminListLimit(req.query.limit);
+    const page = getAdminPage(req.query.page);
+    const offset = (page - 1) * limit;
+    const countR = await query('SELECT COUNT(*) AS c FROM banners');
+    const total = parseInt(countR.rows[0].c, 10);
+    const r = await query('SELECT * FROM banners ORDER BY sort_order, id DESC LIMIT $1 OFFSET $2', [limit, offset]);
+    res.json({ ok: true, rows: r.rows, total, page, limit });
   } catch (err) {
     res.status(500).json({ ok: false, msg: 'Erro ao listar banners.' });
   }
@@ -875,8 +937,8 @@ router.get('/bets', async (req, res) => {
   try {
     const q = (req.query.q || '').trim();
     const status = req.query.status || '';
-    const limit = Math.min(Math.max(parseInt(req.query.limit) || 25, 1), 200);
-    const page = Math.max(parseInt(req.query.page) || 1, 1);
+    const limit = getAdminListLimit(req.query.limit);
+    const page = getAdminPage(req.query.page);
     const offset = (page - 1) * limit;
 
     let where = [];
@@ -921,8 +983,8 @@ router.get('/bets', async (req, res) => {
 router.get('/affiliates', async (req, res) => {
   try {
     const q = (req.query.q || '').trim();
-    const limit = Math.min(Math.max(parseInt(req.query.limit) || 25, 1), 200);
-    const page = Math.max(parseInt(req.query.page) || 1, 1);
+    const limit = getAdminListLimit(req.query.limit);
+    const page = getAdminPage(req.query.page);
     const offset = (page - 1) * limit;
 
     let where = [];
@@ -941,7 +1003,7 @@ router.get('/affiliates', async (req, res) => {
     const total = parseInt(countR.rows[0].c);
 
     const rowsR = await query(`
-      SELECT a.id, a.user_id, u.username, u.email, a.code, a.commission_pct, a.total_earned_cents, a.is_active, a.created_at,
+      SELECT a.id, a.user_id, u.username, u.email, a.code, a.commission_pct, a.total_earned_cents, a.is_active, a.status, a.created_at,
              parent.code AS parent_code, parent_user.username AS parent_username
       FROM affiliates a
       LEFT JOIN users u ON u.id = a.user_id
@@ -997,14 +1059,15 @@ router.post('/affiliates/activate', async (req, res) => {
     const existing = await query('SELECT id, code FROM affiliates WHERE user_id = $1 LIMIT 1', [user.id]);
     const code = existing.rows[0]?.code || await generateAffiliateCode(user.id);
     const r = await query(`
-      INSERT INTO affiliates (user_id, code, commission_pct, total_earned_cents, is_active, level, parent_id, model, created_at)
-      VALUES ($1, $2, $3, 0, TRUE, 1, $4, 'revshare', NOW())
+      INSERT INTO affiliates (user_id, code, commission_pct, total_earned_cents, is_active, status, level, parent_id, model, created_at)
+      VALUES ($1, $2, $3, 0, TRUE, 'approved', 1, $4, 'revshare', NOW())
       ON CONFLICT (user_id) DO UPDATE SET
         is_active = TRUE,
+        status = 'approved',
         commission_pct = EXCLUDED.commission_pct,
         parent_id = COALESCE(affiliates.parent_id, EXCLUDED.parent_id),
         model = COALESCE(affiliates.model, 'revshare')
-      RETURNING id, user_id, code, commission_pct, is_active, parent_id
+      RETURNING id, user_id, code, commission_pct, is_active, status, parent_id
     `, [user.id, code, commissionPct, parentId]);
 
     res.json({ ok: true, msg: 'Afiliado liberado manualmente.', affiliate: r.rows[0], user });
@@ -1023,11 +1086,117 @@ router.post('/affiliates/:id/toggle', async (req, res) => {
   }
 });
 
+// ─── Sub-Affiliate / Affiliate Approval Queue ─────
+// Lista solicitações pendentes (status='pending').
+router.get('/affiliates/pending', async (req, res) => {
+  try {
+    const limit = getAdminListLimit(req.query.limit);
+    const page = getAdminPage(req.query.page);
+    const offset = (page - 1) * limit;
+    const cnt = await query(`SELECT COUNT(*)::int AS c FROM affiliates WHERE status = 'pending'`);
+    const r = await query(`
+      SELECT a.id, a.user_id, a.code, a.parent_id, a.commission_pct, a.created_at,
+             u.username, u.email, u.phone,
+             parent.code AS parent_code,
+             parent_user.username AS parent_username
+      FROM affiliates a
+      LEFT JOIN users u ON u.id = a.user_id
+      LEFT JOIN affiliates parent ON parent.id = a.parent_id
+      LEFT JOIN users parent_user ON parent_user.id = parent.user_id
+      WHERE a.status = 'pending'
+      ORDER BY a.created_at ASC
+      LIMIT ${limit} OFFSET ${offset}
+    `);
+    res.json({ ok: true, rows: r.rows, total: cnt.rows[0].c, page, limit });
+  } catch (err) {
+    console.error('[ADMIN AFF PENDING]', err);
+    res.status(500).json({ ok: false, msg: 'Erro ao listar pendentes.' });
+  }
+});
+
+// Aprova um afiliado pendente. Body opcional: { commission_pct }
+router.post('/affiliates/:id/approve', async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (!id) return res.status(400).json({ ok: false, msg: 'ID inválido.' });
+
+    const cur = await query('SELECT id, user_id, code, status FROM affiliates WHERE id = $1', [id]);
+    if (!cur.rows.length) return res.status(404).json({ ok: false, msg: 'Afiliado não encontrado.' });
+    const aff = cur.rows[0];
+
+    const pctR = await query("SELECT value FROM platform_settings WHERE key = 'aff_revshare_pct' LIMIT 1");
+    const commissionPct = Math.max(0, Math.min(parseFloat(req.body.commission_pct ?? pctR.rows[0]?.value ?? '50'), 100));
+
+    // Se o code provisório começa com 'PND' (gerado no request), gerar código real
+    let finalCode = aff.code;
+    if (!finalCode || finalCode.startsWith('PND')) {
+      finalCode = await generateAffiliateCode(aff.user_id);
+    }
+
+    const r = await query(`
+      UPDATE affiliates
+      SET status = 'approved', is_active = TRUE, code = $1, commission_pct = $2
+      WHERE id = $3
+      RETURNING id, user_id, code, status, is_active, parent_id
+    `, [finalCode, commissionPct, id]);
+
+    try {
+      await query(
+        `INSERT INTO admin_audit_log (admin_id, action, target_type, target_id, details, ip_address)
+         VALUES ($1, 'affiliate_approve', 'affiliate', $2, $3::jsonb, $4)`,
+        [req.session.admin?.id || null, id, JSON.stringify({ code: finalCode, commission_pct: commissionPct }), req.ip || '']
+      );
+    } catch {}
+
+    // Notify user
+    try {
+      await query(
+        `INSERT INTO notifications (user_id, tipo, titulo, mensagem, link)
+         VALUES ($1, 'affiliate', 'Solicitação aprovada!', 'Sua solicitação para o programa de afiliados foi aprovada. Acesse a área Indique e Ganhe.', '/user/referrals')`,
+        [aff.user_id]
+      );
+    } catch {}
+
+    res.json({ ok: true, affiliate: r.rows[0] });
+  } catch (err) {
+    console.error('[ADMIN AFF APPROVE]', err);
+    res.status(500).json({ ok: false, msg: 'Erro ao aprovar afiliado.' });
+  }
+});
+
+// Rejeita uma solicitação pendente.
+router.post('/affiliates/:id/reject', async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (!id) return res.status(400).json({ ok: false, msg: 'ID inválido.' });
+    const reason = (req.body.reason || '').toString().slice(0, 500);
+
+    const r = await query(
+      `UPDATE affiliates SET status = 'rejected', is_active = FALSE WHERE id = $1 RETURNING id, user_id`,
+      [id]
+    );
+    if (!r.rows.length) return res.status(404).json({ ok: false, msg: 'Afiliado não encontrado.' });
+
+    try {
+      await query(
+        `INSERT INTO admin_audit_log (admin_id, action, target_type, target_id, details, ip_address)
+         VALUES ($1, 'affiliate_reject', 'affiliate', $2, $3::jsonb, $4)`,
+        [req.session.admin?.id || null, id, JSON.stringify({ reason }), req.ip || '']
+      );
+    } catch {}
+
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('[ADMIN AFF REJECT]', err);
+    res.status(500).json({ ok: false, msg: 'Erro ao rejeitar afiliado.' });
+  }
+});
+
 // ─── Affiliate Commissions Log ────────────────────
 router.get('/affiliate-commissions', async (req, res) => {
   try {
-    const limit = Math.min(Math.max(parseInt(req.query.limit) || 50, 1), 500);
-    const page = Math.max(parseInt(req.query.page) || 1, 1);
+    const limit = getAdminListLimit(req.query.limit);
+    const page = getAdminPage(req.query.page);
     const offset = (page - 1) * limit;
     const status = (req.query.status || '').trim();
     const type = (req.query.type || '').trim();
@@ -1068,8 +1237,8 @@ router.get('/support', async (req, res) => {
   try {
     const q = (req.query.q || '').trim();
     const status = req.query.status || '';
-    const limit = Math.min(Math.max(parseInt(req.query.limit) || 25, 1), 200);
-    const page = Math.max(parseInt(req.query.page) || 1, 1);
+    const limit = getAdminListLimit(req.query.limit);
+    const page = getAdminPage(req.query.page);
     const offset = (page - 1) * limit;
 
     let where = [];
@@ -1148,8 +1317,8 @@ router.post('/support/:id/close', async (req, res) => {
 router.get('/promotions', async (req, res) => {
   try {
     const q = (req.query.q || '').trim();
-    const limit = Math.min(Math.max(parseInt(req.query.limit) || 25, 1), 200);
-    const page = Math.max(parseInt(req.query.page) || 1, 1);
+    const limit = getAdminListLimit(req.query.limit);
+    const page = getAdminPage(req.query.page);
     const offset = (page - 1) * limit;
 
     let where = [];
@@ -1219,8 +1388,8 @@ router.delete('/promotions/:id', async (req, res) => {
 router.get('/audit', async (req, res) => {
   try {
     const q = (req.query.q || '').trim();
-    const limit = Math.min(Math.max(parseInt(req.query.limit) || 25, 1), 200);
-    const page = Math.max(parseInt(req.query.page) || 1, 1);
+    const limit = getAdminListLimit(req.query.limit);
+    const page = getAdminPage(req.query.page);
     const offset = (page - 1) * limit;
 
     let where = [];
@@ -1260,8 +1429,8 @@ router.get('/withdrawals', async (req, res) => {
     const status = req.query.status || '';
     const from = req.query.from || '';
     const to = req.query.to || '';
-    const limit = Math.min(Math.max(parseInt(req.query.limit) || 25, 1), 200);
-    const page = Math.max(parseInt(req.query.page) || 1, 1);
+    const limit = getAdminListLimit(req.query.limit);
+    const page = getAdminPage(req.query.page);
     const offset = (page - 1) * limit;
 
     let where = [];
@@ -1309,7 +1478,7 @@ router.post('/withdrawals/:id/approve', async (req, res) => {
     await client.query('BEGIN');
     // Lock the row to prevent double-approval / race with reject
     const r = await client.query(
-      "SELECT id, status FROM withdrawals WHERE id = $1 FOR UPDATE",
+      "SELECT id, user_id, amount_cents, status FROM withdrawals WHERE id = $1 FOR UPDATE",
       [req.params.id]
     );
     if (!r.rows[0]) { await client.query('ROLLBACK'); return res.status(404).json({ ok: false, msg: 'Saque não encontrado.' }); }
@@ -1318,6 +1487,10 @@ router.post('/withdrawals/:id/approve', async (req, res) => {
     await client.query(
       "UPDATE withdrawals SET status = 'approved', admin_note = $2, updated_at = NOW() WHERE id = $1",
       [req.params.id, admin_note || null]
+    );
+    await client.query(
+      'INSERT INTO admin_audit_log (admin_id, action, target_type, target_id, details, ip_address) VALUES ($1, $2, $3, $4, $5, $6)',
+      [req.session.admin.id, 'withdrawal_approve', 'withdrawal', r.rows[0].id, JSON.stringify({ user_id: r.rows[0].user_id, amount_cents: r.rows[0].amount_cents, note: admin_note || '' }), req.ip]
     );
     await client.query('COMMIT');
     res.json({ ok: true });
@@ -1347,6 +1520,10 @@ router.post('/withdrawals/:id/reject', async (req, res) => {
     await client.query(
       'UPDATE wallets SET balance_cents = balance_cents + $2, updated_at = NOW() WHERE user_id = $1',
       [wd.rows[0].user_id, wd.rows[0].amount_cents]
+    );
+    await client.query(
+      'INSERT INTO admin_audit_log (admin_id, action, target_type, target_id, details, ip_address) VALUES ($1, $2, $3, $4, $5, $6)',
+      [req.session.admin.id, 'withdrawal_reject', 'withdrawal', parseInt(req.params.id, 10), JSON.stringify({ user_id: wd.rows[0].user_id, amount_cents: wd.rows[0].amount_cents, note: admin_note || 'Rejeitado pelo admin' }), req.ip]
     );
     await client.query('COMMIT');
     res.json({ ok: true });
@@ -1445,8 +1622,8 @@ router.get('/notifications', async (req, res) => {
     const q = (req.query.q || '').trim();
     const tipo = req.query.tipo || '';
     const target = req.query.target || '';
-    const limit = Math.min(Math.max(parseInt(req.query.limit) || 25, 1), 200);
-    const page = Math.max(parseInt(req.query.page) || 1, 1);
+    const limit = getAdminListLimit(req.query.limit);
+    const page = getAdminPage(req.query.page);
     const offset = (page - 1) * limit;
 
     let where = [];
@@ -1520,8 +1697,8 @@ router.get('/limits', async (req, res) => {
   try {
     const q = (req.query.q || '').trim();
     const limit_type = req.query.limit_type || '';
-    const limit = Math.min(Math.max(parseInt(req.query.limit) || 25, 1), 200);
-    const page = Math.max(parseInt(req.query.page) || 1, 1);
+    const limit = getAdminListLimit(req.query.limit);
+    const page = getAdminPage(req.query.page);
     const offset = (page - 1) * limit;
 
     let where = [];
@@ -1601,8 +1778,8 @@ router.delete('/limits/:id', async (req, res) => {
 router.get('/leagues', async (req, res) => {
   try {
     const q = (req.query.q || '').trim();
-    const limit = Math.min(Math.max(parseInt(req.query.limit) || 25, 1), 200);
-    const page = Math.max(parseInt(req.query.page) || 1, 1);
+    const limit = getAdminListLimit(req.query.limit);
+    const page = getAdminPage(req.query.page);
     const offset = (page - 1) * limit;
 
     let where = [];
@@ -1709,8 +1886,8 @@ router.get('/coupons', async (req, res) => {
   try {
     const q = (req.query.q || '').trim();
     const active = req.query.active || '';
-    const limit = Math.min(Math.max(parseInt(req.query.limit) || 25, 1), 200);
-    const page = Math.max(parseInt(req.query.page) || 1, 1);
+    const limit = getAdminListLimit(req.query.limit);
+    const page = getAdminPage(req.query.page);
     const offset = (page - 1) * limit;
 
     let where = [];
@@ -1935,15 +2112,18 @@ router.get('/top10', async (req, res) => {
 router.get('/top10/available', async (req, res) => {
   try {
     const q = (req.query.q || '').trim();
-    let sql = 'SELECT id, game_code, game_name, image_url, provider, category FROM games WHERE is_active = TRUE AND is_featured = FALSE';
+    const limit = getAdminListLimit(req.query.limit);
+    const page = getAdminPage(req.query.page);
+    const offset = (page - 1) * limit;
+    let where = 'WHERE is_active = TRUE AND is_featured = FALSE';
     const params = [];
     if (q) {
-      sql += ' AND (game_code ILIKE $1 OR game_name ILIKE $1 OR provider ILIKE $1)';
+      where += ' AND (game_code ILIKE $1 OR game_name ILIKE $1 OR provider ILIKE $1)';
       params.push('%' + q + '%');
     }
-    sql += ' ORDER BY game_name LIMIT 50';
-    const r = await query(sql, params);
-    res.json({ ok: true, rows: r.rows });
+    const countR = await query(`SELECT COUNT(*) AS c FROM games ${where}`, params);
+    const r = await query(`SELECT id, game_code, game_name, image_url, provider, category FROM games ${where} ORDER BY game_name LIMIT $${params.length + 1} OFFSET $${params.length + 2}`, [...params, limit, offset]);
+    res.json({ ok: true, rows: r.rows, total: parseInt(countR.rows[0].c, 10), page, limit });
   } catch (err) {
     res.status(500).json({ ok: false, msg: 'Erro.' });
   }
@@ -2065,8 +2245,13 @@ router.post('/games/deactivate-bad-images', async (req, res) => {
 
 router.get('/provider-images', async (req, res) => {
   try {
-    const r = await query('SELECT * FROM provider_images ORDER BY sort_order, id');
-    res.json({ ok: true, items: r.rows });
+    const limit = getAdminListLimit(req.query.limit);
+    const page = getAdminPage(req.query.page);
+    const offset = (page - 1) * limit;
+    const countR = await query('SELECT COUNT(*) AS c FROM provider_images');
+    const total = parseInt(countR.rows[0].c, 10);
+    const r = await query('SELECT * FROM provider_images ORDER BY sort_order, id LIMIT $1 OFFSET $2', [limit, offset]);
+    res.json({ ok: true, items: r.rows, rows: r.rows, total, page, limit });
   } catch (err) {
     res.status(500).json({ ok: false, msg: 'Erro ao buscar.' });
   }

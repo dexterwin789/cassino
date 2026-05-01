@@ -15,6 +15,49 @@
     return String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
 
+  const ADMIN_PAGE_SIZES = [5, 10, 20, 30];
+  const DEFAULT_PAGE_SIZE = 10;
+
+  function normalizeLimit(value) {
+    const n = parseInt(value, 10);
+    return ADMIN_PAGE_SIZES.includes(n) ? n : DEFAULT_PAGE_SIZE;
+  }
+
+  function compactPages(current, totalPages) {
+    const total = Math.max(1, parseInt(totalPages, 10) || 1);
+    const page = Math.min(Math.max(1, parseInt(current, 10) || 1), total);
+    if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+
+    const items = [1];
+    let start = Math.max(2, page - 1);
+    let end = Math.min(total - 1, page + 1);
+
+    if (page <= 3) end = 4;
+    if (page >= total - 2) start = total - 3;
+
+    if (start > 2) items.push('...');
+    for (let i = start; i <= end; i++) items.push(i);
+    if (end < total - 1) items.push('...');
+    items.push(total);
+    return items;
+  }
+
+  function ensurePageList(card) {
+    const btns = card.querySelector('.adm-pager-btns');
+    if (!btns) return null;
+    let list = btns.querySelector('[data-page-list]');
+    if (!list) {
+      list = document.createElement('div');
+      list.className = 'adm-page-numbers';
+      list.setAttribute('data-page-list', '');
+      const nextBtn = btns.querySelector('[data-action="next"]');
+      btns.insertBefore(list, nextBtn || null);
+    }
+    return list;
+  }
+
+  window.admPagination = { normalizeLimit, compactPages, DEFAULT_PAGE_SIZE, ADMIN_PAGE_SIZES };
+
   function tag(status) {
     const s = (status || '').toLowerCase();
     if (s === 'paid') return `<span class="adm-tag ok">Pago</span>`;
@@ -44,6 +87,12 @@
     const tb = card.querySelector('[data-tbody]');
     const countEl = card.querySelector('[data-count]');
     const pageNumEl = card.querySelector('[data-page-num]');
+    const pageListEl = ensurePageList(card);
+    const prevBtn = card.querySelector('[data-action="prev"]');
+    const nextBtn = card.querySelector('[data-action="next"]');
+
+    const limitSelect = card.querySelector('[data-filter="limit"]');
+    if (limitSelect) limitSelect.value = String(normalizeLimit(limitSelect.value));
 
     function getFilters() {
       const p = {};
@@ -55,7 +104,9 @@
     }
 
     async function load() {
-      const params = { ...getFilters(), page, limit: getFilters().limit || 25 };
+      const filters = getFilters();
+      const limit = normalizeLimit(filters.limit);
+      const params = { ...filters, page, limit };
       const qs = new URLSearchParams(params).toString();
       tb.innerHTML = `<tr><td colspan="99" style="text-align:center;padding:32px;color:rgba(255,255,255,.4)">Carregando...</td></tr>`;
 
@@ -64,8 +115,25 @@
         const d = await r.json();
         if (!d.ok) throw new Error(d.msg);
 
-        if (countEl) countEl.textContent = d.total || 0;
-        if (pageNumEl) pageNumEl.textContent = d.page || page;
+        const total = parseInt(d.total || 0, 10);
+        const currentLimit = normalizeLimit(d.limit || limit);
+        const totalPages = Math.max(1, Math.ceil(total / currentLimit));
+        if (page > totalPages) { page = totalPages; return load(); }
+
+        const currentPage = Math.min(Math.max(1, parseInt(d.page || page, 10) || 1), totalPages);
+        page = currentPage;
+
+        if (countEl) countEl.textContent = total;
+        if (pageNumEl) pageNumEl.textContent = currentPage + ' de ' + totalPages;
+        if (prevBtn) prevBtn.disabled = currentPage <= 1;
+        if (nextBtn) nextBtn.disabled = currentPage >= totalPages;
+        if (pageListEl) {
+          pageListEl.innerHTML = compactPages(currentPage, totalPages).map(item => {
+            if (item === '...') return `<span class="adm-page-ellipsis">...</span>`;
+            const active = item === currentPage ? ' active' : '';
+            return `<button class="adm-page-btn${active}" type="button" data-action="page" data-page-target="${item}" aria-label="Página ${item}">${item}</button>`;
+          }).join('');
+        }
 
         const rows = d.rows || [];
         if (!rows.length) {
@@ -87,6 +155,12 @@
       if (action === 'refresh') { load(); }
       if (action === 'prev') { page = Math.max(1, page - 1); load(); }
       if (action === 'next') { page++; load(); }
+      if (action === 'page') { page = Math.max(1, parseInt(btn.dataset.pageTarget, 10) || 1); load(); }
+    });
+
+    card.querySelectorAll('[data-filter]').forEach(el => {
+      if (el.matches('input[data-filter="q"]')) return;
+      el.addEventListener('change', () => { page = 1; load(); });
     });
 
     card.querySelectorAll('input[data-filter="q"]').forEach(inp => {
@@ -179,6 +253,39 @@
           method: 'POST', headers: {'Content-Type':'application/json'},
           body: JSON.stringify({ block_reason: reason }), credentials: 'same-origin'
         });
+        load();
+      });
+
+      // ── DEMO toggle
+      card.addEventListener('click', async (e) => {
+        const btn = e.target.closest('.btn-demo-toggle');
+        if (!btn) return;
+        const isDemo = btn.dataset.isDemo === '1';
+        const msg = isDemo
+          ? 'Desativar modo DEMO desta conta?\n\nO saldo DEMO atual fica preservado mas a conta volta a usar a wallet real.'
+          : 'Ativar modo DEMO nesta conta?\n\nA conta passará a jogar com saldo DEMO. Saldo real (wallet), depósitos e saques ficam BLOQUEADOS enquanto DEMO estiver ativo. Comissões de afiliados NÃO são geradas.';
+        if (!confirm(msg)) return;
+        const r = await fetch(`/admin/api/users/${btn.dataset.id}/demo-toggle`, { method: 'POST', credentials: 'same-origin' });
+        const j = await r.json().catch(() => ({}));
+        if (!j.ok) alert(j.msg || 'Erro');
+        load();
+      });
+
+      // ── DEMO set balance
+      card.addEventListener('click', async (e) => {
+        const btn = e.target.closest('.btn-demo-balance');
+        if (!btn) return;
+        const cur = Number(btn.dataset.bal || 0) / 100;
+        const inp = prompt(`Definir SALDO DEMO (R$).\nAtual: R$ ${cur.toFixed(2).replace('.', ',')}\n\nDigite o novo valor (ex: 500 ou 500,00):`, cur.toFixed(2).replace('.', ','));
+        if (inp === null) return;
+        const num = parseFloat(String(inp).replace(/[R$\s.]/g, '').replace(',', '.'));
+        if (!Number.isFinite(num) || num < 0) return alert('Valor inválido.');
+        const r = await fetch(`/admin/api/users/${btn.dataset.id}/demo-balance`, {
+          method: 'POST', headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({ balance_brl: num }), credentials: 'same-origin'
+        });
+        const j = await r.json().catch(() => ({}));
+        if (!j.ok) alert(j.msg || 'Erro');
         load();
       });
     }
@@ -369,11 +476,16 @@
   function renderRow(page, r) {
     if (page === 'users') {
       const wallet = Number(r.wallet_balance_cents || 0) / 100;
+      const demoBal = Number(r.demo_balance_cents || 0) / 100;
+      const demoBadge = r.is_demo ? `<span class="adm-tag warn" style="margin-left:6px;font-size:10px;background:rgba(255,193,7,.2);border-color:rgba(255,193,7,.4);color:#ffc107">DEMO</span>` : '';
+      const walletCell = r.is_demo
+        ? `<span style="color:rgba(255,255,255,.4);text-decoration:line-through" title="Conta DEMO ignora wallet">${brl(wallet)}</span><br><span style="color:#ffc107;font-weight:900" title="Saldo DEMO">${brl(demoBal)} D</span>`
+        : `<span style="color:var(--adm-green2)">${brl(wallet)}</span>`;
       return `<tr>
         <td>${r.id}</td>
-        <td><strong>${esc(r.username)}</strong></td>
+        <td><strong>${esc(r.username)}</strong>${demoBadge}</td>
         <td style="color:rgba(255,255,255,.55)">${esc(r.phone || '-')}</td>
-        <td style="color:var(--adm-green2)">${brl(wallet)}</td>
+        <td>${walletCell}</td>
         <td>${brl(Number(r.bonus || 0))}</td>
         <td>${activeTag(r.is_active)}</td>
         <td style="color:rgba(255,255,255,.45)">${fdate(r.created_at)}</td>
@@ -381,6 +493,8 @@
           <div style="display:flex;gap:4px;flex-wrap:wrap;">
             <button class="adm-btn btn-toggle-user" data-id="${r.id}" style="font-size:11px;height:30px;padding:0 8px;">${r.is_active ? 'Desativar' : 'Ativar'}</button>
             <button class="adm-btn btn-balance-user" data-id="${r.id}" style="font-size:11px;height:30px;padding:0 8px;border-color:rgba(46,231,107,.3);color:#2ee76b">R$</button>
+            <button class="adm-btn btn-demo-toggle" data-id="${r.id}" data-is-demo="${r.is_demo ? '1' : '0'}" style="font-size:11px;height:30px;padding:0 8px;border-color:rgba(255,193,7,.4);color:#ffc107" title="${r.is_demo ? 'Desativar DEMO' : 'Ativar DEMO'}">${r.is_demo ? '✓ DEMO' : 'DEMO'}</button>
+            <button class="adm-btn btn-demo-balance" data-id="${r.id}" data-bal="${r.demo_balance_cents || 0}" style="font-size:11px;height:30px;padding:0 8px;border-color:rgba(255,193,7,.3);color:#ffc107" title="Definir saldo DEMO">D$</button>
             <button class="adm-btn btn-block-user" data-id="${r.id}" style="font-size:11px;height:30px;padding:0 8px;border-color:rgba(255,77,77,.3);color:#ff4d4d">Block</button>
           </div>
         </td>

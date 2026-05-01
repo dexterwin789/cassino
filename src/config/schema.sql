@@ -143,6 +143,12 @@ ALTER TABLE affiliates ADD COLUMN IF NOT EXISTS level INT NOT NULL DEFAULT 1;
 ALTER TABLE affiliates ADD COLUMN IF NOT EXISTS visits_total BIGINT NOT NULL DEFAULT 0;
 ALTER TABLE affiliates ADD COLUMN IF NOT EXISTS model VARCHAR(16) NOT NULL DEFAULT 'revshare';
 ALTER TABLE affiliates ADD COLUMN IF NOT EXISTS cpa_amount_cents BIGINT NOT NULL DEFAULT 0;
+ALTER TABLE affiliates ADD COLUMN IF NOT EXISTS status VARCHAR(16) NOT NULL DEFAULT 'approved';
+CREATE INDEX IF NOT EXISTS idx_affiliates_status ON affiliates(status);
+
+-- Demo accounts (admin-managed, isolated from real wallet/withdrawals)
+ALTER TABLE users ADD COLUMN IF NOT EXISTS is_demo BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS demo_balance_cents BIGINT NOT NULL DEFAULT 0;
 
 --  Affiliate Commissions —————————————————
 CREATE TABLE IF NOT EXISTS affiliate_commissions (

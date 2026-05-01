@@ -2,6 +2,7 @@
 
 var allGames = [];
 var gamesLoadPromise = null;
+var DEFAULT_GAME_PAGE_SIZE = 24;
 window.VNB_IS_AFFILIATE = false;
 if (document.body) document.body.classList.add('not-affiliate');
 
@@ -32,7 +33,7 @@ function isElementInView(el) {
 }
 
 function pageNeedsImmediateGames() {
-  return !!(document.getElementById('homeFilteredGrid') || document.getElementById('top10Track') || document.getElementById('liveGamesScroll') || document.getElementById('crashGamesScroll') || document.getElementById('ganhosTrack') || document.getElementById('apostasList'));
+  return !!(document.getElementById('homeFilteredGrid') || document.getElementById('top10Track') || document.getElementById('liveGamesScroll') || document.getElementById('ganhosTrack') || document.getElementById('apostasList'));
 }
 
 function hasFastPageContent() {
@@ -102,7 +103,7 @@ var searchMessage = document.getElementById('searchMessage');
 var searchTimer = null;
 var searchFiltered = [];
 var searchShown = 0;
-var searchPageSize = 15;
+var searchPageSize = DEFAULT_GAME_PAGE_SIZE;
 var searchActiveTag = 'Todos';
 var searchIsOpen = false;
 
@@ -242,7 +243,7 @@ function handleSearchState() {
   // Special "all" command — shows every game
   if (q.toLowerCase() === 'all') {
     searchActiveTag = 'Todos';
-    searchFiltered = allGames.slice();
+    searchFiltered = allGames.filter(function(g) { return !!g.image_url; });
     searchShown = 0;
     var allTags = extractTags(searchFiltered);
     renderSearchTags(allTags);
@@ -327,7 +328,7 @@ function doSearch() {
   renderSearchTags(dynamicTags);
 
   // Store full query results and show
-  searchFiltered = queryMatched;
+  searchFiltered = queryMatched.filter(function(g) { return !!g.image_url; });
   searchShown = 0;
   if (searchGrid) { searchGrid.innerHTML = ''; searchGrid.style.display = 'grid'; }
   showMoreSearchResults();
@@ -404,7 +405,7 @@ startPlaceholderAnim();
 /* Provider grid IDs — REPLACED by dynamic filter */
 var homeFilteredGames = [];
 var homeShown = 0;
-var homePageSize = 24;
+var homePageSize = DEFAULT_GAME_PAGE_SIZE;
 var homeActiveProvider = '';
 
 function renderHomeFiltered() {
@@ -507,7 +508,6 @@ function renderAllSections() {
   buildHomeProviderDropdown();
   renderHomeFiltered();
   renderCategorySection('live', 'liveGamesScroll');
-  renderCategorySection('crash', 'crashGamesScroll');
 }
 
 function renderCategorySection(category, containerId) {
@@ -1171,12 +1171,29 @@ function refreshWalletUI() {
     .then(function(j) {
       if (!j || !j.ok) return;
       var bal = j.balance_brl || '0,00';
+      var isDemo = !!j.is_demo;
+      var prefix = isDemo ? 'D$ ' : 'R$ ';
       document.querySelectorAll('#walletBalance, .topbar-balance-val').forEach(function(el) {
-        el.textContent = 'R$ ' + bal;
+        el.textContent = prefix + bal;
+        el.style.color = isDemo ? '#ffc107' : '';
+        el.title = isDemo ? 'Saldo DEMO — controlado pelo admin' : '';
       });
       var wBal = document.getElementById('walletMainBalance');
       if (wBal) wBal.textContent = bal;
       document.querySelectorAll('.walletBalanceMirror').forEach(function(el) { el.textContent = bal; });
+      // Banner DEMO
+      var banner = document.getElementById('demoBanner');
+      if (isDemo && !banner) {
+        banner = document.createElement('div');
+        banner.id = 'demoBanner';
+        banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:9999;background:linear-gradient(90deg,#ffc107,#ff9800);color:#1a1a1a;text-align:center;padding:6px 12px;font-weight:800;font-size:13px;letter-spacing:.3px;box-shadow:0 2px 8px rgba(0,0,0,.4)';
+        banner.innerHTML = '🎮 MODO DEMO ATIVO — saldo controlado pelo admin. Depósitos e saques bloqueados.';
+        document.body.appendChild(banner);
+        document.body.style.paddingTop = '32px';
+      } else if (!isDemo && banner) {
+        banner.remove();
+        document.body.style.paddingTop = '';
+      }
     }).catch(function() {});
 }
 

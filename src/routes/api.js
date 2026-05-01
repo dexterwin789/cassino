@@ -7,6 +7,7 @@ const { requireUser, requireAdmin } = require('../middleware/auth');
 const { createSale } = require('../services/blackcat');
 const { DEFAULT_AFFILIATE_CAREER_TIERS, normalizeAffiliateCareerTiers } = require('../utils/affiliateCareer');
 const { categoryCondition } = require('../utils/gameCategories');
+const { publicGameFilter } = require('../utils/publicGames');
 
 // Rate limit: 8 tentativas de login por IP a cada 15 min
 const loginLimiter = rateLimit({
@@ -217,6 +218,7 @@ router.get('/me', async (req, res) => {
   try {
     const r = await query(
       `SELECT id, username, name, phone, email, cpf, birth_date, address_cep, address_street, address_city, address_state, pix_type, pix_key, avatar_url,
+              is_demo, demo_balance_cents,
               limit_deposit_type, limit_deposit_period, limit_deposit_amount,
               limit_bet_type, limit_bet_period, limit_bet_amount,
               limit_loss_type, limit_loss_period, limit_loss_amount,
@@ -235,7 +237,7 @@ router.get('/me', async (req, res) => {
         exists: !!aff,
         is_active: !!(aff && aff.is_active === true),
         is_affiliate: !!(aff && aff.is_active === true),
-        status: aff ? (aff.is_active === true ? 'active' : 'pending') : 'none',
+        status: aff ? (aff.status || (aff.is_active === true ? 'approved' : 'pending')) : 'none',
         code: aff && aff.is_active === true ? aff.code : null
       }
     });
@@ -249,9 +251,15 @@ router.get('/me', async (req, res) => {
 // GET /api/wallet
 router.get('/wallet', requireUser, async (req, res) => {
   try {
-    const r = await query('SELECT balance_cents FROM wallets WHERE user_id = $1', [req.session.user.id]);
-    const cents = parseInt(r.rows[0]?.balance_cents || 0);
-    res.json({ ok: true, logged: true, balance_cents: cents, balance_brl: (cents / 100).toFixed(2) });
+    const r = await query('SELECT is_demo, demo_balance_cents FROM users WHERE id = $1', [req.session.user.id]);
+    const isDemo = !!r.rows[0]?.is_demo;
+    if (isDemo) {
+      const cents = parseInt(r.rows[0].demo_balance_cents || 0);
+      return res.json({ ok: true, logged: true, is_demo: true, balance_cents: cents, balance_brl: (cents / 100).toFixed(2) });
+    }
+    const w = await query('SELECT balance_cents FROM wallets WHERE user_id = $1', [req.session.user.id]);
+    const cents = parseInt(w.rows[0]?.balance_cents || 0);
+    res.json({ ok: true, logged: true, is_demo: false, balance_cents: cents, balance_brl: (cents / 100).toFixed(2) });
   } catch (err) {
     res.status(500).json({ ok: false, msg: 'Erro ao buscar saldo.' });
   }
@@ -262,6 +270,12 @@ router.get('/wallet', requireUser, async (req, res) => {
 // POST /api/deposit/create
 router.post('/deposit/create', requireUser, async (req, res) => {
   try {
+    // Block deposits for demo accounts (saldo demo é gerenciado pelo admin)
+    const dR = await query('SELECT is_demo FROM users WHERE id = $1', [req.session.user.id]);
+    if (dR.rows[0]?.is_demo) {
+      return res.status(403).json({ ok: false, msg: 'Conta em modo DEMO não aceita depósitos. O saldo demo é controlado pelo admin.' });
+    }
+
     const amountBrl = parseFloat(req.body.amount_brl);
     const amountCents = Math.round(amountBrl * 100);
     const minDepositCents = await getPlatformMoneySetting('min_deposit', 2000);
@@ -350,7 +364,7 @@ router.get('/deposit/status', requireUser, async (req, res) => {
 router.get('/games', async (req, res) => {
   try {
     const cat = req.query.category || '';
-    let sql = 'SELECT id, game_code, game_name, image_url, provider, category, is_featured, featured_order FROM games WHERE is_active = TRUE';
+    let sql = `SELECT id, game_code, game_name, image_url, provider, category, is_featured, featured_order FROM games WHERE ${publicGameFilter()}`;
     const params = [];
 
     if (cat) {
@@ -375,7 +389,7 @@ router.post('/game/launch', requireUser, async (req, res) => {
 
     // Fetch game info
     const gameR = await query(
-      'SELECT id, game_code, game_name, pf_game_code, pf_provider, game_original FROM games WHERE game_code = $1 AND is_active = TRUE',
+      `SELECT id, game_code, game_name, pf_game_code, pf_provider, game_original FROM games WHERE game_code = $1 AND ${publicGameFilter()}`,
       [game_code]
     );
     if (!gameR.rows.length) return res.status(404).json({ ok: false, msg: 'Jogo não encontrado.' });
@@ -385,9 +399,16 @@ router.post('/game/launch', requireUser, async (req, res) => {
       return res.status(400).json({ ok: false, msg: 'Jogo não integrado com provedor.' });
     }
 
-    // Get user balance (cents → reais)
-    const walletR = await query('SELECT balance_cents FROM wallets WHERE user_id = $1', [userId]);
-    const balanceCents = walletR.rows[0] ? parseInt(walletR.rows[0].balance_cents) : 0;
+    // Get user balance (cents → reais). Demo users use users.demo_balance_cents.
+    const uR = await query('SELECT is_demo, demo_balance_cents FROM users WHERE id = $1', [userId]);
+    const isDemo = !!uR.rows[0]?.is_demo;
+    let balanceCents;
+    if (isDemo) {
+      balanceCents = parseInt(uR.rows[0].demo_balance_cents || 0);
+    } else {
+      const walletR = await query('SELECT balance_cents FROM wallets WHERE user_id = $1', [userId]);
+      balanceCents = walletR.rows[0] ? parseInt(walletR.rows[0].balance_cents) : 0;
+    }
     const balanceReais = parseFloat((balanceCents / 100).toFixed(2));
 
     // User code for PlayFivers = unique identifier (email or id)
@@ -1218,6 +1239,12 @@ router.get('/user/limits', requireUser, async (req, res) => {
 router.post('/withdrawal/create', requireUser, async (req, res) => {
   const userId = req.session.user.id;
   try {
+    // Block withdrawals for demo accounts (no real funds available)
+    const dR = await query('SELECT is_demo FROM users WHERE id = $1', [userId]);
+    if (dR.rows[0]?.is_demo) {
+      return res.status(403).json({ ok: false, msg: 'Conta em modo DEMO não pode realizar saques.' });
+    }
+
     const amountBrl = parseFloat(req.body.amount_brl);
     const amountCents = Math.round(amountBrl * 100);
     const minWithdrawalCents = await getPlatformMoneySetting('min_withdrawal', 5000);
@@ -1408,7 +1435,7 @@ router.post('/notifications/read-all', requireUser, async (req, res) => {
 });
 
 // GET /api/diag/playfivers — Debug PlayFivers config (admin only, temporary)
-router.get('/diag/playfivers', async (req, res) => {
+router.get('/diag/playfivers', requireAdmin, async (req, res) => {
   try {
     const pf = require('../services/playfivers');
     const agentR = await pf.getAgent();
@@ -1998,6 +2025,50 @@ router.delete('/affiliate/links/:id', requireUser, async (req, res) => {
   } catch (err) {
     console.error('[AFF LINKS DELETE]', err);
     res.status(500).json({ ok: false, msg: 'Erro' });
+  }
+});
+
+// POST /api/affiliate/request — usuário solicita virar afiliado/subafiliado.
+// Cria a row em status 'pending' (is_active=FALSE). Admin precisa aprovar.
+router.post('/affiliate/request', requireUser, async (req, res) => {
+  try {
+    const userId = req.session.user.id;
+
+    // Demo accounts não podem virar afiliados (não geram receita real)
+    const uR = await query('SELECT id, is_demo, referred_by FROM users WHERE id = $1', [userId]);
+    const u = uR.rows[0];
+    if (!u) return res.status(404).json({ ok: false, msg: 'Usuário não encontrado.' });
+    if (u.is_demo) return res.status(403).json({ ok: false, msg: 'Conta DEMO não pode solicitar programa de afiliados.' });
+
+    // Já existe afiliado?
+    const existing = await query('SELECT id, status, is_active FROM affiliates WHERE user_id = $1 LIMIT 1', [userId]);
+    if (existing.rows.length) {
+      const cur = existing.rows[0];
+      if (cur.status === 'pending') return res.json({ ok: true, msg: 'Solicitação já registrada. Aguarde aprovação.', status: 'pending' });
+      if (cur.is_active && cur.status === 'approved') return res.json({ ok: true, msg: 'Você já é afiliado.', status: 'approved' });
+      if (cur.status === 'rejected') return res.status(403).json({ ok: false, msg: 'Sua solicitação foi rejeitada. Entre em contato com o suporte.' });
+    }
+
+    // Determinar parent (subafiliado se referrer for afiliado ativo)
+    let parentId = null;
+    if (u.referred_by) {
+      const pR = await query('SELECT id FROM affiliates WHERE user_id = $1 AND is_active = TRUE AND status = $2 LIMIT 1', [u.referred_by, 'approved']);
+      parentId = pR.rows[0]?.id || null;
+    }
+
+    // Gerar código provisório (será validado/regenerado no approve se necessário)
+    const code = 'PND' + userId + Math.random().toString(36).slice(2, 6).toUpperCase();
+
+    await query(`
+      INSERT INTO affiliates (user_id, code, commission_pct, total_earned_cents, is_active, status, level, parent_id, model, created_at)
+      VALUES ($1, $2, 0, 0, FALSE, 'pending', 1, $3, 'revshare', NOW())
+      ON CONFLICT (user_id) DO UPDATE SET status = 'pending', is_active = FALSE, parent_id = COALESCE(affiliates.parent_id, EXCLUDED.parent_id)
+    `, [userId, code, parentId]);
+
+    res.json({ ok: true, msg: 'Solicitação enviada. Aguarde aprovação do admin.', status: 'pending', is_subaffiliate: !!parentId });
+  } catch (err) {
+    console.error('[AFF REQUEST]', err);
+    res.status(500).json({ ok: false, msg: 'Erro ao solicitar afiliação.' });
   }
 });
 
