@@ -279,8 +279,7 @@ img, svg, canvas, video {
   position: sticky;
   top: 0;
   z-index: 50;
-  backdrop-filter: blur(12px);
-  background: rgba(11,15,20,.85);
+  background: #0b0f14;
   border-bottom: 1px solid var(--adm-line);
   padding: 14px 24px;
   display: flex;
@@ -1214,14 +1213,9 @@ body.adm-sidebar-open .adm-sidebar-backdrop {
   display: none;
 }
 
-.adm-page-card,
-.adm-chart-card,
-.adm-list-card,
-.adm-stat-card,
-.adm-setting-card,
-.adm-theme-card {
-  backdrop-filter: blur(16px);
-}
+/* backdrop-filter on cards removed: caused layout-paint thrash and low FPS
+   while scrolling pages with many cards (admin dashboard, games list, etc.).
+   Cards are opaque so the effect was invisible anyway. */
 
 .adm-field input,
 .adm-field select,

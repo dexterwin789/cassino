@@ -61,6 +61,7 @@ if (IS_PROD && (!process.env.SESSION_SECRET || process.env.SESSION_SECRET === 'f
 // Sessions
 app.use(session({
   store: new PgSession({ pool, tableName: 'sessions', createTableIfMissing: true }),
+  name: 'vnb_sid',
   secret: process.env.SESSION_SECRET || 'fallback-secret',
   resave: false,
   saveUninitialized: false,
@@ -73,6 +74,22 @@ app.use(session({
     domain: IS_PROD ? '.vemnabet.bet' : undefined
   }
 }));
+
+// ── Legacy cookie cleanup ───────────────────────────────────
+// Old deploys set cookies as "connect.sid" with host-only scope (no Domain attr),
+// which take priority over the new ".vemnabet.bet" cookie and break login in
+// non-incognito browsers. Nuke them on every response.
+app.use((req, res, next) => {
+  if (req.headers.cookie && /(?:^|;\s*)connect\.sid=/.test(req.headers.cookie)) {
+    const expire = 'Expires=Thu, 01 Jan 1970 00:00:00 GMT';
+    res.append('Set-Cookie', `connect.sid=; Path=/; ${expire}; SameSite=Lax`);
+    if (IS_PROD) {
+      res.append('Set-Cookie', `connect.sid=; Path=/; Domain=.vemnabet.bet; ${expire}; SameSite=None; Secure`);
+      res.append('Set-Cookie', `connect.sid=; Path=/; Domain=vemnabet.bet; ${expire}; SameSite=None; Secure`);
+    }
+  }
+  next();
+});
 
 // ── Referral capture middleware ─────────────────────────────
 // Captures ?ref=<code|id> from URL (works across vemnabet.bet and
@@ -697,12 +714,15 @@ async function autoMigrate() {
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_chat_msg_sess ON chat_messages(session_id)`);
 
     // ——— Dedup: deactivate duplicate games (keep synced version) —————
+    // Strip "OFICIAL - " prefix so PlayFivers clones (e.g. "OFICIAL - PG SOFT" + "PGSOFT")
+    // collapse into the same partition.
     const dedupResult = await pool.query(`
       WITH ranked AS (
         SELECT id,
           ROW_NUMBER() OVER (
-            PARTITION BY LOWER(game_name), LOWER(COALESCE(provider,''))
-            ORDER BY (pf_game_code IS NOT NULL) DESC, id DESC
+            PARTITION BY LOWER(TRIM(COALESCE(game_name,''))),
+                         LOWER(TRIM(REGEXP_REPLACE(COALESCE(provider,''),'^OFICIAL\\s*-\\s*','','i')))
+            ORDER BY (pf_game_code IS NOT NULL) DESC, id ASC
           ) as rn
         FROM games
         WHERE is_active = TRUE
