@@ -27,7 +27,7 @@ router.post('/login', adminLoginLimiter, async (req, res) => {
     return res.render('admin/login', { error: 'Preencha todos os campos.', title: 'Login Admin' });
   }
   try {
-    const r = await query('SELECT id, username, password_hash, role, is_active FROM admin_users WHERE username = $1', [username.trim()]);
+    const r = await query('SELECT id, username, password_hash, role, is_active FROM admin_users WHERE LOWER(username) = LOWER($1) LIMIT 1', [username.trim()]);
     const adm = r.rows[0];
     if (!adm || !adm.is_active || !(await bcrypt.compare(password, adm.password_hash))) {
       return res.render('admin/login', { error: 'Usuário ou senha inválidos.', title: 'Login Admin' });

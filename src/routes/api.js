@@ -165,6 +165,7 @@ router.post('/login', loginLimiter, async (req, res) => {
   try {
     const login = (req.body.login || req.body.username || '').trim();
     const password = req.body.password || '';
+    const cleanCpf = login.replace(/\D/g, '');
     if (!login || !password) {
       return res.status(400).json({ ok: false, msg: 'Preencha todos os campos.' });
     }
@@ -174,11 +175,21 @@ router.post('/login', loginLimiter, async (req, res) => {
               COALESCE(w.balance_cents, 0) AS wallet_balance_cents
        FROM users u
        LEFT JOIN wallets w ON w.user_id = u.id
-       WHERE u.username = $1 OR u.email = $1 OR u.cpf = $2`,
-      [login, login.replace(/\D/g, '')]
+       WHERE LOWER(u.username) = LOWER($1)
+          OR LOWER(COALESCE(u.email, '')) = LOWER($1)
+          OR ($2 <> '' AND regexp_replace(COALESCE(u.cpf, ''), '\\D', '', 'g') = $2)
+       ORDER BY u.id DESC
+       LIMIT 10`,
+      [login, cleanCpf]
     );
-    const u = r.rows[0];
-    if (!u || !(await bcrypt.compare(password, u.password_hash))) {
+    let u = null;
+    for (const candidate of r.rows) {
+      if (await bcrypt.compare(password, candidate.password_hash)) {
+        u = candidate;
+        break;
+      }
+    }
+    if (!u) {
       return res.status(401).json({ ok: false, msg: 'Usuário ou senha inválidos.' });
     }
 
@@ -213,8 +224,10 @@ router.post('/password/reset', passwordResetLimiter, async (req, res) => {
 
     const r = await query(
       `SELECT id FROM users
-       WHERE (username = $1 OR email = $1 OR cpf = $2)
-         AND cpf = $2
+       WHERE (LOWER(username) = LOWER($1)
+          OR LOWER(COALESCE(email, '')) = LOWER($1)
+          OR regexp_replace(COALESCE(cpf, ''), '\\D', '', 'g') = $2)
+         AND regexp_replace(COALESCE(cpf, ''), '\\D', '', 'g') = $2
        LIMIT 1`,
       [login, cpf]
     );
