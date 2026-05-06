@@ -667,7 +667,7 @@ async function autoMigrate() {
 
     await pool.query(`
       INSERT INTO games (game_code, game_name, image_url, provider, category, sort_order, is_active, pf_game_code, pf_provider, game_original, is_featured, featured_order)
-      VALUES ('oficial-pragmatic-live-pp-28401', 'French Roulette', 'https://imagensfivers.com/Games/Pragmatic-Play/PP_28401.webp', 'OFICIAL - PRAGMATIC LIVE', 'live', -100, TRUE, 'PP_28401', 'OFICIAL - PRAGMATIC LIVE', TRUE, TRUE, 1)
+      VALUES ('oficial-pragmatic-live-pp-28401', 'French Roulette', 'https://imagensfivers.com/Games/Pragmatic-Play/PP_28401.webp', 'OFICIAL - PRAGMATIC LIVE', 'live', -100, TRUE, 'PP_28401', 'OFICIAL - PRAGMATIC LIVE', TRUE, FALSE, 0)
       ON CONFLICT (game_code) DO UPDATE SET
         game_name = EXCLUDED.game_name,
         image_url = EXCLUDED.image_url,
@@ -677,15 +677,11 @@ async function autoMigrate() {
         is_active = TRUE,
         pf_game_code = EXCLUDED.pf_game_code,
         pf_provider = EXCLUDED.pf_provider,
-        game_original = TRUE,
-        is_featured = TRUE,
-        featured_order = 1
+        game_original = TRUE
     `);
     await pool.query(`
       UPDATE games
       SET sort_order = -100,
-          is_featured = TRUE,
-          featured_order = 1,
           category = 'live',
           pf_game_code = 'PP_28401',
           pf_provider = 'OFICIAL - PRAGMATIC LIVE',
@@ -756,9 +752,9 @@ async function autoMigrate() {
     `);
 
     const liveRouletteGames = [
-      ['oficial-pragmatic-live-pp-203', 'Speed Roulette 1', 'https://imagensfivers.com/Games/Pragmatic-Play/PP_203.webp', 'OFICIAL - PRAGMATIC LIVE', 'PP_203', -99, true, 2],
-      ['oficial-pragmatic-live-pp-266', 'VIP Auto Roulette', 'https://imagensfivers.com/Games/Pragmatic-Play/PP_266.webp', 'OFICIAL - PRAGMATIC LIVE', 'PP_266', -98, true, 3],
-      ['oficial-pragmatic-live-pp-270', 'Fortune Roulette', 'https://imagensfivers.com/Games/Pragmatic-Play/PP_270.webp', 'OFICIAL - PRAGMATIC LIVE', 'PP_270', -97, true, 4],
+      ['oficial-pragmatic-live-pp-203', 'Speed Roulette 1', 'https://imagensfivers.com/Games/Pragmatic-Play/PP_203.webp', 'OFICIAL - PRAGMATIC LIVE', 'PP_203', -99, false, null],
+      ['oficial-pragmatic-live-pp-266', 'VIP Auto Roulette', 'https://imagensfivers.com/Games/Pragmatic-Play/PP_266.webp', 'OFICIAL - PRAGMATIC LIVE', 'PP_266', -98, false, null],
+      ['oficial-pragmatic-live-pp-270', 'Fortune Roulette', 'https://imagensfivers.com/Games/Pragmatic-Play/PP_270.webp', 'OFICIAL - PRAGMATIC LIVE', 'PP_270', -97, false, null],
       ['oficial-pragmatic-live-pp-292', 'Immersive Roulette Deluxe', 'https://imagensfivers.com/Games/Pragmatic-Play/PP_292.webp', 'OFICIAL - PRAGMATIC LIVE', 'PP_292', -96, false, null],
       ['oficial-pragmatic-live-pp-28201', 'Prive Lounge Roulette', 'https://imagensfivers.com/Games/Pragmatic-Play/PP_28201.webp', 'OFICIAL - PRAGMATIC LIVE', 'PP_28201', -95, false, null],
       ['oficial-pragmatic-live-pp-28301', 'Prive Lounge Roulette Deluxe', 'https://imagensfivers.com/Games/Pragmatic-Play/PP_28301.webp', 'OFICIAL - PRAGMATIC LIVE', 'PP_28301', -94, false, null],
