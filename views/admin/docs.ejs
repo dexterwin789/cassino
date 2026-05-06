@@ -1,0 +1,261 @@
+<%- include('layout-head', { title: 'Documenta\u00e7\u00e3o', page: 'docs' }) %>
+
+<style>
+  .docs-wrap { display:grid; grid-template-columns: 240px 1fr; gap:24px; }
+  @media (max-width: 900px) { .docs-wrap { grid-template-columns: 1fr; } }
+  .docs-toc { position:sticky; top:80px; align-self:start; background:var(--card-bg, #1a1f2e); border:1px solid var(--border, rgba(255,255,255,.08)); border-radius:12px; padding:16px; max-height:calc(100vh - 100px); overflow:auto; }
+  .docs-toc h4 { margin:0 0 10px; font-size:11px; letter-spacing:.5px; text-transform:uppercase; opacity:.6; }
+  .docs-toc a { display:block; padding:6px 8px; color:inherit; text-decoration:none; border-radius:6px; font-size:13px; opacity:.85; }
+  .docs-toc a:hover { background:rgba(255,255,255,.05); opacity:1; }
+  .docs-content section { background:var(--card-bg, #1a1f2e); border:1px solid var(--border, rgba(255,255,255,.08)); border-radius:12px; padding:22px 24px; margin-bottom:18px; scroll-margin-top:80px; }
+  .docs-content h2 { margin:0 0 12px; font-size:18px; display:flex; align-items:center; gap:10px; }
+  .docs-content h2 .ico { width:32px; height:32px; border-radius:8px; background:linear-gradient(135deg,#8b5cf6,#3b82f6); display:inline-flex; align-items:center; justify-content:center; color:#fff; font-size:14px; }
+  .docs-content h3 { margin:18px 0 8px; font-size:14px; opacity:.85; }
+  .docs-content p, .docs-content li { font-size:13.5px; line-height:1.6; opacity:.9; }
+  .docs-content code { background:rgba(255,255,255,.06); padding:2px 6px; border-radius:4px; font-size:12px; font-family: ui-monospace, Menlo, monospace; }
+  .docs-content table { width:100%; border-collapse:collapse; margin:10px 0; font-size:13px; }
+  .docs-content th, .docs-content td { text-align:left; padding:8px 10px; border-bottom:1px solid var(--border, rgba(255,255,255,.06)); }
+  .docs-content th { opacity:.7; font-weight:600; font-size:11px; text-transform:uppercase; letter-spacing:.5px; }
+  .docs-pill { display:inline-block; padding:2px 8px; border-radius:999px; font-size:11px; font-weight:600; }
+  .docs-pill.ok { background:rgba(16,185,129,.15); color:#10b981; }
+  .docs-pill.warn { background:rgba(245,158,11,.15); color:#f59e0b; }
+  .docs-pill.off { background:rgba(239,68,68,.15); color:#ef4444; }
+  .docs-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:10px; margin:12px 0; }
+  .docs-card { background:rgba(255,255,255,.03); border:1px solid var(--border, rgba(255,255,255,.06)); border-radius:8px; padding:12px; }
+  .docs-card .k { font-size:11px; opacity:.6; text-transform:uppercase; letter-spacing:.5px; }
+  .docs-card .v { font-size:18px; font-weight:600; margin-top:4px; }
+</style>
+
+<div class="adm-page-card">
+  <div class="adm-page-head">
+    <div>
+      <h3>Documenta\u00e7\u00e3o do Sistema</h3>
+      <p class="adm-muted">Vis\u00e3o completa de integra\u00e7\u00f5es, funcionalidades e arquitetura</p>
+    </div>
+  </div>
+
+  <div class="docs-wrap">
+    <aside class="docs-toc">
+      <h4>Sum\u00e1rio</h4>
+      <a href="#visao-geral">Vis\u00e3o geral</a>
+      <a href="#stack">Stack t\u00e9cnico</a>
+      <a href="#integracoes">Integra\u00e7\u00f5es</a>
+      <a href="#provedores">Provedores de jogos</a>
+      <a href="#categorias">Categorias</a>
+      <a href="#carteiras">Carteiras &amp; Saldo</a>
+      <a href="#pagamentos">Pagamentos (PIX)</a>
+      <a href="#afiliados">Afiliados v2</a>
+      <a href="#auth">Autentica\u00e7\u00e3o</a>
+      <a href="#admin">Painel Admin</a>
+      <a href="#temas">Temas &amp; Custom Domains</a>
+      <a href="#endpoints">Endpoints principais</a>
+      <a href="#tabelas">Tabelas do banco</a>
+      <a href="#deploy">Deploy</a>
+    </aside>
+
+    <div class="docs-content">
+
+      <section id="visao-geral">
+        <h2><span class="ico">i</span> Vis\u00e3o geral</h2>
+        <p>Plataforma de cassino online iGaming completa rodando em <strong>vemnabet.bet</strong>. Inclui agrega\u00e7\u00e3o de jogos via <strong>PlayFivers</strong>, pagamentos PIX via <strong>BlackCat</strong>, sistema de afiliados v2 com sub-afiliados, contas demo, jogo respons\u00e1vel, multi-tema e dom\u00ednios customizados.</p>
+        <div class="docs-grid">
+          <div class="docs-card"><div class="k">Stack</div><div class="v">Node + Express</div></div>
+          <div class="docs-card"><div class="k">Banco</div><div class="v">PostgreSQL</div></div>
+          <div class="docs-card"><div class="k">Deploy</div><div class="v">Railway</div></div>
+          <div class="docs-card"><div class="k">Linguagem</div><div class="v">pt-BR / BRL</div></div>
+        </div>
+      </section>
+
+      <section id="stack">
+        <h2><span class="ico">\u26a1</span> Stack t\u00e9cnico</h2>
+        <ul>
+          <li><strong>Backend:</strong> Node.js + Express + EJS</li>
+          <li><strong>Banco:</strong> PostgreSQL (pool <code>pg</code>)</li>
+          <li><strong>Sess\u00e3o:</strong> express-session com secret em env</li>
+          <li><strong>Senhas:</strong> bcrypt (cost 10)</li>
+          <li><strong>Frontend:</strong> EJS server-rendered + JS vanilla</li>
+          <li><strong>Hosting:</strong> Railway (deploy via <code>railway up -d</code>)</li>
+        </ul>
+      </section>
+
+      <section id="integracoes">
+        <h2><span class="ico">\u2699</span> Integra\u00e7\u00f5es</h2>
+
+        <h3>PlayFivers (agregador de jogos) <span class="docs-pill ok">ATIVO</span></h3>
+        <p>\u00danico agregador respons\u00e1vel por TODOS os provedores. As "carteiras" Evolution / Spribe / NetEnt / Ezugi / Pragmatic / Clones s\u00e3o sub-saldos no painel PlayFivers, n\u00e3o APIs separadas.</p>
+        <ul>
+          <li>Env: <code>PLAYFIVERS_SECRET_KEY</code></li>
+          <li>Webhook \u00fanico: <code>POST /api/playfivers/callback</code></li>
+          <li>Lan\u00e7amento de jogo: <code>POST /api/game/launch</code> envia <code>pf_provider</code> + <code>game_code</code></li>
+          <li>Listagem p\u00fablica: filtro em <code>publicGames.js</code> via regex de provedores permitidos</li>
+        </ul>
+
+        <h3>BlackCat (PIX) <span class="docs-pill ok">ATIVO</span></h3>
+        <ul>
+          <li>Env: <code>BLACKCAT_SECRET_KEY</code></li>
+          <li>Endpoints: cria\u00e7\u00e3o de PIX in/out, webhook de confirma\u00e7\u00e3o</li>
+          <li>Rate limit: m\u00e1x 5 PIXs com mesmo CPF em 30s (DOCUMENT_BLACKLISTED)</li>
+        </ul>
+      </section>
+
+      <section id="provedores">
+        <h2><span class="ico">\ud83c\udfae</span> Provedores de jogos</h2>
+        <p>Total p\u00fablico: <strong>~3.210 jogos ativos</strong>. Os labels com prefixo <code>OFICIAL -</code> s\u00e3o limpos no SQL via <code>PROVIDER_CLEAN_SQL()</code> antes de exibir.</p>
+        <table>
+          <thead><tr><th>Provedor</th><th>Jogos</th><th>Tipo</th></tr></thead>
+          <tbody>
+            <tr><td>Spinomenal</td><td>622</td><td>Slots</td></tr>
+            <tr><td>Pragmatic Slots</td><td>550</td><td>Slots</td></tr>
+            <tr><td>Red Tiger</td><td>355</td><td>Slots</td></tr>
+            <tr><td>NetEnt</td><td>180</td><td>Slots</td></tr>
+            <tr><td>Hacksaw</td><td>149</td><td>Slots</td></tr>
+            <tr><td>PG Soft</td><td>140</td><td>Slots</td></tr>
+            <tr><td>BGaming</td><td>119</td><td>Slots</td></tr>
+            <tr><td>Nolimit City</td><td>106</td><td>Slots</td></tr>
+            <tr><td>Evolution</td><td>87</td><td>Live Casino</td></tr>
+            <tr><td>3 Oaks</td><td>85</td><td>Slots</td></tr>
+            <tr><td>Ezugi</td><td>36</td><td>Live Casino</td></tr>
+            <tr><td>Spribe</td><td>13</td><td>Crash</td></tr>
+            <tr><td>Evoplay</td><td>13</td><td>Slots</td></tr>
+          </tbody>
+        </table>
+        <p class="adm-muted" style="margin-top:8px">Filtro p\u00fablico em <code>src/utils/publicGames.js</code> (regex <code>PUBLIC_ALLOWED_PROVIDER_PATTERN</code>). Imagens quebradas s\u00e3o filtradas automaticamente.</p>
+      </section>
+
+      <section id="categorias">
+        <h2><span class="ico">\ud83d\udcc1</span> Categorias</h2>
+        <p>Filtros usados em <code>/games?category=X</code> e nas se\u00e7\u00f5es da home:</p>
+        <ul>
+          <li><strong>slots</strong> \u2014 Jogos de slot (todos os provedores)</li>
+          <li><strong>live</strong> \u2014 Cassino ao vivo (Evolution, Ezugi, Pragmatic Live)</li>
+          <li><strong>crash</strong> \u2014 Aviator, Spaceman, JetX, Aviatrix</li>
+          <li><strong>mines</strong> \u2014 Variantes de Mines</li>
+        </ul>
+        <p>Detec\u00e7\u00e3o por nome do jogo + coluna <code>category</code>. Logica em <code>public/js/script.js</code> fun\u00e7\u00e3o <code>renderCategorySection()</code>.</p>
+      </section>
+
+      <section id="carteiras">
+        <h2><span class="ico">\ud83d\udcb0</span> Carteiras &amp; Saldo</h2>
+        <p>Saldos armazenados em <strong>centavos</strong> (BIGINT) na tabela <code>users.balance_cents</code>. Convers\u00e3o para reais s\u00f3 na exibi\u00e7\u00e3o.</p>
+        <ul>
+          <li><strong>Carteira principal:</strong> saldo do usu\u00e1rio (BRL)</li>
+          <li><strong>Carteira de b\u00f4nus:</strong> separada, com regras de rollover</li>
+          <li><strong>Sub-carteiras de provedor:</strong> agregadas via PlayFivers (n\u00e3o vis\u00edveis ao usu\u00e1rio final)</li>
+          <li>Toda movimenta\u00e7\u00e3o registrada em <code>transactions</code> e <code>game_transactions</code></li>
+        </ul>
+      </section>
+
+      <section id="pagamentos">
+        <h2><span class="ico">\ud83d\udcb3</span> Pagamentos (PIX)</h2>
+        <h3>Dep\u00f3sito (PIX In)</h3>
+        <ul>
+          <li>Usu\u00e1rio gera QR Code via <code>POST /api/deposit/pix</code></li>
+          <li>BlackCat retorna <code>copyPaste</code> + <code>imageUrl</code></li>
+          <li>Webhook confirma pagamento e credita saldo</li>
+        </ul>
+        <h3>Saque (PIX Out)</h3>
+        <ul>
+          <li>Solicita\u00e7\u00e3o vai para fila de aprova\u00e7\u00e3o admin</li>
+          <li>Verifica\u00e7\u00f5es: KYC, rollover, limites</li>
+          <li>Ap\u00f3s aprovada, BlackCat processa transfer\u00eancia</li>
+        </ul>
+      </section>
+
+      <section id="afiliados">
+        <h2><span class="ico">\ud83d\udd17</span> Afiliados v2</h2>
+        <ul>
+          <li>Sistema de m\u00faltiplos n\u00edveis (sub-afiliados)</li>
+          <li>Comiss\u00e3o por dep\u00f3sito (CPA) e revenue share (RevShare)</li>
+          <li>C\u00f3digo de refer\u00eancia \u00fanico por afiliado</li>
+          <li>Painel pr\u00f3prio: cliques, conv. registros, dep\u00f3sitos, saldo</li>
+          <li>Saque com escrow (per\u00edodo de seguran\u00e7a antes do pagamento)</li>
+        </ul>
+      </section>
+
+      <section id="auth">
+        <h2><span class="ico">\ud83d\udd10</span> Autentica\u00e7\u00e3o</h2>
+        <ul>
+          <li>Login por email/CPF + senha (bcrypt)</li>
+          <li>Sess\u00f5es server-side via <code>express-session</code></li>
+          <li>Hist\u00f3rico de login com IP + user-agent</li>
+          <li>Contas demo (sandbox): saldo virtual, sem dep\u00f3sito real</li>
+          <li>Login admin separado em <code>/admin/login</code> (tabela <code>admins</code>)</li>
+        </ul>
+      </section>
+
+      <section id="admin">
+        <h2><span class="ico">\ud83d\udee0</span> Painel Admin</h2>
+        <p>Rotas em <code>src/routes/admin.js</code>, todas protegidas por <code>requireAdmin</code>:</p>
+        <ul>
+          <li><code>/admin/dashboard</code> \u2014 Vis\u00e3o geral</li>
+          <li><code>/admin/users</code> \u2014 Gest\u00e3o de usu\u00e1rios</li>
+          <li><code>/admin/transactions</code> \u2014 Dep\u00f3sitos / saques</li>
+          <li><code>/admin/games</code> \u2014 Cat\u00e1logo de jogos</li>
+          <li><code>/admin/providers</code> \u2014 Imagens dos est\u00fadios</li>
+          <li><code>/admin/affiliates</code> \u2014 Afiliados v2</li>
+          <li><code>/admin/themes</code> \u2014 Temas</li>
+          <li><code>/admin/limits</code> \u2014 Jogo respons\u00e1vel</li>
+          <li><code>/admin/audit</code> \u2014 Log de auditoria</li>
+          <li><code>/admin/settings</code> \u2014 Configura\u00e7\u00f5es</li>
+          <li><code>/admin/docs</code> \u2014 Esta p\u00e1gina</li>
+        </ul>
+      </section>
+
+      <section id="temas">
+        <h2><span class="ico">\ud83c\udfa8</span> Temas &amp; Custom Domains</h2>
+        <ul>
+          <li>Multi-tema: cada tema tem CSS pr\u00f3prio + cores + logo</li>
+          <li>Tema ativo controlado por <code>platform_settings.active_theme</code></li>
+          <li>Dom\u00ednios customizados: cada parceiro pode apontar seu pr\u00f3prio dom\u00ednio para o sistema</li>
+          <li>Tema autom\u00e1tico por dom\u00ednio (mapeamento na tabela <code>custom_domains</code>)</li>
+        </ul>
+      </section>
+
+      <section id="endpoints">
+        <h2><span class="ico">\ud83d\udce1</span> Endpoints principais</h2>
+        <table>
+          <thead><tr><th>M\u00e9todo</th><th>Rota</th><th>Descri\u00e7\u00e3o</th></tr></thead>
+          <tbody>
+            <tr><td>GET</td><td><code>/api/games</code></td><td>Lista jogos p\u00fablicos com filtros</td></tr>
+            <tr><td>POST</td><td><code>/api/game/launch</code></td><td>Lan\u00e7a um jogo (gera URL via PlayFivers)</td></tr>
+            <tr><td>POST</td><td><code>/api/playfivers/callback</code></td><td>Webhook de bet/win do agregador</td></tr>
+            <tr><td>POST</td><td><code>/api/deposit/pix</code></td><td>Cria QR Code de dep\u00f3sito</td></tr>
+            <tr><td>POST</td><td><code>/api/withdraw/pix</code></td><td>Solicita saque</td></tr>
+            <tr><td>POST</td><td><code>/api/blackcat/webhook</code></td><td>Webhook confirma\u00e7\u00e3o PIX</td></tr>
+            <tr><td>POST</td><td><code>/api/auth/login</code></td><td>Login do usu\u00e1rio</td></tr>
+            <tr><td>POST</td><td><code>/api/auth/register</code></td><td>Cadastro</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="tabelas">
+        <h2><span class="ico">\ud83d\uddc4</span> Tabelas do banco</h2>
+        <ul>
+          <li><code>users</code> \u2014 Cadastro e saldo (em centavos)</li>
+          <li><code>admins</code> \u2014 Contas administrativas</li>
+          <li><code>games</code> \u2014 Cat\u00e1logo (com <code>provider</code>, <code>pf_provider</code>, <code>category</code>, <code>is_active</code>)</li>
+          <li><code>transactions</code> \u2014 Dep\u00f3sitos / saques</li>
+          <li><code>game_transactions</code> \u2014 Bets / wins via webhook</li>
+          <li><code>affiliates</code> + <code>affiliate_commissions</code></li>
+          <li><code>themes</code> + <code>custom_domains</code></li>
+          <li><code>platform_settings</code> \u2014 Flags globais (ex.: <code>sports_enabled</code>)</li>
+          <li><code>audit_log</code> \u2014 Log de a\u00e7\u00f5es admin</li>
+          <li><code>responsible_gaming_limits</code> \u2014 Auto-exclus\u00e3o</li>
+        </ul>
+      </section>
+
+      <section id="deploy">
+        <h2><span class="ico">\ud83d\ude80</span> Deploy</h2>
+        <ul>
+          <li>Comando: <code>railway up -d</code> a partir de <code>c:\\xampp\\htdocs\\cassino</code></li>
+          <li>Vari\u00e1veis sens\u00edveis em env: <code>DATABASE_URL</code>, <code>SESSION_SECRET</code>, <code>PLAYFIVERS_SECRET_KEY</code>, <code>BLACKCAT_SECRET_KEY</code></li>
+          <li>Volume persistente para uploads em <code>/storage</code></li>
+          <li>Banco: PostgreSQL Railway (proxy interchange)</li>
+        </ul>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<%- include('layout-foot') %>

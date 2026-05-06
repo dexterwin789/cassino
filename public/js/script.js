@@ -266,7 +266,7 @@ function handleSearchState() {
 function extractTags(games) {
   var tagSet = {};
   games.forEach(function(g) {
-    if (g.provider) tagSet[g.provider] = true;
+    if (g.provider) { var clean = String(g.provider).replace(/^\s*OFICIAL\s*-\s*/i, '').trim(); if (clean) tagSet[clean] = true; }
     if (g.category) {
       g.category.split(',').forEach(function(c) {
         var t = c.trim();
@@ -463,7 +463,7 @@ function buildHomeProviderDropdown() {
   if (!dd) return;
   // Extract unique providers
   var provs = {};
-  allGames.forEach(function(g) { if (g.provider) provs[g.provider.toUpperCase()] = g.provider; });
+  allGames.forEach(function(g) { if (g.provider) { var clean = String(g.provider).replace(/^\s*OFICIAL\s*-\s*/i, '').trim(); if (clean) provs[clean.toUpperCase()] = clean; } });
   var sorted = Object.keys(provs).sort();
 
   // Keep the "Todos" radio that's already in the HTML
@@ -508,6 +508,9 @@ function renderAllSections() {
   buildHomeProviderDropdown();
   renderHomeFiltered();
   renderCategorySection('live', 'liveGamesScroll');
+  renderCategorySection('slots', 'slotsGamesScroll');
+  renderCategorySection('crash', 'crashGamesScroll');
+  renderCategorySection('mines', 'minesGamesScroll');
 }
 
 function renderCategorySection(category, containerId) {
@@ -515,9 +518,23 @@ function renderCategorySection(category, containerId) {
   if (!el) return;
   var games = allGames.filter(function(g) {
     if (category === 'live') return isLiveGame(g);
+    if (category === 'slots') {
+      return !isLiveGame(g) && (String(g.category || '').toLowerCase() === 'slots' || /slot/i.test(String(g.provider || '')));
+    }
+    if (category === 'crash') {
+      var name = String(g.game_name || '').toLowerCase();
+      return !isLiveGame(g) && (String(g.category || '').toLowerCase() === 'crash' || /aviator|spaceman|crash|jetx|aviatrix/.test(name));
+    }
+    if (category === 'mines') {
+      var n = String(g.game_name || '').toLowerCase();
+      return !isLiveGame(g) && (String(g.category || '').toLowerCase() === 'mines' || /mine/.test(n));
+    }
     return String(g.category || '').toLowerCase() === category;
   });
   if (category === 'live') games = games.slice(0, 36);
+  if (category === 'slots') games = games.slice(0, 24);
+  if (category === 'crash') games = games.slice(0, 18);
+  if (category === 'mines') games = games.slice(0, 18);
   if (!games.length) { el.closest('.game-section').style.display = 'none'; return; }
   el.innerHTML = games.map(function(g) { return gameCardHTML(g); }).join('');
   enhanceCategoryScroller(el);

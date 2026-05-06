@@ -7,7 +7,8 @@ const { requireUser, requireAdmin } = require('../middleware/auth');
 const { createSale } = require('../services/blackcat');
 const { DEFAULT_AFFILIATE_CAREER_TIERS, normalizeAffiliateCareerTiers } = require('../utils/affiliateCareer');
 const { categoryCondition } = require('../utils/gameCategories');
-const { publicGameFilter } = require('../utils/publicGames');
+const { publicGameFilter, PROVIDER_CLEAN_SQL } = require('../utils/publicGames');
+const CLEAN_PROV = PROVIDER_CLEAN_SQL();
 
 // Rate limit: 8 tentativas de login por IP a cada 15 min
 const loginLimiter = rateLimit({
@@ -364,7 +365,7 @@ router.get('/deposit/status', requireUser, async (req, res) => {
 router.get('/games', async (req, res) => {
   try {
     const cat = req.query.category || '';
-    let sql = `SELECT id, game_code, game_name, image_url, provider, category, is_featured, featured_order FROM games WHERE ${publicGameFilter()}`;
+    let sql = `SELECT id, game_code, game_name, image_url, ${CLEAN_PROV} AS provider, category, is_featured, featured_order FROM games WHERE ${publicGameFilter()}`;
     const params = [];
 
     if (cat) {

@@ -1,12 +1,13 @@
 const router = require('express').Router();
 const { query } = require('../config/database');
 const { categoryCondition, categoryLabel } = require('../utils/gameCategories');
-const { publicGameFilter } = require('../utils/publicGames');
+const { publicGameFilter, PROVIDER_CLEAN_SQL } = require('../utils/publicGames');
+const CLEAN_PROV = PROVIDER_CLEAN_SQL();
 
 // Main page
 router.get('/', async (req, res) => {
   try {
-    const gamesR = await query(`SELECT id, game_code, game_name, image_url, provider, category, is_featured, featured_order FROM games WHERE ${publicGameFilter()} ORDER BY is_featured DESC NULLS LAST, featured_order ASC NULLS LAST, sort_order, id DESC`);
+    const gamesR = await query(`SELECT id, game_code, game_name, image_url, ${CLEAN_PROV} AS provider, category, is_featured, featured_order FROM games WHERE ${publicGameFilter()} ORDER BY is_featured DESC NULLS LAST, featured_order ASC NULLS LAST, sort_order, id DESC`);
     const bannersR = await query('SELECT id, image_url, link_url FROM banners WHERE is_active = TRUE ORDER BY sort_order, id');
     const provImgR = await query('SELECT provider_name, image_url FROM provider_images WHERE is_active = TRUE ORDER BY sort_order, id');
 
@@ -45,7 +46,7 @@ router.get('/games', async (req, res) => {
     const provider = req.query.provider || '';
     const category = req.query.category || '';
     const search = (req.query.search || req.query.q || '').toString().trim();
-    let sql = `SELECT id, game_code, game_name, image_url, provider, category, is_featured, featured_order FROM games WHERE ${publicGameFilter()}`;
+    let sql = `SELECT id, game_code, game_name, image_url, ${CLEAN_PROV} AS provider, category, is_featured, featured_order FROM games WHERE ${publicGameFilter()}`;
     const params = [];
     if (provider) {
       const normalizedProvider = provider.replace(/[^a-z0-9]/gi, '').toLowerCase();
@@ -62,7 +63,7 @@ router.get('/games', async (req, res) => {
     sql += ' ORDER BY is_featured DESC NULLS LAST, featured_order ASC NULLS LAST, sort_order, id DESC';
     const gamesR = await query(sql, params);
     const bannersR = await query('SELECT id, image_url, link_url FROM banners WHERE is_active = TRUE ORDER BY sort_order, id');
-    const providersR = await query(`SELECT DISTINCT provider FROM games WHERE ${publicGameFilter()} AND provider IS NOT NULL ORDER BY provider`);
+    const providersR = await query(`SELECT DISTINCT ${CLEAN_PROV} AS provider FROM games WHERE ${publicGameFilter()} AND provider IS NOT NULL ORDER BY 1`);
     const categoriesR = await query(`SELECT DISTINCT category FROM games WHERE ${publicGameFilter()} AND category IS NOT NULL ORDER BY category`);
 
     let filterLabel = 'Todos os Jogos';
@@ -98,7 +99,7 @@ router.get('/providers', async (req, res) => {
   try {
     // Game counts for badge
     const providersR = await query(
-      `SELECT provider, COUNT(*) AS count FROM games WHERE ${publicGameFilter()} AND provider IS NOT NULL AND provider != '' GROUP BY provider ORDER BY provider`
+      `SELECT ${CLEAN_PROV} AS provider, COUNT(*) AS count FROM games WHERE ${publicGameFilter()} AND provider IS NOT NULL AND provider != '' GROUP BY ${CLEAN_PROV} ORDER BY 1`
     );
     const gameCounts = {};
     providersR.rows.forEach(r => { gameCounts[r.provider] = parseInt(r.count); });
@@ -130,13 +131,13 @@ router.get('/providers', async (req, res) => {
 router.get('/game/:code', async (req, res) => {
   try {
     const code = req.params.code;
-    const gameR = await query(`SELECT id, game_code, game_name, image_url, provider, category FROM games WHERE game_code = $1 AND ${publicGameFilter()}`, [code]);
+    const gameR = await query(`SELECT id, game_code, game_name, image_url, ${CLEAN_PROV} AS provider, category FROM games WHERE game_code = $1 AND ${publicGameFilter()}`, [code]);
     if (!gameR.rows.length) return res.status(404).send('Jogo não encontrado');
     const game = gameR.rows[0];
 
     // Related games (same provider, exclude current)
     const relatedR = await query(
-      `SELECT id, game_code, game_name, image_url, provider, category FROM games WHERE provider = $1 AND game_code != $2 AND ${publicGameFilter()} ORDER BY sort_order, id DESC LIMIT 12`,
+      `SELECT id, game_code, game_name, image_url, ${CLEAN_PROV} AS provider, category FROM games WHERE provider = $1 AND game_code != $2 AND ${publicGameFilter()} ORDER BY sort_order, id DESC LIMIT 12`,
       [game.provider, code]
     );
 

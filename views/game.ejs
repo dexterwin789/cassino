@@ -43,7 +43,7 @@
       <section class="gp-info-bar">
         <div class="gp-info-left">
           <h1 class="gp-game-name"><%= game.game_name %></h1>
-          <span class="gp-provider-name"><%= game.provider ? game.provider.toUpperCase() : '' %></span>
+          <span class="gp-provider-name"><%= game.provider ? game.provider.replace(/^\s*OFICIAL\s*-\s*/i, '').toUpperCase() : '' %></span>
         </div>
         <div class="gp-info-right">
           <button class="gp-action-btn" title="Gostei">
