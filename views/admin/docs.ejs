@@ -83,6 +83,7 @@
 
         <h3>PlayFivers (agregador de jogos) <span class="docs-pill ok">ATIVO</span></h3>
         <p>Único agregador responsável por TODOS os provedores. As "carteiras" Evolution / Spribe / NetEnt / Ezugi / Pragmatic / Clones são sub-saldos no painel PlayFivers, não APIs separadas.</p>
+        <p>Regra atual de catálogo: usar provedor oficial quando o lançamento foi validado; usar clone somente quando o oficial não é a carteira funcional. PG Soft está usando <code>PGSOFT</code> clone, enquanto Spribe usa <code>OFICIAL - SPRIBE</code>.</p>
         <ul>
           <li>Env: <code>PLAYFIVERS_SECRET_KEY</code></li>
           <li>Webhook único: <code>POST /api/playfivers/callback</code></li>
@@ -100,26 +101,25 @@
 
       <section id="provedores">
         <h2><span class="ico">🎮</span> Provedores de jogos</h2>
-        <p>Total público: <strong>~3.210 jogos ativos</strong>. Os labels com prefixo <code>OFICIAL -</code> são limpos no SQL via <code>PROVIDER_CLEAN_SQL()</code> antes de exibir.</p>
+        <p>Total público: <strong>1.142 jogos ativos</strong>. Os labels com prefixo <code>OFICIAL -</code> são limpos no SQL via <code>PROVIDER_CLEAN_SQL()</code> antes de exibir.</p>
         <table>
           <thead><tr><th>Provedor</th><th>Jogos</th><th>Tipo</th></tr></thead>
           <tbody>
-            <tr><td>Spinomenal</td><td>622</td><td>Slots</td></tr>
             <tr><td>Pragmatic Slots</td><td>550</td><td>Slots</td></tr>
-            <tr><td>Red Tiger</td><td>355</td><td>Slots</td></tr>
-            <tr><td>NetEnt</td><td>180</td><td>Slots</td></tr>
-            <tr><td>Hacksaw</td><td>149</td><td>Slots</td></tr>
-            <tr><td>PG Soft</td><td>140</td><td>Slots</td></tr>
-            <tr><td>BGaming</td><td>119</td><td>Slots</td></tr>
-            <tr><td>Nolimit City</td><td>106</td><td>Slots</td></tr>
-            <tr><td>Evolution</td><td>87</td><td>Live Casino</td></tr>
-            <tr><td>3 Oaks</td><td>85</td><td>Slots</td></tr>
-            <tr><td>Ezugi</td><td>36</td><td>Live Casino</td></tr>
-            <tr><td>Spribe</td><td>13</td><td>Crash</td></tr>
-            <tr><td>Evoplay</td><td>13</td><td>Slots</td></tr>
+            <tr><td>Evolution Live</td><td>177</td><td>Live Casino</td></tr>
+            <tr><td>PGSOFT (clone)</td><td>136</td><td>Slots</td></tr>
+            <tr><td>POPOK</td><td>61</td><td>Slots</td></tr>
+            <tr><td>Booongo</td><td>54</td><td>Slots</td></tr>
+            <tr><td>Pragmatic Live</td><td>40</td><td>Live Casino</td></tr>
+            <tr><td>Ezugi</td><td>35</td><td>Live Casino</td></tr>
+            <tr><td>TopTrend</td><td>30</td><td>Slots</td></tr>
+            <tr><td>Evoplay (clone)</td><td>27</td><td>Slots</td></tr>
+            <tr><td>Fat Panda</td><td>16</td><td>Slots</td></tr>
+            <tr><td>Spribe</td><td>11</td><td>Crash / Mines</td></tr>
+            <tr><td>CQ9 (clone)</td><td>5</td><td>Slots</td></tr>
           </tbody>
         </table>
-        <p class="adm-muted" style="margin-top:8px">Filtro público em <code>src/utils/publicGames.js</code> (regex <code>PUBLIC_ALLOWED_PROVIDER_PATTERN</code>). Imagens quebradas são filtradas automaticamente.</p>
+        <p class="adm-muted" style="margin-top:8px">Filtro público em <code>src/utils/publicGames.js</code> (regex <code>PUBLIC_ALLOWED_PROVIDER_PATTERN</code>). O catálogo atual foi auditado por lançamento real e não usa imagem default.</p>
       </section>
 
       <section id="categorias">

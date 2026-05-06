@@ -185,7 +185,7 @@
     var code = encodeURIComponent(g.game_code || '');
     var isLive = gameMatchesCategory(g, 'live');
     return '<a href="/game/' + code + '" class="game-card" title="' + name + '" style="text-decoration:none">' +
-      '<img src="' + img + '" alt="' + name + '" draggable="false" loading="lazy" onerror="this.onerror=null;this.src=\'/public/img/novo/login-banner.png\'">' +
+      '<img src="' + img + '" alt="' + name + '" draggable="false" loading="lazy">' +
       '<div class="game-overlay">' +
         '<span class="game-name">' + name + '</span>' +
         '<span class="play-btn">&#9654; JOGAR</span>' +

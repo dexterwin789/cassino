@@ -51,7 +51,7 @@
         <li data-filter="slots" data-tooltip="Jogos Slots" onclick="window.location='/games?category=slots'"><img src="/public/img/novo/2.svg" class="mi" width="20" height="20" alt=""> <span class="ml">Jogos Slots</span></li>
         <li data-filter="live" data-tooltip="Cassino ao vivo" onclick="window.location='/games?category=live'"><img src="/public/img/novo/3.svg" class="mi" width="20" height="20" alt=""> <span class="ml">Cassino ao vivo</span></li>
         <li data-filter="providers" data-tooltip="Provedores" onclick="window.location='/providers'"><img src="/public/img/novo/4.svg" class="mi" width="20" height="20" alt=""> <span class="ml">Provedores</span></li>
-        <li data-filter="fortune" data-tooltip="Fortune Tiger" onclick="window.location='/game/oficial-pg-soft-pgs-126'"><img src="/public/img/novo/6.svg" class="mi" width="20" height="20" alt=""> <span class="ml">Fortune Tiger</span></li>
+        <li data-filter="fortune" data-tooltip="Fortune Tiger" onclick="window.location='/game/pgsoft-126'"><img src="/public/img/novo/6.svg" class="mi" width="20" height="20" alt=""> <span class="ml">Fortune Tiger</span></li>
         <li data-filter="spaceman" data-tooltip="Spaceman" onclick="window.location='/game/oficial-pragmatic-slots-pp-1301'"><img src="/public/img/novo/8.svg" class="mi" width="20" height="20" alt=""> <span class="ml">Spaceman</span></li>
         <li data-filter="baccarat" data-tooltip="Golden Wealth Baccarat" onclick="window.location='/games?category=live&search=baccarat'"><img src="/public/img/novo/9.svg" class="mi" width="20" height="20" alt=""> <span class="ml">Golden Wealth Baccarat</span></li>
         <li data-filter="roleta" data-tooltip="Fortune Roulette" onclick="window.location='/game/oficial-pragmatic-live-pp-270'"><img src="/public/img/novo/10.svg" class="mi" width="20" height="20" alt=""> <span class="ml">Fortune Roulette</span></li>
@@ -125,17 +125,9 @@
         <div class="cat-icon-circle"><img src="/public/img/promocoes_svg.svg" width="60" height="60" alt="Promoções"></div>
         <span>Promoções</span>
       </a>
-      <a href="#" class="cat-icon-item">
-        <div class="cat-icon-circle"><img src="/public/img/torneios1.svg" width="60" height="60" alt="Torneios"></div>
-        <span>Torneios</span>
-      </a>
-      <a href="/game/oficial-pragmatic-slots-pp-1301" class="cat-icon-item">
+      <a href="/games?category=crash" class="cat-icon-item">
         <div class="cat-icon-circle"><img src="/public/img/aviator.png" width="60" height="60" alt="Aviator"></div>
         <span>Aviator</span>
-      </a>
-      <a href="#" class="cat-icon-item" onclick="if(typeof toggleWallet==='function'){toggleWallet('premios');return false;}">
-        <div class="cat-icon-circle"><img src="/public/img/calendario.png" width="60" height="60" alt="Check-in diário"></div>
-        <span>Check-in diário</span>
       </a>
       <a href="/games" class="cat-icon-item">
         <div class="cat-icon-circle"><img src="/public/img/cartas_svg.svg" width="60" height="60" alt="Cassino"></div>
@@ -234,18 +226,6 @@
     <section class="game-section">
       <div class="section-header"><h2>Slots</h2><a href="/games?category=slots" class="see-all">Ver todos</a></div>
       <div class="category-games-scroll" id="slotsGamesScroll"></div>
-    </section>
-
-    <!-- Crash / Aviator -->
-    <section class="game-section">
-      <div class="section-header"><h2>Crash &amp; Aviator</h2><a href="/games?category=crash" class="see-all">Ver todos</a></div>
-      <div class="category-games-scroll" id="crashGamesScroll"></div>
-    </section>
-
-    <!-- Mines -->
-    <section class="game-section">
-      <div class="section-header"><h2>Mines</h2><a href="/games?category=mines" class="see-all">Ver todos</a></div>
-      <div class="category-games-scroll" id="minesGamesScroll"></div>
     </section>
 
     <!-- Principais Ligas -->

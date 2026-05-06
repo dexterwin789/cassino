@@ -736,7 +736,7 @@ async function autoMigrate() {
     const cleanupResult = await pool.query(`
       UPDATE games SET is_active = FALSE
       WHERE is_active = TRUE
-        AND LOWER(COALESCE(pf_provider, provider, '')) !~ '(pg ?soft|pg-soft|pragmatic|evolution|spribe|netent|ezugi|evoplay|hacksaw|nolimit|red tiger|micro gaming|spinomenal|booming|bgaming|3oaks|habanero|playson|reelkingdom|booongo|cq9|tada|epicwin|fachai|jdb|live22|live88|spade gaming|big time gaming|advantplay|alize slots|askmeslot|aviatrix|cg|cp games|dreamgaming|fat ?panda|gtf|queenmaker|turbo games|winfinity|yellowbat|galaxsys|jetx|popok|toptrend|dreamtech|digitain)'
+        AND LOWER(COALESCE(pf_provider, provider, '')) !~ '^(pgsoft|booongo|cq9|evoplay|popok|toptrend|oficial - evolution live|oficial - ezugi|oficial - fat panda|oficial - netent|oficial - pragmatic live|oficial - pragmatic slots|oficial - spribe)$'
     `);
     if (cleanupResult.rowCount > 0) console.log('[MIGRATE] Deactivated ' + cleanupResult.rowCount + ' non-funded games');
 

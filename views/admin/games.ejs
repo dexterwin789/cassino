@@ -242,13 +242,19 @@
   var selected = [];
   var allProviders = [];
 
+  function escapeHtml(s) {
+    var d = document.createElement('div');
+    d.textContent = s || '';
+    return d.innerHTML;
+  }
+
   function updateHidden() {
     hidden.value = selected.join(',');
   }
   function renderChips() {
     if (!selected.length) { chipsEl.innerHTML = '<span class="adm-ms-placeholder">Todos</span>'; updateHidden(); return; }
     chipsEl.innerHTML = selected.map(function(p) {
-      return '<span class="adm-ms-chip">' + p + '<span class="adm-ms-chip-x" data-prov="' + p + '">&times;</span></span>';
+      return '<span class="adm-ms-chip">' + escapeHtml(p) + '<span class="adm-ms-chip-x" data-prov="' + escapeHtml(p) + '">&times;</span></span>';
     }).join('');
     updateHidden();
   }
@@ -257,7 +263,7 @@
     var filtered = allProviders.filter(function(p) { return !fq || p.toLowerCase().includes(fq); });
     listEl.innerHTML = filtered.map(function(p) {
       var checked = selected.indexOf(p) >= 0;
-      return '<label class="adm-ms-item' + (checked ? ' checked' : '') + '"><input type="checkbox"' + (checked ? ' checked' : '') + ' value="' + p + '"> ' + p + '</label>';
+      return '<label class="adm-ms-item' + (checked ? ' checked' : '') + '"><input type="checkbox"' + (checked ? ' checked' : '') + ' value="' + escapeHtml(p) + '"><span class="adm-ms-text">' + escapeHtml(p) + '</span></label>';
     }).join('');
   }
 

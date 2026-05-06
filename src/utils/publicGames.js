@@ -1,7 +1,7 @@
-// Providers with funded PlayFivers wallets (2026-05): Evolution, Pragmatic,
-// PG Soft, NetEnt, Ezugi, Spribe + PlayFivers clones (same aggregator,
-// alternate label without "OFICIAL -" prefix).
-const PUBLIC_ALLOWED_PROVIDER_PATTERN = '(pg ?soft|pg-soft|pragmatic|evolution|spribe|netent|ezugi|evoplay|hacksaw|nolimit|red tiger|micro gaming|spinomenal|booming|bgaming|3oaks|habanero|playson|reelkingdom|booongo|cq9|tada|epicwin|fachai|jdb|live22|live88|spade gaming|big time gaming|advantplay|alize slots|askmeslot|aviatrix|cg|cp games|dreamgaming|fat ?panda|gtf|queenmaker|turbo games|winfinity|yellowbat|galaxsys|jetx|popok|toptrend|dreamtech|digitain)';
+// Providers validated by real launch audit (2026-05-06).
+// Rule: use OFICIAL when that wallet works; use clone only when the official
+// provider has no usable wallet (PGSOFT/CQ9/EVOPLAY/etc.).
+const PUBLIC_ALLOWED_PROVIDER_PATTERN = '^(pgsoft|booongo|cq9|evoplay|popok|toptrend|oficial - evolution live|oficial - ezugi|oficial - fat panda|oficial - netent|oficial - pragmatic live|oficial - pragmatic slots|oficial - spribe)$';
 
 const PUBLIC_BROKEN_IMAGE_PATH_PATTERN = '%/Games/PP/%';
 

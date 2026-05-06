@@ -27,6 +27,13 @@ const registerLimiter = rateLimit({
   legacyHeaders: false,
   message: { ok: false, msg: 'Muitos cadastros deste IP. Tente novamente mais tarde.' }
 });
+const passwordResetLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { ok: false, msg: 'Muitas tentativas de redefinição. Tente novamente em alguns minutos.' }
+});
 
 function centsToBRL(cents) {
   return 'R$ ' + (Math.max(parseInt(cents || 0, 10), 0) / 100).toFixed(2).replace('.', ',');
@@ -191,6 +198,37 @@ router.post('/login', loginLimiter, async (req, res) => {
   } catch (err) {
     console.error('[LOGIN]', err);
     res.status(500).json({ ok: false, msg: 'Erro ao fazer login.' });
+  }
+});
+
+// POST /api/password/reset
+router.post('/password/reset', passwordResetLimiter, async (req, res) => {
+  try {
+    const login = (req.body.login || req.body.username || '').trim();
+    const cpf = (req.body.cpf || '').replace(/\D/g, '');
+    const password = req.body.password || '';
+    if (!login || cpf.length !== 11 || password.length < 8 || password.length > 64) {
+      return res.status(400).json({ ok: false, msg: 'Informe e-mail/CPF, CPF válido e uma senha de 8 a 64 caracteres.' });
+    }
+
+    const r = await query(
+      `SELECT id FROM users
+       WHERE (username = $1 OR email = $1 OR cpf = $2)
+         AND cpf = $2
+       LIMIT 1`,
+      [login, cpf]
+    );
+    const user = r.rows[0];
+    if (!user) {
+      return res.status(404).json({ ok: false, msg: 'Dados não conferem com nenhuma conta.' });
+    }
+
+    const hash = await bcrypt.hash(password, 10);
+    await query('UPDATE users SET password_hash = $1, updated_at = NOW() WHERE id = $2', [hash, user.id]);
+    res.json({ ok: true, msg: 'Senha redefinida com sucesso. Faça login com a nova senha.' });
+  } catch (err) {
+    console.error('[PASSWORD_RESET]', err);
+    res.status(500).json({ ok: false, msg: 'Erro ao redefinir senha.' });
   }
 });
 

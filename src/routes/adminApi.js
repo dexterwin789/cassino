@@ -258,7 +258,7 @@ router.get('/games', async (req, res) => {
 // List distinct providers for filter
 router.get('/games/providers', async (req, res) => {
   try {
-    const r = await query('SELECT DISTINCT provider FROM games WHERE provider IS NOT NULL AND provider != \'\' ORDER BY provider');
+    const r = await query('SELECT DISTINCT provider FROM games WHERE is_active = TRUE AND provider IS NOT NULL AND provider != \'\' ORDER BY provider');
     res.json({ ok: true, providers: r.rows.map(row => row.provider) });
   } catch (err) {
     res.status(500).json({ ok: false, msg: 'Erro ao listar provedores.' });
