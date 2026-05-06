@@ -712,13 +712,13 @@ async function autoMigrate() {
     `);
     if (dedupResult.rowCount > 0) console.log('[MIGRATE] Deduped ' + dedupResult.rowCount + ' duplicate games');
 
-    // ——— Deactivate all games that are NOT PG Soft or Pragmatic —————
+    // ——— Deactivate games whose provider is NOT in the funded PlayFivers list —————
     const cleanupResult = await pool.query(`
       UPDATE games SET is_active = FALSE
       WHERE is_active = TRUE
-        AND LOWER(COALESCE(pf_provider, provider, '')) NOT SIMILAR TO '%(pg soft|pg|pragmatic|pragmatic play)%'
+        AND LOWER(COALESCE(pf_provider, provider, '')) !~ '(pg ?soft|pg-soft|pragmatic|evolution|spribe|netent|ezugi|evoplay|hacksaw|nolimit|red tiger|micro gaming|spinomenal|booming|bgaming|3oaks|habanero|playson|reelkingdom|booongo|cq9|tada|epicwin|fachai|jdb|live22|live88|spade gaming|big time gaming|advantplay|alize slots|askmeslot|aviatrix|cg|cp games|dreamgaming|fat ?panda|gtf|queenmaker|turbo games|winfinity|yellowbat|galaxsys|jetx|popok|toptrend|dreamtech|digitain)'
     `);
-    if (cleanupResult.rowCount > 0) console.log('[MIGRATE] Deactivated ' + cleanupResult.rowCount + ' non-PG/Pragmatic games');
+    if (cleanupResult.rowCount > 0) console.log('[MIGRATE] Deactivated ' + cleanupResult.rowCount + ' non-funded games');
 
     await pool.query(`
       UPDATE games
