@@ -72,11 +72,13 @@ async function inspect() {
 
 async function zero() {
   const client = await pool.connect();
-  const table = 'maintenance_balance_snapshot_20260507';
+  const balanceSnapshot = 'maintenance_balance_snapshot_20260507';
+  const txSnapshot = 'maintenance_revshare_transactions_snapshot_20260507';
+  const commissionSnapshot = 'maintenance_revshare_commissions_snapshot_20260507';
   try {
     await client.query('BEGIN');
     await client.query(`
-      CREATE TABLE IF NOT EXISTS ${table} AS
+      CREATE TABLE IF NOT EXISTS ${balanceSnapshot} AS
       SELECT NOW() AS snapshot_at,
              u.id AS user_id,
              u.username,
@@ -90,11 +92,48 @@ async function zero() {
          OR COALESCE(u.demo_balance_cents, 0) <> 0
          OR COALESCE(u.balance, 0) <> 0
     `);
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS ${txSnapshot} AS
+      SELECT NOW() AS snapshot_at, t.*
+      FROM transactions t
+      WHERE t.type = 'commission'
+        AND t.provider IN ('revshare', 'revshare_l2')
+    `);
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS ${commissionSnapshot} AS
+      SELECT NOW() AS snapshot_at, c.*
+      FROM affiliate_commissions c
+      WHERE c.type IN ('revshare', 'revshare_l2')
+    `);
     const wallet = await client.query('UPDATE wallets SET balance_cents = 0, updated_at = NOW() WHERE balance_cents <> 0');
     const demo = await client.query('UPDATE users SET demo_balance_cents = 0, updated_at = NOW() WHERE demo_balance_cents <> 0');
     const legacy = await client.query('UPDATE users SET balance = 0, updated_at = NOW() WHERE balance <> 0');
+    const tx = await client.query("DELETE FROM transactions WHERE type = 'commission' AND provider IN ('revshare', 'revshare_l2')");
+    const commissions = await client.query("DELETE FROM affiliate_commissions WHERE type IN ('revshare', 'revshare_l2')");
+    await client.query(`
+      UPDATE affiliates a
+      SET total_earned_cents = COALESCE((
+        SELECT SUM(c.amount_cents)
+        FROM affiliate_commissions c
+        WHERE c.affiliate_id = a.id
+      ), 0)
+    `);
+    await client.query(`
+      INSERT INTO platform_settings (key, value, updated_at)
+      VALUES ('aff_revshare_enabled', '0', NOW())
+      ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = NOW()
+    `);
     await client.query('COMMIT');
-    console.log(JSON.stringify({ ok: true, snapshot_table: table, wallet_rows: wallet.rowCount, demo_rows: demo.rowCount, legacy_rows: legacy.rowCount }, null, 2));
+    console.log(JSON.stringify({
+      ok: true,
+      snapshots: { balances: balanceSnapshot, revshare_transactions: txSnapshot, revshare_commissions: commissionSnapshot },
+      wallet_rows: wallet.rowCount,
+      demo_rows: demo.rowCount,
+      legacy_rows: legacy.rowCount,
+      deleted_revshare_transaction_rows: tx.rowCount,
+      deleted_revshare_commission_rows: commissions.rowCount,
+      aff_revshare_enabled: '0'
+    }, null, 2));
   } catch (err) {
     await client.query('ROLLBACK').catch(() => {});
     throw err;
