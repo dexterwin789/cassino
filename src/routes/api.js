@@ -920,6 +920,57 @@ router.get('/roulette/pragmatic/launch-url', ingestAuth, async (req, res) => {
   }
 });
 
+// GET /api/roulette/live/launch-url?game_code=...
+// Auth: X-Ingest-Token === process.env.INGEST_TOKEN
+// Generic live-game launcher used by the VPS signal poller for Evolution games.
+router.get('/roulette/live/launch-url', ingestAuth, async (req, res) => {
+  try {
+    const gameCode = String(req.query.game_code || req.query.gameCode || '').trim();
+    if (!gameCode) return res.status(400).json({ ok: false, msg: 'game_code obrigatório.' });
+
+    const gameR = await query(
+      `SELECT id, game_code, game_name, pf_game_code, pf_provider, game_original
+         FROM games
+        WHERE game_code = $1 AND ${publicGameFilter()}
+        LIMIT 1`,
+      [gameCode]
+    );
+    const game = gameR.rows[0];
+    if (!game || !game.pf_game_code || !game.pf_provider) {
+      return res.status(404).json({ ok: false, msg: 'Jogo não encontrado ou sem provedor.' });
+    }
+
+    const pf = require('../services/playfivers');
+    const launch = await pf.launchGame({
+      userCode: 'vnb_poller_' + game.game_code.replace(/[^a-z0-9]/gi, '_'),
+      gameCode: game.pf_game_code,
+      provider: game.pf_provider,
+      gameOriginal: game.game_original,
+      userBalance: 1,
+      lang: 'pt'
+    });
+    const launchUrl = launch && launch.data && launch.data.launch_url;
+    if (launch.status !== 200 || !launchUrl) {
+      return res.status(502).json({ ok: false, msg: (launch.data && launch.data.msg) || 'launch indisponível', status: launch.status });
+    }
+
+    let nestedUrl = null;
+    try { nestedUrl = new URL(launchUrl).searchParams.get('url'); } catch {}
+    res.json({
+      ok: true,
+      game_code: game.game_code,
+      game_name: game.game_name,
+      pf_game_code: game.pf_game_code,
+      provider: game.pf_provider,
+      launch_url: launchUrl,
+      nested_url: nestedUrl
+    });
+  } catch (err) {
+    console.error('[LIVE LAUNCH-URL]', err);
+    res.status(500).json({ ok: false, msg: err.message || 'Erro ao gerar launch_url.' });
+  }
+});
+
 // POST /api/roulette/pragmatic/push-history  { game_code, history: [{number, gameId?}] }
 // Auth: X-Ingest-Token. Poller fetches Pragmatic history locally (own IP)
 // because Pragmatic binds JSESSIONID to the requesting IP. Receives rows
