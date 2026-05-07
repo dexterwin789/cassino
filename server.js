@@ -754,7 +754,7 @@ async function autoMigrate() {
     const liveRouletteGames = [
       ['oficial-pragmatic-live-pp-203', 'Speed Roulette 1', 'https://imagensfivers.com/Games/Pragmatic-Play/PP_203.webp', 'OFICIAL - PRAGMATIC LIVE', 'PP_203', -99, false, null],
       ['oficial-pragmatic-live-pp-266', 'VIP Auto Roulette', 'https://imagensfivers.com/Games/Pragmatic-Play/PP_266.webp', 'OFICIAL - PRAGMATIC LIVE', 'PP_266', -98, false, null],
-      ['oficial-pragmatic-live-pp-270', 'Fortune Roulette', 'https://imagensfivers.com/Games/Pragmatic-Play/PP_270.webp', 'OFICIAL - PRAGMATIC LIVE', 'PP_270', -97, false, null],
+      ['oficial-evolution-live-evolive-porrou0000000001', 'Roleta Brasileira', 'https://imagensfivers.com/Games/Evolution-Live/EVOLIVE_PorROU0000000001.webp', 'OFICIAL - EVOLUTION LIVE', 'EVOLIVE_PorROU0000000001', -97, true, 2],
       ['oficial-pragmatic-live-pp-292', 'Immersive Roulette Deluxe', 'https://imagensfivers.com/Games/Pragmatic-Play/PP_292.webp', 'OFICIAL - PRAGMATIC LIVE', 'PP_292', -96, false, null],
       ['oficial-pragmatic-live-pp-28201', 'Prive Lounge Roulette', 'https://imagensfivers.com/Games/Pragmatic-Play/PP_28201.webp', 'OFICIAL - PRAGMATIC LIVE', 'PP_28201', -95, false, null],
       ['oficial-pragmatic-live-pp-28301', 'Prive Lounge Roulette Deluxe', 'https://imagensfivers.com/Games/Pragmatic-Play/PP_28301.webp', 'OFICIAL - PRAGMATIC LIVE', 'PP_28301', -94, false, null],
@@ -1027,8 +1027,6 @@ async function autoMigrate() {
 
     // Auto-seed new games (83 total)
     const newGames = [
-      ['fortune-pirates','Fortune Pirates','/public/img/games/1.avif','pg','pg',51],
-      ['fortune-fruits','Fortune Fruits','/public/img/games/2.webp','pg','pg',52],
       ['midas-fortune','Midas Fortune','/public/img/games/5.webp','pg','quente',53],
       ['fortune-dragon','Fortune Dragon','/public/img/games/7.webp','pg','pg',54],
       ['master-chens-fortune','Master Chens Fortune','/public/img/games/9.webp','pg','pg',55],
@@ -1046,10 +1044,9 @@ async function autoMigrate() {
       ['fortune-pig','Fortune Pig','/public/img/games/1.avif','pg','pg',67],
       ['fortune-monkey','Fortune Monkey','/public/img/games/3.webp','pg','pg',68],
       ['papai-noel-fortune','Papai Noel da Fortuna','/public/img/games/11.webp','pg','pg',69],
-      ['golden-wealth-baccarat','Golden Wealth Baccarat','/public/img/games/6.webp','evolution','live',70],
+      ['golden-wealth-baccarat','Baccarat','/public/img/games/6.webp','evolution','live',70],
       ['mega-ball','Mega Ball','/public/img/games/10.avif','evolution','live',71],
       ['dream-catcher','Dream Catcher','/public/img/games/4.webp','evolution','live',72],
-      ['football-studio','Football Studio','/public/img/games/8.webp','evolution','live',73],
       ['speed-baccarat','Speed Baccarat','/public/img/games/12.webp','evolution','live',74],
       ['mines-deluxe','Mines Deluxe','/public/img/games/2.webp','wg','mines',75],
       ['hilo','HiLo','/public/img/games/9.webp','spribe','spribe',76],
@@ -1064,6 +1061,17 @@ async function autoMigrate() {
     for (const [code, name, img, provider, category, sort] of newGames) {
       await pool.query(`INSERT INTO games (game_code, game_name, image_url, provider, category, sort_order) VALUES ($1,$2,$3,$4,$5,$6) ON CONFLICT (game_code) DO NOTHING`, [code, name, img, provider, category, sort]);
     }
+    await pool.query(`
+      UPDATE games
+      SET game_name = 'Baccarat'
+      WHERE game_code = 'golden-wealth-baccarat' OR game_name = 'Golden Wealth Baccarat'
+    `);
+    await pool.query(`
+      UPDATE games
+      SET is_active = FALSE
+      WHERE game_code IN ('football-studio', 'fortune-fruits', 'fortune-pirates', 'oficial-pragmatic-live-pp-270')
+         OR game_name IN ('Football Studio', 'Fortune Fruits', 'Fortune Pirates', 'Fortune Roulette')
+    `);
     const gc = await pool.query('SELECT COUNT(*) FROM games WHERE is_active = TRUE');
     console.log('[MIGRATE] Games total:', gc.rows[0].count);
 

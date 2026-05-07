@@ -51,7 +51,7 @@ function categoryLabel(category) {
   if (['live', 'ao-vivo', 'ao vivo', 'cassino-ao-vivo', 'casino-live'].includes(normalized)) return 'Cassino ao vivo';
   if (['slots', 'slot'].includes(normalized)) return 'Jogos Slots';
   if (normalized === 'pg') return 'PG Soft';
-  if (normalized === 'crash') return 'Jogos Crash';
+  if (normalized === 'crash') return 'Aviator';
   if (normalized === 'mines') return 'Mines';
   return category;
 }
