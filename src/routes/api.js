@@ -245,6 +245,88 @@ router.post('/password/reset', passwordResetLimiter, async (req, res) => {
   }
 });
 
+// ─── Password reset by token (link-based flow) ───
+const crypto = require('crypto');
+
+function hashToken(raw) {
+  return crypto.createHash('sha256').update(String(raw)).digest('hex');
+}
+function generateToken() {
+  return crypto.randomBytes(32).toString('hex'); // 64 hex chars
+}
+
+// POST /api/password/reset-request  { email }
+// Always responds success to avoid leaking which emails exist.
+// Generates a one-time token valid for 30 minutes; logs the link to server console
+// so an admin/operator can deliver it manually if SMTP is not configured.
+router.post('/password/reset-request', passwordResetLimiter, async (req, res) => {
+  try {
+    const login = String(req.body.email || req.body.login || '').trim();
+    if (!login) return res.json({ ok: true, msg: 'Se a conta existir, um link de redefinição foi gerado.' });
+    const cleanCpf = login.replace(/\D/g, '');
+    const r = await query(
+      `SELECT id, email FROM users
+       WHERE LOWER(COALESCE(email,'')) = LOWER($1)
+          OR LOWER(username) = LOWER($1)
+          OR ($2 <> '' AND regexp_replace(COALESCE(cpf, ''), '\\D', '', 'g') = $2)
+       ORDER BY id DESC LIMIT 1`,
+      [login, cleanCpf]
+    );
+    const user = r.rows[0];
+    if (user) {
+      const token = generateToken();
+      const tokenHash = hashToken(token);
+      const expires = new Date(Date.now() + 30 * 60 * 1000);
+      const ip = (req.headers['x-forwarded-for'] || req.socket.remoteAddress || '').toString().split(',')[0].trim();
+      await query(
+        `INSERT INTO password_reset_tokens (user_id, token_hash, expires_at, issued_by, ip)
+         VALUES ($1, $2, $3, 'self', $4)`,
+        [user.id, tokenHash, expires, ip.slice(0, 64)]
+      );
+      const proto = req.headers['x-forwarded-proto'] || (req.secure ? 'https' : 'http');
+      const host = req.headers['x-forwarded-host'] || req.headers.host;
+      const link = `${proto}://${host}/redefinir-senha?token=${token}`;
+      console.log(`[PASSWORD_RESET] link gerado user=${user.id} email=${user.email} link=${link}`);
+      // TODO: integrar SMTP/Resend aqui para envio automático.
+    }
+    res.json({ ok: true, msg: 'Se a conta existir, um link de redefinição foi gerado e enviado ao suporte para te repassar.' });
+  } catch (err) {
+    console.error('[PASSWORD_RESET_REQUEST]', err);
+    res.json({ ok: true, msg: 'Se a conta existir, um link de redefinição foi gerado.' });
+  }
+});
+
+// POST /api/password/reset-confirm  { token, password }
+router.post('/password/reset-confirm', passwordResetLimiter, async (req, res) => {
+  try {
+    const token = String(req.body.token || '').trim();
+    const password = String(req.body.password || '');
+    if (!token || password.length < 8 || password.length > 64) {
+      return res.status(400).json({ ok: false, msg: 'Token inválido ou senha fora do tamanho permitido (8-64).' });
+    }
+    const tokenHash = hashToken(token);
+    const r = await query(
+      `SELECT id, user_id, used_at, expires_at FROM password_reset_tokens
+        WHERE token_hash = $1 LIMIT 1`,
+      [tokenHash]
+    );
+    const t = r.rows[0];
+    if (!t) return res.status(400).json({ ok: false, msg: 'Token inválido.' });
+    if (t.used_at) return res.status(400).json({ ok: false, msg: 'Token já utilizado.' });
+    if (new Date(t.expires_at).getTime() < Date.now()) return res.status(400).json({ ok: false, msg: 'Token expirado.' });
+
+    const hash = await bcrypt.hash(password, 10);
+    await query('UPDATE users SET password_hash = $1, updated_at = NOW() WHERE id = $2', [hash, t.user_id]);
+    await query('UPDATE password_reset_tokens SET used_at = NOW() WHERE id = $1', [t.id]);
+    // Invalida outros tokens pendentes do mesmo usuário
+    await query('UPDATE password_reset_tokens SET used_at = NOW() WHERE user_id = $1 AND used_at IS NULL', [t.user_id]);
+    res.json({ ok: true, msg: 'Senha redefinida. Faça login com a nova senha.' });
+  } catch (err) {
+    console.error('[PASSWORD_RESET_CONFIRM]', err);
+    res.status(500).json({ ok: false, msg: 'Erro ao redefinir senha.' });
+  }
+});
+
 // POST /api/logout
 router.post('/logout', (req, res) => {
   req.session.destroy(() => {

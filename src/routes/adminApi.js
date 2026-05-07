@@ -2004,6 +2004,48 @@ router.post('/users/:id/block', async (req, res) => {
   }
 });
 
+// ─── Generate password reset link for a user ──────
+const crypto = require('crypto');
+router.post('/users/:id/password-reset-link', async (req, res) => {
+  try {
+    const userId = parseInt(req.params.id, 10);
+    if (!Number.isInteger(userId) || userId <= 0) {
+      return res.status(400).json({ ok: false, msg: 'ID inválido.' });
+    }
+    const ur = await query('SELECT id, username, email FROM users WHERE id = $1 LIMIT 1', [userId]);
+    if (!ur.rows.length) return res.status(404).json({ ok: false, msg: 'Usuário não encontrado.' });
+    const user = ur.rows[0];
+
+    const token = crypto.randomBytes(32).toString('hex');
+    const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+    const expires = new Date(Date.now() + 60 * 60 * 1000); // 1h para admin
+    const ip = (req.headers['x-forwarded-for'] || req.socket.remoteAddress || '').toString().split(',')[0].trim();
+
+    await query(
+      `INSERT INTO password_reset_tokens (user_id, token_hash, expires_at, issued_by, issued_admin, ip)
+       VALUES ($1, $2, $3, 'admin', $4, $5)`,
+      [user.id, tokenHash, expires, req.session.admin?.id || null, ip.slice(0, 64)]
+    );
+
+    const proto = req.headers['x-forwarded-proto'] || (req.secure ? 'https' : 'http');
+    const host = req.headers['x-forwarded-host'] || req.headers.host;
+    const link = `${proto}://${host}/redefinir-senha?token=${token}`;
+
+    try {
+      await query(
+        `INSERT INTO admin_audit_log (admin_id, action, target_type, target_id, details, ip_address)
+         VALUES ($1, 'password_reset_link', 'user', $2, $3::jsonb, $4)`,
+        [req.session.admin?.id || null, user.id, JSON.stringify({ email: user.email, expires_at: expires }), ip]
+      );
+    } catch {}
+
+    res.json({ ok: true, link, expires_at: expires.toISOString(), user: { id: user.id, username: user.username, email: user.email } });
+  } catch (err) {
+    console.error('[ADMIN PWD RESET LINK]', err);
+    res.status(500).json({ ok: false, msg: 'Erro ao gerar link.' });
+  }
+});
+
 // ─── Enhanced Dashboard Stats ─────────────────────
 
 router.get('/stats/enhanced', async (req, res) => {

@@ -709,6 +709,21 @@ async function autoMigrate() {
     )`);
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_chat_msg_sess ON chat_messages(session_id)`);
 
+    // ——— Password reset tokens ——————————————————————
+    await pool.query(`CREATE TABLE IF NOT EXISTS password_reset_tokens (
+      id           SERIAL PRIMARY KEY,
+      user_id      INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      token_hash   VARCHAR(128) NOT NULL UNIQUE,
+      expires_at   TIMESTAMPTZ NOT NULL,
+      used_at      TIMESTAMPTZ,
+      issued_by    VARCHAR(32) NOT NULL DEFAULT 'self',
+      issued_admin INT REFERENCES admin_users(id) ON DELETE SET NULL,
+      ip           VARCHAR(64),
+      created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )`);
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_prt_user ON password_reset_tokens(user_id)`);
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_prt_expires ON password_reset_tokens(expires_at)`);
+
     // ——— Dedup: deactivate duplicate games (keep synced version) —————
     // Strip "OFICIAL - " prefix so PlayFivers clones (e.g. "OFICIAL - PG SOFT" + "PGSOFT")
     // collapse into the same partition.

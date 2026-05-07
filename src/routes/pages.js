@@ -4,6 +4,32 @@ const { categoryCondition, categoryLabel } = require('../utils/gameCategories');
 const { publicGameFilter, PROVIDER_CLEAN_SQL } = require('../utils/publicGames');
 const CLEAN_PROV = PROVIDER_CLEAN_SQL();
 
+// Password reset page (token-based)
+router.get('/redefinir-senha', async (req, res) => {
+  const token = String(req.query.token || '').trim();
+  let valid = false;
+  let username = null;
+  if (token && /^[a-f0-9]{64}$/i.test(token)) {
+    try {
+      const crypto = require('crypto');
+      const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+      const r = await query(
+        `SELECT prt.id, prt.used_at, prt.expires_at, u.username
+           FROM password_reset_tokens prt
+           JOIN users u ON u.id = prt.user_id
+          WHERE prt.token_hash = $1 LIMIT 1`,
+        [tokenHash]
+      );
+      const t = r.rows[0];
+      if (t && !t.used_at && new Date(t.expires_at).getTime() > Date.now()) {
+        valid = true;
+        username = t.username;
+      }
+    } catch (e) { console.error('[RESET PAGE]', e); }
+  }
+  res.render('reset-password', { title: 'Redefinir senha', token, valid, username });
+});
+
 // Main page
 router.get('/', async (req, res) => {
   try {

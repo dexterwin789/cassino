@@ -288,6 +288,53 @@
         if (!j.ok) alert(j.msg || 'Erro');
         load();
       });
+
+      // ── Password reset link
+      card.addEventListener('click', async (e) => {
+        const btn = e.target.closest('.btn-pwd-reset');
+        if (!btn) return;
+        const username = btn.dataset.username || ('#' + btn.dataset.id);
+        if (!confirm(`Gerar link de redefinição de senha para "${username}"?\n\nO link expira em 1 hora. Copie e envie ao usuário (WhatsApp/e-mail). Tokens anteriores deste usuário continuam válidos até serem usados ou expirarem.`)) return;
+        btn.disabled = true;
+        const oldText = btn.textContent;
+        btn.textContent = '...';
+        try {
+          const r = await fetch(`/admin/api/users/${btn.dataset.id}/password-reset-link`, { method: 'POST', credentials: 'same-origin' });
+          const j = await r.json();
+          if (!j.ok) { alert(j.msg || 'Erro ao gerar link.'); return; }
+          // Modal com link selecionável
+          let m = document.getElementById('pwdResetModal');
+          if (m) m.remove();
+          m = document.createElement('div');
+          m.id = 'pwdResetModal';
+          m.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center';
+          m.innerHTML = `<div style="background:linear-gradient(160deg,#111827,#0d1321);border:1px solid rgba(96,165,250,.3);border-radius:18px;padding:28px;width:560px;max-width:94vw;color:#fff;font-family:Inter,system-ui,sans-serif;">
+            <h4 style="margin:0 0 6px;font-size:17px;font-weight:800;color:#60a5fa;">🔑 Link de redefinição gerado</h4>
+            <p style="margin:0 0 14px;color:rgba(255,255,255,.55);font-size:13px;">Usuário: <strong style="color:#fff">${username}</strong> · Expira: ${new Date(j.expires_at).toLocaleString('pt-BR')}</p>
+            <textarea readonly id="pwdResetUrl" style="width:100%;height:80px;border-radius:10px;border:1px solid rgba(96,165,250,.4);background:rgba(0,0,0,.5);color:#34D399;padding:12px;font-family:monospace;font-size:12px;resize:none;outline:none;">${j.link}</textarea>
+            <div style="display:flex;gap:10px;margin-top:16px;justify-content:flex-end;">
+              <button id="pwdResetCopy" class="adm-btn primary" style="padding:10px 22px;border-radius:10px;font-weight:700">Copiar link</button>
+              <button id="pwdResetClose" class="adm-btn" style="padding:10px 20px;border-radius:10px">Fechar</button>
+            </div>
+          </div>`;
+          document.body.appendChild(m);
+          m.addEventListener('click', ev => { if (ev.target === m) m.remove(); });
+          document.getElementById('pwdResetClose').addEventListener('click', () => m.remove());
+          document.getElementById('pwdResetCopy').addEventListener('click', async () => {
+            const ta = document.getElementById('pwdResetUrl');
+            ta.select();
+            try { await navigator.clipboard.writeText(j.link); } catch { document.execCommand('copy'); }
+            const cb = document.getElementById('pwdResetCopy');
+            cb.textContent = '✓ Copiado'; cb.style.background = 'linear-gradient(180deg,#34D399,#25D366)';
+            setTimeout(() => { cb.textContent = 'Copiar link'; cb.style.background = ''; }, 1800);
+          });
+        } catch (err) {
+          alert('Erro de rede.');
+        } finally {
+          btn.disabled = false;
+          btn.textContent = oldText;
+        }
+      });
     }
 
     if (pageName === 'games') {
@@ -496,6 +543,7 @@
             <button class="adm-btn btn-demo-toggle" data-id="${r.id}" data-is-demo="${r.is_demo ? '1' : '0'}" style="font-size:11px;height:30px;padding:0 8px;border-color:rgba(255,193,7,.4);color:#ffc107" title="${r.is_demo ? 'Desativar DEMO' : 'Ativar DEMO'}">${r.is_demo ? '✓ DEMO' : 'DEMO'}</button>
             <button class="adm-btn btn-demo-balance" data-id="${r.id}" data-bal="${r.demo_balance_cents || 0}" style="font-size:11px;height:30px;padding:0 8px;border-color:rgba(255,193,7,.3);color:#ffc107" title="Definir saldo DEMO">D$</button>
             <button class="adm-btn btn-block-user" data-id="${r.id}" style="font-size:11px;height:30px;padding:0 8px;border-color:rgba(255,77,77,.3);color:#ff4d4d">Block</button>
+            <button class="adm-btn btn-pwd-reset" data-id="${r.id}" data-username="${esc(r.username)}" style="font-size:11px;height:30px;padding:0 8px;border-color:rgba(96,165,250,.4);color:#60a5fa" title="Gerar link de redefinição de senha">🔑 Reset</button>
           </div>
         </td>
       </tr>`;
