@@ -75,6 +75,7 @@ async function zero() {
   const balanceSnapshot = 'maintenance_balance_snapshot_20260507';
   const txSnapshot = 'maintenance_revshare_transactions_snapshot_20260507';
   const commissionSnapshot = 'maintenance_revshare_commissions_snapshot_20260507';
+  const seedTxSnapshot = 'maintenance_seed_transactions_snapshot_20260507';
   try {
     await client.query('BEGIN');
     await client.query(`
@@ -105,10 +106,18 @@ async function zero() {
       FROM affiliate_commissions c
       WHERE c.type IN ('revshare', 'revshare_l2')
     `);
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS ${seedTxSnapshot} AS
+      SELECT NOW() AS snapshot_at, t.*
+      FROM transactions t
+      WHERE t.provider = 'seed'
+         OR (t.provider = 'pix' AND t.provider_ref LIKE 'PIX-%')
+    `);
     const wallet = await client.query('UPDATE wallets SET balance_cents = 0, updated_at = NOW() WHERE balance_cents <> 0');
     const demo = await client.query('UPDATE users SET demo_balance_cents = 0, updated_at = NOW() WHERE demo_balance_cents <> 0');
     const legacy = await client.query('UPDATE users SET balance = 0, updated_at = NOW() WHERE balance <> 0');
     const tx = await client.query("DELETE FROM transactions WHERE type = 'commission' AND provider IN ('revshare', 'revshare_l2')");
+    const seedTx = await client.query("DELETE FROM transactions WHERE provider = 'seed' OR (provider = 'pix' AND provider_ref LIKE 'PIX-%')");
     const commissions = await client.query("DELETE FROM affiliate_commissions WHERE type IN ('revshare', 'revshare_l2')");
     await client.query(`
       UPDATE affiliates a
@@ -126,11 +135,12 @@ async function zero() {
     await client.query('COMMIT');
     console.log(JSON.stringify({
       ok: true,
-      snapshots: { balances: balanceSnapshot, revshare_transactions: txSnapshot, revshare_commissions: commissionSnapshot },
+      snapshots: { balances: balanceSnapshot, revshare_transactions: txSnapshot, revshare_commissions: commissionSnapshot, seed_transactions: seedTxSnapshot },
       wallet_rows: wallet.rowCount,
       demo_rows: demo.rowCount,
       legacy_rows: legacy.rowCount,
       deleted_revshare_transaction_rows: tx.rowCount,
+      deleted_seed_transaction_rows: seedTx.rowCount,
       deleted_revshare_commission_rows: commissions.rowCount,
       aff_revshare_enabled: '0'
     }, null, 2));
