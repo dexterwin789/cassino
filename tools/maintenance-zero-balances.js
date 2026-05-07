@@ -119,9 +119,9 @@ async function zero() {
       ), 0)
     `);
     await client.query(`
-      INSERT INTO platform_settings (key, value, updated_at)
-      VALUES ('aff_revshare_enabled', '0', NOW())
-      ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = NOW()
+      INSERT INTO platform_settings (key, value)
+      VALUES ('aff_revshare_enabled', '0')
+      ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value
     `);
     await client.query('COMMIT');
     console.log(JSON.stringify({
