@@ -76,32 +76,13 @@
             <img src="/public/img/novo/logo.png" alt="VemNaBet" style="height:44px;width:auto;max-width:240px;object-fit:contain">
           <% } %>
         </div>
+        <p style="margin:0 0 18px;color:rgba(255,255,255,.68);font-size:13px;line-height:1.45">Informe o e-mail ou CPF da conta. Enviaremos um link seguro para redefinir sua senha.</p>
         <form class="login-form" id="resetPasswordForm" autocomplete="off">
           <div class="login-field">
             <input type="text" id="resetLogin" name="login" placeholder=" " autocomplete="username">
             <label for="resetLogin">E-mail ou CPF</label>
           </div>
-          <div class="login-field">
-            <input type="text" id="resetCpf" name="cpf" placeholder=" " maxlength="14" autocomplete="off">
-            <label for="resetCpf">CPF da conta</label>
-          </div>
-          <div class="login-field">
-            <input type="password" id="resetPassword" name="password" placeholder=" " autocomplete="new-password">
-            <label for="resetPassword">Nova senha</label>
-            <button type="button" class="login-eye" id="resetTogglePw" tabindex="-1">
-              <img src="/public/img/novo/modal3.svg" width="16" height="16" alt="" class="eye-off">
-              <img src="/public/img/novo/modal5.svg" width="16" height="16" alt="" class="eye-on" style="display:none">
-            </button>
-          </div>
-          <div class="login-field">
-            <input type="password" id="resetPasswordConfirm" name="passwordConfirm" placeholder=" " autocomplete="new-password">
-            <label for="resetPasswordConfirm">Confirmar senha</label>
-            <button type="button" class="login-eye" id="resetTogglePw2" tabindex="-1">
-              <img src="/public/img/novo/modal3.svg" width="16" height="16" alt="" class="eye-off">
-              <img src="/public/img/novo/modal5.svg" width="16" height="16" alt="" class="eye-on" style="display:none">
-            </button>
-          </div>
-          <button type="submit" class="login-submit" id="resetPasswordSubmit" disabled>Redefinir senha</button>
+          <button type="submit" class="login-submit" id="resetPasswordSubmit" disabled>Enviar link</button>
         </form>
         <button class="login-create-account" type="button" id="resetGoRegister">Crie uma conta aqui</button>
       </div>
@@ -407,9 +388,6 @@
   var resetForm = document.getElementById('resetPasswordForm');
   var resetClose = document.getElementById('resetPasswordClose');
   var resetLogin = document.getElementById('resetLogin');
-  var resetCpf = document.getElementById('resetCpf');
-  var resetPassword = document.getElementById('resetPassword');
-  var resetPasswordConfirm = document.getElementById('resetPasswordConfirm');
   var resetSubmit = document.getElementById('resetPasswordSubmit');
 
   window.openResetPasswordModal = function() {
@@ -431,55 +409,39 @@
   if (resetModal) resetModal.addEventListener('click', function(e) { if (e.target === resetModal) closeResetPasswordModal(); });
   var resetGoLogin = document.getElementById('resetGoLogin');
   if (resetGoLogin) resetGoLogin.addEventListener('click', switchResetToLogin);
-  setupEyeToggle(document.getElementById('resetTogglePw'), resetPassword);
-  setupEyeToggle(document.getElementById('resetTogglePw2'), resetPasswordConfirm);
 
   function checkResetValid() {
-    var valid = resetLogin && resetLogin.value.trim().length > 0
-      && resetCpf && resetCpf.value.replace(/\D/g, '').length === 11
-      && resetPassword && resetPassword.value.length >= 8
-      && resetPasswordConfirm && resetPasswordConfirm.value === resetPassword.value;
+    var valid = resetLogin && resetLogin.value.trim().length > 0;
     if (resetSubmit) resetSubmit.disabled = !valid;
   }
-  [resetLogin, resetCpf, resetPassword, resetPasswordConfirm].forEach(function(input) {
+  [resetLogin].forEach(function(input) {
     if (input) input.addEventListener('input', checkResetValid);
-  });
-  if (resetCpf) resetCpf.addEventListener('input', function() {
-    var v = resetCpf.value.replace(/\D/g, '').substring(0, 11);
-    if (v.length > 9) v = v.replace(/(\d{3})(\d{3})(\d{3})(\d{1,2})/, '$1.$2.$3-$4');
-    else if (v.length > 6) v = v.replace(/(\d{3})(\d{3})(\d{1,3})/, '$1.$2.$3');
-    else if (v.length > 3) v = v.replace(/(\d{3})(\d{1,3})/, '$1.$2');
-    resetCpf.value = v;
-    checkResetValid();
   });
 
   if (resetForm) resetForm.addEventListener('submit', function(e) {
     e.preventDefault();
     var login = (resetLogin.value || '').trim();
-    var cpf = resetCpf.value || '';
-    var password = resetPassword.value || '';
-    if (!login || cpf.replace(/\D/g, '').length !== 11 || password.length < 8 || password !== resetPasswordConfirm.value) return;
+    if (!login) return;
     if (typeof apiPost !== 'function') {
       if (typeof showToast === 'function') showToast('Erro ao conectar', 'error');
       return;
     }
     resetSubmit.disabled = true;
-    resetSubmit.textContent = 'Redefinindo...';
-    apiPost('/api/password/reset', { login: login, cpf: cpf, password: password })
+    resetSubmit.textContent = 'Enviando...';
+    apiPost('/api/password/reset-request', { login: login, email: login })
       .then(function(data) {
         var j = data.json || data;
         if (j && j.ok) {
-          if (typeof showToast === 'function') showToast(j.msg || 'Senha redefinida com sucesso', 'success');
+          if (typeof showToast === 'function') showToast(j.msg || 'Se a conta existir, enviaremos o link no e-mail cadastrado.', 'success');
           if (emailInput) emailInput.value = login;
-          if (pwInput) pwInput.value = '';
           resetForm.reset();
           switchResetToLogin();
         } else if (typeof showToast === 'function') {
-          showToast(j.msg || 'Não foi possível redefinir a senha', 'error');
+          showToast(j.msg || 'Não foi possível enviar o link', 'error');
         }
       })
       .catch(function() { if (typeof showToast === 'function') showToast('Erro ao conectar', 'error'); })
-      .finally(function() { resetSubmit.disabled = false; resetSubmit.textContent = 'Redefinir senha'; checkResetValid(); });
+      .finally(function() { resetSubmit.disabled = false; resetSubmit.textContent = 'Enviar link'; checkResetValid(); });
   });
 
   /* ===== REGISTER MODAL ===== */

@@ -3,6 +3,8 @@ const { query, pool } = require('../config/database');
 const { requireAdmin } = require('../middleware/auth');
 const fetch = require('node-fetch');
 const multer = require('multer');
+const crypto = require('crypto');
+const { sendPasswordResetEmail, sendNotificationEmail, sendNotificationEmails } = require('../services/email');
 const { normalizeAffiliateCareerTiers } = require('../utils/affiliateCareer');
 const { clearWebhookGuardCache } = require('../middleware/webhookGuard');
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 2 * 1024 * 1024 } });
@@ -14,6 +16,20 @@ function getAdminListLimit(value) {
 }
 function getAdminPage(value) {
   return Math.max(parseInt(value, 10) || 1, 1);
+}
+function requestBaseUrl(req) {
+  const proto = req.headers['x-forwarded-proto'] || (req.secure ? 'https' : 'http');
+  const host = req.headers['x-forwarded-host'] || req.headers.host;
+  return `${proto}://${host}`;
+}
+function absoluteUrl(req, maybePath) {
+  const value = String(maybePath || '').trim();
+  if (!value) return '';
+  if (/^https?:\/\//i.test(value)) return value;
+  return requestBaseUrl(req) + (value.startsWith('/') ? value : `/${value}`);
+}
+function shouldSendEmail(value) {
+  return value === true || value === 'true' || value === '1' || value === 1;
 }
 
 router.use(requireAdmin);
@@ -1150,11 +1166,18 @@ router.post('/affiliates/:id/approve', async (req, res) => {
 
     // Notify user
     try {
+      const notification = {
+        title: 'Solicitação aprovada!',
+        message: 'Sua solicitação para o programa de afiliados foi aprovada. Acesse a área Indique e Ganhe.',
+        link: absoluteUrl(req, '/user/referrals')
+      };
       await query(
         `INSERT INTO notifications (user_id, tipo, titulo, mensagem, link)
          VALUES ($1, 'affiliate', 'Solicitação aprovada!', 'Sua solicitação para o programa de afiliados foi aprovada. Acesse a área Indique e Ganhe.', '/user/referrals')`,
         [aff.user_id]
       );
+      const userR = await query('SELECT username, email FROM users WHERE id = $1 LIMIT 1', [aff.user_id]);
+      if (userR.rows[0]) await sendNotificationEmail(userR.rows[0], notification);
     } catch {}
 
     res.json({ ok: true, affiliate: r.rows[0] });
@@ -1669,15 +1692,31 @@ router.get('/notifications', async (req, res) => {
 
 router.post('/notifications', async (req, res) => {
   try {
-    const { titulo, mensagem, tipo, user_id, link } = req.body;
+    const { titulo, mensagem, tipo, user_id, link, send_email } = req.body;
     if (!titulo) return res.status(400).json({ ok: false, msg: 'Título obrigatório.' });
+    const uid = parseInt(user_id) || 0;
+    const cleanTipo = tipo || 'info';
+    const cleanMensagem = mensagem || '';
+    const cleanLink = link || '';
 
     const r = await query(
       'INSERT INTO notifications (user_id, tipo, titulo, mensagem, link) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-      [parseInt(user_id) || 0, tipo || 'info', titulo, mensagem || '', link || '']
+      [uid, cleanTipo, titulo, cleanMensagem, cleanLink]
     );
-    res.json({ ok: true, notification: r.rows[0] });
+    let email = { attempted: 0, sent: 0, skipped: 0, failed: 0 };
+    if (shouldSendEmail(send_email)) {
+      const notification = { title: titulo, message: cleanMensagem, type: cleanTipo, link: absoluteUrl(req, cleanLink) };
+      if (uid > 0) {
+        const usersR = await query("SELECT id, username, email FROM users WHERE id = $1 AND COALESCE(email, '') <> '' LIMIT 1", [uid]);
+        email = await sendNotificationEmails(usersR.rows, notification);
+      } else {
+        const usersR = await query("SELECT id, username, email FROM users WHERE is_active = TRUE AND COALESCE(email, '') <> '' ORDER BY id DESC LIMIT 5000");
+        email = await sendNotificationEmails(usersR.rows, notification);
+      }
+    }
+    res.json({ ok: true, notification: r.rows[0], email });
   } catch (err) {
+    console.error('[ADMIN NOTIFICATION CREATE]', err);
     res.status(500).json({ ok: false, msg: 'Erro ao criar notificação.' });
   }
 });
@@ -2005,7 +2044,6 @@ router.post('/users/:id/block', async (req, res) => {
 });
 
 // ─── Generate password reset link for a user ──────
-const crypto = require('crypto');
 router.post('/users/:id/password-reset-link', async (req, res) => {
   try {
     const userId = parseInt(req.params.id, 10);
@@ -2027,9 +2065,7 @@ router.post('/users/:id/password-reset-link', async (req, res) => {
       [user.id, tokenHash, expires, req.session.admin?.id || null, ip.slice(0, 64)]
     );
 
-    const proto = req.headers['x-forwarded-proto'] || (req.secure ? 'https' : 'http');
-    const host = req.headers['x-forwarded-host'] || req.headers.host;
-    const link = `${proto}://${host}/redefinir-senha?token=${token}`;
+    const link = `${requestBaseUrl(req)}/redefinir-senha?token=${token}`;
 
     try {
       await query(
@@ -2039,7 +2075,14 @@ router.post('/users/:id/password-reset-link', async (req, res) => {
       );
     } catch {}
 
-    res.json({ ok: true, link, expires_at: expires.toISOString(), user: { id: user.id, username: user.username, email: user.email } });
+    const email = await sendPasswordResetEmail({
+      to: user.email,
+      username: user.username,
+      link,
+      expiresMinutes: 60
+    });
+
+    res.json({ ok: true, link, expires_at: expires.toISOString(), email, user: { id: user.id, username: user.username, email: user.email } });
   } catch (err) {
     console.error('[ADMIN PWD RESET LINK]', err);
     res.status(500).json({ ok: false, msg: 'Erro ao gerar link.' });

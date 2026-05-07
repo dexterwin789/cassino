@@ -302,6 +302,11 @@
           const r = await fetch(`/admin/api/users/${btn.dataset.id}/password-reset-link`, { method: 'POST', credentials: 'same-origin' });
           const j = await r.json();
           if (!j.ok) { alert(j.msg || 'Erro ao gerar link.'); return; }
+          const emailMsg = j.email && j.email.ok
+            ? 'E-mail enviado automaticamente para o usuário.'
+            : (j.email && j.email.reason === 'resend_not_configured')
+              ? 'Resend ainda não está configurado no Railway; copie e envie o link manualmente.'
+              : 'Não foi possível enviar por e-mail; copie e envie o link manualmente.';
           // Modal com link selecionável
           let m = document.getElementById('pwdResetModal');
           if (m) m.remove();
@@ -311,6 +316,7 @@
           m.innerHTML = `<div style="background:linear-gradient(160deg,#111827,#0d1321);border:1px solid rgba(96,165,250,.3);border-radius:18px;padding:28px;width:560px;max-width:94vw;color:#fff;font-family:Inter,system-ui,sans-serif;">
             <h4 style="margin:0 0 6px;font-size:17px;font-weight:800;color:#60a5fa;">🔑 Link de redefinição gerado</h4>
             <p style="margin:0 0 14px;color:rgba(255,255,255,.55);font-size:13px;">Usuário: <strong style="color:#fff">${username}</strong> · Expira: ${new Date(j.expires_at).toLocaleString('pt-BR')}</p>
+            <p style="margin:0 0 12px;color:${j.email && j.email.ok ? '#34D399' : '#fbbf24'};font-size:13px;font-weight:700;">${emailMsg}</p>
             <textarea readonly id="pwdResetUrl" style="width:100%;height:80px;border-radius:10px;border:1px solid rgba(96,165,250,.4);background:rgba(0,0,0,.5);color:#34D399;padding:12px;font-family:monospace;font-size:12px;resize:none;outline:none;">${j.link}</textarea>
             <div style="display:flex;gap:10px;margin-top:16px;justify-content:flex-end;">
               <button id="pwdResetCopy" class="adm-btn primary" style="padding:10px 22px;border-radius:10px;font-weight:700">Copiar link</button>

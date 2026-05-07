@@ -5,6 +5,7 @@ const rateLimit = require('express-rate-limit');
 const { query, pool } = require('../config/database');
 const { requireUser, requireAdmin } = require('../middleware/auth');
 const { createSale } = require('../services/blackcat');
+const { sendPasswordResetEmail } = require('../services/email');
 const { DEFAULT_AFFILIATE_CAREER_TIERS, normalizeAffiliateCareerTiers } = require('../utils/affiliateCareer');
 const { categoryCondition } = require('../utils/gameCategories');
 const { publicGameFilter, PROVIDER_CLEAN_SQL } = require('../utils/publicGames');
@@ -214,35 +215,7 @@ router.post('/login', loginLimiter, async (req, res) => {
 
 // POST /api/password/reset
 router.post('/password/reset', passwordResetLimiter, async (req, res) => {
-  try {
-    const login = (req.body.login || req.body.username || '').trim();
-    const cpf = (req.body.cpf || '').replace(/\D/g, '');
-    const password = req.body.password || '';
-    if (!login || cpf.length !== 11 || password.length < 8 || password.length > 64) {
-      return res.status(400).json({ ok: false, msg: 'Informe e-mail/CPF, CPF válido e uma senha de 8 a 64 caracteres.' });
-    }
-
-    const r = await query(
-      `SELECT id FROM users
-       WHERE (LOWER(username) = LOWER($1)
-          OR LOWER(COALESCE(email, '')) = LOWER($1)
-          OR regexp_replace(COALESCE(cpf, ''), '\\D', '', 'g') = $2)
-         AND regexp_replace(COALESCE(cpf, ''), '\\D', '', 'g') = $2
-       LIMIT 1`,
-      [login, cpf]
-    );
-    const user = r.rows[0];
-    if (!user) {
-      return res.status(404).json({ ok: false, msg: 'Dados não conferem com nenhuma conta.' });
-    }
-
-    const hash = await bcrypt.hash(password, 10);
-    await query('UPDATE users SET password_hash = $1, updated_at = NOW() WHERE id = $2', [hash, user.id]);
-    res.json({ ok: true, msg: 'Senha redefinida com sucesso. Faça login com a nova senha.' });
-  } catch (err) {
-    console.error('[PASSWORD_RESET]', err);
-    res.status(500).json({ ok: false, msg: 'Erro ao redefinir senha.' });
-  }
+  res.status(410).json({ ok: false, msg: 'Use o link de redefinição enviado por e-mail.' });
 });
 
 // ─── Password reset by token (link-based flow) ───
@@ -265,7 +238,7 @@ router.post('/password/reset-request', passwordResetLimiter, async (req, res) =>
     if (!login) return res.json({ ok: true, msg: 'Se a conta existir, um link de redefinição foi gerado.' });
     const cleanCpf = login.replace(/\D/g, '');
     const r = await query(
-      `SELECT id, email FROM users
+      `SELECT id, username, name, email FROM users
        WHERE LOWER(COALESCE(email,'')) = LOWER($1)
           OR LOWER(username) = LOWER($1)
           OR ($2 <> '' AND regexp_replace(COALESCE(cpf, ''), '\\D', '', 'g') = $2)
@@ -286,10 +259,17 @@ router.post('/password/reset-request', passwordResetLimiter, async (req, res) =>
       const proto = req.headers['x-forwarded-proto'] || (req.secure ? 'https' : 'http');
       const host = req.headers['x-forwarded-host'] || req.headers.host;
       const link = `${proto}://${host}/redefinir-senha?token=${token}`;
-      console.log(`[PASSWORD_RESET] link gerado user=${user.id} email=${user.email} link=${link}`);
-      // TODO: integrar SMTP/Resend aqui para envio automático.
+      const emailResult = await sendPasswordResetEmail({
+        to: user.email,
+        username: user.name || user.username,
+        link,
+        expiresMinutes: 30
+      });
+      if (!emailResult.ok) {
+        console.log(`[PASSWORD_RESET] email não enviado (${emailResult.reason || emailResult.error || 'unknown'}), link gerado user=${user.id} email=${user.email} link=${link}`);
+      }
     }
-    res.json({ ok: true, msg: 'Se a conta existir, um link de redefinição foi gerado e enviado ao suporte para te repassar.' });
+    res.json({ ok: true, msg: 'Se a conta existir, enviaremos um link de redefinição para o e-mail cadastrado.' });
   } catch (err) {
     console.error('[PASSWORD_RESET_REQUEST]', err);
     res.json({ ok: true, msg: 'Se a conta existir, um link de redefinição foi gerado.' });
