@@ -877,6 +877,11 @@ async function autoMigrate() {
       console.log('[SEED] Promotions seeded ');
     }
 
+    // Sample data is useful only for local/dev. In production it can create
+    // fake statement rows and balances after a deploy or a database cleanup.
+    if (IS_PROD) {
+      console.log('[SEED] Sample users/transactions/bets/withdrawals/support skipped in production');
+    } else {
     // Sample users (for bets, transactions, etc.)
     const userCount = await pool.query('SELECT COUNT(*) FROM users');
     if (parseInt(userCount.rows[0].count) < 5) {
@@ -1004,6 +1009,7 @@ async function autoMigrate() {
         `);
         console.log('[SEED] User limits seeded ');
       }
+    }
     }
 
     // Set top 10 featured games
