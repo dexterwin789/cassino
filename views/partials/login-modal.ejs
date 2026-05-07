@@ -726,6 +726,28 @@
     });
   });
 
+  function handleDepositHash() {
+    var hash = (window.location.hash || '').replace('#', '').toLowerCase();
+    if (['depositar', 'deposito', 'deposit', 'open-deposit'].indexOf(hash) === -1) return;
+    setTimeout(function() {
+      if (typeof openDepositModal === 'function') openDepositModal();
+    }, 180);
+  }
+  document.addEventListener('click', function(e) {
+    var link = e.target.closest ? e.target.closest('a[href]') : null;
+    if (!link) return;
+    var url;
+    try { url = new URL(link.getAttribute('href'), window.location.href); } catch (err) { return; }
+    var hash = (url.hash || '').replace('#', '').toLowerCase();
+    if (url.origin !== window.location.origin || ['depositar', 'deposito', 'deposit', 'open-deposit'].indexOf(hash) === -1) return;
+    if (url.pathname !== window.location.pathname) return;
+    e.preventDefault();
+    if (history.pushState) history.pushState(null, '', url.hash || '#depositar');
+    if (typeof openDepositModal === 'function') openDepositModal();
+  });
+  window.addEventListener('hashchange', handleDepositHash);
+  handleDepositHash();
+
   /* Method card switching */
   document.querySelectorAll('.dep-method-card').forEach(function(card) {
     card.addEventListener('click', function() {
