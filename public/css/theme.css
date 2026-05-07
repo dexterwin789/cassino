@@ -88,6 +88,8 @@
 [data-theme="light"] .menu-list li.active{color:#25D366}
 /* Sidebar icon filter  gray for menu icons, colorful for popular leagues */
 [data-theme="light"] .mi{filter:brightness(0) saturate(100%);opacity:.55}
+[data-theme="light"] .menu-list .mi.sidebar-game-icon,
+[data-theme="light"] .sidebar.collapsed .menu-list .mi.sidebar-game-icon{filter:brightness(0) saturate(100%);opacity:.55}
 [data-theme="light"] .mi.grayscale{filter:none!important;opacity:1!important}
 [data-theme="light"] .menu-list li:hover .mi{filter:brightness(0) saturate(100%) invert(64%) sepia(53%) saturate(596%) hue-rotate(95deg) brightness(91%) contrast(89%);opacity:1}
 [data-theme="light"] .menu-list li.active .mi{filter:brightness(0) saturate(100%) invert(64%) sepia(53%) saturate(596%) hue-rotate(95deg) brightness(91%) contrast(89%);opacity:1}

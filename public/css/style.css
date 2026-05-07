@@ -426,9 +426,27 @@ ul{list-style:none}
 .menu-list li:hover{background:rgba(255,255,255,.04)}
 .menu-list li.active{color:#34D399;background:rgba(37,211,102,.08)}
 .mi{width:20px;height:20px;flex-shrink:0;opacity:.7}
+.menu-list .mi.sidebar-game-icon{
+  filter:brightness(0) saturate(100%) invert(78%) sepia(10%) saturate(304%) hue-rotate(180deg) brightness(88%) contrast(88%);
+  opacity:.72;
+}
+.sidebar.collapsed .menu-list .mi.sidebar-game-icon{
+  filter:brightness(0) saturate(100%) invert(78%) sepia(10%) saturate(304%) hue-rotate(180deg) brightness(88%) contrast(88%);
+  opacity:.72;
+}
 .mi.grayscale{filter:none;opacity:1}
 .menu-list li:hover .mi{opacity:1}
 .menu-list li.active .mi{opacity:1}
+.menu-list li:hover .mi.sidebar-game-icon,
+.menu-list li.active .mi.sidebar-game-icon{
+  filter:brightness(0) saturate(100%) invert(64%) sepia(53%) saturate(596%) hue-rotate(95deg) brightness(91%) contrast(89%);
+  opacity:1;
+}
+.sidebar.collapsed .menu-list li:hover .mi.sidebar-game-icon,
+.sidebar.collapsed .menu-list li.active .mi.sidebar-game-icon{
+  filter:brightness(0) saturate(100%) invert(64%) sepia(53%) saturate(596%) hue-rotate(95deg) brightness(91%) contrast(89%);
+  opacity:1;
+}
 .ml{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
 /* Sidebar bottom links */
