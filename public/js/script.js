@@ -1196,16 +1196,9 @@ function refreshWalletUI() {
       var wBal = document.getElementById('walletMainBalance');
       if (wBal) wBal.textContent = bal;
       document.querySelectorAll('.walletBalanceMirror').forEach(function(el) { el.textContent = bal; });
-      // Banner DEMO
+      // Remove old fixed demo banner if it exists; active/demo state stays on balance labels only.
       var banner = document.getElementById('demoBanner');
-      if (isDemo && !banner) {
-        banner = document.createElement('div');
-        banner.id = 'demoBanner';
-        banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:9999;background:linear-gradient(90deg,#ffc107,#ff9800);color:#1a1a1a;text-align:center;padding:6px 12px;font-weight:800;font-size:13px;letter-spacing:.3px;box-shadow:0 2px 8px rgba(0,0,0,.4)';
-        banner.innerHTML = '🎮 MODO DEMO ATIVO — saldo controlado pelo admin. Depósitos e saques bloqueados.';
-        document.body.appendChild(banner);
-        document.body.style.paddingTop = '32px';
-      } else if (!isDemo && banner) {
+      if (banner) {
         banner.remove();
         document.body.style.paddingTop = '';
       }
