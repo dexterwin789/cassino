@@ -636,8 +636,10 @@
     if (depQrCode) depQrCode.value = data.copyPaste || '';
     if (depQrStatus) { depQrStatus.textContent = 'Aguardando pagamento...'; depQrStatus.style.color = ''; }
     if (depQrImg) {
+      var qrFallback = data.copyPaste ? ('https://quickchart.io/qr?size=220&margin=2&text=' + encodeURIComponent(data.copyPaste)) : '';
+      depQrImg.onerror = function() { if (qrFallback && depQrImg.src !== qrFallback) depQrImg.src = qrFallback; };
       if (data.qrCodeBase64) depQrImg.src = data.qrCodeBase64;
-      else if (data.copyPaste) depQrImg.src = 'https://quickchart.io/qr?size=220&margin=2&text=' + encodeURIComponent(data.copyPaste);
+      else if (qrFallback) depQrImg.src = qrFallback;
     }
     startCountdown(300);
     if (data.tx_id) startDepositPoll(data.tx_id);

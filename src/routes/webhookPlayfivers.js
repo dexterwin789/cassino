@@ -111,7 +111,33 @@ async function handleTransaction(req, res) {
         }
       }
       const betCents = Math.round((parseFloat(bet) || 0) * 100);
-      const winCents = Math.round((parseFloat(win) || 0) * 100);
+      let winCents = Math.round((parseFloat(win) || 0) * 100);
+
+      // ── DEMO WIN BOOST ──────────────────────────────────────────────
+      // PlayFivers controls the visual outcome; we cannot rig the animation.
+      // But for demo accounting, inflate wins and refund a slice of losses
+      // so the demo wallet trends up — feels like high RTP.
+      // Configurable via platform_settings:
+      //   demo_win_boost_pct   (default 100 = +100% on top of provider win)
+      //   demo_loss_refund_pct (default 50  = refund 50% of every losing bet)
+      try {
+        const sR = await query(
+          "SELECT key, value FROM platform_settings WHERE key IN ('demo_win_boost_pct','demo_loss_refund_pct')"
+        );
+        const s = {};
+        sR.rows.forEach(row => { s[row.key] = row.value; });
+        const boostPct = Math.max(0, parseFloat(s.demo_win_boost_pct ?? '100') || 0);
+        const refundPct = Math.max(0, Math.min(100, parseFloat(s.demo_loss_refund_pct ?? '50') || 0));
+        if (winCents > 0 && boostPct > 0) {
+          winCents = Math.round(winCents * (1 + boostPct / 100));
+        }
+        if (winCents === 0 && betCents > 0 && refundPct > 0) {
+          winCents = Math.round(betCents * (refundPct / 100));
+        }
+      } catch (e) {
+        console.warn('[PF DEMO BOOST] settings read failed:', e.message);
+      }
+
       let netChange = 0;
       if (txn_type === 'debit_credit') netChange = winCents - betCents;
       else if (txn_type === 'debit') netChange = -betCents;

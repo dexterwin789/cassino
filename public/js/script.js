@@ -1186,12 +1186,11 @@ function refreshWalletUI() {
     .then(function(j) {
       if (!j || !j.ok) return;
       var bal = j.balance_brl || '0,00';
-      var isDemo = !!j.is_demo;
-      var prefix = isDemo ? 'D$ ' : 'R$ ';
+      // Demo balance must look IDENTICAL to real balance: no D$ prefix, no color, no tooltip.
       document.querySelectorAll('#walletBalance, .topbar-balance-val').forEach(function(el) {
-        el.textContent = prefix + bal;
-        el.style.color = isDemo ? '#ffc107' : '';
-        el.title = isDemo ? 'Saldo DEMO — controlado pelo admin' : '';
+        el.textContent = 'R$ ' + bal;
+        el.style.color = '';
+        el.title = '';
       });
       var wBal = document.getElementById('walletMainBalance');
       if (wBal) wBal.textContent = bal;

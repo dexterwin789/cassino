@@ -426,7 +426,19 @@ router.post('/deposit/create', requireUser, async (req, res) => {
     const providerTxId = data.transactionId || data.id;
     const paymentData = data.paymentData || {};
     const copyPaste = paymentData.pixCode || paymentData.copyPaste || paymentData.qrCode || null;
-    const qrBase64 = paymentData.qrCodeBase64 || paymentData.qrCodeImage || null;
+    let qrBase64 = paymentData.qrCodeBase64 || paymentData.qrCodeImage || null;
+    // Normalize: BlackCat returns raw base64. Browser <img src> needs a data URI.
+    if (qrBase64) {
+      const s = String(qrBase64).trim();
+      if (/^data:image\//i.test(s)) {
+        qrBase64 = s;
+      } else if (/^https?:\/\//i.test(s)) {
+        qrBase64 = s;
+      } else {
+        // assume PNG base64
+        qrBase64 = 'data:image/png;base64,' + s.replace(/^data:.*?;base64,/i, '');
+      }
+    }
 
     if (!providerTxId || !copyPaste) {
       console.error('[DEPOSIT] Gateway response missing pix data:', JSON.stringify(resp).substring(0, 500));
